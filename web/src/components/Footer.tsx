@@ -100,10 +100,10 @@ const YoutubeIcon = () => (
 );
 
 const SOCIAL_LINKS = [
-  { icon: FacebookIcon, href: '#', label: 'Facebook' },
-  { icon: InstagramIcon, href: '#', label: 'Instagram' },
-  { icon: TwitterIcon, href: '#', label: 'Twitter' },
-  { icon: YoutubeIcon, href: '#', label: 'YouTube' },
+  { icon: FacebookIcon, href: 'https://www.facebook.com/yaalnilam', label: 'Facebook' },
+  { icon: InstagramIcon, href: 'https://www.instagram.com/yaalnilam', label: 'Instagram' },
+  { icon: TwitterIcon, href: 'https://x.com/yaalnilam', label: 'X' },
+  { icon: YoutubeIcon, href: 'https://www.youtube.com/@yaalnilam', label: 'YouTube' },
 ];
 
 export function Footer() {

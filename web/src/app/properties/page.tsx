@@ -135,8 +135,14 @@ export default function PropertiesPage() {
             {filteredAndSortedProperties.map((property) => (
               <Link key={property.id} href={`/properties/${property.id}`} className="group">
                 <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                  <div className="h-48 bg-gradient-to-br from-teal-600 to-teal-800 relative flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
-                    <MapPin className="w-12 h-12 text-white opacity-50" />
+                  <div className="h-48 relative overflow-hidden group-hover:scale-105 transition-transform">
+                    {property.images && property.images.length > 0 ? (
+                      <img src={property.images[0]} alt={property.title} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-teal-600 to-teal-800 flex items-center justify-center">
+                        <MapPin className="w-12 h-12 text-white opacity-50" />
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-2">
@@ -153,18 +159,24 @@ export default function PropertiesPage() {
                       Rs. {property.price?.toLocaleString()}
                     </p>
                     <div className="flex gap-4 text-charcoal-600 text-sm mb-6 flex-wrap">
-                      <span className="flex items-center gap-1">
-                        <Home className="w-4 h-4" />
-                        {property.bedrooms} Beds
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Home className="w-4 h-4" />
-                        {property.bathrooms} Baths
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {property.sqft} sqft
-                      </span>
+                      {(property.type || '').toLowerCase() !== 'land' && property.bedrooms > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Home className="w-4 h-4" />
+                          {property.bedrooms} Beds
+                        </span>
+                      )}
+                      {(property.type || '').toLowerCase() !== 'land' && property.bathrooms > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Home className="w-4 h-4" />
+                          {property.bathrooms} Baths
+                        </span>
+                      )}
+                      {property.sqft > 0 && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {property.sqft} sqft
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="inline-block bg-sand-100 text-charcoal-700 text-xs font-semibold px-3 py-1 rounded">

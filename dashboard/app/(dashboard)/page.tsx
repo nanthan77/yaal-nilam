@@ -218,31 +218,27 @@ export default function DashboardPage() {
           <h2 className="text-lg font-bold text-charcoal-900 mb-4">
             Listings by Type
           </h2>
-          <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={LISTINGS_BY_TYPE}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }: { name: string; value: number }) => `${name}: ${value}`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="count"
-                  nameKey="type"
-                >
-                  {LISTINGS_BY_TYPE.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={pieColors[index % pieColors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <PieChart width={350} height={300}>
+            <Pie
+              data={LISTINGS_BY_TYPE}
+              cx={175}
+              cy={130}
+              labelLine={false}
+              label={({ name, value }: { name: string; value: number }) => `${name}: ${value}`}
+              outerRadius={100}
+              fill="#8884d8"
+              dataKey="count"
+              nameKey="type"
+            >
+              {LISTINGS_BY_TYPE.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={pieColors[index % pieColors.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
         </div>
       </div>      {/* Pending Listings Table */}
       <div className="bg-white rounded-lg shadow border border-gray-200 mb-8">
