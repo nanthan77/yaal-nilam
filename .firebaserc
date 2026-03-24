@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "yaal-nilam"
+  },
+  "targets": {
+    "yaal-nilam": {
+      "hosting": {
+        "main": [
+          "yaal-nilam"
+        ],
+        "admin": [
+          "yaal-nilam-admin"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

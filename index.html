@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yaal Nilam - Premier Property Market in Jaffna | யாழ் நிலம் - யாழ்ப்பாணத்தின் சொத்து சந்தை</title>
+    <meta name="description" content="Yaal Nilam — Find your dream property in Jaffna. Browse houses, lands, apartments and commercial properties. யாழ் நிலம் — யாழ்ப்பாணத்தில் உங்கள் கனவு சொத்தைக் கண்டறியுங்கள்.">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- JSON-LD Structured Data: Organization + WebSite + BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "Yaal Nilam",
+      "alternateName": "யாழ் நிலம்",
+      "url": "https://yaalnilam.lk",
+      "logo": "https://yaalnilam.lk/logo.png",
+      "description": "Premier Property Market in Jaffna Peninsula - Buy, Sell, Rent properties",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Jaffna",
+        "addressRegion": "Northern Province",
+        "addressCountry": "LK"
+      },
+      "telephone": "+94-21-222-3456",
+      "email": "info@yaalnilam.lk",
+      "areaServed": {
+        "@type": "GeoCircle",
+        "geoMidpoint": { "@type": "GeoCoordinates", "latitude": 9.6615, "longitude": 80.0255 },
+        "geoRadius": "50000"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "324",
+        "bestRating": "5"
+      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": "https://yaalnilam.lk/properties?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        {
+          "@type": "ScheduleAction",
+          "name": "Schedule a Property Tour",
+          "target": "https://yaalnilam.lk/schedule-tour"
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Yaal Nilam",
+      "url": "https://yaalnilam.lk",
+      "inLanguage": ["en", "ta"],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://yaalnilam.lk/properties?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://yaalnilam.lk" },
+        { "@type": "ListItem", "position": 2, "name": "Properties", "item": "https://yaalnilam.lk/properties" },
+        { "@type": "ListItem", "position": 3, "name": "Agents", "item": "https://yaalnilam.lk/agents" },
+        { "@type": "ListItem", "position": 4, "name": "Map", "item": "https://yaalnilam.lk/map" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Featured Properties in Jaffna",
+      "numberOfItems": 6,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "Product",
+            "name": "Premium House in Nallur, Jaffna",
+            "description": "Beautiful house in the heart of Nallur with modern amenities",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+            "offers": {
+              "@type": "Offer",
+              "price": "45000000",
+              "priceCurrency": "LKR",
+              "availability": "https://schema.org/InStock"
+            },
+            "floorSize": {
+              "@type": "QuantitativeValue",
+              "value": "2200",
+              "unitCode": "FTK"
+            }
+          }
+        }
+      ]
+    }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #1B4D3E;
+            --primary-light: #2D7A5F;
+            --primary-dark: #0F2E25;
+            --accent: #D4A853;
+            --accent-light: #E8C97A;
+            --bg: #FAFAF8;
+            --bg-card: #FFFFFF;
+            --text: #1A1A1A;
+            --text-light: #6B7280;
+            --text-lighter: #9CA3AF;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-xl: 0 20px 50px rgba(0,0,0,0.12);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans Tamil', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        .tamil { font-family: 'Noto Sans Tamil', 'Inter', sans-serif; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 4px; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        .slide-in { animation: slideIn 0.5s ease-out; }
+
+        /* Layout */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px; border-radius: var(--radius); font-weight: 600;
+            font-size: 14px; cursor: pointer; transition: var(--transition);
+            border: none; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+        .btn-accent { background: var(--accent); color: var(--primary-dark); }
+        .btn-accent:hover { background: var(--accent-light); transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .btn-ghost { background: transparent; color: var(--text-light); }
+        .btn-ghost:hover { background: rgba(0,0,0,0.05); }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .btn-lg { padding: 16px 32px; font-size: 16px; }
+        .btn-icon { width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+
+        /* Form Elements */
+        .input, .select {
+            width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: var(--radius); font-size: 14px; font-family: inherit;
+            transition: var(--transition); background: white; color: var(--text);
+        }
+        .input:focus, .select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(27,77,62,0.1); }
+        .input::placeholder { color: var(--text-lighter); }
+        label { font-size: 13px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; display: block; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow); overflow: hidden; transition: var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+
+        /* Badge */
+        .badge {
+            display: inline-flex; align-items: center; padding: 4px 12px;
+            border-radius: 20px; font-size: 12px; font-weight: 600;
+        }
+        .badge-green { background: #ECFDF5; color: #065F46; }
+        .badge-blue { background: #EFF6FF; color: #1E40AF; }
+        .badge-amber { background: #FFFBEB; color: #92400E; }
+        .badge-red { background: #FEF2F2; color: #991B1B; }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        /* Map container */
+        #property-map { width: 100%; height: 500px; border-radius: var(--radius-lg); z-index: 1; }
+        .leaflet-popup-content-wrapper { border-radius: var(--radius) !important; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal {
+            background: white; border-radius: var(--radius-xl); padding: 40px;
+            max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            .container { padding: 0 16px; }
+            .hide-mobile { display: none !important; }
+        }
+
+        /* Image gallery */
+        .gallery-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 4px; border-radius: var(--radius-lg); overflow: hidden; height: 450px; }
+        .gallery-grid .main-img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        .gallery-side { display: grid; grid-template-rows: 1fr 1fr; gap: 4px; }
+        .gallery-side img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        @media (max-width: 640px) { .gallery-grid { grid-template-columns: 1fr; height: 300px; } .gallery-side { display: none; } }
+
+        /* Property detail stats */
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .stat-item { text-align: center; padding: 16px; background: #F9FAFB; border-radius: var(--radius); }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+        @media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+        .tab { padding: 12px 20px; font-weight: 500; color: var(--text-light); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab:hover { color: var(--primary); }
+
+        /* Skeleton loading */
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; padding: 16px 24px;
+            background: var(--primary-dark); color: white; border-radius: var(--radius);
+            box-shadow: var(--shadow-xl); z-index: 2000; animation: slideIn 0.3s ease;
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        /* === PROPTECH ENHANCEMENTS === */
+
+        /* Pathway Segmentation Tabs */
+        .pathway-tabs { display: flex; gap: 0; background: rgba(255,255,255,0.15); border-radius: var(--radius); overflow: hidden; max-width: 500px; margin: 0 auto 32px; }
+        .pathway-tab { flex: 1; padding: 14px 24px; text-align: center; font-weight: 600; font-size: 15px; cursor: pointer; transition: var(--transition); color: rgba(255,255,255,0.7); border: none; background: none; font-family: inherit; }
+        .pathway-tab.active { background: white; color: var(--primary); border-radius: var(--radius); box-shadow: var(--shadow); }
+        .pathway-tab:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
+
+        /* Testimonial Section */
+        .testimonial-card { padding: 32px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); position: relative; }
+        .testimonial-card::before { content: '"'; position: absolute; top: 16px; left: 24px; font-size: 60px; color: var(--primary); opacity: 0.15; font-family: Georgia, serif; line-height: 1; }
+        .testimonial-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+
+        /* Neighborhood Guide */
+        .neighborhood-card { padding: 24px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); transition: var(--transition); border-left: 4px solid var(--primary); }
+        .neighborhood-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        .neighborhood-stat { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 14px; color: var(--text-light); }
+
+        /* Mortgage Calculator */
+        .calc-container { background: white; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); padding: 40px; max-width: 500px; }
+        .calc-result { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border-radius: var(--radius-lg); padding: 24px; text-align: center; margin-top: 24px; }
+        .calc-result .amount { font-size: 36px; font-weight: 900; }
+        .range-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: #E5E7EB; outline: none; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+        /* AI Chatbot */
+        .chatbot-fab { position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(27,77,62,0.4); z-index: 1500; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .chatbot-fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(27,77,62,0.5); }
+        .chatbot-fab .pulse-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--primary); animation: chatPulse 2s infinite; }
+        @keyframes chatPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        .chatbot-window { position: fixed; bottom: 96px; right: 24px; width: 380px; max-height: 520px; background: white; border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); z-index: 1500; display: flex; flex-direction: column; overflow: hidden; animation: fadeIn 0.3s ease; }
+        .chatbot-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 20px; display: flex; align-items: center; gap: 12px; }
+        .chatbot-messages { flex: 1; padding: 16px; overflow-y: auto; max-height: 320px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+        .chat-msg.bot { background: #F3F4F6; border-bottom-left-radius: 4px; align-self: flex-start; }
+        .chat-msg.user { background: var(--primary); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+        .chatbot-input { display: flex; gap: 8px; padding: 16px; border-top: 1px solid var(--border); }
+        .chat-suggestions { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 12px; }
+        .chat-suggestion { padding: 6px 12px; background: #EFF6FF; color: #1E40AF; border-radius: 20px; font-size: 12px; cursor: pointer; border: none; font-family: inherit; transition: var(--transition); }
+        .chat-suggestion:hover { background: #DBEAFE; }
+
+        /* WhatsApp Button */
+        .whatsapp-fab { position: fixed; bottom: 96px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: #25D366; color: white; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(37,211,102,0.4); z-index: 1400; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .whatsapp-fab:hover { transform: scale(1.1); }
+
+        /* Progress Bar for Forms */
+        .progress-bar { display: flex; gap: 4px; margin-bottom: 24px; }
+        .progress-step { flex: 1; height: 4px; border-radius: 2px; background: #E5E7EB; transition: var(--transition); }
+        .progress-step.active { background: var(--primary); }
+        .progress-step.done { background: var(--accent); }
+
+        /* Schedule Tour Button */
+        .btn-tour { background: linear-gradient(135deg, var(--accent), #E8C97A); color: var(--primary-dark); font-weight: 700; box-shadow: 0 4px 12px rgba(212,168,83,0.3); }
+        .btn-tour:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212,168,83,0.4); }
+
+        /* Recently Viewed Strip */
+        .recently-viewed { background: white; border-top: 1px solid var(--border); padding: 16px 0; overflow-x: auto; white-space: nowrap; }
+        .recently-viewed-item { display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; margin-right: 12px; border-radius: var(--radius); border: 1px solid var(--border); cursor: pointer; transition: var(--transition); vertical-align: top; white-space: normal; max-width: 280px; }
+        .recently-viewed-item:hover { border-color: var(--primary); background: rgba(27,77,62,0.03); }
+        .recently-viewed-item img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+
+        /* Enhanced Mobile */
+        .mobile-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 500; animation: fadeIn 0.2s; }
+        .mobile-nav-drawer { position: fixed; top: 0; right: 0; width: 280px; height: 100%; background: white; z-index: 501; padding: 24px; box-shadow: -4px 0 20px rgba(0,0,0,0.1); animation: slideDrawer 0.3s ease; overflow-y: auto; }
+        @keyframes slideDrawer { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .mobile-nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius); cursor: pointer; transition: var(--transition); font-size: 15px; font-weight: 500; color: var(--text); border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+        .mobile-nav-item:hover, .mobile-nav-item.active { background: rgba(27,77,62,0.08); color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .chatbot-window { width: calc(100vw - 32px); right: 16px; bottom: 88px; }
+            .pathway-tabs { max-width: 100%; }
+            .pathway-tab { padding: 10px 12px; font-size: 13px; }
+            .whatsapp-fab { bottom: 88px; right: 16px; }
+            .chatbot-fab { bottom: 16px; right: 16px; }
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext } = React;
+
+// ─────────────────────────────────────────
+// TRANSLATIONS
+// ─────────────────────────────────────────
+const translations = {
+  en: {
+    brand: "Yaal Nilam",
+    tagline: "Premier Property Market in Jaffna",
+    heroTitle: "Find Your Dream Property in Jaffna",
+    heroSubtitle: "Discover houses, lands, apartments and commercial spaces across the Jaffna Peninsula",
+    search: "Search",
+    searchPlaceholder: "Search by location, property type...",
+    home: "Home",
+    properties: "Properties",
+    map: "Map View",
+    agents: "Agents",
+    about: "About",
+    login: "Login",
+    signup: "Sign Up",
+    logout: "Logout",
+    dashboard: "Dashboard",
+    savedSearches: "Saved Searches",
+    myListings: "My Listings",
+    profile: "Profile",
+    filterBy: "Filter By",
+    propertyType: "Property Type",
+    priceRange: "Price Range",
+    bedrooms: "Bedrooms",
+    bathrooms: "Bathrooms",
+    landSize: "Land Size",
+    allTypes: "All Types",
+    house: "House",
+    land: "Land",
+    apartment: "Apartment",
+    commercial: "Commercial",
+    villa: "Villa",
+    any: "Any",
+    minPrice: "Min Price",
+    maxPrice: "Max Price",
+    sqft: "sq ft",
+    perches: "Perches",
+    beds: "Beds",
+    baths: "Baths",
+    forSale: "For Sale",
+    forRent: "For Rent",
+    featured: "Featured",
+    new: "New",
+    price: "Price",
+    location: "Location",
+    details: "Details",
+    description: "Description",
+    features: "Features",
+    contactAgent: "Contact Agent",
+    sendMessage: "Send Message",
+    viewDetails: "View Details",
+    viewOnMap: "View on Map",
+    saveProperty: "Save Property",
+    saved: "Saved",
+    share: "Share",
+    similarProperties: "Similar Properties",
+    popularAreas: "Popular Areas in Jaffna",
+    recentlyListed: "Recently Listed",
+    topAgents: "Top Agents",
+    viewAll: "View All",
+    propertiesFound: "Properties Found",
+    sortBy: "Sort By",
+    newest: "Newest First",
+    priceLowHigh: "Price: Low to High",
+    priceHighLow: "Price: High to Low",
+    name: "Name",
+    email: "Email",
+    phone: "Phone",
+    password: "Password",
+    message: "Message",
+    send: "Send",
+    cancel: "Cancel",
+    apply: "Apply Filters",
+    clearAll: "Clear All",
+    listings: "Listings",
+    reviews: "Reviews",
+    experience: "Experience",
+    languages: "Languages",
+    specialization: "Specialization",
+    welcomeBack: "Welcome Back",
+    createAccount: "Create Your Account",
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    forgotPassword: "Forgot Password?",
+    rememberMe: "Remember Me",
+    totalProperties: "Total Properties",
+    totalAgents: "Trusted Agents",
+    happyClients: "Happy Clients",
+    citiesServed: "Areas Covered",
+    whyChooseUs: "Why Choose Yaal Nilam",
+    localExpertise: "Local Expertise",
+    localExpertiseDesc: "Deep knowledge of every area in the Jaffna Peninsula from Nallur to Point Pedro",
+    verifiedListings: "Verified Listings",
+    verifiedListingsDesc: "Every property is personally verified by our team before listing",
+    bilingualSupport: "Bilingual Support",
+    bilingualSupportDesc: "Full support in both Tamil and English for all our services",
+    secureTransactions: "Secure Transactions",
+    secureTransactionsDesc: "Safe and transparent property transactions with legal support",
+    footer: "© 2026 Yaal Nilam. All rights reserved.",
+    footerDesc: "The most trusted property platform in the Jaffna Peninsula.",
+    quickLinks: "Quick Links",
+    contactUs: "Contact Us",
+    newsletter: "Newsletter",
+    newsletterDesc: "Subscribe for the latest property listings",
+    subscribe: "Subscribe",
+    enterEmail: "Enter your email",
+    perMonth: "/month",
+    sqftLabel: "Square Feet",
+    yearBuilt: "Year Built",
+    parking: "Parking",
+    furnished: "Furnished",
+    yes: "Yes",
+    no: "No",
+    overview: "Overview",
+    amenities: "Amenities",
+    gallery: "Gallery",
+    nearbyPlaces: "Nearby Places",
+    school: "School",
+    hospital: "Hospital",
+    temple: "Temple",
+    market: "Market",
+    addListing: "Add Listing",
+    postProperty: "Post Your Property",
+    shortTerm: "Short-Term",
+    scheduleTour: "Schedule a Tour",
+    startApplication: "Start Application",
+    requestQuote: "Request Quote",
+    emiCalculator: "EMI Calculator",
+    loanAmount: "Loan Amount",
+    interestRate: "Interest Rate",
+    loanTerm: "Loan Term (Years)",
+    monthlyEmi: "Monthly EMI",
+    petPolicy: "Pet Policy",
+    leaseTerm: "Lease Term",
+    hoaFees: "HOA Fees",
+    dateAvailability: "Availability Date",
+    petsAllowed: "Pets Allowed",
+    noPets: "No Pets",
+    monthToMonth: "Month-to-Month",
+    sixMonths: "6 Months",
+    oneYear: "1 Year",
+    twoYears: "2 Years",
+    testimonials: "What Our Clients Say",
+    neighborhoodGuide: "Neighborhood Guide",
+    recentlyViewed: "Recently Viewed",
+    chatbotGreeting: "Hi! I'm Yaal, your AI property assistant. How can I help you today?",
+    chatbotPlaceholder: "Type your question...",
+    findProperty: "Find a Property",
+    checkPrice: "Check Price Range",
+    bookTour: "Book a Tour",
+    talkToAgent: "Talk to an Agent",
+    walkScore: "Walk Score",
+    transitScore: "Transit Score",
+    safetyRating: "Safety Rating",
+    schoolsNearby: "Schools Nearby",
+  },
+  ta: {
+    brand: "யாழ் நிலம்",
+    tagline: "யாழ்ப்பாணத்தின் முதன்மை சொத்து சந்தை",
+    heroTitle: "யாழ்ப்பாணத்தில் உங்கள் கனவு சொத்தைக் கண்டறியுங்கள்",
+    heroSubtitle: "யாழ்ப்பாண தீபகற்பம் முழுவதும் வீடுகள், காணிகள், குடியிருப்புகள் மற்றும் வணிக இடங்களைக் கண்டறியுங்கள்",
+    search: "தேடு",
+    searchPlaceholder: "இடம், சொத்து வகை மூலம் தேடுங்கள்...",
+    home: "முகப்பு",
+    properties: "சொத்துக்கள்",
+    map: "வரைபடம்",
+    agents: "முகவர்கள்",
+    about: "எங்களை பற்றி",
+    login: "உள்நுழை",
+    signup: "பதிவு செய்",
+    logout: "வெளியேறு",
+    dashboard: "கட்டுப்பாட்டு பலகை",
+    savedSearches: "சேமித்த தேடல்கள்",
+    myListings: "எனது பட்டியல்கள்",
+    profile: "சுயவிவரம்",
+    filterBy: "வடிகட்டு",
+    propertyType: "சொத்து வகை",
+    priceRange: "விலை வரம்பு",
+    bedrooms: "படுக்கையறைகள்",
+    bathrooms: "குளியலறைகள்",
+    landSize: "நில அளவு",
+    allTypes: "அனைத்து வகைகள்",
+    house: "வீடு",
+    land: "காணி",
+    apartment: "குடியிருப்பு",
+    commercial: "வணிகம்",
+    villa: "மாளிகை",
+    any: "எதுவும்",
+    minPrice: "குறைந்த விலை",
+    maxPrice: "அதிக விலை",
+    sqft: "சதுர அடி",
+    perches: "பேர்ச்",
+    beds: "படுக்கை",
+    baths: "குளியல்",
+    forSale: "விற்பனைக்கு",
+    forRent: "வாடகைக்கு",
+    featured: "சிறப்பு",
+    new: "புதியது",
+    price: "விலை",
+    location: "இடம்",
+    details: "விவரங்கள்",
+    description: "விளக்கம்",
+    features: "வசதிகள்",
+    contactAgent: "முகவரை தொடர்பு கொள்",
+    sendMessage: "செய்தி அனுப்பு",
+    viewDetails: "விவரங்கள் காண",
+    viewOnMap: "வரைபடத்தில் காண",
+    saveProperty: "சேமி",
+    saved: "சேமிக்கப்பட்டது",
+    share: "பகிர்",
+    similarProperties: "ஒத்த சொத்துக்கள்",
+    popularAreas: "யாழ்ப்பாணத்தின் பிரபல பகுதிகள்",
+    recentlyListed: "சமீபத்தில் பட்டியலிடப்பட்டவை",
+    topAgents: "சிறந்த முகவர்கள்",
+    viewAll: "அனைத்தும் காண",
+    propertiesFound: "சொத்துக்கள் கிடைத்தன",
+    sortBy: "வரிசைப்படுத்து",
+    newest: "புதியவை முதலில்",
+    priceLowHigh: "விலை: குறைவிலிருந்து அதிகம்",
+    priceHighLow: "விலை: அதிகத்திலிருந்து குறைவு",
+    name: "பெயர்",
+    email: "மின்னஞ்சல்",
+    phone: "தொலைபேசி",
+    password: "கடவுச்சொல்",
+    message: "செய்தி",
+    send: "அனுப்பு",
+    cancel: "ரத்து செய்",
+    apply: "வடிகட்டிகளை பயன்படுத்து",
+    clearAll: "அனைத்தையும் அழி",
+    listings: "பட்டியல்கள்",
+    reviews: "மதிப்புரைகள்",
+    experience: "அனுபவம்",
+    languages: "மொழிகள்",
+    specialization: "நிபுணத்துவம்",
+    welcomeBack: "மீண்டும் வரவேற்கிறோம்",
+    createAccount: "உங்கள் கணக்கை உருவாக்குங்கள்",
+    noAccount: "கணக்கு இல்லையா?",
+    haveAccount: "ஏற்கனவே கணக்கு உள்ளதா?",
+    forgotPassword: "கடவுச்சொல் மறந்துவிட்டதா?",
+    rememberMe: "என்னை நினைவில் கொள்",
+    totalProperties: "மொத்த சொத்துக்கள்",
+    totalAgents: "நம்பகமான முகவர்கள்",
+    happyClients: "மகிழ்ச்சியான வாடிக்கையாளர்கள்",
+    citiesServed: "பகுதிகள் உள்ளடக்கம்",
+    whyChooseUs: "ஏன் யாழ் நிலம்-ஐ தேர்வு செய்ய வேண்டும்",
+    localExpertise: "உள்ளூர் நிபுணத்துவம்",
+    localExpertiseDesc: "நல்லூர் முதல் பருத்தித்துறை வரை யாழ்ப்பாண தீபகற்பத்தின் ஒவ்வொரு பகுதியிலும் ஆழமான அறிவு",
+    verifiedListings: "சரிபார்க்கப்பட்ட பட்டியல்கள்",
+    verifiedListingsDesc: "ஒவ்வொரு சொத்தும் பட்டியலிடப்படுவதற்கு முன் எங்கள் குழுவால் தனிப்பட்ட முறையில் சரிபார்க்கப்படுகிறது",
+    bilingualSupport: "இருமொழி ஆதரவு",
+    bilingualSupportDesc: "எங்கள் அனைத்து சேவைகளுக்கும் தமிழ் மற்றும் ஆங்கிலம் இரண்டிலும் முழு ஆதரவு",
+    secureTransactions: "பாதுகாப்பான பரிவர்த்தனைகள்",
+    secureTransactionsDesc: "சட்ட ஆதரவுடன் பாதுகாப்பான மற்றும் வெளிப்படையான சொத்து பரிவர்த்தனைகள்",
+    footer: "© 2026 யாழ் நிலம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+    footerDesc: "யாழ்ப்பாண தீபகற்பத்தின் மிகவும் நம்பகமான சொத்து தளம்.",
+    quickLinks: "விரைவு இணைப்புகள்",
+    contactUs: "எங்களை தொடர்பு கொள்ளுங்கள்",
+    newsletter: "செய்திமடல்",
+    newsletterDesc: "சமீபத்திய சொத்து பட்டியல்களுக்கு குழுசேருங்கள்",
+    subscribe: "குழுசேர்",
+    enterEmail: "உங்கள் மின்னஞ்சலை உள்ளிடுங்கள்",
+    perMonth: "/மாதம்",
+    sqftLabel: "சதுர அடி",
+    yearBuilt: "கட்டப்பட்ட ஆண்டு",
+    parking: "வாகன நிறுத்தம்",
+    furnished: "அலங்கரிக்கப்பட்ட",
+    yes: "ஆம்",
+    no: "இல்லை",
+    overview: "கண்ணோட்டம்",
+    amenities: "வசதிகள்",
+    gallery: "படத்தொகுப்பு",
+    nearbyPlaces: "அருகிலுள்ள இடங்கள்",
+    school: "பாடசாலை",
+    hospital: "வைத்தியசாலை",
+    temple: "கோவில்",
+    market: "சந்தை",
+    addListing: "பட்டியலைச் சேர்",
+    postProperty: "உங்கள் சொத்தை பதிவிடுங்கள்",
+    shortTerm: "குறுகிய காலம்",
+    scheduleTour: "சுற்றுப்பயணம் திட்டமிடு",
+    startApplication: "விண்ணப்பத்தை தொடங்கு",
+    requestQuote: "மதிப்பீடு கேள்",
+    emiCalculator: "EMI கணிப்பான்",
+    loanAmount: "கடன் தொகை",
+    interestRate: "வட்டி விகிதம்",
+    loanTerm: "கடன் காலம் (ஆண்டுகள்)",
+    monthlyEmi: "மாதாந்திர EMI",
+    petPolicy: "செல்லப்பிராணி கொள்கை",
+    leaseTerm: "குத்தகை காலம்",
+    hoaFees: "HOA கட்டணம்",
+    dateAvailability: "கிடைக்கும் நாள்",
+    petsAllowed: "செல்லப்பிராணிகள் அனுமதி",
+    noPets: "செல்லப்பிராணி இல்லை",
+    monthToMonth: "மாதம்-மாதம்",
+    sixMonths: "6 மாதங்கள்",
+    oneYear: "1 ஆண்டு",
+    twoYears: "2 ஆண்டுகள்",
+    testimonials: "எங்கள் வாடிக்கையாளர்கள் கூறுவது",
+    neighborhoodGuide: "அக்கம்பக்கம் வழிகாட்டி",
+    recentlyViewed: "சமீபத்தில் பார்த்தவை",
+    chatbotGreeting: "வணக்கம்! நான் யாழ், உங்கள் AI சொத்து உதவியாளர். எப்படி உதவ முடியும்?",
+    chatbotPlaceholder: "உங்கள் கேள்வியை தட்டச்சு செய்யுங்கள்...",
+    findProperty: "சொத்து கண்டறி",
+    checkPrice: "விலை வரம்பு சரிபார்",
+    bookTour: "சுற்றுப்பயணம் முன்பதிவு",
+    talkToAgent: "முகவரிடம் பேசு",
+    walkScore: "நடைப்பயிற்சி மதிப்பெண்",
+    transitScore: "போக்குவரத்து மதிப்பெண்",
+    safetyRating: "பாதுகாப்பு மதிப்பீடு",
+    schoolsNearby: "அருகிலுள்ள பாடசாலைகள்",
+  }
+};
+
+// ─────────────────────────────────────────
+// CONTEXT
+// ─────────────────────────────────────────
+const AppContext = createContext();
+
+// ─────────────────────────────────────────
+// SAMPLE DATA
+// ─────────────────────────────────────────
+const JAFFNA_AREAS = [
+  { name: "Nallur", nameTa: "நல்லூர்", lat: 9.6685, lng: 80.0255, count: 45 },
+  { name: "Chavakachcheri", nameTa: "சாவகச்சேரி", lat: 9.6611, lng: 80.1612, count: 32 },
+  { name: "Point Pedro", nameTa: "பருத்தித்துறை", lat: 9.8167, lng: 80.2333, count: 28 },
+  { name: "Kopay", nameTa: "கோப்பாய்", lat: 9.6700, lng: 80.0519, count: 38 },
+  { name: "Manipay", nameTa: "மாணிப்பாய்", lat: 9.7167, lng: 80.0333, count: 22 },
+  { name: "Chunnakam", nameTa: "சுன்னாகம்", lat: 9.7419, lng: 80.0678, count: 35 },
+  { name: "Tellippalai", nameTa: "தெல்லிப்பளை", lat: 9.7333, lng: 80.0167, count: 18 },
+  { name: "Karainagar", nameTa: "காரைநகர்", lat: 9.7422, lng: 79.9028, count: 15 },
+  { name: "Jaffna Town", nameTa: "யாழ்ப்பாண நகரம்", lat: 9.6615, lng: 80.0255, count: 52 },
+  { name: "Chankanai", nameTa: "சங்கானை", lat: 9.7000, lng: 80.0500, count: 20 },
+  { name: "Kodikamam", nameTa: "கொடிகாமம்", lat: 9.6667, lng: 80.1500, count: 16 },
+  { name: "Kayts", nameTa: "காய்ட்ஸ்", lat: 9.6833, lng: 79.8833, count: 12 },
+];
+
+const PROPERTY_IMAGES = [
+  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+  "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80",
+  "https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=800&q=80",
+  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
+  "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
+  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80",
+  "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80",
+  "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800&q=80",
+  "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80",
+  "https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=800&q=80",
+];
+
+const AGENT_AVATARS = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80",
+];
+
+function generateProperties() {
+  const types = ['house', 'land', 'apartment', 'commercial', 'villa'];
+  const listingTypes = ['sale', 'rent', 'shortterm'];
+  const features_en = ['Swimming Pool', 'Garden', 'Garage', 'Security System', 'Solar Panels', 'Well Water', 'Bore Well', 'Tiled Roof', 'Air Conditioning', 'Balcony', 'Rooftop Terrace', 'Boundary Wall'];
+  const features_ta = ['நீச்சல் குளம்', 'தோட்டம்', 'வாகன நிறுத்தம்', 'பாதுகாப்பு அமைப்பு', 'சூரிய பலகைகள்', 'கிணற்று நீர்', 'போர் கிணறு', 'ஓடு கூரை', 'குளிரூட்டி', 'மாடி', 'மேல்தள தோட்டம்', 'சுற்றுச்சுவர்'];
+
+  const properties = [];
+  for (let i = 0; i < 24; i++) {
+    const area = JAFFNA_AREAS[i % JAFFNA_AREAS.length];
+    const type = types[i % types.length];
+    const listingType = listingTypes[i % 5 === 0 ? 2 : i % 3 === 0 ? 1 : 0];
+    const beds = type === 'land' ? 0 : Math.floor(Math.random() * 4) + 2;
+    const baths = type === 'land' ? 0 : Math.floor(Math.random() * 3) + 1;
+    const sqft = type === 'land' ? 0 : Math.floor(Math.random() * 2000) + 800;
+    const perches = Math.floor(Math.random() * 40) + 5;
+    const basePrice = type === 'land' ? perches * 800000 : type === 'villa' ? 35000000 + Math.random() * 30000000 : type === 'commercial' ? 15000000 + Math.random() * 25000000 : 8000000 + Math.random() * 25000000;
+    const price = listingType === 'shortterm' ? Math.floor(basePrice / 800) : listingType === 'rent' ? Math.floor(basePrice / 200) : Math.floor(basePrice);
+    const imgStart = (i * 3) % PROPERTY_IMAGES.length;
+    const selectedFeatures = features_en.sort(() => Math.random() - 0.5).slice(0, 4 + Math.floor(Math.random() * 4));
+    const selectedFeaturesTa = selectedFeatures.map(f => features_ta[features_en.indexOf(f)]);
+
+    properties.push({
+      id: i + 1,
+      type,
+      listingType,
+      title: `${type === 'land' ? '' : beds + ' Bedroom '}${type.charAt(0).toUpperCase() + type.slice(1)} in ${area.name}`,
+      titleTa: `${area.nameTa}வில் ${type === 'land' ? 'காணி' : beds + ' படுக்கையறை ' + (type === 'house' ? 'வீடு' : type === 'apartment' ? 'குடியிருப்பு' : type === 'commercial' ? 'வணிக இடம்' : type === 'villa' ? 'மாளிகை' : 'காணி')}`,
+      price,
+      beds,
+      baths,
+      sqft,
+      perches,
+      area: area.name,
+      areaTa: area.nameTa,
+      lat: area.lat + (Math.random() - 0.5) * 0.02,
+      lng: area.lng + (Math.random() - 0.5) * 0.02,
+      images: [PROPERTY_IMAGES[(imgStart) % PROPERTY_IMAGES.length], PROPERTY_IMAGES[(imgStart + 1) % PROPERTY_IMAGES.length], PROPERTY_IMAGES[(imgStart + 2) % PROPERTY_IMAGES.length]],
+      features: selectedFeatures,
+      featuresTa: selectedFeaturesTa,
+      agentId: (i % 6) + 1,
+      featured: i < 6,
+      yearBuilt: type !== 'land' ? 2015 + Math.floor(Math.random() * 10) : null,
+      furnished: type !== 'land' ? Math.random() > 0.5 : false,
+      parking: type !== 'land' ? Math.floor(Math.random() * 3) : 0,
+      description: `Beautiful ${type} located in the heart of ${area.name}, Jaffna. This property offers a perfect blend of modern amenities and traditional charm. Close to schools, temples, hospitals and shopping areas. Ideal for families looking for a peaceful yet well-connected neighborhood.`,
+      descriptionTa: `யாழ்ப்பாணம் ${area.nameTa}வின் மையத்தில் அமைந்த அழகான ${type === 'house' ? 'வீடு' : type === 'land' ? 'காணி' : type === 'apartment' ? 'குடியிருப்பு' : type === 'commercial' ? 'வணிக இடம்' : 'மாளிகை'}. இந்த சொத்து நவீன வசதிகள் மற்றும் பாரம்பரிய அழகின் சிறந்த கலவையை வழங்குகிறது. பாடசாலைகள், கோவில்கள், வைத்தியசாலைகள் மற்றும் கடைவீதிகளுக்கு அருகில்.`,
+      daysAgo: Math.floor(Math.random() * 30),
+      petsAllowed: Math.random() > 0.5,
+      leaseTerm: ['month-to-month', '6months', '1year', '2years'][Math.floor(Math.random() * 4)],
+      hoaFees: type !== 'land' ? Math.floor(Math.random() * 15000) + 2000 : 0,
+      availableDate: new Date(Date.now() + Math.floor(Math.random() * 60) * 86400000).toISOString().split('T')[0],
+      rating: (3.5 + Math.random() * 1.5).toFixed(1),
+      reviewCount: Math.floor(Math.random() * 20) + 1,
+    });
+  }
+  return properties;
+}
+
+function generateAgents() {
+  return [
+    { id: 1, name: "Kumaran Selvarajah", nameTa: "குமரன் செல்வராஜா", avatar: AGENT_AVATARS[0], phone: "+94 77 123 4567", email: "kumaran@yaalnilam.lk", listings: 28, reviews: 45, rating: 4.8, experience: 12, languages: ["Tamil", "English", "Sinhala"], specialization: ["Residential", "Land"], area: "Nallur", areaTa: "நல்லூர்", bio: "Senior property consultant with over 12 years of experience in the Jaffna real estate market. Specializing in residential properties and land sales in Nallur and surrounding areas." },
+    { id: 2, name: "Priya Thangarajah", nameTa: "பிரியா தங்கராஜா", avatar: AGENT_AVATARS[1], phone: "+94 77 234 5678", email: "priya@yaalnilam.lk", listings: 35, reviews: 62, rating: 4.9, experience: 8, languages: ["Tamil", "English"], specialization: ["Commercial", "Apartment"], area: "Jaffna Town", areaTa: "யாழ்ப்பாண நகரம்", bio: "Expert in commercial properties and modern apartments in Jaffna Town. Known for excellent negotiation skills and client-first approach." },
+    { id: 3, name: "Ranjan Ponnambalam", nameTa: "ரஞ்சன் பொன்னம்பலம்", avatar: AGENT_AVATARS[2], phone: "+94 77 345 6789", email: "ranjan@yaalnilam.lk", listings: 22, reviews: 38, rating: 4.7, experience: 15, languages: ["Tamil", "English", "Sinhala"], specialization: ["Villa", "Luxury"], area: "Chunnakam", areaTa: "சுன்னாகம்", bio: "Luxury property specialist with 15 years in the industry. Handles high-value villa and estate transactions across the Jaffna Peninsula." },
+    { id: 4, name: "Sangeetha Sivapatham", nameTa: "சங்கீதா சிவபாதம்", avatar: AGENT_AVATARS[3], phone: "+94 77 456 7890", email: "sangeetha@yaalnilam.lk", listings: 41, reviews: 55, rating: 4.8, experience: 10, languages: ["Tamil", "English"], specialization: ["Residential", "Rental"], area: "Kopay", areaTa: "கோப்பாய்", bio: "Rental specialist and residential property expert covering Kopay, Manipay and Chankanai areas. Trusted by hundreds of families." },
+    { id: 5, name: "Thevan Navaratnam", nameTa: "தேவன் நவரத்தினம்", avatar: AGENT_AVATARS[4], phone: "+94 77 567 8901", email: "thevan@yaalnilam.lk", listings: 19, reviews: 30, rating: 4.6, experience: 6, languages: ["Tamil", "English"], specialization: ["Land", "Investment"], area: "Point Pedro", areaTa: "பருத்தித்துறை", bio: "Land and investment property advisor specializing in Point Pedro and northern Jaffna. Great for investors looking for value opportunities." },
+    { id: 6, name: "Meena Karunakaran", nameTa: "மீனா கருணாகரன்", avatar: AGENT_AVATARS[5], phone: "+94 77 678 9012", email: "meena@yaalnilam.lk", listings: 33, reviews: 48, rating: 4.9, experience: 9, languages: ["Tamil", "English", "Sinhala"], specialization: ["Residential", "First-time Buyers"], area: "Chavakachcheri", areaTa: "சாவகச்சேரி", bio: "Passionate about helping first-time home buyers find their perfect property. Covers Chavakachcheri and eastern Jaffna with personalized service." },
+  ];
+}
+
+const ALL_PROPERTIES = generateProperties();
+const ALL_AGENTS = generateAgents();
+
+// ─────────────────────────────────────────
+// ICONS (SVG components)
+// ─────────────────────────────────────────
+const Icon = ({ name, size = 20, color = "currentColor" }) => {
+  const icons = {
+    search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
+    home: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
+    map: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+    bed: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>,
+    bath: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z"/><path d="M6 12V5a2 2 0 0 1 2-2h3v2.25"/></svg>,
+    area: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v18"/></svg>,
+    heart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+    heartFill: <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke={color} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+    share: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
+    phone: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+    mail: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+    star: <svg width={size} height={size} viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" strokeWidth="1"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
+    user: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+    building: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>,
+    filter: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/></svg>,
+    x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><polyline points="20,6 9,17 4,12"/></svg>,
+    chevronDown: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><polyline points="6,9 12,15 18,9"/></svg>,
+    chevronLeft: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><polyline points="15,18 9,12 15,6"/></svg>,
+    chevronRight: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><polyline points="9,18 15,12 9,6"/></svg>,
+    globe: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+    menu: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+    plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+    grid: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+    shield: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+    award: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/></svg>,
+    clock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>,
+    car: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>,
+  };
+  return icons[name] || null;
+};
+
+// ─────────────────────────────────────────
+// UTILITY
+// ─────────────────────────────────────────
+function formatPrice(price, listingType, lang) {
+  const suffix = listingType === 'shortterm' ? (lang === 'ta' ? '/இரவு' : '/night') : listingType === 'rent' ? (lang === 'ta' ? '/மாதம்' : '/mo') : '';
+  if (price >= 1000000) {
+    return `Rs. ${(price / 1000000).toFixed(1)}M${suffix}`;
+  }
+  return `Rs. ${price.toLocaleString()}${suffix}`;
+}
+
+// ─────────────────────────────────────────
+// NAVBAR
+// ─────────────────────────────────────────
+function Navbar() {
+  const { lang, setLang, t, page, setPage, user, setShowLogin, setShowSignup, setUser, showMobileMenu, setShowMobileMenu } = useContext(AppContext);
+
+  return (
+    <nav style={{ background: 'white', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255,255,255,0.95)' }}>
+      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          <div onClick={() => setPage('home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 40, height: 40, background: 'var(--primary)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="building" size={22} color="white" />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--primary)', lineHeight: 1.2 }}>{t('brand')}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-light)', fontWeight: 500, letterSpacing: '0.5px' }}>{lang === 'ta' ? 'யாழ் நிலம்' : 'YAAL NILAM'}</div>
+            </div>
+          </div>
+          <div className="hide-mobile" style={{ display: 'flex', gap: 4 }}>
+            {['home', 'properties', 'map', 'agents'].map(p => (
+              <button key={p} onClick={() => setPage(p)} className="btn btn-ghost" style={{ fontWeight: page === p ? 600 : 400, color: page === p ? 'var(--primary)' : 'var(--text-light)', borderBottom: page === p ? '2px solid var(--primary)' : '2px solid transparent', borderRadius: 0, padding: '8px 16px' }}>
+                {t(p === 'home' ? 'home' : p)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => setLang(lang === 'en' ? 'ta' : 'en')} className="btn btn-ghost btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border)' }}>
+            <Icon name="globe" size={16} />
+            <span>{lang === 'en' ? 'தமிழ்' : 'English'}</span>
+          </button>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button onClick={() => setPage('dashboard')} className="btn btn-ghost btn-sm hide-mobile">{t('dashboard')}</button>
+              <button onClick={() => setPage('addListing')} className="btn btn-accent btn-sm hide-mobile">
+                <Icon name="plus" size={16} /> {t('addListing')}
+              </button>
+              <div style={{ position: 'relative' }}>
+                <div onClick={() => setShowMobileMenu(!showMobileMenu)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
+                  {user.name.charAt(0)}
+                </div>
+                {showMobileMenu && (
+                  <div style={{ position: 'absolute', right: 0, top: 44, background: 'white', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-xl)', padding: 8, minWidth: 200, zIndex: 200 }}>
+                    <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>
+                      <div style={{ fontWeight: 600 }}>{user.name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-light)' }}>{user.email}</div>
+                    </div>
+                    <button onClick={() => { setPage('dashboard'); setShowMobileMenu(false); }} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>{t('dashboard')}</button>
+                    <button onClick={() => { setPage('addListing'); setShowMobileMenu(false); }} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>{t('addListing')}</button>
+                    <button onClick={() => { setUser(null); setShowMobileMenu(false); setPage('home'); }} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', color: '#DC2626' }}>{t('logout')}</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setShowLogin(true)} className="btn btn-outline btn-sm">{t('login')}</button>
+              <button onClick={() => setShowSignup(true)} className="btn btn-primary btn-sm hide-mobile">{t('signup')}</button>
+            </div>
+          )}
+          <button className="btn btn-ghost btn-icon" style={{ display: window.innerWidth <= 768 ? 'flex' : 'none' }} onClick={() => setShowMobileMenu(!showMobileMenu)}>
+            <Icon name="menu" size={24} />
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ─────────────────────────────────────────
+// MOBILE NAV DRAWER
+// ─────────────────────────────────────────
+function MobileNavDrawer() {
+  const { lang, t, page, setPage, user, setUser, setShowLogin, setShowSignup, showMobileMenu, setShowMobileMenu } = useContext(AppContext);
+  if (!showMobileMenu) return null;
+  return (
+    <>
+      <div className="mobile-nav-overlay" onClick={() => setShowMobileMenu(false)} />
+      <div className="mobile-nav-drawer">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <span style={{ fontWeight: 800, fontSize: 18, color: 'var(--primary)' }}>{t('brand')}</span>
+          <button onClick={() => setShowMobileMenu(false)} className="btn btn-ghost btn-icon"><Icon name="x" /></button>
+        </div>
+        {user && (
+          <div style={{ padding: '12px 16px', background: 'rgba(27,77,62,0.05)', borderRadius: 'var(--radius)', marginBottom: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{user.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-light)' }}>{user.email}</div>
+          </div>
+        )}
+        {['home', 'properties', 'map', 'agents'].map(p => (
+          <button key={p} className={`mobile-nav-item ${page === p ? 'active' : ''}`} onClick={() => { setPage(p); setShowMobileMenu(false); }}>
+            <Icon name={p === 'home' ? 'home' : p === 'properties' ? 'grid' : p === 'map' ? 'map' : 'user'} size={18} />
+            {t(p === 'home' ? 'home' : p)}
+          </button>
+        ))}
+        {user && (
+          <>
+            <button className="mobile-nav-item" onClick={() => { setPage('dashboard'); setShowMobileMenu(false); }}>
+              <Icon name="grid" size={18} /> {t('dashboard')}
+            </button>
+            <button className="mobile-nav-item" onClick={() => { setPage('addListing'); setShowMobileMenu(false); }}>
+              <Icon name="plus" size={18} /> {t('addListing')}
+            </button>
+            <div style={{ borderTop: '1px solid var(--border)', margin: '12px 0' }} />
+            <button className="mobile-nav-item" style={{ color: '#DC2626' }} onClick={() => { setUser(null); setShowMobileMenu(false); setPage('home'); }}>
+              <Icon name="x" size={18} /> {t('logout')}
+            </button>
+          </>
+        )}
+        {!user && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <button onClick={() => { setShowLogin(true); setShowMobileMenu(false); }} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>{t('login')}</button>
+            <button onClick={() => { setShowSignup(true); setShowMobileMenu(false); }} className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>{t('signup')}</button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────
+// AUTH MODALS
+// ─────────────────────────────────────────
+function LoginModal() {
+  const { t, setShowLogin, setShowSignup, setUser, setToast } = useContext(AppContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setUser({ name: email.split('@')[0], email, savedProperties: [], savedSearches: [] });
+    setShowLogin(false);
+    setToast(t('welcomeBack') + '!');
+  };
+
+  return (
+    <div className="modal-overlay" onClick={() => setShowLogin(false)}>
+      <div className="modal fade-in" onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700 }}>{t('welcomeBack')}</h2>
+          <button onClick={() => setShowLogin(false)} className="btn btn-ghost btn-icon"><Icon name="x" /></button>
+        </div>
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: 16 }}>
+            <label>{t('email')}</label>
+            <input className="input" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@email.com" />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label>{t('password')}</label>
+            <input className="input" type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, fontSize: 13 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><input type="checkbox" /> {t('rememberMe')}</label>
+            <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>{t('forgotPassword')}</a>
+          </div>
+          <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}>{t('login')}</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text-light)' }}>
+          {t('noAccount')} <a href="#" onClick={(e) => { e.preventDefault(); setShowLogin(false); setShowSignup(true); }} style={{ color: 'var(--primary)', fontWeight: 600 }}>{t('signup')}</a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SignupModal() {
+  const { t, setShowSignup, setShowLogin, setUser, setToast } = useContext(AppContext);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
+
+  const handleSignup = (e) => {
+    e.preventDefault();
+    setUser({ ...form, savedProperties: [], savedSearches: [] });
+    setShowSignup(false);
+    setToast(t('createAccount') + ' - ' + (form.name || 'User') + '!');
+  };
+
+  return (
+    <div className="modal-overlay" onClick={() => setShowSignup(false)}>
+      <div className="modal fade-in" onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700 }}>{t('createAccount')}</h2>
+          <button onClick={() => setShowSignup(false)} className="btn btn-ghost btn-icon"><Icon name="x" /></button>
+        </div>
+        <form onSubmit={handleSignup}>
+          <div style={{ marginBottom: 16 }}>
+            <label>{t('name')}</label>
+            <input className="input" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label>{t('email')}</label>
+            <input className="input" type="email" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label>{t('phone')}</label>
+            <input className="input" type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+94 77 XXX XXXX" />
+          </div>
+          <div style={{ marginBottom: 24 }}>
+            <label>{t('password')}</label>
+            <input className="input" type="password" required value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="••••••••" />
+          </div>
+          <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}>{t('signup')}</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text-light)' }}>
+          {t('haveAccount')} <a href="#" onClick={(e) => { e.preventDefault(); setShowSignup(false); setShowLogin(true); }} style={{ color: 'var(--primary)', fontWeight: 600 }}>{t('login')}</a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// PROPERTY CARD
+// ─────────────────────────────────────────
+function PropertyCard({ property }) {
+  const { lang, t, setPage, setSelectedProperty, user, setUser, setShowLogin } = useContext(AppContext);
+  const isSaved = user?.savedProperties?.includes(property.id);
+
+  const toggleSave = (e) => {
+    e.stopPropagation();
+    if (!user) { setShowLogin(true); return; }
+    const sp = user.savedProperties || [];
+    setUser({ ...user, savedProperties: isSaved ? sp.filter(id => id !== property.id) : [...sp, property.id] });
+  };
+
+  return (
+    <div className="card" style={{ cursor: 'pointer' }} onClick={() => { setSelectedProperty(property); setPage('propertyDetail'); }}>
+      <div style={{ position: 'relative', height: 220, overflow: 'hidden' }}>
+        <img src={property.images[0]} alt={lang === 'ta' ? property.titleTa : property.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} onMouseOver={e => e.target.style.transform='scale(1.05)'} onMouseOut={e => e.target.style.transform='scale(1)'} />
+        <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6 }}>
+          <span className={`badge ${property.listingType === 'sale' ? 'badge-green' : property.listingType === 'shortterm' ? 'badge-amber' : 'badge-blue'}`}>
+            {property.listingType === 'sale' ? t('forSale') : property.listingType === 'shortterm' ? t('shortTerm') : t('forRent')}
+          </span>
+          {property.featured && <span className="badge badge-amber">{t('featured')}</span>}
+        </div>
+        <button onClick={toggleSave} style={{ position: 'absolute', top: 12, right: 12, width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}>
+          {isSaved ? <Icon name="heartFill" size={18} color="#DC2626" /> : <Icon name="heart" size={18} color="#6B7280" />}
+        </button>
+        <div style={{ position: 'absolute', bottom: 12, left: 12, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500 }}>
+          {property.images.length} photos
+        </div>
+      </div>
+      <div style={{ padding: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.3, flex: 1 }} className={lang === 'ta' ? 'tamil' : ''}>
+            {lang === 'ta' ? property.titleTa : property.title}
+          </h3>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, color: 'var(--text-light)', fontSize: 13 }}>
+          <Icon name="map" size={14} />
+          <span className={lang === 'ta' ? 'tamil' : ''}>{lang === 'ta' ? property.areaTa : property.area}, Jaffna</span>
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--primary)', marginBottom: 12 }}>
+          {formatPrice(property.price, property.listingType, lang)}
+        </div>
+        {property.type !== 'land' && (
+          <div style={{ display: 'flex', gap: 16, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-light)' }}>
+              <Icon name="bed" size={16} /> {property.beds} {t('beds')}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-light)' }}>
+              <Icon name="bath" size={16} /> {property.baths} {t('baths')}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-light)' }}>
+              <Icon name="area" size={16} /> {property.sqft} {t('sqft')}
+            </div>
+          </div>
+        )}
+        {property.type === 'land' && (
+          <div style={{ display: 'flex', gap: 16, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-light)' }}>
+              <Icon name="area" size={16} /> {property.perches} {t('perches')}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// HERO SECTION
+// ─────────────────────────────────────────
+function HeroSection() {
+  const { lang, t, setPage, setSearchQuery, setActivePathway, activePathway } = useContext(AppContext);
+  const [query, setQuery] = useState('');
+
+  const pathways = [
+    { key: 'sale', label: t('forSale'), icon: '🏠', color: '#059669' },
+    { key: 'rent', label: t('forRent'), icon: '🔑', color: '#2563EB' },
+    { key: 'shortterm', label: t('shortTerm'), icon: '🏖️', color: '#D97706' },
+  ];
+
+  return (
+    <section style={{ background: `linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%)`, padding: '80px 0 100px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+      <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+        <h1 className={`fade-in ${lang === 'ta' ? 'tamil' : ''}`} style={{ fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 900, color: 'white', marginBottom: 16, lineHeight: 1.2 }}>
+          {t('heroTitle')}
+        </h1>
+        <p className={`fade-in ${lang === 'ta' ? 'tamil' : ''}`} style={{ fontSize: 'clamp(14px, 2vw, 18px)', color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto 24px', lineHeight: 1.6 }}>
+          {t('heroSubtitle')}
+        </p>
+
+        {/* Pathway Segmentation Tabs */}
+        <div className="pathway-tabs fade-in">
+          {pathways.map(pw => (
+            <button key={pw.key} className={`pathway-tab ${activePathway === pw.key ? 'active' : ''}`} onClick={() => setActivePathway(pw.key)}>
+              <span style={{ marginRight: 6 }}>{pw.icon}</span> {pw.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="fade-in" style={{ maxWidth: 700, margin: '0 auto', display: 'flex', gap: 8, background: 'white', padding: 8, borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-xl)' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 16 }}>
+            <Icon name="search" size={20} color="#9CA3AF" />
+            <input
+              className="input"
+              style={{ border: 'none', padding: '12px 0', boxShadow: 'none' }}
+              placeholder={t('searchPlaceholder')}
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { setSearchQuery(query); setPage('properties'); } }}
+            />
+          </div>
+          <button onClick={() => { setSearchQuery(query); setPage('properties'); }} className="btn btn-primary btn-lg">
+            {t('search')}
+          </button>
+        </div>
+
+        {/* Quick Action CTAs */}
+        <div className="fade-in" style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 24, flexWrap: 'wrap' }}>
+          <button onClick={() => { setSearchQuery(''); setPage('properties'); }} className="btn btn-tour btn-sm" style={{ borderRadius: 24 }}>
+            {t('scheduleTour')}
+          </button>
+          <button onClick={() => setPage('properties')} className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: 24 }}>
+            {activePathway === 'rent' ? t('startApplication') : activePathway === 'shortterm' ? t('requestQuote') : t('viewAll') + ' ' + t('properties')}
+          </button>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 48, marginTop: 60, flexWrap: 'wrap' }}>
+          {[
+            { value: '350+', label: t('totalProperties') },
+            { value: '25+', label: t('totalAgents') },
+            { value: '1,200+', label: t('happyClients') },
+            { value: '12', label: t('citiesServed') },
+          ].map((stat, i) => (
+            <div key={i} className="fade-in" style={{ animationDelay: `${i * 0.1}s`, textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--accent)' }}>{stat.value}</div>
+              <div className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// POPULAR AREAS
+// ─────────────────────────────────────────
+function PopularAreas() {
+  const { lang, t, setPage, setSearchQuery } = useContext(AppContext);
+  return (
+    <section style={{ padding: '80px 0' }}>
+      <div className="container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+          <div>
+            <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('popularAreas')}</h2>
+            <p style={{ color: 'var(--text-light)' }}>{lang === 'ta' ? 'யாழ்ப்பாணத்தின் மிகவும் விரும்பப்படும் பகுதிகளை ஆராயுங்கள்' : 'Explore the most sought-after locations in Jaffna'}</p>
+          </div>
+        </div>
+        <div className="grid-4">
+          {JAFFNA_AREAS.slice(0, 8).map((area, i) => (
+            <div key={i} className="card" style={{ cursor: 'pointer', padding: 24, textAlign: 'center' }} onClick={() => { setSearchQuery(area.name); setPage('properties'); }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--primary-light))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Icon name="map" size={24} color="white" />
+              </div>
+              <h3 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
+                {lang === 'ta' ? area.nameTa : area.name}
+              </h3>
+              <p style={{ fontSize: 13, color: 'var(--text-light)' }}>{area.count} {t('properties')}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// FEATURED PROPERTIES
+// ─────────────────────────────────────────
+function FeaturedProperties() {
+  const { lang, t, setPage } = useContext(AppContext);
+  const featured = ALL_PROPERTIES.filter(p => p.featured);
+  return (
+    <section style={{ padding: '80px 0', background: '#F9FAFB' }}>
+      <div className="container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+          <div>
+            <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('featured')} {t('properties')}</h2>
+            <p style={{ color: 'var(--text-light)' }}>{lang === 'ta' ? 'எங்களின் கையால் தேர்ந்தெடுக்கப்பட்ட சிறந்த சொத்துக்கள்' : 'Hand-picked premium properties for you'}</p>
+          </div>
+          <button onClick={() => setPage('properties')} className="btn btn-outline">{t('viewAll')}</button>
+        </div>
+        <div className="grid-3">
+          {featured.slice(0, 6).map(p => <PropertyCard key={p.id} property={p} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// WHY CHOOSE US
+// ─────────────────────────────────────────
+function WhyChooseUs() {
+  const { lang, t } = useContext(AppContext);
+  const items = [
+    { icon: 'map', title: t('localExpertise'), desc: t('localExpertiseDesc') },
+    { icon: 'shield', title: t('verifiedListings'), desc: t('verifiedListingsDesc') },
+    { icon: 'globe', title: t('bilingualSupport'), desc: t('bilingualSupportDesc') },
+    { icon: 'check', title: t('secureTransactions'), desc: t('secureTransactionsDesc') },
+  ];
+  return (
+    <section style={{ padding: '80px 0' }}>
+      <div className="container">
+        <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8, textAlign: 'center' }}>{t('whyChooseUs')}</h2>
+        <p style={{ color: 'var(--text-light)', textAlign: 'center', marginBottom: 48, maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
+          {lang === 'ta' ? 'யாழ்ப்பாணத்தின் சொத்து சந்தையில் நம்பர் 1 தளம்' : 'Yaal Nilam — The #1 platform for property in the Jaffna Peninsula'}
+        </p>
+        <div className="grid-4">
+          {items.map((item, i) => (
+            <div key={i} style={{ textAlign: 'center', padding: 32 }}>
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: 'linear-gradient(135deg, rgba(27,77,62,0.1), rgba(45,122,95,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <Icon name={item.icon} size={28} color="var(--primary)" />
+              </div>
+              <h3 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{item.title}</h3>
+              <p className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 14, color: 'var(--text-light)', lineHeight: 1.6 }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// TOP AGENTS PREVIEW
+// ─────────────────────────────────────────
+function TopAgentsPreview() {
+  const { lang, t, setPage, setSelectedAgent } = useContext(AppContext);
+  return (
+    <section style={{ padding: '80px 0', background: '#F9FAFB' }}>
+      <div className="container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+          <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800 }}>{t('topAgents')}</h2>
+          <button onClick={() => setPage('agents')} className="btn btn-outline">{t('viewAll')}</button>
+        </div>
+        <div className="grid-3">
+          {ALL_AGENTS.slice(0, 3).map(agent => (
+            <div key={agent.id} className="card" style={{ padding: 32, textAlign: 'center', cursor: 'pointer' }} onClick={() => { setSelectedAgent(agent); setPage('agentDetail'); }}>
+              <img src={agent.avatar} alt={agent.name} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', margin: '0 auto 16px', border: '3px solid var(--accent)' }} />
+              <h3 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{lang === 'ta' ? agent.nameTa : agent.name}</h3>
+              <p style={{ fontSize: 13, color: 'var(--text-light)', marginBottom: 12 }}>{lang === 'ta' ? agent.areaTa : agent.area}</p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 12 }}>
+                {[...Array(5)].map((_, i) => <Icon key={i} name="star" size={14} />)}
+                <span style={{ fontSize: 13, fontWeight: 600, marginLeft: 4 }}>{agent.rating}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, fontSize: 13, color: 'var(--text-light)' }}>
+                <span><strong>{agent.listings}</strong> {t('listings')}</span>
+                <span><strong>{agent.reviews}</strong> {t('reviews')}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// PROPERTIES LIST PAGE
+// ─────────────────────────────────────────
+function PropertiesPage() {
+  const { lang, t, searchQuery, activePathway } = useContext(AppContext);
+  const [filters, setFilters] = useState({ type: 'all', listingType: 'all', minPrice: '', maxPrice: '', beds: 'any', baths: 'any', area: 'all', pets: 'all', leaseTerm: 'all', furnished: 'all' });
+  const [sortBy, setSortBy] = useState('newest');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Sync pathway to listingType filter
+  useEffect(() => {
+    if (activePathway) setFilters(f => ({ ...f, listingType: activePathway }));
+  }, [activePathway]);
+
+  const filtered = useMemo(() => {
+    let result = [...ALL_PROPERTIES];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p => p.title.toLowerCase().includes(q) || p.area.toLowerCase().includes(q) || p.areaTa.includes(q) || p.titleTa.includes(q) || p.type.toLowerCase().includes(q));
+    }
+    if (filters.type !== 'all') result = result.filter(p => p.type === filters.type);
+    if (filters.listingType !== 'all') result = result.filter(p => p.listingType === filters.listingType);
+    if (filters.minPrice) result = result.filter(p => p.price >= Number(filters.minPrice));
+    if (filters.maxPrice) result = result.filter(p => p.price <= Number(filters.maxPrice));
+    if (filters.beds !== 'any') result = result.filter(p => p.beds >= Number(filters.beds));
+    if (filters.baths !== 'any') result = result.filter(p => p.baths >= Number(filters.baths));
+    if (filters.area !== 'all') result = result.filter(p => p.area === filters.area);
+    if (filters.pets === 'yes') result = result.filter(p => p.petsAllowed);
+    if (filters.pets === 'no') result = result.filter(p => !p.petsAllowed);
+    if (filters.leaseTerm !== 'all') result = result.filter(p => p.leaseTerm === filters.leaseTerm);
+    if (filters.furnished === 'yes') result = result.filter(p => p.furnished);
+    if (filters.furnished === 'no') result = result.filter(p => !p.furnished);
+
+    if (sortBy === 'priceLow') result.sort((a, b) => a.price - b.price);
+    else if (sortBy === 'priceHigh') result.sort((a, b) => b.price - a.price);
+    else result.sort((a, b) => a.daysAgo - b.daysAgo);
+    return result;
+  }, [filters, sortBy, searchQuery]);
+
+  return (
+    <div className="container" style={{ padding: '40px 24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800 }}>{t('properties')}</h1>
+          <p style={{ color: 'var(--text-light)', fontSize: 14 }}>{filtered.length} {t('propertiesFound')}</p>
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <button onClick={() => setShowFilters(!showFilters)} className="btn btn-outline btn-sm">
+            <Icon name="filter" size={16} /> {t('filterBy')}
+          </button>
+          <select className="select" style={{ width: 180 }} value={sortBy} onChange={e => setSortBy(e.target.value)}>
+            <option value="newest">{t('newest')}</option>
+            <option value="priceLow">{t('priceLowHigh')}</option>
+            <option value="priceHigh">{t('priceHighLow')}</option>
+          </select>
+        </div>
+      </div>
+
+      {showFilters && (
+        <div className="card fade-in" style={{ padding: 24, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
+            <div>
+              <label>{t('propertyType')}</label>
+              <select className="select" value={filters.type} onChange={e => setFilters({...filters, type: e.target.value})}>
+                <option value="all">{t('allTypes')}</option>
+                <option value="house">{t('house')}</option>
+                <option value="land">{t('land')}</option>
+                <option value="apartment">{t('apartment')}</option>
+                <option value="commercial">{t('commercial')}</option>
+                <option value="villa">{t('villa')}</option>
+              </select>
+            </div>
+            <div>
+              <label>{lang === 'ta' ? 'விற்பனை/வாடகை' : 'Sale/Rent/Short-Term'}</label>
+              <select className="select" value={filters.listingType} onChange={e => setFilters({...filters, listingType: e.target.value})}>
+                <option value="all">{t('allTypes')}</option>
+                <option value="sale">{t('forSale')}</option>
+                <option value="rent">{t('forRent')}</option>
+                <option value="shortterm">{t('shortTerm')}</option>
+              </select>
+            </div>
+            <div>
+              <label>{t('minPrice')}</label>
+              <input className="input" type="number" placeholder="0" value={filters.minPrice} onChange={e => setFilters({...filters, minPrice: e.target.value})} />
+            </div>
+            <div>
+              <label>{t('maxPrice')}</label>
+              <input className="input" type="number" placeholder="999,999,999" value={filters.maxPrice} onChange={e => setFilters({...filters, maxPrice: e.target.value})} />
+            </div>
+            <div>
+              <label>{t('bedrooms')}</label>
+              <select className="select" value={filters.beds} onChange={e => setFilters({...filters, beds: e.target.value})}>
+                <option value="any">{t('any')}</option>
+                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}+</option>)}
+              </select>
+            </div>
+            <div>
+              <label>{t('location')}</label>
+              <select className="select" value={filters.area} onChange={e => setFilters({...filters, area: e.target.value})}>
+                <option value="all">{t('allTypes')}</option>
+                {JAFFNA_AREAS.map(a => <option key={a.name} value={a.name}>{lang === 'ta' ? a.nameTa : a.name}</option>)}
+              </select>
+            </div>
+          </div>
+          {/* Dynamic filters based on listing type */}
+          {(filters.listingType === 'rent' || filters.listingType === 'shortterm') && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+              <div>
+                <label>{t('petPolicy')}</label>
+                <select className="select" value={filters.pets} onChange={e => setFilters({...filters, pets: e.target.value})}>
+                  <option value="all">{t('any')}</option>
+                  <option value="yes">{t('petsAllowed')}</option>
+                  <option value="no">{t('noPets')}</option>
+                </select>
+              </div>
+              {filters.listingType === 'rent' && (
+                <div>
+                  <label>{t('leaseTerm')}</label>
+                  <select className="select" value={filters.leaseTerm} onChange={e => setFilters({...filters, leaseTerm: e.target.value})}>
+                    <option value="all">{t('any')}</option>
+                    <option value="month-to-month">{t('monthToMonth')}</option>
+                    <option value="6months">{t('sixMonths')}</option>
+                    <option value="1year">{t('oneYear')}</option>
+                    <option value="2years">{t('twoYears')}</option>
+                  </select>
+                </div>
+              )}
+              <div>
+                <label>{t('furnished')}</label>
+                <select className="select" value={filters.furnished} onChange={e => setFilters({...filters, furnished: e.target.value})}>
+                  <option value="all">{t('any')}</option>
+                  <option value="yes">{t('yes')}</option>
+                  <option value="no">{t('no')}</option>
+                </select>
+              </div>
+              {filters.listingType === 'shortterm' && (
+                <div>
+                  <label>{t('dateAvailability')}</label>
+                  <input className="input" type="date" onChange={e => {}} />
+                </div>
+              )}
+            </div>
+          )}
+          {filters.listingType === 'sale' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+              <div>
+                <label>{t('hoaFees')}</label>
+                <select className="select" onChange={() => {}}>
+                  <option value="all">{t('any')}</option>
+                  <option value="low">&lt; Rs. 5,000/mo</option>
+                  <option value="mid">Rs. 5,000 - 10,000/mo</option>
+                  <option value="high">&gt; Rs. 10,000/mo</option>
+                </select>
+              </div>
+              <div>
+                <label>{t('yearBuilt')}</label>
+                <select className="select" onChange={() => {}}>
+                  <option value="all">{t('any')}</option>
+                  <option value="2020">2020+</option>
+                  <option value="2015">2015+</option>
+                  <option value="2010">2010+</option>
+                  <option value="2000">2000+</option>
+                </select>
+              </div>
+              <div>
+                <label>{t('parking')}</label>
+                <select className="select" onChange={() => {}}>
+                  <option value="all">{t('any')}</option>
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="3">3+</option>
+                </select>
+              </div>
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <button onClick={() => setFilters({ type: 'all', listingType: 'all', minPrice: '', maxPrice: '', beds: 'any', baths: 'any', area: 'all', pets: 'all', leaseTerm: 'all', furnished: 'all' })} className="btn btn-ghost btn-sm">{t('clearAll')}</button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid-3">
+        {filtered.map(p => <PropertyCard key={p.id} property={p} />)}
+      </div>
+      {filtered.length === 0 && (
+        <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-light)' }}>
+          <Icon name="search" size={48} color="var(--text-lighter)" />
+          <p style={{ marginTop: 16, fontSize: 16 }}>{lang === 'ta' ? 'சொத்துக்கள் எதுவும் கிடைக்கவில்லை' : 'No properties found matching your criteria'}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// MAP PAGE
+// ─────────────────────────────────────────
+function MapPage() {
+  const { lang, t, setPage, setSelectedProperty } = useContext(AppContext);
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstance.current) return;
+    const map = L.map(mapRef.current).setView([9.6615, 80.0255], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    ALL_PROPERTIES.forEach(p => {
+      const marker = L.marker([p.lat, p.lng]).addTo(map);
+      marker.bindPopup(`
+        <div style="min-width:200px;font-family:Inter,sans-serif;">
+          <img src="${p.images[0]}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">${lang === 'ta' ? p.titleTa : p.title}</h3>
+          <p style="font-size:18px;font-weight:800;color:#1B4D3E;margin-bottom:4px;">${formatPrice(p.price, p.listingType, lang)}</p>
+          <p style="font-size:12px;color:#6B7280;">${p.type !== 'land' ? p.beds + ' beds · ' + p.baths + ' baths · ' + p.sqft + ' sqft' : p.perches + ' perches'}</p>
+        </div>
+      `);
+      marker.on('click', () => {});
+    });
+
+    mapInstance.current = map;
+    return () => { if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; } };
+  }, [lang]);
+
+  return (
+    <div className="container" style={{ padding: '40px 24px' }}>
+      <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('map')}</h1>
+      <p style={{ color: 'var(--text-light)', marginBottom: 24 }}>{lang === 'ta' ? 'வரைபடத்தில் சொத்துக்களை ஆராயுங்கள்' : 'Explore properties on the map'}</p>
+      <div id="property-map" ref={mapRef} style={{ height: 600, borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)' }} />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// PROPERTY DETAIL
+// ─────────────────────────────────────────
+function PropertyDetail() {
+  const { lang, t, selectedProperty: p, setPage, setSelectedAgent, user, setUser, setShowLogin } = useContext(AppContext);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showContact, setShowContact] = useState(false);
+  if (!p) return null;
+  const agent = ALL_AGENTS.find(a => a.id === p.agentId);
+  const isSaved = user?.savedProperties?.includes(p.id);
+
+  const toggleSave = () => {
+    if (!user) { setShowLogin(true); return; }
+    const sp = user.savedProperties || [];
+    setUser({ ...user, savedProperties: isSaved ? sp.filter(id => id !== p.id) : [...sp, p.id] });
+  };
+
+  return (
+    <div className="container" style={{ padding: '40px 24px' }}>
+      <button onClick={() => setPage('properties')} className="btn btn-ghost" style={{ marginBottom: 16 }}>
+        <Icon name="chevronLeft" size={18} /> {lang === 'ta' ? 'சொத்துக்களுக்கு திரும்பு' : 'Back to Properties'}
+      </button>
+
+      {/* Gallery */}
+      <div className="gallery-grid" style={{ marginBottom: 32 }}>
+        <img className="main-img" src={p.images[0]} alt="" />
+        <div className="gallery-side">
+          <img src={p.images[1]} alt="" />
+          <img src={p.images[2]} alt="" />
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 32 }}>
+        {/* Left */}
+        <div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <span className={`badge ${p.listingType === 'sale' ? 'badge-green' : p.listingType === 'shortterm' ? 'badge-amber' : 'badge-blue'}`}>{p.listingType === 'sale' ? t('forSale') : p.listingType === 'shortterm' ? t('shortTerm') : t('forRent')}</span>
+            <span className="badge badge-amber">{t(p.type)}</span>
+          </div>
+          <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>
+            {lang === 'ta' ? p.titleTa : p.title}
+          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-light)', marginBottom: 16 }}>
+            <Icon name="map" size={16} />
+            <span className={lang === 'ta' ? 'tamil' : ''}>{lang === 'ta' ? p.areaTa : p.area}, Jaffna, Sri Lanka</span>
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--primary)', marginBottom: 24 }}>
+            {formatPrice(p.price, p.listingType, lang)}
+          </div>
+
+          {p.type !== 'land' && (
+            <div className="stat-grid" style={{ marginBottom: 32 }}>
+              <div className="stat-item"><div className="stat-value">{p.beds}</div><div className="stat-label">{t('bedrooms')}</div></div>
+              <div className="stat-item"><div className="stat-value">{p.baths}</div><div className="stat-label">{t('bathrooms')}</div></div>
+              <div className="stat-item"><div className="stat-value">{p.sqft}</div><div className="stat-label">{t('sqft')}</div></div>
+              <div className="stat-item"><div className="stat-value">{p.perches}</div><div className="stat-label">{t('perches')}</div></div>
+            </div>
+          )}
+
+          <div className="tabs" style={{ marginBottom: 24 }}>
+            {['overview', 'features', 'nearbyPlaces'].map(tab => (
+              <div key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{t(tab === 'overview' ? 'overview' : tab === 'features' ? 'features' : 'nearbyPlaces')}</div>
+            ))}
+          </div>
+
+          {activeTab === 'overview' && (
+            <div className="fade-in">
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>{t('description')}</h3>
+              <p className={lang === 'ta' ? 'tamil' : ''} style={{ color: 'var(--text-light)', lineHeight: 1.8, marginBottom: 24 }}>
+                {lang === 'ta' ? p.descriptionTa : p.description}
+              </p>
+              {p.type !== 'land' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ padding: 16, background: '#F9FAFB', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-light)' }}>{t('yearBuilt')}</span><strong>{p.yearBuilt}</strong>
+                  </div>
+                  <div style={{ padding: 16, background: '#F9FAFB', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-light)' }}>{t('parking')}</span><strong>{p.parking} {t('car')}</strong>
+                  </div>
+                  <div style={{ padding: 16, background: '#F9FAFB', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-light)' }}>{t('furnished')}</span><strong>{p.furnished ? t('yes') : t('no')}</strong>
+                  </div>
+                  <div style={{ padding: 16, background: '#F9FAFB', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-light)' }}>{t('landSize')}</span><strong>{p.perches} {t('perches')}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'features' && (
+            <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {(lang === 'ta' ? p.featuresTa : p.features).map((f, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: '#F9FAFB', borderRadius: 'var(--radius)' }}>
+                  <Icon name="check" size={16} color="var(--primary)" />
+                  <span className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 14 }}>{f}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'nearbyPlaces' && (
+            <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                { icon: '🏫', name: lang === 'ta' ? 'ஹிந்து கல்லூரி' : 'Hindu College', dist: '0.5 km' },
+                { icon: '🏥', name: lang === 'ta' ? 'யாழ் போதனா வைத்தியசாலை' : 'Jaffna Teaching Hospital', dist: '1.2 km' },
+                { icon: '🛕', name: lang === 'ta' ? 'நல்லூர் கந்தசுவாமி கோவில்' : 'Nallur Kandaswamy Temple', dist: '0.8 km' },
+                { icon: '🛒', name: lang === 'ta' ? 'யாழ் சந்தை' : 'Jaffna Market', dist: '1.5 km' },
+              ].map((place, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px', background: '#F9FAFB', borderRadius: 'var(--radius)' }}>
+                  <span style={{ fontSize: 24 }}>{place.icon}</span>
+                  <div>
+                    <div className={lang === 'ta' ? 'tamil' : ''} style={{ fontWeight: 600, fontSize: 14 }}>{place.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-light)' }}>{place.dist}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right sidebar */}
+        <div>
+          <div className="card" style={{ padding: 24, marginBottom: 16, position: 'sticky', top: 96 }}>
+            {agent && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid var(--border)' }}>
+                <img src={agent.avatar} alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover' }} />
+                <div>
+                  <div className={lang === 'ta' ? 'tamil' : ''} style={{ fontWeight: 700 }}>{lang === 'ta' ? agent.nameTa : agent.name}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-light)' }}>{lang === 'ta' ? agent.areaTa : agent.area}</div>
+                  <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
+                    {[...Array(5)].map((_, i) => <Icon key={i} name="star" size={12} />)}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button onClick={() => setShowContact(!showContact)} className="btn btn-tour btn-lg" style={{ width: '100%', justifyContent: 'center' }}>
+                <Icon name="clock" size={18} /> {t('scheduleTour')}
+              </button>
+              <button onClick={() => setShowContact(!showContact)} className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}>
+                <Icon name="mail" size={18} /> {t('contactAgent')}
+              </button>
+              {agent && (
+                <a href={`tel:${agent.phone}`} className="btn btn-outline btn-lg" style={{ width: '100%', justifyContent: 'center', textDecoration: 'none' }}>
+                  <Icon name="phone" size={18} /> {agent.phone}
+                </a>
+              )}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={toggleSave} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', border: '1px solid var(--border)' }}>
+                  {isSaved ? <Icon name="heartFill" size={18} color="#DC2626" /> : <Icon name="heart" size={18} />}
+                  {isSaved ? t('saved') : t('saveProperty')}
+                </button>
+                <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', border: '1px solid var(--border)' }}>
+                  <Icon name="share" size={18} /> {t('share')}
+                </button>
+              </div>
+            </div>
+
+            {showContact && (
+              <form onSubmit={e => { e.preventDefault(); setShowContact(false); }} style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+                <div style={{ marginBottom: 12 }}>
+                  <input className="input" placeholder={t('name')} required />
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <input className="input" type="email" placeholder={t('email')} required />
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <input className="input" type="tel" placeholder={t('phone')} />
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <textarea className="input" rows={3} placeholder={t('message')} style={{ resize: 'vertical' }} defaultValue={lang === 'ta' ? `இந்த சொத்தில் ஆர்வம் உள்ளது: ${p.titleTa}` : `I'm interested in: ${p.title}`} />
+                </div>
+                <button type="submit" className="btn btn-accent" style={{ width: '100%', justifyContent: 'center' }}>{t('sendMessage')}</button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Similar */}
+      <div style={{ marginTop: 60 }}>
+        <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 24, fontWeight: 800, marginBottom: 24 }}>{t('similarProperties')}</h2>
+        <div className="grid-3">
+          {ALL_PROPERTIES.filter(pr => pr.id !== p.id && pr.type === p.type).slice(0, 3).map(pr => (
+            <PropertyCard key={pr.id} property={pr} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// AGENTS PAGE
+// ─────────────────────────────────────────
+function AgentsPage() {
+  const { lang, t, setPage, setSelectedAgent } = useContext(AppContext);
+  return (
+    <div className="container" style={{ padding: '40px 24px' }}>
+      <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('topAgents')}</h1>
+      <p style={{ color: 'var(--text-light)', marginBottom: 32 }}>{lang === 'ta' ? 'யாழ்ப்பாணத்தின் சிறந்த சொத்து முகவர்கள்' : 'Meet our experienced property agents in Jaffna'}</p>
+      <div className="grid-3">
+        {ALL_AGENTS.map(agent => (
+          <div key={agent.id} className="card" style={{ cursor: 'pointer' }} onClick={() => { setSelectedAgent(agent); setPage('agentDetail'); }}>
+            <div style={{ padding: 32, textAlign: 'center' }}>
+              <img src={agent.avatar} alt="" style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', margin: '0 auto 16px', border: '3px solid var(--accent)' }} />
+              <h3 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{lang === 'ta' ? agent.nameTa : agent.name}</h3>
+              <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 16 }}>
+                <Icon name="map" size={14} /> {lang === 'ta' ? agent.areaTa : agent.area}
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 16 }}>
+                {[...Array(5)].map((_, i) => <Icon key={i} name="star" size={16} />)}
+                <span style={{ fontWeight: 600, marginLeft: 4 }}>{agent.rating}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, fontSize: 14, color: 'var(--text-light)', marginBottom: 16 }}>
+                <span><strong>{agent.listings}</strong> {t('listings')}</span>
+                <span><strong>{agent.experience}</strong> {lang === 'ta' ? 'ஆண்டுகள்' : 'years'}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                {agent.specialization.map((s, i) => (
+                  <span key={i} className="badge badge-green" style={{ fontSize: 11 }}>{s}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// AGENT DETAIL
+// ─────────────────────────────────────────
+function AgentDetail() {
+  const { lang, t, selectedAgent: agent, setPage } = useContext(AppContext);
+  if (!agent) return null;
+  const agentProperties = ALL_PROPERTIES.filter(p => p.agentId === agent.id);
+
+  return (
+    <div className="container" style={{ padding: '40px 24px' }}>
+      <button onClick={() => setPage('agents')} className="btn btn-ghost" style={{ marginBottom: 24 }}>
+        <Icon name="chevronLeft" size={18} /> {lang === 'ta' ? 'முகவர்களுக்கு திரும்பு' : 'Back to Agents'}
+      </button>
+      <div className="card" style={{ padding: 40, marginBottom: 40 }}>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <img src={agent.avatar} alt="" style={{ width: 128, height: 128, borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--accent)' }} />
+          <div style={{ flex: 1, minWidth: 280 }}>
+            <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{lang === 'ta' ? agent.nameTa : agent.name}</h1>
+            <p style={{ color: 'var(--text-light)', marginBottom: 16 }}>{lang === 'ta' ? agent.areaTa : agent.area}, Jaffna</p>
+            <div className="stat-grid" style={{ marginBottom: 20 }}>
+              <div className="stat-item"><div className="stat-value">{agent.listings}</div><div className="stat-label">{t('listings')}</div></div>
+              <div className="stat-item"><div className="stat-value">{agent.rating}</div><div className="stat-label">Rating</div></div>
+              <div className="stat-item"><div className="stat-value">{agent.reviews}</div><div className="stat-label">{t('reviews')}</div></div>
+              <div className="stat-item"><div className="stat-value">{agent.experience}yr</div><div className="stat-label">{t('experience')}</div></div>
+            </div>
+            <p style={{ color: 'var(--text-light)', lineHeight: 1.7, marginBottom: 20 }}>{agent.bio}</p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <a href={`tel:${agent.phone}`} className="btn btn-primary" style={{ textDecoration: 'none' }}><Icon name="phone" size={16} /> {agent.phone}</a>
+              <a href={`mailto:${agent.email}`} className="btn btn-outline" style={{ textDecoration: 'none' }}><Icon name="mail" size={16} /> {t('sendMessage')}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 24 }}>{lang === 'ta' ? `${agent.nameTa} இன் சொத்துக்கள்` : `${agent.name}'s Listings`}</h2>
+      <div className="grid-3">
+        {agentProperties.map(p => <PropertyCard key={p.id} property={p} />)}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────
+function DashboardPage() {
+  const { lang, t, user, setPage, setSelectedProperty } = useContext(AppContext);
+  if (!user) return null;
+  const savedProps = ALL_PROPERTIES.filter(p => user.savedProperties?.includes(p.id));
+
+  return (
+    <div className="container" style={{ padding: '40px 24px' }}>
+      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('dashboard')}</h1>
+      <p style={{ color: 'var(--text-light)', marginBottom: 32 }}>{t('welcomeBack')}, {user.name}!</p>
+
+      <div className="grid-4" style={{ marginBottom: 40 }}>
+        {[
+          { icon: 'heart', value: savedProps.length, label: t('savedSearches'), color: '#DC2626' },
+          { icon: 'home', value: 0, label: t('myListings'), color: 'var(--primary)' },
+          { icon: 'mail', value: 3, label: lang === 'ta' ? 'செய்திகள்' : 'Messages', color: '#2563EB' },
+          { icon: 'clock', value: 7, label: lang === 'ta' ? 'பார்வையிட்டவை' : 'Viewed', color: '#D97706' },
+        ].map((s, i) => (
+          <div key={i} className="card" style={{ padding: 24, textAlign: 'center' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: `${s.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+              <Icon name={s.icon} size={22} color={s.color} />
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 800 }}>{s.value}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>
+        {lang === 'ta' ? 'சேமித்த சொத்துக்கள்' : 'Saved Properties'}
+      </h2>
+      {savedProps.length > 0 ? (
+        <div className="grid-3">
+          {savedProps.map(p => <PropertyCard key={p.id} property={p} />)}
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 48, textAlign: 'center', color: 'var(--text-light)' }}>
+          <Icon name="heart" size={40} color="var(--text-lighter)" />
+          <p style={{ marginTop: 12 }}>{lang === 'ta' ? 'இன்னும் சொத்துக்கள் சேமிக்கப்படவில்லை' : 'No saved properties yet'}</p>
+          <button onClick={() => setPage('properties')} className="btn btn-primary" style={{ marginTop: 16 }}>{lang === 'ta' ? 'சொத்துக்களை ஆராயுங்கள்' : 'Browse Properties'}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// ADD LISTING PAGE
+// ─────────────────────────────────────────
+function AddListingPage() {
+  const { lang, t, setToast, setPage } = useContext(AppContext);
+  const [formStep, setFormStep] = useState(1);
+  const totalSteps = 3;
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (formStep < totalSteps) { setFormStep(formStep + 1); return; }
+    setToast(lang === 'ta' ? 'சொத்து வெற்றிகரமாக பதிவிடப்பட்டது!' : 'Property listed successfully!');
+    setPage('properties');
+  };
+
+  return (
+    <div className="container" style={{ padding: '40px 24px', maxWidth: 800 }}>
+      <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>{t('postProperty')}</h1>
+      <p style={{ color: 'var(--text-light)', marginBottom: 24 }}>{lang === 'ta' ? `படி ${formStep} / ${totalSteps}` : `Step ${formStep} of ${totalSteps}`}</p>
+      {/* Progress Bar */}
+      <div className="progress-bar">
+        {[...Array(totalSteps)].map((_, i) => (
+          <div key={i} className={`progress-step ${i + 1 === formStep ? 'active' : i + 1 < formStep ? 'done' : ''}`} />
+        ))}
+      </div>
+      <form onSubmit={handleSubmit} className="card" style={{ padding: 32 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+          <div><label>{lang === 'ta' ? 'சொத்து தலைப்பு' : 'Property Title'}</label><input className="input" required /></div>
+          <div><label>{t('propertyType')}</label>
+            <select className="select">
+              <option>{t('house')}</option><option>{t('land')}</option><option>{t('apartment')}</option><option>{t('commercial')}</option><option>{t('villa')}</option>
+            </select>
+          </div>
+          <div><label>{lang === 'ta' ? 'விற்பனை/வாடகை' : 'Sale/Rent'}</label>
+            <select className="select"><option>{t('forSale')}</option><option>{t('forRent')}</option></select>
+          </div>
+          <div><label>{t('price')} (Rs.)</label><input className="input" type="number" required /></div>
+          <div><label>{t('bedrooms')}</label><input className="input" type="number" /></div>
+          <div><label>{t('bathrooms')}</label><input className="input" type="number" /></div>
+          <div><label>{t('sqftLabel')}</label><input className="input" type="number" /></div>
+          <div><label>{t('landSize')} ({t('perches')})</label><input className="input" type="number" /></div>
+          <div><label>{t('location')}</label>
+            <select className="select">{JAFFNA_AREAS.map(a => <option key={a.name}>{lang === 'ta' ? a.nameTa : a.name}</option>)}</select>
+          </div>
+          <div><label>{t('yearBuilt')}</label><input className="input" type="number" /></div>
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label>{t('description')}</label>
+          <textarea className="input" rows={4} style={{ resize: 'vertical' }} />
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label>{lang === 'ta' ? 'படங்கள்' : 'Images'}</label>
+          <div style={{ border: '2px dashed var(--border)', borderRadius: 'var(--radius)', padding: 40, textAlign: 'center', color: 'var(--text-light)' }}>
+            <Icon name="plus" size={32} color="var(--text-lighter)" />
+            <p style={{ marginTop: 8 }}>{lang === 'ta' ? 'படங்களை இழுத்து விடுங்கள் அல்லது கிளிக் செய்யுங்கள்' : 'Drag & drop images or click to browse'}</p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          {formStep > 1 && (
+            <button type="button" onClick={() => setFormStep(formStep - 1)} className="btn btn-outline btn-lg" style={{ flex: 1, justifyContent: 'center' }}>
+              <Icon name="chevronLeft" size={18} /> {lang === 'ta' ? 'பின்னால்' : 'Back'}
+            </button>
+          )}
+          <button type="submit" className="btn btn-primary btn-lg" style={{ flex: 2, justifyContent: 'center' }}>
+            {formStep < totalSteps ? (lang === 'ta' ? 'அடுத்தது →' : 'Next →') : t('postProperty')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// FOOTER
+// ─────────────────────────────────────────
+function Footer() {
+  const { lang, t, setPage } = useContext(AppContext);
+  return (
+    <footer style={{ background: 'var(--primary-dark)', color: 'white', padding: '60px 0 30px' }}>
+      <div className="container">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 40, marginBottom: 40 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, background: 'var(--accent)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="building" size={22} color="var(--primary-dark)" />
+              </div>
+              <span style={{ fontWeight: 800, fontSize: 18 }}>{t('brand')}</span>
+            </div>
+            <p className={lang === 'ta' ? 'tamil' : ''} style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, lineHeight: 1.7 }}>{t('footerDesc')}</p>
+          </div>
+          <div>
+            <h4 style={{ fontWeight: 700, marginBottom: 16 }}>{t('quickLinks')}</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {['home', 'properties', 'agents', 'map'].map(p => (
+                <a key={p} href="#" onClick={e => { e.preventDefault(); setPage(p); }} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
+                  onMouseOver={e => e.target.style.color='white'} onMouseOut={e => e.target.style.color='rgba(255,255,255,0.6)'}>{t(p)}</a>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h4 style={{ fontWeight: 700, marginBottom: 16 }}>{t('contactUs')}</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="map" size={16} /> Jaffna, Sri Lanka</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="phone" size={16} /> +94 21 222 3456</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="mail" size={16} /> info@yaalnilam.lk</div>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ fontWeight: 700, marginBottom: 16 }}>{t('newsletter')}</h4>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 12 }}>{t('newsletterDesc')}</p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input className="input" placeholder={t('enterEmail')} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }} />
+              <button className="btn btn-accent">{t('subscribe')}</button>
+            </div>
+          </div>
+        </div>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 24, textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
+          {t('footer')}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─────────────────────────────────────────
+// TESTIMONIALS
+// ─────────────────────────────────────────
+function TestimonialsSection() {
+  const { lang, t } = useContext(AppContext);
+  const testimonials = [
+    { name: "Suresh Kumar", nameTa: "சுரேஷ் குமார்", area: "Nallur", areaTa: "நல்லூர்", text: "Yaal Nilam helped me find my dream home in Nallur within 2 weeks. The agents were incredibly professional and the verified listings saved us so much time.", textTa: "யாழ் நிலம் 2 வாரங்களில் நல்லூரில் எனது கனவு வீட்டைக் கண்டறிய உதவியது. முகவர்கள் மிகவும் தொழில்முறையாக இருந்தார்கள்.", rating: 5, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80", type: "buyer" },
+    { name: "Lakshmi Ravindran", nameTa: "லட்சுமி ரவீந்திரன்", area: "Kopay", areaTa: "கோப்பாய்", text: "Sold our family land in Kopay at a fair price. The platform's transparency and bilingual support made the whole process smooth for our diaspora family.", textTa: "கோப்பாயில் எங்கள் குடும்ப நிலத்தை நியாயமான விலையில் விற்றோம். தளத்தின் வெளிப்படைத்தன்மை சிறப்பாக இருந்தது.", rating: 5, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80", type: "seller" },
+    { name: "Kamal Jeyaratnam", nameTa: "கமல் ஜெயரட்ணம்", area: "Chunnakam", areaTa: "சுன்னாகம்", text: "As an investor from Colombo, I found 3 great rental properties through Yaal Nilam. The EMI calculator and agent support made investment decisions easy.", textTa: "கொழும்பிலிருந்து முதலீட்டாளராக, யாழ் நிலம் மூலம் 3 சிறந்த வாடகை சொத்துக்களைக் கண்டறிந்தேன்.", rating: 5, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80", type: "investor" },
+  ];
+
+  return (
+    <section style={{ padding: '80px 0', background: 'linear-gradient(180deg, #F9FAFB 0%, white 100%)' }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('testimonials')}</h2>
+          <p style={{ color: 'var(--text-light)', maxWidth: 500, margin: '0 auto' }}>{lang === 'ta' ? 'யாழ்ப்பாணம் முழுவதும் 1,200+ மகிழ்ச்சியான வாடிக்கையாளர்கள்' : 'Trusted by 1,200+ happy clients across the Jaffna Peninsula'}</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 12 }}>
+            {[...Array(5)].map((_, i) => <Icon key={i} name="star" size={20} />)}
+            <span style={{ fontWeight: 700, marginLeft: 8, color: 'var(--primary)' }}>4.8/5</span>
+            <span style={{ color: 'var(--text-light)', fontSize: 14 }}>(324 {lang === 'ta' ? 'மதிப்புரைகள்' : 'reviews'})</span>
+          </div>
+        </div>
+        <div className="grid-3">
+          {testimonials.map((test, i) => (
+            <div key={i} className="testimonial-card">
+              <p className={lang === 'ta' ? 'tamil' : ''} style={{ color: 'var(--text-light)', lineHeight: 1.8, fontSize: 14, marginBottom: 20, marginTop: 8 }}>
+                {lang === 'ta' ? test.textTa : test.text}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+                <img src={test.avatar} alt="" className="testimonial-avatar" />
+                <div>
+                  <div className={lang === 'ta' ? 'tamil' : ''} style={{ fontWeight: 700, fontSize: 14 }}>{lang === 'ta' ? test.nameTa : test.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-light)' }}>{lang === 'ta' ? test.areaTa : test.area} · {test.type === 'buyer' ? (lang === 'ta' ? 'வாங்குபவர்' : 'Home Buyer') : test.type === 'seller' ? (lang === 'ta' ? 'விற்பவர்' : 'Property Seller') : (lang === 'ta' ? 'முதலீட்டாளர்' : 'Investor')}</div>
+                </div>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
+                  {[...Array(test.rating)].map((_, i) => <Icon key={i} name="star" size={12} />)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// NEIGHBORHOOD GUIDE
+// ─────────────────────────────────────────
+function NeighborhoodGuide() {
+  const { lang, t } = useContext(AppContext);
+  const neighborhoods = [
+    { name: "Nallur", nameTa: "நல்லூர்", walkScore: 82, transitScore: 65, safety: "A", schools: 8, avgPrice: "Rs. 35M", desc: "Cultural heart of Jaffna with the famous Kandaswamy Temple. Premium residential area with excellent schools and healthcare.", descTa: "புகழ்பெற்ற கந்தசுவாமி கோவிலுடன் யாழ்ப்பாணத்தின் கலாச்சார இதயம்." },
+    { name: "Jaffna Town", nameTa: "யாழ் நகரம்", walkScore: 90, transitScore: 78, safety: "A-", schools: 12, avgPrice: "Rs. 42M", desc: "Commercial hub with best connectivity. Mix of heritage buildings and modern apartments. High rental demand.", descTa: "சிறந்த இணைப்புடன் வணிக மையம். பாரம்பரிய கட்டிடங்கள் மற்றும் நவீன குடியிருப்புகளின் கலவை." },
+    { name: "Chunnakam", nameTa: "சுன்னாகம்", walkScore: 70, transitScore: 55, safety: "A", schools: 6, avgPrice: "Rs. 22M", desc: "Thriving market town with growing infrastructure. Excellent value for money with spacious properties.", descTa: "வளர்ந்து வரும் உள்கட்டமைப்புடன் செழிப்பான சந்தை நகரம்." },
+  ];
+
+  return (
+    <section style={{ padding: '80px 0' }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('neighborhoodGuide')}</h2>
+          <p style={{ color: 'var(--text-light)' }}>{lang === 'ta' ? 'சரியான அக்கம்பக்கத்தைத் தேர்ந்தெடுக்க உதவும் தரவு' : 'Data-driven insights to help you choose the right neighborhood'}</p>
+        </div>
+        <div className="grid-3">
+          {neighborhoods.map((nb, i) => (
+            <div key={i} className="neighborhood-card">
+              <h3 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{lang === 'ta' ? nb.nameTa : nb.name}</h3>
+              <p className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.6, marginBottom: 16 }}>{lang === 'ta' ? nb.descTa : nb.desc}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div className="neighborhood-stat"><span style={{ fontSize: 18 }}>🚶</span> <span>{t('walkScore')}: <strong>{nb.walkScore}</strong></span></div>
+                <div className="neighborhood-stat"><span style={{ fontSize: 18 }}>🚌</span> <span>{t('transitScore')}: <strong>{nb.transitScore}</strong></span></div>
+                <div className="neighborhood-stat"><span style={{ fontSize: 18 }}>🛡️</span> <span>{t('safetyRating')}: <strong>{nb.safety}</strong></span></div>
+                <div className="neighborhood-stat"><span style={{ fontSize: 18 }}>🏫</span> <span>{t('schoolsNearby')}: <strong>{nb.schools}</strong></span></div>
+              </div>
+              <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(27,77,62,0.05)', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{lang === 'ta' ? 'சராசரி விலை' : 'Avg. Price'}</span>
+                <strong style={{ color: 'var(--primary)', fontSize: 16 }}>{nb.avgPrice}</strong>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// MORTGAGE / EMI CALCULATOR
+// ─────────────────────────────────────────
+function MortgageCalculator() {
+  const { lang, t } = useContext(AppContext);
+  const [amount, setAmount] = useState(15000000);
+  const [rate, setRate] = useState(12);
+  const [years, setYears] = useState(20);
+
+  const monthlyRate = rate / 100 / 12;
+  const numPayments = years * 12;
+  const emi = monthlyRate > 0 ? Math.round((amount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1)) : Math.round(amount / numPayments);
+  const totalPayment = emi * numPayments;
+  const totalInterest = totalPayment - amount;
+
+  return (
+    <section style={{ padding: '80px 0', background: '#F9FAFB' }}>
+      <div className="container" style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 300 }}>
+          <h2 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{t('emiCalculator')}</h2>
+          <p style={{ color: 'var(--text-light)', marginBottom: 24, lineHeight: 1.7 }}>
+            {lang === 'ta' ? 'உங்கள் மாதாந்திர கட்டணத்தை கணக்கிட்டு, உங்கள் வீட்டு கனவை திட்டமிடுங்கள்.' : 'Calculate your monthly payments and plan your home purchase with confidence.'}
+          </p>
+          <div className="calc-container">
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}><label>{t('loanAmount')}</label><strong>Rs. {(amount / 1000000).toFixed(1)}M</strong></div>
+              <input type="range" className="range-slider" min="1000000" max="100000000" step="500000" value={amount} onChange={e => setAmount(Number(e.target.value))} />
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}><label>{t('interestRate')}</label><strong>{rate}%</strong></div>
+              <input type="range" className="range-slider" min="5" max="25" step="0.5" value={rate} onChange={e => setRate(Number(e.target.value))} />
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}><label>{t('loanTerm')}</label><strong>{years} {lang === 'ta' ? 'ஆண்டுகள்' : 'years'}</strong></div>
+              <input type="range" className="range-slider" min="1" max="30" step="1" value={years} onChange={e => setYears(Number(e.target.value))} />
+            </div>
+            <div className="calc-result">
+              <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 4 }}>{t('monthlyEmi')}</div>
+              <div className="amount">Rs. {emi.toLocaleString()}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 12, fontSize: 13, opacity: 0.8 }}>
+                <span>{lang === 'ta' ? 'மொத்தம்' : 'Total'}: Rs. {(totalPayment / 1000000).toFixed(1)}M</span>
+                <span>{lang === 'ta' ? 'வட்டி' : 'Interest'}: Rs. {(totalInterest / 1000000).toFixed(1)}M</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 300, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {[
+            { icon: '🏦', title: lang === 'ta' ? 'வங்கி கடன் ஆலோசனை' : 'Bank Loan Advisory', desc: lang === 'ta' ? 'இலங்கை வங்கிகளின் சிறந்த வீட்டுக் கடன் விகிதங்கள்' : 'Best home loan rates from Sri Lankan banks' },
+            { icon: '📋', title: lang === 'ta' ? 'ஆவண உதவி' : 'Documentation Help', desc: lang === 'ta' ? 'சொத்து பரிமாற்றத்திற்கான அனைத்து சட்ட ஆவணங்கள்' : 'All legal documents for property transfer' },
+            { icon: '🛡️', title: lang === 'ta' ? 'சொத்து காப்பீடு' : 'Property Insurance', desc: lang === 'ta' ? 'உங்கள் முதலீட்டை காப்பீட்டால் பாதுகாக்கவும்' : 'Protect your investment with comprehensive insurance' },
+          ].map((item, i) => (
+            <div key={i} className="card" style={{ padding: 24, display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+              <span style={{ fontSize: 32 }}>{item.icon}</span>
+              <div>
+                <h4 className={lang === 'ta' ? 'tamil' : ''} style={{ fontWeight: 700, marginBottom: 4 }}>{item.title}</h4>
+                <p className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5 }}>{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// AI CHATBOT
+// ─────────────────────────────────────────
+function AIChatbot() {
+  const { lang, t } = useContext(AppContext);
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [typing, setTyping] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setMessages([{ role: 'bot', text: t('chatbotGreeting') }]);
+    }
+  }, [isOpen]);
+
+  const botResponses = {
+    'find': lang === 'ta' ? 'என்ன வகையான சொத்து தேடுகிறீர்கள்? வீடு, காணி, குடியிருப்பு அல்லது வணிக இடம்? எந்த பகுதி மற்றும் பட்ஜெட்?' : 'What type of property are you looking for? House, land, apartment, or commercial? Which area and budget range?',
+    'price': lang === 'ta' ? 'யாழ்ப்பாண சொத்து விலைகள்:\n🏠 வீடுகள்: Rs. 8M - 65M\n🏞️ காணிகள்: Rs. 800K/perch\n🏢 குடியிருப்புகள்: Rs. 12M - 35M\nகுறிப்பிட்ட பகுதி பற்றி கேளுங்கள்!' : 'Jaffna property price ranges:\n🏠 Houses: Rs. 8M - 65M\n🏞️ Land: ~Rs. 800K/perch\n🏢 Apartments: Rs. 12M - 35M\nAsk about a specific area!',
+    'tour': lang === 'ta' ? 'நிச்சயமாக! சுற்றுப்பயணம் திட்டமிட, உங்கள் விருப்பமான தேதி, நேரம் மற்றும் தொலைபேசி எண்ணைக் கூறுங்கள். எங்கள் முகவர் 24 மணி நேரத்திற்குள் தொடர்பு கொள்வார்.' : 'Of course! To schedule a tour, please share your preferred date, time, and phone number. Our agent will contact you within 24 hours.',
+    'agent': lang === 'ta' ? 'எங்கள் சிறந்த முகவர்களை இணைக்கிறேன்! உங்கள் தொலைபேசி எண்ணை அல்லது மின்னஞ்சலை பகிர்ந்தால், உடனடியாக தொடர்பு கொள்வோம்.' : 'I\'ll connect you with one of our top agents! Share your phone number or email and we\'ll reach out immediately.',
+  };
+
+  const handleSend = (text) => {
+    const msg = text || input;
+    if (!msg.trim()) return;
+    setMessages(prev => [...prev, { role: 'user', text: msg }]);
+    setInput('');
+    setTyping(true);
+    setTimeout(() => {
+      const lowerMsg = msg.toLowerCase();
+      let response = lang === 'ta' ? 'நன்றி! உங்கள் கேள்வியை எங்கள் முகவர் குழுவிற்கு அனுப்புகிறேன். விரைவில் தொடர்பு கொள்வார்கள்.' : 'Thanks! I\'m forwarding your inquiry to our agent team. They\'ll get back to you shortly.';
+      if (lowerMsg.includes('find') || lowerMsg.includes('house') || lowerMsg.includes('land') || lowerMsg.includes('வீடு') || lowerMsg.includes('காணி')) response = botResponses['find'];
+      else if (lowerMsg.includes('price') || lowerMsg.includes('cost') || lowerMsg.includes('விலை') || lowerMsg.includes('budget')) response = botResponses['price'];
+      else if (lowerMsg.includes('tour') || lowerMsg.includes('visit') || lowerMsg.includes('see') || lowerMsg.includes('பார்')) response = botResponses['tour'];
+      else if (lowerMsg.includes('agent') || lowerMsg.includes('talk') || lowerMsg.includes('call') || lowerMsg.includes('முகவர்')) response = botResponses['agent'];
+      setMessages(prev => [...prev, { role: 'bot', text: response }]);
+      setTyping(false);
+    }, 1200);
+  };
+
+  return (
+    <>
+      {isOpen && (
+        <div className="chatbot-window">
+          <div className="chatbot-header">
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🏠</div>
+            <div>
+              <div style={{ fontWeight: 700 }}>Yaal AI Assistant</div>
+              <div style={{ fontSize: 12, opacity: 0.8 }}>{lang === 'ta' ? '24/7 ஆன்லைன்' : '24/7 Online'}</div>
+            </div>
+            <button onClick={() => setIsOpen(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><Icon name="x" size={20} /></button>
+          </div>
+          <div className="chatbot-messages">
+            {messages.map((msg, i) => (
+              <div key={i} className={`chat-msg ${msg.role}`} style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
+            ))}
+            {typing && <div className="chat-msg bot" style={{ opacity: 0.6 }}>...</div>}
+          </div>
+          <div className="chat-suggestions">
+            {[t('findProperty'), t('checkPrice'), t('bookTour'), t('talkToAgent')].map((s, i) => (
+              <button key={i} className="chat-suggestion" onClick={() => handleSend(s)}>{s}</button>
+            ))}
+          </div>
+          <div className="chatbot-input">
+            <input className="input" style={{ flex: 1 }} placeholder={t('chatbotPlaceholder')} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleSend(); }} />
+            <button onClick={() => handleSend()} className="btn btn-primary btn-sm" style={{ borderRadius: '50%', width: 40, height: 40, padding: 0 }}>
+              <Icon name="chevronRight" size={18} color="white" />
+            </button>
+          </div>
+        </div>
+      )}
+      <button className="chatbot-fab" onClick={() => setIsOpen(!isOpen)}>
+        <div className="pulse-ring" />
+        {isOpen ? <Icon name="x" size={24} color="white" /> : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}
+      </button>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────
+// WHATSAPP BUTTON
+// ─────────────────────────────────────────
+function WhatsAppButton() {
+  return (
+    <a href="https://wa.me/94212223456?text=Hi%20Yaal%20Nilam!%20I'm%20interested%20in%20a%20property." target="_blank" rel="noopener noreferrer" className="whatsapp-fab" title="Chat on WhatsApp">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+  );
+}
+
+// ─────────────────────────────────────────
+// RECENTLY VIEWED
+// ─────────────────────────────────────────
+function RecentlyViewedStrip() {
+  const { lang, t, recentlyViewed, setSelectedProperty, setPage } = useContext(AppContext);
+  if (!recentlyViewed || recentlyViewed.length === 0) return null;
+  return (
+    <section className="recently-viewed">
+      <div className="container">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+          <Icon name="clock" size={16} color="var(--text-light)" />
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-light)' }}>{t('recentlyViewed')}</span>
+        </div>
+        <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: 8 }}>
+          {recentlyViewed.slice(0, 5).map(p => (
+            <div key={p.id} className="recently-viewed-item" onClick={() => { setSelectedProperty(p); setPage('propertyDetail'); }}>
+              <img src={p.images[0]} alt="" />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lang === 'ta' ? p.titleTa : p.title}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--primary)' }}>{formatPrice(p.price, p.listingType, lang)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// HOME PAGE
+// ─────────────────────────────────────────
+function HomePage() {
+  return (
+    <>
+      <HeroSection />
+      <RecentlyViewedStrip />
+      <PopularAreas />
+      <FeaturedProperties />
+      <NeighborhoodGuide />
+      <TestimonialsSection />
+      <MortgageCalculator />
+      <WhyChooseUs />
+      <TopAgentsPreview />
+    </>
+  );
+}
+
+// ─────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────
+function Toast({ message, onClose }) {
+  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, []);
+  return (
+    <div className="toast">
+      <Icon name="check" size={18} color="#10B981" />
+      <span>{message}</span>
+      <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', marginLeft: 8 }}><Icon name="x" size={16} /></button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// APP
+// ─────────────────────────────────────────
+function App() {
+  const [lang, setLang] = useState('en');
+  const [page, setPage] = useState('home');
+  const [user, setUser] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [toast, setToast] = useState('');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [activePathway, setActivePathway] = useState('sale');
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+
+  const t = useCallback((key) => translations[lang][key] || key, [lang]);
+
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [page]);
+
+  // Track recently viewed properties
+  const origSetSelectedProperty = useCallback((prop) => {
+    if (prop) {
+      setRecentlyViewed(prev => {
+        const filtered = prev.filter(p => p.id !== prop.id);
+        return [prop, ...filtered].slice(0, 10);
+      });
+    }
+    setSelectedProperty(prop);
+  }, []);
+
+  const contextValue = {
+    lang, setLang, t, page, setPage, user, setUser,
+    showLogin, setShowLogin, showSignup, setShowSignup,
+    selectedProperty, setSelectedProperty: origSetSelectedProperty, selectedAgent, setSelectedAgent,
+    searchQuery, setSearchQuery, setToast, showMobileMenu, setShowMobileMenu,
+    activePathway, setActivePathway, recentlyViewed
+  };
+
+  const renderPage = () => {
+    switch (page) {
+      case 'home': return <HomePage />;
+      case 'properties': return <PropertiesPage />;
+      case 'map': return <MapPage />;
+      case 'agents': return <AgentsPage />;
+      case 'agentDetail': return <AgentDetail />;
+      case 'propertyDetail': return <PropertyDetail />;
+      case 'dashboard': return <DashboardPage />;
+      case 'addListing': return <AddListingPage />;
+      default: return <HomePage />;
+    }
+  };
+
+  return (
+    <AppContext.Provider value={contextValue}>
+      <Navbar />
+      <MobileNavDrawer />
+      <main style={{ minHeight: '60vh' }}>{renderPage()}</main>
+      <Footer />
+      {showLogin && <LoginModal />}
+      {showSignup && <SignupModal />}
+      {toast && <Toast message={toast} onClose={() => setToast('')} />}
+      <WhatsAppButton />
+      <AIChatbot />
+    </AppContext.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+import { create } from 'zustand';
+
+export type Locale = 'en' | 'ta';
+
+export interface CurrentUser {
+  name: string;
+  role: string;
+  email: string;
+  avatar: string | null;
+}
+
+export interface AdminStore {
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
+  currentUser: CurrentUser;
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+}
+
+export const useAdminStore = create<AdminStore>((set) => ({
+  sidebarOpen: true,
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  currentUser: {
+    name: 'Nanthan',
+    role: 'super_admin',
+    email: 'nanthan77@gmail.com',
+    avatar: null,
+  },
+  locale: 'en',
+  setLocale: (locale: Locale) => set({ locale }),
+}));
