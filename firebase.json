@@ -15,10 +15,12 @@
       "target": "main",
       "public": "web/out",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "cleanUrls": true,
+      "trailingSlash": true,
       "rewrites": [
         {
-          "source": "**",
-          "destination": "/index.html"
+          "source": "/properties/**",
+          "destination": "/properties/prop-001/index.html"
         }
       ],
       "headers": [
@@ -46,6 +48,8 @@
       "target": "admin",
       "public": "dashboard/out",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "cleanUrls": true,
+      "trailingSlash": true,
       "rewrites": [
         {
           "source": "**",
