@@ -15,6 +15,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from 'recharts'
 import {
   INQUIRIES_WEEKLY,
@@ -152,24 +153,28 @@ export default function AnalyticsPage() {
         {/* Listings by Type */}
         <div className="bg-white border border-sand-200 rounded-lg p-6">
           <h2 className="text-lg font-bold text-charcoal-900 mb-4">Listings by Type</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={LISTINGS_BY_TYPE}
-                dataKey="count"
-                nameKey="type"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-              >
-                {LISTINGS_BY_TYPE.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={LISTINGS_BY_TYPE}
+                  dataKey="count"
+                  nameKey="type"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  label={({ name, value }: { name: string; value: number }) => `${name}: ${value}`}
+                >
+                  {LISTINGS_BY_TYPE.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Demand vs Supply by Area */}

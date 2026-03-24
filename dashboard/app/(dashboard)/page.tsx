@@ -218,29 +218,31 @@ export default function DashboardPage() {
           <h2 className="text-lg font-bold text-charcoal-900 mb-4">
             Listings by Type
           </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={LISTINGS_BY_TYPE}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ type, count }) => `${type}: ${count}`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="count"
-                nameKey="type"
-              >
-                {LISTINGS_BY_TYPE.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={pieColors[index % pieColors.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={LISTINGS_BY_TYPE}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }: { name: string; value: number }) => `${name}: ${value}`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="count"
+                  nameKey="type"
+                >
+                  {LISTINGS_BY_TYPE.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={pieColors[index % pieColors.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>      {/* Pending Listings Table */}
       <div className="bg-white rounded-lg shadow border border-gray-200 mb-8">
@@ -443,7 +445,7 @@ export default function DashboardPage() {
                     {notification.message}
                   </p>
                   <p className="text-xs text-charcoal-500 mt-2">
-                    {notification.created_at}
+                    {new Date(notification.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 <Icon className="w-4 h-4 text-charcoal-400 flex-shrink-0" />

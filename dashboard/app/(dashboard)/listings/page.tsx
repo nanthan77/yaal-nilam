@@ -16,6 +16,7 @@ import {
   LayoutList,
   X,
   AlertCircle,
+  Home,
 } from 'lucide-react';
 
 // ============================================================================
@@ -1152,11 +1153,17 @@ export default function ListingsPage() {
                   </button>
                 </td>
                 <td className="px-6 py-4">
-                  <img
-                    src={listing.images[0]}
-                    alt={listing.title}
-                    className="w-12 h-12 rounded-lg object-cover"
-                  />
+                  {listing.images && listing.images.length > 0 ? (
+                    <img
+                      src={listing.images[0]}
+                      alt={listing.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-sand-100 flex items-center justify-center">
+                      <Home className="w-6 h-6 text-sand-400" />
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <div>
@@ -1271,11 +1278,17 @@ export default function ListingsPage() {
           >
             {/* Image */}
             <div className="relative h-40 overflow-hidden bg-gray-100">
-              <img
-                src={listing.images[0]}
-                alt={listing.title}
-                className="w-full h-full object-cover"
-              />
+              {listing.images && listing.images.length > 0 ? (
+                <img
+                  src={listing.images[0]}
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Home className="w-12 h-12 text-sand-300" />
+                </div>
+              )}
               <span
                 className={`absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusColor.bg} ${statusColor.text}`}
               >
