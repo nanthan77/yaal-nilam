@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import VoiceSearch from '@/components/VoiceSearch';
 import FirebaseProvider from '@/components/FirebaseProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -94,6 +95,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <VoiceSearch variant="floating" />
           <WhatsAppButton />
         </FirebaseProvider>
       </body>

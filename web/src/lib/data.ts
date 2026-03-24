@@ -1,6 +1,8 @@
 export type PropertyType = 'House' | 'Apartment' | 'Villa' | 'Land' | 'Commercial';
 export type PropertyStatus = 'Available' | 'Sold' | 'Pending';
 
+export type Intent = 'sell' | 'rent' | 'short_rent';
+
 export interface Property {
   id: string;
   title: string;
@@ -16,6 +18,16 @@ export interface Property {
   images: number;
   featured: boolean;
   status: PropertyStatus;
+  // Extended fields used by CategoryPage / PropertyCard
+  intent: Intent;
+  property_type: string;
+  media_urls: string[];
+  listing_code: string;
+  agent_phone?: string;
+  verified: boolean;
+  land_size_perches?: number;
+  address: string;
+  address_ta?: string;
 }
 
 export interface Area {
@@ -51,6 +63,13 @@ export const PROPERTIES: Property[] = [
     images: 5,
     featured: true,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'villa',
+    media_urls: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop'],
+    listing_code: 'YN-001',
+    verified: true,
+    address: 'Jaffna Fort, Jaffna',
+    address_ta: 'யாழ் கோட்டை, யாழ்ப்பாணம்',
   },
   {
     id: 'prop-002',
@@ -67,6 +86,13 @@ export const PROPERTIES: Property[] = [
     images: 4,
     featured: true,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'house',
+    media_urls: ['https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=600&h=400&fit=crop'],
+    listing_code: 'YN-002',
+    verified: true,
+    address: 'Nallur, Jaffna',
+    address_ta: 'நல்லூர், யாழ்ப்பாணம்',
   },
   {
     id: 'prop-003',
@@ -83,6 +109,13 @@ export const PROPERTIES: Property[] = [
     images: 4,
     featured: false,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'apartment',
+    media_urls: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop'],
+    listing_code: 'YN-003',
+    verified: true,
+    address: 'Chunnakam, Jaffna',
+    address_ta: 'சுன்னாகம், யாழ்ப்பாணம்',
   },
   {
     id: 'prop-004',
@@ -99,6 +132,13 @@ export const PROPERTIES: Property[] = [
     images: 3,
     featured: false,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'commercial',
+    media_urls: ['https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=600&h=400&fit=crop'],
+    listing_code: 'YN-004',
+    verified: false,
+    address: 'Kopay, Jaffna',
+    address_ta: 'கோப்பாய், யாழ்ப்பாணம்',
   },
   {
     id: 'prop-005',
@@ -115,6 +155,14 @@ export const PROPERTIES: Property[] = [
     images: 3,
     featured: true,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'land',
+    media_urls: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop'],
+    listing_code: 'YN-005',
+    verified: true,
+    land_size_perches: 25,
+    address: 'Point Pedro, Jaffna',
+    address_ta: 'பருத்தித்துறை, யாழ்ப்பாணம்',
   },
   {
     id: 'prop-006',
@@ -131,6 +179,13 @@ export const PROPERTIES: Property[] = [
     images: 6,
     featured: true,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'villa',
+    media_urls: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop'],
+    listing_code: 'YN-006',
+    verified: true,
+    address: 'Karainagar, Jaffna',
+    address_ta: 'கரைநகர், யாழ்ப்பாணம்',
   },
   {
     id: 'prop-007',
@@ -147,6 +202,13 @@ export const PROPERTIES: Property[] = [
     images: 4,
     featured: false,
     status: 'Available',
+    intent: 'sell',
+    property_type: 'house',
+    media_urls: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop'],
+    listing_code: 'YN-007',
+    verified: true,
+    address: 'Thirunelvely, Jaffna',
+    address_ta: 'திருநெல்வேலி, யாழ்ப்பாணம்',
   },
 ];
 

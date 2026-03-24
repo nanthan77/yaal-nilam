@@ -147,7 +147,7 @@ export default function DashboardPage() {
           Yaal Nilam Dashboard
         </h1>
         <p className="text-charcoal-600 mt-2">
-          Welcome back! Here's your property platform overview.
+          Welcome back! Here&apos;s your property platform overview.
         </p>
       </div>
 

@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useStore } from '@/lib/store';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import Link from 'next/link';
 import { MessageCircle, Check } from 'lucide-react';
@@ -35,7 +34,6 @@ const intents = [
 ];
 
 export default function RequestPropertyPage() {
-  const { locale } = useStore();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     intent: '',

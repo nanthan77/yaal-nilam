@@ -1,14 +1,11 @@
 'use client';
 
-import { useStore } from '@/lib/store';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import Link from 'next/link';
 
 export default function TermsPage() {
-  const { locale } = useStore();
-
   return (
     <>
       <Navbar />

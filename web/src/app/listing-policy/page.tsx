@@ -1,15 +1,12 @@
 'use client';
 
-import { useStore } from '@/lib/store';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import Link from 'next/link';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function ListingPolicyPage() {
-  const { locale } = useStore();
-
   return (
     <>
       <Navbar />

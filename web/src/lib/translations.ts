@@ -21,6 +21,11 @@ type TranslationKeys = {
   'property.bedrooms': string;
   'property.bathrooms': string;
   'property.type': string;
+  'nav.login': string;
+  'nav.register': string;
+  'nav.map': string;
+  'nav.agents': string;
+  'common.loading': string;
 };
 
 const translations: Record<Locale, TranslationKeys> = {
@@ -45,6 +50,11 @@ const translations: Record<Locale, TranslationKeys> = {
     'property.bedrooms': 'Bedrooms',
     'property.bathrooms': 'Bathrooms',
     'property.type': 'Type',
+    'nav.login': 'Login',
+    'nav.register': 'Register',
+    'nav.map': 'Map',
+    'nav.agents': 'Agents',
+    'common.loading': 'Loading...',
   },
   ta: {
     'site.name': 'யாழ் நிலம்',
@@ -67,9 +77,22 @@ const translations: Record<Locale, TranslationKeys> = {
     'property.bedrooms': 'படுக்கையறைகள்',
     'property.bathrooms': 'குளியலறைகள்',
     'property.type': 'வகை',
+    'nav.login': 'உள்நுழைவு',
+    'nav.register': 'பதிவு செய்க',
+    'nav.map': 'வரைபடம்',
+    'nav.agents': 'முகவர்கள்',
+    'common.loading': 'ஏற்றுகிறது...',
   },
 };
 
 export function t(key: keyof TranslationKeys, locale: Locale): string {
   return translations[locale][key] || key;
+}
+
+export function formatPrice(price: number, locale: Locale): string {
+  return new Intl.NumberFormat(locale === 'ta' ? 'ta-LK' : 'en-LK', {
+    style: 'currency',
+    currency: 'LKR',
+    maximumFractionDigits: 0,
+  }).format(price);
 }
