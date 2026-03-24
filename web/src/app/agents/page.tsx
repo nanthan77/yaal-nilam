@@ -1,7 +1,5 @@
 "use client";
 
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/translations";
 
@@ -19,8 +17,7 @@ export default function AgentsPage() {
 
   return (
     <>
-      <Navbar />
-      <main className="container-wide py-8 flex-1">
+      <div className="container-wide py-8 flex-1">
         <h1 className="section-heading mb-2">{t("nav.agents", locale)}</h1>
         <p className="section-subheading mb-10">Verified property agents across Jaffna Peninsula</p>
 
@@ -74,8 +71,7 @@ export default function AgentsPage() {
             </div>
           ))}
         </div>
-      </main>
-      <Footer />
+      </div>
     </>
   );
 }

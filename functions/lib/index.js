@@ -36,18 +36,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.onNewWhatsAppMessage = exports.sendWhatsApp = exports.whatsappWebhookHandler = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
+const cors = require("cors");
 const whatsapp_1 = require("./whatsapp");
 const whatsapp_send_1 = require("./whatsapp-send");
 admin.initializeApp();
+const corsHandler = cors({ origin: true });
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
-exports.whatsappWebhookHandler = functions.https.onRequest(async (req, res) => {
-    if (req.method === "GET") {
-        return (0, whatsapp_1.whatsappVerify)(req, res);
-    }
-    if (req.method === "POST") {
-        return (0, whatsapp_1.whatsappWebhook)(req, res);
-    }
-    res.status(405).send("Method not allowed");
+// Must be publicly accessible for Meta to call it
+exports.whatsappWebhookHandler = functions
+    .runWith({ memory: "256MB", timeoutSeconds: 60 })
+    .https.onRequest(async (req, res) => {
+    // Handle CORS preflight
+    return corsHandler(req, res, async () => {
+        if (req.method === "GET") {
+            return (0, whatsapp_1.whatsappVerify)(req, res);
+        }
+        if (req.method === "POST") {
+            return (0, whatsapp_1.whatsappWebhook)(req, res);
+        }
+        res.status(405).send("Method not allowed");
+    });
 });
 // Send WhatsApp message - called from admin dashboard
 exports.sendWhatsApp = functions.https.onCall(async (data, context) => {

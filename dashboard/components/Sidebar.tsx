@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminStore } from '@/lib/store';
+import { MOCK_LISTINGS, MOCK_INQUIRIES, MOCK_REQUIREMENTS, MOCK_AGENTS, MOCK_NOTIFICATIONS } from '@/lib/mock-data';
 import {
   LayoutDashboard,
   Home,
@@ -27,7 +29,21 @@ import {
 } from 'lucide-react';
 
 export function Sidebar() {
-  const { sidebarOpen, toggleSidebar } = useAdminStore();  const pathname = usePathname();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useAdminStore();
+  const pathname = usePathname();
+
+  // Auto-collapse sidebar on mobile
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) {
+        setSidebarOpen(false);
+      }
+    };
+    handleChange(mediaQuery);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [setSidebarOpen]);
 
   const isActive = (path: string) => pathname.startsWith(path);
 
@@ -50,19 +66,19 @@ export function Sidebar() {
           label: 'Listings',
           href: '/listings',
           icon: Home,
-          badge: 48,
+          badge: MOCK_LISTINGS.length,
         },
         {
           label: 'Inquiries',
           href: '/inquiries',
           icon: MessageSquare,
-          badge: 18,
+          badge: MOCK_INQUIRIES.length,
         },
         {
           label: 'Requirements',
           href: '/requirements',
           icon: CheckCircle,
-          badge: 5,
+          badge: MOCK_REQUIREMENTS.length,
         },        {
           label: 'Matching Engine',
           href: '/matching',
@@ -78,7 +94,7 @@ export function Sidebar() {
           label: 'Agents',
           href: '/agents',
           icon: Users,
-          badge: 8,
+          badge: MOCK_AGENTS.length,
         },
         {
           label: 'Users',
@@ -95,7 +111,7 @@ export function Sidebar() {
           label: 'WhatsApp Inbox',
           href: '/whatsapp',
           icon: MessageCircle,
-          badge: 3,
+          badge: null,
         },
       ],
     },
@@ -156,7 +172,7 @@ export function Sidebar() {
           label: 'Notifications',
           href: '/notifications',
           icon: Bell,
-          badge: 3,
+          badge: MOCK_NOTIFICATIONS.filter(n => !n.read).length,
         },
         {
           label: 'Settings',

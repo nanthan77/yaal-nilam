@@ -28,6 +28,7 @@ export default function AddListingPage() {
     price: '', bedrooms: '', bathrooms: '', sqft: '', images: [],
   });
   const [submitted, setSubmitted] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
   useEffect(() => {
     async function loadAreas() {
@@ -124,14 +125,17 @@ export default function AddListingPage() {
                       </label>
                     ))}
                   </div>
+                  {showErrors && !formData.type && <p className="text-red-600 text-sm mt-1">Please select a property type</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-charcoal-700 mb-2">Property Title *</label>
                   <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g., Spacious 3-bedroom house in Jaffna City" className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500" required />
+                  {showErrors && !formData.title && <p className="text-red-600 text-sm mt-1">Property title is required</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-charcoal-700 mb-2">Description *</label>
                   <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Describe your property in detail..." rows={5} className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500" required />
+                  {showErrors && !formData.description && <p className="text-red-600 text-sm mt-1">Description is required</p>}
                 </div>
               </div>
             )}
@@ -148,10 +152,12 @@ export default function AddListingPage() {
                       <option key={area.slug} value={area.slug}>{area.name}</option>
                     ))}
                   </select>
+                  {showErrors && !formData.area && <p className="text-red-600 text-sm mt-1">Please select an area</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-charcoal-700 mb-2">Street Address *</label>
                   <input type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="Enter the street address" className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500" required />
+                  {showErrors && !formData.address && <p className="text-red-600 text-sm mt-1">Address is required</p>}
                 </div>
               </div>
             )}
@@ -163,6 +169,7 @@ export default function AddListingPage() {
                 <div>
                   <label className="block text-sm font-semibold text-charcoal-700 mb-2">Price (Rs.) *</label>
                   <input type="number" name="price" value={formData.price} onChange={handleInputChange} placeholder="e.g., 5000000" className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500" required />
+                  {showErrors && !formData.price && <p className="text-red-600 text-sm mt-1">Price is required</p>}
                 </div>
                 <div className="grid md:grid-cols-3 gap-6">
                   <div>
@@ -214,7 +221,7 @@ export default function AddListingPage() {
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
               {currentStep < 4 ? (
-                <button type="button" onClick={() => setCurrentStep(currentStep + 1)} disabled={!canProceed}
+                <button type="button" onClick={() => { if (canProceed) { setShowErrors(false); setCurrentStep(currentStep + 1); } else { setShowErrors(true); } }}
                   className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ml-auto ${canProceed ? 'bg-navy-700 hover:bg-navy-600 text-white' : 'bg-sand-100 text-charcoal-400 cursor-not-allowed'}`}>
                   Next <ChevronRight className="w-4 h-4" />
                 </button>

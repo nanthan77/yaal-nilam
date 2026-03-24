@@ -212,7 +212,7 @@ export default function AnalyticsPage() {
                 <tr key={area.area} className="border-b border-sand-100 hover:bg-sand-50">
                   <td className="py-3 px-4 text-charcoal-700 font-medium">{area.area}</td>
                   <td className="text-right py-3 px-4 text-charcoal-600">{area.count}</td>
-                  <td className="text-right py-3 px-4 text-charcoal-600">{area.percentage}</td>
+                  <td className="text-right py-3 px-4 text-charcoal-600">{Math.round(area.count * area.percentage / 100)}</td>
                   <td className="text-right py-3 px-4">
                     <span className="text-teal-600 font-medium">{area.percentage}%</span>
                   </td>

@@ -1,15 +1,11 @@
 'use client';
 
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
-import WhatsAppFloat from '@/components/WhatsAppFloat';
 import Link from 'next/link';
 
 export default function TermsPage() {
   return (
     <>
-      <Navbar />
-      <main>
+      <div>
         {/* Hero Section */}
         <div className="bg-navy-900 text-white py-16">
           <div className="container-wide">
@@ -185,9 +181,7 @@ export default function TermsPage() {
             </section>
           </div>
         </div>
-      </main>
-      <Footer />
-      <WhatsAppFloat />
+      </div>
     </>
   );
 }

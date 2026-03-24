@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 import VoiceSearch from "@/components/VoiceSearch";
 import { useStore } from "@/lib/store";
 import { PROPERTIES } from "@/lib/data";
@@ -73,8 +70,6 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
 
   return (
     <>
-      <Navbar />
-
       {/* Hero */}
       <section className="bg-navy-900 text-white py-16 md:py-20">
         <div className="container-wide text-center">
@@ -175,9 +170,6 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
         </div>
       </section>
 
-      <Footer />
-      <WhatsAppFloat />
-      <VoiceSearch variant="floating" />
     </>
   );
 }

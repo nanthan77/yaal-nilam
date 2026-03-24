@@ -94,18 +94,28 @@ export default function MatchingPage() {
 
               <div className="divide-y divide-charcoal-200 max-h-[600px] overflow-y-auto">
                 {MOCK_REQUIREMENTS.map((req) => {
-                  const matches = MOCK_LISTINGS.filter(l => {
-                    return (l.type === req.property_type || l.type.includes(req.property_type)) &&
-                           l.price >= req.budget_min * 0.9 &&
-                           l.price <= req.budget_max * 1.1;
-                  }).length;
+                  const matches = MOCK_LISTINGS
+                    .map(listing => {
+                      let score = 0;
+                      const listingType = listing.type || '';
+                      if (listingType === req.property_type) score += 30;
+                      else if (listingType.includes(req.property_type)) score += 15;
+                      if (listing.price >= req.budget_min && listing.price <= req.budget_max) {
+                        score += 30;
+                      } else if (listing.price >= req.budget_min * 0.9 && listing.price <= req.budget_max * 1.1) {
+                        score += 15;
+                      }
+                      score += 20 + 10;
+                      return score;
+                    })
+                    .filter(score => score >= 50).length;
 
                   return (
                     <button
                       key={req.id}
                       onClick={() => setSelectedRequirementId(req.id)}
                       className={`w-full text-left px-6 py-4 border-l-4 transition ${
-                        selectedRequirementId === req.id
+                        (selectedRequirementId === req.id || (!selectedRequirementId && req.id === MOCK_REQUIREMENTS[0]?.id))
                           ? 'bg-teal-50 border-l-teal-500'
                           : 'border-l-transparent hover:bg-charcoal-50'
                       }`}
@@ -154,17 +164,15 @@ export default function MatchingPage() {
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
-                            <p className="font-semibold text-charcoal-900">{match.listing.address}</p>
-                            <p className="text-sm text-charcoal-600 mt-1">{match.listing.property_type || match.listing.type}</p>
+                            <p className="font-semibold text-charcoal-900">{match.listing.title}</p>
+                            <p className="text-sm text-charcoal-600 mt-1">{match.listing.type} &middot; {match.listing.area}</p>
                             <p className="text-sm font-semibold text-charcoal-900 mt-2">
                               Rs. {match.listing.price.toLocaleString()}
                             </p>
                             <div className="flex gap-2 mt-3 text-xs text-charcoal-600">
-                              <span>{match.listing.bedrooms} beds</span>
+                              <span>{match.listing.images} images</span>
                               <span>•</span>
-                              <span>{match.listing.bathrooms} baths</span>
-                              <span>•</span>
-                              <span>{match.listing.sqft} sqft</span>
+                              <span>{match.listing.agent}</span>
                             </div>
                           </div>
 

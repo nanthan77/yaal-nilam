@@ -72,13 +72,13 @@ export const DASHBOARD_STATS = {
 };
 
 export const MOCK_LISTINGS = [
-  { id: "list-001", title: "Luxury Villa in Jaffna Fort", area: "Jaffna Fort", price: 2500000, type: "Villa", status: "pending", agent: "Kamalan Ravi", date: new Date(Date.now() - 2*60*60*1000), images: 8, missing: [] },
-  { id: "list-002", title: "Spacious Apartment - Central Jaffna", area: "Central Jaffna", price: 1200000, type: "Apartment", status: "pending", agent: "Priya Durai", date: new Date(Date.now() - 4*60*60*1000), images: 5, missing: ["images"] },
-  { id: "list-003", title: "Land Plot - Kopay", area: "Kopay", price: 850000, type: "Land", status: "pending", agent: "Ravi Kumar", date: new Date(Date.now() - 6*60*60*1000), images: 2, missing: ["images","price"] },
-  { id: "list-004", title: "Commercial Space - Main Street", area: "Main Street", price: 3500000, type: "Commercial", status: "pending", agent: "Anita Singh", date: new Date(Date.now() - 8*60*60*1000), images: 6, missing: [] },
-  { id: "list-005", title: "Cottage in Nallur", area: "Nallur", price: 950000, type: "House", status: "pending", agent: "Kamalan Ravi", date: new Date(Date.now() - 10*60*60*1000), images: 4, missing: ["price"] },
-  { id: "list-006", title: "Residential Complex - Mullaitivu", area: "Mullaitivu", price: 2800000, type: "Apartment", status: "approved", agent: "Priya Durai", date: new Date(Date.now() - 24*60*60*1000), images: 12, missing: [] },
-  { id: "list-007", title: "Beach Front Property", area: "Jaffna Fort", price: 5200000, type: "Villa", status: "approved", agent: "Ravi Kumar", date: new Date(Date.now() - 48*60*60*1000), images: 15, missing: [] },
+  { id: "list-001", title: "Luxury Villa in Jaffna Fort", area: "Jaffna Fort", price: 2500000, type: "Villa", status: "pending", agent: "Kamalan Ravi", date: new Date(Date.now() - 2*60*60*1000), images: 8, missing: [], thumbnail: "https://images.unsplash.com/photo-1570129477492-45ea003588af?w=400" },
+  { id: "list-002", title: "Spacious Apartment - Central Jaffna", area: "Central Jaffna", price: 1200000, type: "Apartment", status: "pending", agent: "Priya Durai", date: new Date(Date.now() - 4*60*60*1000), images: 5, missing: ["images"], thumbnail: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400" },
+  { id: "list-003", title: "Land Plot - Kopay", area: "Kopay", price: 850000, type: "Land", status: "pending", agent: "Ravi Kumar", date: new Date(Date.now() - 6*60*60*1000), images: 2, missing: ["images","price"], thumbnail: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400" },
+  { id: "list-004", title: "Commercial Space - Main Street", area: "Main Street", price: 3500000, type: "Commercial", status: "pending", agent: "Anita Singh", date: new Date(Date.now() - 8*60*60*1000), images: 6, missing: [], thumbnail: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400" },
+  { id: "list-005", title: "Cottage in Nallur", area: "Nallur", price: 950000, type: "House", status: "pending", agent: "Kamalan Ravi", date: new Date(Date.now() - 10*60*60*1000), images: 4, missing: ["price"], thumbnail: "https://images.unsplash.com/photo-1512917774080-9b274b3d0117?w=400" },
+  { id: "list-006", title: "Residential Complex - Mullaitivu", area: "Mullaitivu", price: 2800000, type: "Apartment", status: "approved", agent: "Priya Durai", date: new Date(Date.now() - 24*60*60*1000), images: 12, missing: [], thumbnail: "https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=400" },
+  { id: "list-007", title: "Beach Front Property", area: "Jaffna Fort", price: 5200000, type: "Villa", status: "approved", agent: "Ravi Kumar", date: new Date(Date.now() - 48*60*60*1000), images: 15, missing: [], thumbnail: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400" },
 ];
 
 export const INQUIRIES_WEEKLY = [
@@ -105,14 +105,14 @@ export const TOP_AREAS = [
 ];
 
 export const MOCK_INQUIRIES: Inquiry[] = [
-  { id: 'INQ001', listing_id: 'L001', listing_title: 'Beautiful House in Nallur', customer_name: 'Aravinthan', phone: '+94721234567', whatsapp: '+94721234567', email: 'aravind@email.com', message: 'Interested in viewing the property this weekend', source: 'website_form', status: 'interested', priority: 'hot', assigned_to: 'Karthikeyan', notes: 'Serious buyer, willing to negotiate', follow_up_date: '2024-03-25', created_at: '2024-03-22T10:30:00Z' },
-  { id: 'INQ002', listing_id: 'L003', listing_title: 'Apartment in Jaffna Town', customer_name: 'Mallika', phone: '+94722345678', whatsapp: '+94722345678', email: 'mallika@email.com', message: 'Is this available for immediate occupancy?', source: 'whatsapp', status: 'new', priority: 'warm', assigned_to: 'Karthikeyan', notes: '', created_at: '2024-03-22T14:15:00Z' },
-  { id: 'INQ003', listing_id: 'L004', listing_title: 'Commercial Space in Kokuvil', customer_name: 'Mani K', phone: '+94723456789', whatsapp: '+94723456789', email: 'mani@biz.com', message: 'Looking for office space', source: 'facebook', status: 'contacted', priority: 'warm', assigned_to: 'Shankar', notes: 'Potential long-term tenant', follow_up_date: '2024-03-26', created_at: '2024-03-20T09:00:00Z' },
-  { id: 'INQ004', listing_id: 'L005', listing_title: 'Luxury Villa in Nallur', customer_name: 'Chandrasekaran', phone: '+94724567890', whatsapp: '+94724567890', email: 'chandra@email.com', message: 'Interested but need financing', source: 'website_form', status: 'negotiating', priority: 'hot', assigned_to: 'Munisamy', notes: 'Waiting for bank approval', follow_up_date: '2024-03-28', created_at: '2024-03-15T16:45:00Z' },
-  { id: 'INQ005', listing_id: 'L001', listing_title: 'Beautiful House in Nallur', customer_name: 'Nayakam', phone: '+94725678901', whatsapp: '+94725678901', email: 'nayakam@email.com', message: 'Want to schedule a site visit', source: 'phone', status: 'site_visit', priority: 'hot', assigned_to: 'Karthikeyan', notes: 'Visited property, seems interested', follow_up_date: '2024-03-25', created_at: '2024-03-18T11:20:00Z' },
-  { id: 'INQ006', listing_id: 'L002', listing_title: 'Land Plot in Chunnakam', customer_name: 'Balasubramaniam', phone: '+94726789012', whatsapp: '+94726789012', email: 'bala@email.com', message: 'No response to follow-ups', source: 'google', status: 'no_answer', priority: 'cold', assigned_to: 'Munisamy', notes: 'Called twice, no response', created_at: '2024-03-10T13:30:00Z' },
-  { id: 'INQ007', listing_id: 'L004', listing_title: 'Commercial Space in Kokuvil', customer_name: 'Pandaram', phone: '+94727890123', whatsapp: '+94727890123', email: 'pandam@email.com', message: 'Asking for unrealistic price', source: 'website_form', status: 'closed_lost', priority: 'cold', assigned_to: 'Shankar', notes: 'Cannot accommodate price request', created_at: '2024-03-05T10:15:00Z' },
-  { id: 'INQ008', listing_id: 'L003', listing_title: 'Apartment in Jaffna Town', customer_name: 'Buy Now Ltd', phone: '+94728901234', whatsapp: '+94728901234', email: 'buynow@test.com', message: 'Buy property quick cash', source: 'website_form', status: 'spam', priority: 'cold', assigned_to: 'System', notes: 'Marked as spam', created_at: '2024-03-22T08:00:00Z' },
+  { id: 'INQ001', listing_id: 'L001', listing_title: 'Beautiful House in Nallur', customer_name: 'Aravinthan', phone: '+94721234567', whatsapp: '+94721234567', email: 'aravind@email.com', message: 'Interested in viewing the property this weekend', source: 'website_form', status: 'interested', priority: 'hot', assigned_to: 'Karthikeyan', notes: 'Serious buyer, willing to negotiate', follow_up_date: '2026-03-25', created_at: '2026-03-22T10:30:00Z' },
+  { id: 'INQ002', listing_id: 'L003', listing_title: 'Apartment in Jaffna Town', customer_name: 'Mallika', phone: '+94722345678', whatsapp: '+94722345678', email: 'mallika@email.com', message: 'Is this available for immediate occupancy?', source: 'whatsapp', status: 'new', priority: 'warm', assigned_to: 'Karthikeyan', notes: '', created_at: '2026-03-22T14:15:00Z' },
+  { id: 'INQ003', listing_id: 'L004', listing_title: 'Commercial Space in Kokuvil', customer_name: 'Mani K', phone: '+94723456789', whatsapp: '+94723456789', email: 'mani@biz.com', message: 'Looking for office space', source: 'facebook', status: 'contacted', priority: 'warm', assigned_to: 'Shankar', notes: 'Potential long-term tenant', follow_up_date: '2026-03-26', created_at: '2026-03-20T09:00:00Z' },
+  { id: 'INQ004', listing_id: 'L005', listing_title: 'Luxury Villa in Nallur', customer_name: 'Chandrasekaran', phone: '+94724567890', whatsapp: '+94724567890', email: 'chandra@email.com', message: 'Interested but need financing', source: 'website_form', status: 'negotiating', priority: 'hot', assigned_to: 'Munisamy', notes: 'Waiting for bank approval', follow_up_date: '2026-03-28', created_at: '2026-03-15T16:45:00Z' },
+  { id: 'INQ005', listing_id: 'L001', listing_title: 'Beautiful House in Nallur', customer_name: 'Nayakam', phone: '+94725678901', whatsapp: '+94725678901', email: 'nayakam@email.com', message: 'Want to schedule a site visit', source: 'phone', status: 'site_visit', priority: 'hot', assigned_to: 'Karthikeyan', notes: 'Visited property, seems interested', follow_up_date: '2026-03-25', created_at: '2026-03-18T11:20:00Z' },
+  { id: 'INQ006', listing_id: 'L002', listing_title: 'Land Plot in Chunnakam', customer_name: 'Balasubramaniam', phone: '+94726789012', whatsapp: '+94726789012', email: 'bala@email.com', message: 'No response to follow-ups', source: 'google', status: 'no_answer', priority: 'cold', assigned_to: 'Munisamy', notes: 'Called twice, no response', created_at: '2026-03-10T13:30:00Z' },
+  { id: 'INQ007', listing_id: 'L004', listing_title: 'Commercial Space in Kokuvil', customer_name: 'Pandaram', phone: '+94727890123', whatsapp: '+94727890123', email: 'pandam@email.com', message: 'Asking for unrealistic price', source: 'website_form', status: 'closed_lost', priority: 'cold', assigned_to: 'Shankar', notes: 'Cannot accommodate price request', created_at: '2026-03-05T10:15:00Z' },
+  { id: 'INQ008', listing_id: 'L003', listing_title: 'Apartment in Jaffna Town', customer_name: 'Buy Now Ltd', phone: '+94728901234', whatsapp: '+94728901234', email: 'buynow@test.com', message: 'Buy property quick cash', source: 'website_form', status: 'spam', priority: 'cold', assigned_to: 'System', notes: 'Marked as spam', created_at: '2026-03-22T08:00:00Z' },
 ];
 
 export const MOCK_REQUIREMENTS: Requirement[] = [
@@ -135,12 +135,12 @@ export const MOCK_AGENTS: Agent[] = [
 ];
 
 export const MOCK_USERS: DashboardUser[] = [
-  { id: 'U001', name: 'Nanthan', email: 'nanthan77@gmail.com', phone: '+94701111111', role: 'super_admin', status: 'active', last_login: '2024-03-22T14:30:00Z', created_at: '2023-01-01T00:00:00Z' },
-  { id: 'U002', name: 'Jayarathnam', email: 'jayarathnam@yaal.lk', phone: '+94702222222', role: 'admin', status: 'active', last_login: '2024-03-22T10:15:00Z', created_at: '2023-06-10T00:00:00Z' },
-  { id: 'U003', name: 'Kamala', email: 'kamala@yaal.lk', phone: '+94703333333', role: 'content_manager', status: 'active', last_login: '2024-03-21T09:45:00Z', created_at: '2023-08-15T00:00:00Z' },
-  { id: 'U004', name: 'Shankar', email: 'shankar@yaal.lk', phone: '+94704444444', role: 'listing_manager', status: 'active', last_login: '2024-03-20T16:20:00Z', created_at: '2023-09-20T00:00:00Z' },
-  { id: 'U005', name: 'Mani', email: 'mani@yaal.lk', phone: '+94705555555', role: 'lead_manager', status: 'active', last_login: '2024-03-19T13:00:00Z', created_at: '2023-10-05T00:00:00Z' },
-  { id: 'U006', name: 'Praveen', email: 'praveen@yaal.lk', phone: '+94706666666', role: 'admin', status: 'inactive', last_login: '2024-02-28T11:30:00Z', created_at: '2024-01-12T00:00:00Z' },
+  { id: 'U001', name: 'Nanthan', email: 'nanthan77@gmail.com', phone: '+94701111111', role: 'super_admin', status: 'active', last_login: '2026-03-24T14:30:00Z', created_at: '2023-01-01T00:00:00Z' },
+  { id: 'U002', name: 'Jayarathnam', email: 'jayarathnam@yaal.lk', phone: '+94702222222', role: 'admin', status: 'active', last_login: '2026-03-24T10:15:00Z', created_at: '2023-06-10T00:00:00Z' },
+  { id: 'U003', name: 'Kamala', email: 'kamala@yaal.lk', phone: '+94703333333', role: 'content_manager', status: 'active', last_login: '2026-03-23T09:45:00Z', created_at: '2023-08-15T00:00:00Z' },
+  { id: 'U004', name: 'Shankar', email: 'shankar@yaal.lk', phone: '+94704444444', role: 'listing_manager', status: 'active', last_login: '2026-03-22T16:20:00Z', created_at: '2023-09-20T00:00:00Z' },
+  { id: 'U005', name: 'Mani', email: 'mani@yaal.lk', phone: '+94705555555', role: 'lead_manager', status: 'active', last_login: '2026-03-21T13:00:00Z', created_at: '2023-10-05T00:00:00Z' },
+  { id: 'U006', name: 'Praveen', email: 'praveen@yaal.lk', phone: '+94706666666', role: 'admin', status: 'inactive', last_login: '2026-02-28T11:30:00Z', created_at: '2024-01-12T00:00:00Z' },
 ];
 
 export const MOCK_AREAS: Area[] = [
@@ -177,12 +177,12 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
 ];
 
 export const MOCK_NOTIFICATIONS: Notification[] = [
-  { id: 'N001', title: 'New Inquiry', message: '18 new inquiries received today', type: 'info', read: false, created_at: '2024-03-22T15:00:00Z' },
-  { id: 'N002', title: 'Listing Approved', message: 'Luxury Villa listing approved and published', type: 'success', read: false, created_at: '2024-03-22T14:30:00Z' },
-  { id: 'N003', title: 'Featured Listing Expiring', message: '3 featured listings expiring in 2 days', type: 'warning', read: true, created_at: '2024-03-22T12:00:00Z' },
-  { id: 'N004', title: 'Agent Verification Pending', message: '2 agents awaiting verification review', type: 'info', read: true, created_at: '2024-03-22T10:15:00Z' },
-  { id: 'N005', title: 'System Update', message: 'Database backup completed successfully', type: 'success', read: true, created_at: '2024-03-21T23:30:00Z' },
-  { id: 'N006', title: 'Listing Rejected', message: 'Listing JN-2024-008 rejected due to missing documents', type: 'danger', read: true, created_at: '2024-03-21T16:45:00Z' },
-  { id: 'N007', title: 'High Priority Inquiry', message: 'Hot lead for Luxury Villa - urgent follow-up needed', type: 'danger', read: true, created_at: '2024-03-21T14:00:00Z' },
-  { id: 'N008', title: 'Monthly Report Ready', message: 'March performance report is ready for review', type: 'info', read: true, created_at: '2024-03-20T09:00:00Z' },
+  { id: 'N001', title: 'New Inquiry', message: '18 new inquiries received today', type: 'info', read: false, created_at: '2026-03-24T15:00:00Z' },
+  { id: 'N002', title: 'Listing Approved', message: 'Luxury Villa listing approved and published', type: 'success', read: false, created_at: '2026-03-24T14:30:00Z' },
+  { id: 'N003', title: 'Featured Listing Expiring', message: '3 featured listings expiring in 2 days', type: 'warning', read: true, created_at: '2026-03-24T12:00:00Z' },
+  { id: 'N004', title: 'Agent Verification Pending', message: '2 agents awaiting verification review', type: 'info', read: true, created_at: '2026-03-24T10:15:00Z' },
+  { id: 'N005', title: 'System Update', message: 'Database backup completed successfully', type: 'success', read: true, created_at: '2026-03-23T23:30:00Z' },
+  { id: 'N006', title: 'Listing Rejected', message: 'Listing JN-2026-008 rejected due to missing documents', type: 'danger', read: true, created_at: '2026-03-23T16:45:00Z' },
+  { id: 'N007', title: 'High Priority Inquiry', message: 'Hot lead for Luxury Villa - urgent follow-up needed', type: 'danger', read: true, created_at: '2026-03-23T14:00:00Z' },
+  { id: 'N008', title: 'Monthly Report Ready', message: 'March performance report is ready for review', type: 'info', read: true, created_at: '2026-03-22T09:00:00Z' },
 ];

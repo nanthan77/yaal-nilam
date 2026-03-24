@@ -11,10 +11,19 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function TopBar() {
   const { toggleSidebar, currentUser, locale, setLocale } = useAdminStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_token');
+    setShowUserMenu(false);
+    router.push('/login');
+  };
 
   return (
     <header className="fixed top-0 left-sidebar right-0 h-16 bg-white border-b border-navy-200 z-30">
@@ -118,7 +127,10 @@ export function TopBar() {
 
                 <div className="border-t border-sand-200 my-1"></div>
 
-                <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger hover:bg-opacity-10 transition-colors">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger hover:bg-opacity-10 transition-colors"
+                >
                   <LogOut className="w-4 h-4" />
                   Logout
                 </button>

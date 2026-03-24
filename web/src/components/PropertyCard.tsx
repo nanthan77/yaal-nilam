@@ -98,12 +98,12 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         {/* Property details chips */}
         <div className="flex flex-wrap gap-1.5 mb-4 text-xs text-charcoal-600">
           <span className="bg-sand-100 px-2.5 py-1 rounded-lg font-medium">{typeLabel}</span>
-          {p.bedrooms && (
+          {p.property_type !== "land" && p.bedrooms > 0 && (
             <span className="bg-sand-100 px-2.5 py-1 rounded-lg">
               {p.bedrooms} {locale === "ta" ? "படுக்கை" : "Bed"}
             </span>
           )}
-          {p.bathrooms && (
+          {p.property_type !== "land" && p.bathrooms > 0 && (
             <span className="bg-sand-100 px-2.5 py-1 rounded-lg">
               {p.bathrooms} {locale === "ta" ? "குளியல்" : "Bath"}
             </span>

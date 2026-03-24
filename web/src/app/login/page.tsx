@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/translations";
 
@@ -32,8 +31,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <Navbar />
-      <main className="flex-1 flex items-center justify-center py-12 px-4">
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <span className="text-4xl">🏠</span>
@@ -77,7 +75,7 @@ export default function LoginPage() {
             </p>
           </form>
         </div>
-      </main>
+      </div>
     </>
   );
 }

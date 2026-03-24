@@ -158,14 +158,16 @@ export default function ReportsPage() {
                   </span>
                 </div>
               </div>
-              <div className="flex gap-3 mt-4">
-                <button className="px-4 py-2 text-sm font-medium rounded-lg bg-navy-600 text-white hover:bg-navy-700">
-                  Review
-                </button>
-                <button className="px-4 py-2 text-sm font-medium rounded-lg border border-sand-300 text-charcoal-700 hover:bg-sand-50">
-                  Dismiss
-                </button>
-              </div>
+              {report.status !== 'Resolved' && (
+                <div className="flex gap-3 mt-4">
+                  <button className="px-4 py-2 text-sm font-medium rounded-lg bg-navy-600 text-white hover:bg-navy-700">
+                    Review
+                  </button>
+                  <button className="px-4 py-2 text-sm font-medium rounded-lg border border-sand-300 text-charcoal-700 hover:bg-sand-50">
+                    Dismiss
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -1,9 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
-import WhatsAppFloat from '@/components/WhatsAppFloat';
 import Link from 'next/link';
 import { MessageCircle, Check } from 'lucide-react';
 
@@ -75,8 +72,7 @@ export default function RequestPropertyPage() {
 
   return (
     <>
-      <Navbar />
-      <main>
+      <div>
         {/* Hero Section */}
         <div className="bg-navy-900 text-white py-16">
           <div className="container-wide">
@@ -286,9 +282,7 @@ export default function RequestPropertyPage() {
             </form>
           </div>
         </div>
-      </main>
-      <Footer />
-      <WhatsAppFloat />
+      </div>
     </>
   );
 }

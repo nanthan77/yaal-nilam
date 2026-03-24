@@ -1209,7 +1209,7 @@ export default function ListingsPage() {
                   {listing.inquiries_count}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {new Date(listing.posted_date).toLocaleDateString()}
+                  {new Date(listing.posted_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </td>
                 <td className="px-6 py-4">
                   <div className="relative group">

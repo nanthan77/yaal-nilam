@@ -208,7 +208,7 @@ export default function DashboardPage() {
                   borderRadius: '8px',
                 }}
               />
-              <Bar dataKey="inquiries" fill="#345290" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="count" fill="#345290" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -225,10 +225,11 @@ export default function DashboardPage() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, value }) => `${name}: ${value}`}
+                label={({ type, count }) => `${type}: ${count}`}
                 outerRadius={100}
                 fill="#8884d8"
-                dataKey="value"
+                dataKey="count"
+                nameKey="type"
               >
                 {LISTINGS_BY_TYPE.map((entry, index) => (
                   <Cell

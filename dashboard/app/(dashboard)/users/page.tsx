@@ -162,8 +162,8 @@ export default function UsersPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-charcoal-600">
-                    {user.lastLogin
-                      ? new Date(user.lastLogin).toLocaleDateString('en-US', {
+                    {user.last_login
+                      ? new Date(user.last_login).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',

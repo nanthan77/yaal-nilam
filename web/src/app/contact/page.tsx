@@ -14,6 +14,17 @@ export default function ContactPage() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateField = (name: string, value: string) => {
+    if (['name', 'email', 'subject', 'message'].includes(name) && !value.trim()) {
+      return 'This field is required';
+    }
+    if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -21,12 +32,21 @@ export default function ContactPage() {
       ...prev,
       [name]: value,
     }));
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+    ['name', 'email', 'subject', 'message'].forEach((field) => {
+      const err = validateField(field, formData[field as keyof typeof formData]);
+      if (err) newErrors[field] = err;
+    });
+    setErrors(newErrors);
+    if (Object.values(newErrors).some(Boolean)) return;
     setSubmitting(true);
     try {
       const result = await submitInquiry({
@@ -89,6 +109,7 @@ export default function ContactPage() {
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
                     placeholder="Your name"
                   />
+                  {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
                 </div>
 
                 {/* Email */}
@@ -105,6 +126,7 @@ export default function ContactPage() {
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
                     placeholder="your@email.com"
                   />
+                  {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
                 </div>
 
                 {/* Phone */}
@@ -140,6 +162,7 @@ export default function ContactPage() {
                     <option value="support">Technical Support</option>
                     <option value="partnership">Partnership</option>
                   </select>
+                  {errors.subject && <p className="text-red-600 text-sm mt-1">{errors.subject}</p>}
                 </div>
 
                 {/* Message */}
@@ -156,6 +179,7 @@ export default function ContactPage() {
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
                     placeholder="Tell us what you're interested in..."
                   />
+                  {errors.message && <p className="text-red-600 text-sm mt-1">{errors.message}</p>}
                 </div>
 
                 {/* Submit Button */}

@@ -47,11 +47,11 @@ export default function InquiriesPage() {
       return matchesSearch && matchesStatus && matchesSource;
     }).sort((a, b) => {
       if (sortKey === 'date') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
       return 0;
     });
-  }, [searchTerm, statusFilter, sourceFilter, sortKey]);
+  }, [allInquiries, searchTerm, statusFilter, sourceFilter, sortKey]);
 
   const getPriorityBadgeStyle = (priority: string) => {
     switch (priority) {
@@ -177,7 +177,7 @@ export default function InquiriesPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-charcoal-700">{inquiry.assigned_to || '—'}</td>
-                  <td className="px-6 py-4 text-sm text-charcoal-600">{new Date(inquiry.date).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-sm text-charcoal-600">{new Date(inquiry.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                   <td className="px-6 py-4">
                     <button className="flex items-center gap-2 px-3 py-1 rounded-lg bg-teal-100 text-teal-700 hover:bg-teal-200 transition text-sm font-medium">
                       <Eye className="w-4 h-4" />

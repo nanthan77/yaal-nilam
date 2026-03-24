@@ -1,9 +1,6 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Link from "next/link";
 
 export default function BuyingLandGuidePage() {
@@ -13,9 +10,7 @@ export default function BuyingLandGuidePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-sand-50">
-      <Navbar />
-
-      <main className="flex-1">
+      <div className="flex-1">
         {/* Breadcrumb */}
         <nav className="container-wide py-4 text-sm text-charcoal-600 border-b border-charcoal-200">
           <ul className="flex items-center gap-2">
@@ -407,10 +402,7 @@ export default function BuyingLandGuidePage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-      <WhatsAppFloat />
+      </div>
     </div>
   );
 }

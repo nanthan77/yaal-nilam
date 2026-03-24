@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { useStore } from "@/lib/store";
 import { t, formatPrice } from "@/lib/translations";
 
@@ -50,8 +48,7 @@ export default function MapPage() {
 
   return (
     <>
-      <Navbar />
-      <main className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col">
         <div className="container-wide py-4">
           <h1 className="section-heading">{t("nav.map", locale)}</h1>
           <p className="section-subheading mb-4">Explore properties across the Jaffna Peninsula on an interactive map</p>
@@ -89,8 +86,7 @@ export default function MapPage() {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
+      </div>
     </>
   );
 }
