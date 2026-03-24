@@ -14,7 +14,7 @@ from app.services.matcher import trigger_matching, calculate_match_score, MATCH_
 
 router = APIRouter()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/yaalnilam")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 
 def get_connection():

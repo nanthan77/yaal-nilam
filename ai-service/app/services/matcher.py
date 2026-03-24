@@ -17,7 +17,7 @@ import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/yaalnilam")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 MATCH_THRESHOLD = float(os.getenv("MATCH_SCORE_THRESHOLD", 40))
 SEARCH_RADIUS_KM = float(os.getenv("DEFAULT_SEARCH_RADIUS_KM", 10))
 

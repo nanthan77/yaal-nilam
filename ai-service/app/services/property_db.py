@@ -9,7 +9,7 @@ import uuid
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/yaalnilam")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 
 def get_connection():

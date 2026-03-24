@@ -25,10 +25,12 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // For demo, any email/password combination works
-      if (email === 'nanthan77@gmail.com' && password === 'admin123') {
+      // TODO: Replace with Firebase Auth or API authentication
+      // For demo purposes, accepts any valid email/password combo
+      if (email && password.length >= 6) {
         router.push('/');
       } else {
-        setError('Invalid email or password');
+        setError('Invalid email or password (min 6 characters)');
       }
     } else {
       setError('Please fill in all fields');
@@ -74,7 +76,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nanthan77@gmail.com"
+                placeholder="admin@yaalnilam.com"
                 className="input-field"
                 disabled={loading}
               />
@@ -141,7 +143,7 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="mt-6 pt-6 border-t border-sand-200 text-center text-sm text-charcoal-600">
             <p>
-              Demo credentials: nanthan77@gmail.com / admin123
+              Sign in with your admin credentials
             </p>
           </div>
         </div>
