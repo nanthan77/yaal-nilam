@@ -1,7 +1,7 @@
 "use client";
 
 export default function WhatsAppFloat() {
-  const whatsappUrl = "https://wa.me/94771234567?text=" +
+  const whatsappUrl = "https://wa.me/94777863333?text=" +
     encodeURIComponent("Hi, I'm looking for a property in Jaffna");
 
   return (

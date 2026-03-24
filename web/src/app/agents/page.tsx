@@ -4,7 +4,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/translations";
 
 const MOCK_AGENTS = [
-  { id: "1", name: "Thayalan Sivakumar", ta_name: "தயாளன் சிவகுமார்", area: "Nallur", phone: "+94771234567", listings: 24, verified: true, rating: 4.8, speciality: "Residential" },
+  { id: "1", name: "Thayalan Sivakumar", ta_name: "தயாளன் சிவகுமார்", area: "Nallur", phone: "+94777863333", listings: 24, verified: true, rating: 4.8, speciality: "Residential" },
   { id: "2", name: "Kumari Selvaratnam", ta_name: "குமாரி செல்வரத்னம்", area: "Kopay", phone: "+94772345678", listings: 18, verified: true, rating: 4.7, speciality: "Land" },
   { id: "3", name: "Rajan Yogeswaran", ta_name: "ராஜன் யோகேஸ்வரன்", area: "Chunnakam", phone: "+94773456789", listings: 31, verified: true, rating: 4.9, speciality: "Commercial" },
   { id: "4", name: "Sivalingam Nirmala", ta_name: "சிவலிங்கம் நிர்மலா", area: "Jaffna Town", phone: "+94774567890", listings: 15, verified: true, rating: 4.6, speciality: "Apartments" },

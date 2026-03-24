@@ -54,10 +54,10 @@ export default function PropertiesPage() {
 
   return (
     <div className="min-h-screen bg-sand-50">
-      <div className="bg-gradient-to-r from-navy-900 to-navy-800 text-white py-12 px-4">
+      <div className="bg-gradient-to-r from-teal-900 to-teal-800 text-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Browse All Properties</h1>
-          <p className="text-navy-100">Find your perfect property in Jaffna</p>
+          <p className="text-teal-100">Find your perfect property in Jaffna</p>
         </div>
       </div>
 
@@ -85,7 +85,7 @@ export default function PropertiesPage() {
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full border border-charcoal-200 rounded-lg px-4 py-2 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                className="w-full border border-charcoal-200 rounded-lg px-4 py-2 text-charcoal-900 focus:outline-none focus:border-teal-500"
               >
                 <option value="">All Types</option>
                 {PROPERTY_TYPES.map((type) => (
@@ -101,7 +101,7 @@ export default function PropertiesPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full border border-charcoal-200 rounded-lg px-4 py-2 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                className="w-full border border-charcoal-200 rounded-lg px-4 py-2 text-charcoal-900 focus:outline-none focus:border-teal-500"
               >
                 <option value="newest">Newest First</option>
                 <option value="price-low">Price: Low to High</option>
@@ -135,13 +135,13 @@ export default function PropertiesPage() {
             {filteredAndSortedProperties.map((property) => (
               <Link key={property.id} href={`/properties/${property.id}`} className="group">
                 <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                  <div className="h-48 bg-gradient-to-br from-navy-600 to-navy-800 relative flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+                  <div className="h-48 bg-gradient-to-br from-teal-600 to-teal-800 relative flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
                     <MapPin className="w-12 h-12 text-white opacity-50" />
                   </div>
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="text-lg font-bold text-charcoal-900 flex-1">{property.title}</h3>
-                      <span className="inline-block bg-navy-50 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full ml-2">
+                      <span className="inline-block bg-teal-50 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full ml-2">
                         {property.type}
                       </span>
                     </div>
@@ -149,7 +149,7 @@ export default function PropertiesPage() {
                       <MapPin className="w-4 h-4" />
                       {property.area}
                     </p>
-                    <p className="text-2xl font-bold text-navy-700 mb-4">
+                    <p className="text-2xl font-bold text-teal-700 mb-4">
                       Rs. {property.price?.toLocaleString()}
                     </p>
                     <div className="flex gap-4 text-charcoal-600 text-sm mb-6 flex-wrap">
@@ -170,7 +170,7 @@ export default function PropertiesPage() {
                       <span className="inline-block bg-sand-100 text-charcoal-700 text-xs font-semibold px-3 py-1 rounded">
                         {property.status}
                       </span>
-                      <span className="text-navy-700 font-semibold text-sm group-hover:text-teal-700">
+                      <span className="text-teal-700 font-semibold text-sm group-hover:text-teal-700">
                         View →
                       </span>
                     </div>

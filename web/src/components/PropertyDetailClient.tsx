@@ -81,7 +81,7 @@ export default function PropertyDetailClient() {
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-3xl font-bold text-charcoal-900 mb-4">Property Not Found</h1>
           <p className="text-charcoal-600 mb-8">The property you are looking for does not exist or has been removed.</p>
-          <Link href="/properties" className="inline-block bg-navy-700 hover:bg-navy-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+          <Link href="/properties" className="inline-block bg-teal-700 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
             Back to Properties
           </Link>
         </div>
@@ -113,14 +113,14 @@ export default function PropertyDetailClient() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-3">
-            <span className="inline-block bg-navy-100 text-navy-700 px-3 py-1 rounded-full text-sm font-semibold">{areaName}</span>
-            <span className="inline-block bg-navy-50 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">{property.type}</span>
+            <span className="inline-block bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">{areaName}</span>
+            <span className="inline-block bg-teal-50 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">{property.type}</span>
           </div>
           <h1 className="text-4xl font-bold text-charcoal-900">{property.title}</h1>
         </div>
 
         <div className="mb-8">
-          <p className="text-5xl font-bold text-navy-700">Rs. {property.price?.toLocaleString("en-US")}</p>
+          <p className="text-5xl font-bold text-teal-700">Rs. {property.price?.toLocaleString("en-US")}</p>
         </div>
 
         {/* Details Grid */}
@@ -154,20 +154,20 @@ export default function PropertyDetailClient() {
         {/* Location */}
         <div className="mb-10 pb-10 border-b border-charcoal-200">
           <h2 className="text-2xl font-bold text-charcoal-900 mb-4">Location</h2>
-          <div className="bg-navy-50 p-6 rounded-lg">
+          <div className="bg-teal-50 p-6 rounded-lg">
             <p className="text-charcoal-900 font-semibold text-lg">{areaName}</p>
             <p className="text-charcoal-700 mt-2">Located in the heart of {areaName}, this property enjoys excellent connectivity and access to essential amenities.</p>
           </div>
         </div>
 
         <div className="mb-10">
-          <button className="w-full md:w-auto bg-navy-700 hover:bg-navy-600 text-white font-bold py-4 px-8 rounded-lg transition duration-200 text-lg">
+          <button className="w-full md:w-auto bg-teal-700 hover:bg-teal-600 text-white font-bold py-4 px-8 rounded-lg transition duration-200 text-lg">
             Contact Agent
           </button>
         </div>
 
         <div className="mb-12">
-          <Link href="/properties" className="text-navy-700 hover:text-teal-700 font-semibold flex items-center gap-2">
+          <Link href="/properties" className="text-teal-700 hover:text-teal-700 font-semibold flex items-center gap-2">
             ← Back to Properties
           </Link>
         </div>
@@ -183,8 +183,8 @@ export default function PropertyDetailClient() {
                     <span className="text-sand-600">Property Image</span>
                   </div>
                   <div className="p-4">
-                    <h3 className="font-bold text-charcoal-900 mb-2 group-hover:text-navy-700">{prop.title}</h3>
-                    <p className="text-navy-700 font-semibold mb-3">Rs. {prop.price?.toLocaleString("en-US")}</p>
+                    <h3 className="font-bold text-charcoal-900 mb-2 group-hover:text-teal-700">{prop.title}</h3>
+                    <p className="text-teal-700 font-semibold mb-3">Rs. {prop.price?.toLocaleString("en-US")}</p>
                     <div className="flex gap-3 text-sm text-charcoal-600">
                       <span>{prop.bedrooms} beds</span>
                       <span>•</span>

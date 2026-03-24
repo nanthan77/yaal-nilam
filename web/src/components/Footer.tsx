@@ -77,7 +77,7 @@ const CONTACT_INFO: ContactConfig = {
   phone: {
     labelEn: 'Phone',
     labelTa: 'தொலைபேசி',
-    value: '+94 21 222 3456',
+    value: '+94 77 786 3333',
   },
   email: {
     labelEn: 'Email',
@@ -125,7 +125,7 @@ export function Footer() {
     : '© 2026 யாழ் நிலம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டுள்ளன.';
 
   return (
-    <footer className="bg-navy-900 text-sand-200">
+    <footer className="bg-teal-900 text-sand-200">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
@@ -249,7 +249,7 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-navy-800">
+      <div className="border-t border-teal-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-sand-300 text-center sm:text-left">
             {copyrightText}
@@ -258,7 +258,7 @@ export function Footer() {
           {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors duration-200 text-xs font-semibold text-sand-200"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-700 transition-colors duration-200 text-xs font-semibold text-sand-200"
             aria-label="Toggle language"
           >
             <Globe className="w-4 h-4" />

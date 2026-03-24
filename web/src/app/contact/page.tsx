@@ -74,10 +74,10 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-sand-50">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-navy-900 to-navy-800 text-white py-12 px-4">
+      <div className="bg-gradient-to-r from-teal-900 to-teal-800 text-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
-          <p className="text-navy-100">We'd love to hear from you. Contact us today.</p>
+          <p className="text-teal-100">We'd love to hear from you. Contact us today.</p>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold text-charcoal-900 mb-6">Send us a Message</h2>
 
               {submitted && (
-                <div className="mb-6 bg-navy-50 border border-teal-400 text-teal-700 px-4 py-3 rounded-lg">
+                <div className="mb-6 bg-teal-50 border border-teal-400 text-teal-700 px-4 py-3 rounded-lg">
                   Thank you for your message! We'll get back to you soon.
                 </div>
               )}
@@ -106,7 +106,7 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
                     placeholder="Your name"
                   />
                   {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
@@ -123,7 +123,7 @@ export default function ContactPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
                     placeholder="your@email.com"
                   />
                   {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
@@ -139,7 +139,7 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
                     placeholder="+94 (0) xxx xxx xxx"
                   />
                 </div>
@@ -154,7 +154,7 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
                   >
                     <option value="">Select a subject</option>
                     <option value="general">General Inquiry</option>
@@ -176,7 +176,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-navy-500"
+                    className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
                     placeholder="Tell us what you're interested in..."
                   />
                   {errors.message && <p className="text-red-600 text-sm mt-1">{errors.message}</p>}
@@ -185,7 +185,7 @@ export default function ContactPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full bg-navy-700 hover:bg-navy-600 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-teal-700 hover:bg-teal-600 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
                   {submitting ? 'Sending...' : 'Send Message'}
@@ -199,8 +199,8 @@ export default function ContactPage() {
             {/* Address */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex gap-4 mb-4">
-                <div className="bg-navy-50 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-navy-700" />
+                <div className="bg-teal-50 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-teal-700" />
                 </div>
                 <div>
                   <h3 className="font-bold text-charcoal-900 mb-1">Address</h3>
@@ -215,8 +215,8 @@ export default function ContactPage() {
             {/* Phone */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex gap-4 mb-4">
-                <div className="bg-navy-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-navy-600" />
+                <div className="bg-teal-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-6 h-6 text-teal-600" />
                 </div>
                 <div>
                   <h3 className="font-bold text-charcoal-900 mb-1">Phone</h3>
@@ -263,10 +263,10 @@ export default function ContactPage() {
 
         {/* Map Placeholder */}
         <div className="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="h-96 bg-navy-100 flex items-center justify-center">
+          <div className="h-96 bg-teal-100 flex items-center justify-center">
             <div className="text-center">
-              <MapPin className="w-12 h-12 text-navy-400 mx-auto mb-4" />
-              <p className="text-navy-600 font-semibold">Map View Coming Soon</p>
+              <MapPin className="w-12 h-12 text-teal-400 mx-auto mb-4" />
+              <p className="text-teal-600 font-semibold">Map View Coming Soon</p>
             </div>
           </div>
         </div>

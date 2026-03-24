@@ -8,10 +8,10 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-sand-50">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-navy-900 to-navy-800 text-white py-20 px-4">
+      <div className="bg-gradient-to-r from-teal-900 to-teal-800 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
-          <p className="text-navy-100">Manage your properties and listings</p>
+          <p className="text-teal-100">Manage your properties and listings</p>
         </div>
       </div>
 

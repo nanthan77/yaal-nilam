@@ -66,14 +66,14 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
   const properties = PROPERTIES.filter(config.filterFn);
   const displayProperties = properties.length > 0 ? properties : PROPERTIES;
 
-  const whatsappUrl = `https://wa.me/94771234567?text=${encodeURIComponent(config.whatsappMsg)}`;
+  const whatsappUrl = `https://wa.me/94777863333?text=${encodeURIComponent(config.whatsappMsg)}`;
 
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy-900 text-white py-16 md:py-20">
+      <section className="bg-teal-900 text-white py-16 md:py-20">
         <div className="container-wide text-center">
-          <nav className="text-sm text-navy-300 mb-4">
+          <nav className="text-sm text-teal-300 mb-4">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <span className="mx-2">/</span>
             <span className="text-teal-400">{l === "ta" ? config.title.ta : config.title.en}</span>
@@ -81,7 +81,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white text-balance">
             {l === "ta" ? config.title.ta : config.title.en}
           </h1>
-          <p className="text-navy-200 text-lg max-w-2xl mx-auto mb-8">
+          <p className="text-teal-200 text-lg max-w-2xl mx-auto mb-8">
             {l === "ta" ? config.subtitle.ta : config.subtitle.en}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -151,7 +151,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
       {/* Bottom CTA */}
       <section className="bg-teal-50 py-12">
         <div className="container-wide text-center">
-          <h2 className="text-xl font-bold text-navy-900 mb-3">
+          <h2 className="text-xl font-bold text-teal-900 mb-3">
             {l === "ta" ? "நீங்கள் தேடுவதைக் காணவில்லையா?" : "Can't find what you're looking for?"}
           </h2>
           <p className="text-charcoal-500 mb-6">

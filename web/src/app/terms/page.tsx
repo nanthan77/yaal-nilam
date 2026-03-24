@@ -7,7 +7,7 @@ export default function TermsPage() {
     <>
       <div>
         {/* Hero Section */}
-        <div className="bg-navy-900 text-white py-16">
+        <div className="bg-teal-900 text-white py-16">
           <div className="container-wide">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-4xl font-bold">Terms of Service</h1>
@@ -30,7 +30,7 @@ export default function TermsPage() {
             </div>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">1. Acceptance of Terms</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">1. Acceptance of Terms</h2>
               <p>
                 By accessing and using the Yaal Nilam platform, you accept and agree to be bound by the terms 
                 and provision of this agreement. If you do not agree to abide by the above, 
@@ -39,7 +39,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">2. Use License</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">2. Use License</h2>
               <p>
                 Permission is granted to temporarily download one copy of the materials (information or software) 
                 on the Yaal Nilam platform for personal, non-commercial transitory viewing only. 
@@ -55,7 +55,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">3. User Accounts</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">3. User Accounts</h2>
               <p>
                 If you create an account on our platform, you are responsible for maintaining the confidentiality 
                 of your account information and password. You agree to accept responsibility for all activities 
@@ -64,7 +64,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">4. User-Generated Content</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">4. User-Generated Content</h2>
               <p>
                 When you submit property listings, photos, descriptions, or any other content to Yaal Nilam, 
                 you represent and warrant that:
@@ -78,7 +78,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">5. Prohibited Activities</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">5. Prohibited Activities</h2>
               <p>You agree not to:</p>
               <ul className="list-disc list-inside space-y-2 mt-4">
                 <li>Post false, misleading, or fraudulent property information</li>
@@ -92,7 +92,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">6. Property Listing Verification</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">6. Property Listing Verification</h2>
               <p>
                 All property listings on Yaal Nilam are subject to verification. We reserve the right to:
               </p>
@@ -105,7 +105,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">7. Disclaimer of Warranties</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">7. Disclaimer of Warranties</h2>
               <p>
                 The materials on Yaal Nilam are provided on an 'as is' basis. Yaal Nilam makes no warranties, 
                 expressed or implied, and hereby disclaims and negates all other warranties including, 
@@ -115,7 +115,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">8. Limitations of Liability</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">8. Limitations of Liability</h2>
               <p>
                 In no event shall Yaal Nilam or its suppliers be liable for any damages (including, without limitation, 
                 damages for loss of data or profit, or due to business interruption) arising out of the use or inability 
@@ -125,7 +125,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">9. Accuracy of Materials</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">9. Accuracy of Materials</h2>
               <p>
                 The materials appearing on Yaal Nilam could include technical, typographical, or photographic errors. 
                 Yaal Nilam does not warrant that any of the materials on the platform are accurate, complete, or current. 
@@ -134,7 +134,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">10. Links</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">10. Links</h2>
               <p>
                 Yaal Nilam has not reviewed all of the sites linked to its platform and is not responsible for the contents 
                 of any such linked site. The inclusion of any link does not imply endorsement by Yaal Nilam of the site. 
@@ -143,7 +143,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">11. Modifications</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">11. Modifications</h2>
               <p>
                 Yaal Nilam may revise these terms of service for the platform at any time without notice. 
                 By using this platform, you are agreeing to be bound by the then current version of these terms of service.
@@ -151,7 +151,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">12. Governing Law</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">12. Governing Law</h2>
               <p>
                 These terms and conditions are governed by and construed in accordance with the laws of Sri Lanka, 
                 and you irrevocably submit to the exclusive jurisdiction of the courts in that location.
@@ -159,7 +159,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">13. Termination</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">13. Termination</h2>
               <p>
                 Yaal Nilam reserves the right to terminate your access to the platform at any time, 
                 for any reason, with or without notice. This includes termination for violation of these terms, 
@@ -168,14 +168,14 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">14. Contact Information</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">14. Contact Information</h2>
               <p>
                 If you have questions about these Terms of Service, please contact us at:
               </p>
-              <div className="mt-4 p-4 bg-navy-50 rounded-lg">
-                <p className="font-medium text-navy-900 mb-2">Yaal Nilam</p>
+              <div className="mt-4 p-4 bg-teal-50 rounded-lg">
+                <p className="font-medium text-teal-900 mb-2">Yaal Nilam</p>
                 <p>Email: info@yaalnilam.lk</p>
-                <p>Phone: +94 77 123 4567</p>
+                <p>Phone: +94 77 786 3333</p>
                 <p>Location: Jaffna, Sri Lanka</p>
               </div>
             </section>

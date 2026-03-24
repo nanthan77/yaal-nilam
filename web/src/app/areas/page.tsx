@@ -27,10 +27,10 @@ export default function AreasPage() {
 
   return (
     <div className="min-h-screen bg-sand-50">
-      <div className="bg-gradient-to-r from-navy-900 to-navy-800 text-white py-12 px-4">
+      <div className="bg-gradient-to-r from-teal-900 to-teal-800 text-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Explore Areas in Jaffna</h1>
-          <p className="text-navy-100">Discover properties in your favorite neighborhood</p>
+          <p className="text-teal-100">Discover properties in your favorite neighborhood</p>
         </div>
       </div>
 
@@ -53,7 +53,7 @@ export default function AreasPage() {
             {areas.map((area) => (
               <Link key={area.slug} href={`/areas/${area.slug}`} className="group">
                 <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full">
-                  <div className="h-40 bg-gradient-to-br from-navy-500 via-teal-400 to-warm-400 relative flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+                  <div className="h-40 bg-gradient-to-br from-teal-500 via-teal-400 to-warm-400 relative flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
                     <MapPin className="w-12 h-12 text-white opacity-50" />
                   </div>
                   <div className="p-6">

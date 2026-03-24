@@ -12,7 +12,7 @@ export default function WhatsAppButton() {
     return () => clearTimeout(timer);
   }, []);
 
-  const phoneNumber = "94212223456";
+  const phoneNumber = "94777863333";
   const message = encodeURIComponent("Hi, I'm interested in properties on Yaal Nilam / யாழ் நிலம்");
   const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
 

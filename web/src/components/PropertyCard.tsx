@@ -36,7 +36,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   const whatsappMsg = encodeURIComponent(
     `Hi, I'm interested in ${p.title} (${p.listing_code}) — ${priceDisplay}`
   );
-  const whatsappUrl = `https://wa.me/${p.agent_phone || "94771234567"}?text=${whatsappMsg}`;
+  const whatsappUrl = `https://wa.me/${p.agent_phone || "94777863333"}?text=${whatsappMsg}`;
 
   return (
     <div className="card-interactive group">
@@ -80,7 +80,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-semibold text-navy-900 leading-snug line-clamp-2 mb-2 group-hover:text-teal-700 transition-colors">
+        <h3 className="font-semibold text-teal-900 leading-snug line-clamp-2 mb-2 group-hover:text-teal-700 transition-colors">
           <Link href={`/properties/${p.id}`}>
             {locale === "ta" && p.title_ta ? p.title_ta : p.title}
           </Link>
@@ -124,7 +124,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <div className="flex gap-2">
           <Link
             href={`/properties/${p.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1 text-sm font-medium bg-navy-50 text-navy-700 hover:bg-navy-100 px-3 py-2 rounded-lg transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1 text-sm font-medium bg-teal-50 text-teal-700 hover:bg-teal-100 px-3 py-2 rounded-lg transition-colors"
           >
             {locale === "ta" ? "விவரங்கள்" : "Details"}
           </Link>

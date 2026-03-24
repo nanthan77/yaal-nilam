@@ -23,7 +23,7 @@ const RENTAL_DATA: Rental[] = [
     id: '1',
     title: 'Cozy Apartment in Jaffna City',
     area: 'City Center',
-    image_color: 'from-teal-400 to-navy-600',
+    image_color: 'from-teal-400 to-teal-600',
     price_per_night: 3500,
     rating: 4.8,
     reviews: 45,
@@ -36,7 +36,7 @@ const RENTAL_DATA: Rental[] = [
     id: '2',
     title: 'Spacious Villa near Beach',
     area: 'Mullaitivu',
-    image_color: 'from-navy-500 to-warm-400',
+    image_color: 'from-teal-500 to-warm-400',
     price_per_night: 8500,
     rating: 4.9,
     reviews: 78,
@@ -62,7 +62,7 @@ const RENTAL_DATA: Rental[] = [
     id: '4',
     title: 'Modern Studio with Kitchen',
     area: 'KKS',
-    image_color: 'from-navy-600 to-teal-400',
+    image_color: 'from-teal-600 to-teal-400',
     price_per_night: 4200,
     rating: 4.6,
     reviews: 28,
@@ -92,11 +92,11 @@ export default function ShortTermRentalPage() {
   return (
     <div className="min-h-screen bg-sand-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-700 text-white py-20 px-4">
+      <section className="bg-gradient-to-r from-teal-900 via-teal-800 to-teal-700 text-white py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-5xl font-bold mb-3">Short-Term Rentals in Jaffna</h1>
-          <p className="text-2xl text-navy-100 mb-2">குறுகிய கால வாடகை</p>
-          <p className="text-navy-100 text-lg max-w-2xl">
+          <p className="text-2xl text-teal-100 mb-2">குறுகிய கால வாடகை</p>
+          <p className="text-teal-100 text-lg max-w-2xl">
             Find the perfect place to stay for your visit to Jaffna
           </p>
         </div>

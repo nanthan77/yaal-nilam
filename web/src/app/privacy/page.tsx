@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <>
       <div>
         {/* Hero Section */}
-        <div className="bg-navy-900 text-white py-16">
+        <div className="bg-teal-900 text-white py-16">
           <div className="container-wide">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-4xl font-bold">Privacy Policy</h1>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             </div>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">1. Introduction</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">1. Introduction</h2>
               <p>
                 Yaal Nilam ("we", "our", or "us") operates the yaalnilam.lk website and related services. 
                 This Privacy Policy explains how we collect, use, disclose, and safeguard your information 
@@ -43,8 +43,8 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">2. Information We Collect</h2>
-              <h3 className="text-lg font-bold text-navy-800 mb-3">Information You Provide Directly</h3>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">2. Information We Collect</h2>
+              <h3 className="text-lg font-bold text-teal-800 mb-3">Information You Provide Directly</h3>
               <ul className="list-disc list-inside space-y-2 mb-4">
                 <li>Contact information (name, email, phone number)</li>
                 <li>Property information when listing or requesting properties</li>
@@ -53,7 +53,7 @@ export default function PrivacyPage() {
                 <li>Any other information you voluntarily provide</li>
               </ul>
 
-              <h3 className="text-lg font-bold text-navy-800 mb-3">Information Collected Automatically</h3>
+              <h3 className="text-lg font-bold text-teal-800 mb-3">Information Collected Automatically</h3>
               <ul className="list-disc list-inside space-y-2">
                 <li>Device information (browser type, IP address)</li>
                 <li>Usage data and analytics</li>
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">3. How We Use Your Information</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">3. How We Use Your Information</h2>
               <ul className="list-disc list-inside space-y-2">
                 <li>To provide and maintain our services</li>
                 <li>To notify you about changes to our services</li>
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">4. Sharing Your Information</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">4. Sharing Your Information</h2>
               <p>
                 We do not sell, trade, or transfer your personally identifiable information to outside parties 
                 without your consent, except as described below:
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">5. Cookies and Tracking Technologies</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">5. Cookies and Tracking Technologies</h2>
               <p>
                 We use cookies and similar tracking technologies to enhance your experience on our platform. 
                 You can control cookie settings through your browser preferences. Note that disabling cookies 
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">6. Security of Your Information</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">6. Security of Your Information</h2>
               <p>
                 We implement appropriate security measures to protect your personal information from unauthorized 
                 access, alteration, disclosure, and destruction. However, no method of transmission over the Internet 
@@ -109,7 +109,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">7. Your Privacy Rights</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">7. Your Privacy Rights</h2>
               <p>Depending on your location, you may have certain rights regarding your personal information:</p>
               <ul className="list-disc list-inside space-y-2 mt-4">
                 <li>Right to access your personal information</li>
@@ -121,7 +121,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">8. Retention of Information</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">8. Retention of Information</h2>
               <p>
                 We retain your personal information for as long as necessary to provide our services and fulfill 
                 the purposes outlined in this policy. You may request deletion of your data at any time.
@@ -129,7 +129,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">9. Third-Party Links</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">9. Third-Party Links</h2>
               <p>
                 Our platform may contain links to third-party websites. We are not responsible for the privacy 
                 practices of these websites. We encourage you to review their privacy policies.
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">10. Children's Privacy</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">10. Children's Privacy</h2>
               <p>
                 Our services are not directed to children under 13. We do not knowingly collect personal information 
                 from children under 13. If we become aware that we have collected such information, we will take 
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">11. Changes to This Privacy Policy</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">11. Changes to This Privacy Policy</h2>
               <p>
                 We may update this privacy policy from time to time. We will notify you of any changes by posting 
                 the new privacy policy on this page and updating the "Last updated" date.
@@ -154,14 +154,14 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-navy-900 mb-4">12. Contact Us</h2>
+              <h2 className="text-2xl font-bold text-teal-900 mb-4">12. Contact Us</h2>
               <p>
                 If you have questions about this privacy policy or our privacy practices, please contact us at:
               </p>
-              <div className="mt-4 p-4 bg-navy-50 rounded-lg">
-                <p className="font-medium text-navy-900 mb-2">Yaal Nilam</p>
+              <div className="mt-4 p-4 bg-teal-50 rounded-lg">
+                <p className="font-medium text-teal-900 mb-2">Yaal Nilam</p>
                 <p>Email: info@yaalnilam.lk</p>
-                <p>Phone: +94 77 123 4567</p>
+                <p>Phone: +94 77 786 3333</p>
                 <p>Location: Jaffna, Sri Lanka</p>
               </div>
             </section>

@@ -15,25 +15,25 @@ export default function BuyingLandGuidePage() {
         <nav className="container-wide py-4 text-sm text-charcoal-600 border-b border-charcoal-200">
           <ul className="flex items-center gap-2">
             <li>
-              <Link href="/" className="hover:text-navy-700 transition">
+              <Link href="/" className="hover:text-teal-700 transition">
                 {isTA ? "முகப்பு" : "Home"}
               </Link>
             </li>
             <li className="text-charcoal-400">/</li>
             <li>
-              <Link href="/guides" className="hover:text-navy-700 transition">
+              <Link href="/guides" className="hover:text-teal-700 transition">
                 {isTA ? "வழிகாட்டிகள்" : "Guides"}
               </Link>
             </li>
             <li className="text-charcoal-400">/</li>
-            <li className="text-navy-700 font-semibold">
+            <li className="text-teal-700 font-semibold">
               {isTA ? "யாழ்ப்பாணத்தில் நிலம் வாங்க" : "Buying Land in Jaffna"}
             </li>
           </ul>
         </nav>
 
         {/* Hero */}
-        <div className="bg-navy-900 text-white py-16">
+        <div className="bg-teal-900 text-white py-16">
           <div className="container-wide">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {isTA
@@ -81,7 +81,7 @@ export default function BuyingLandGuidePage() {
                 </h2>
                 <div className="space-y-4">
                   <div className="bg-white p-4 rounded-lg border border-charcoal-200">
-                    <h3 className="font-bold text-navy-900 mb-2">
+                    <h3 className="font-bold text-teal-900 mb-2">
                       {isTA ? "நல்லூர் & சுன்னாகம்" : "Nallur & Chunnakam"}
                     </h3>
                     <p className="text-charcoal-700 text-sm">
@@ -91,7 +91,7 @@ export default function BuyingLandGuidePage() {
                     </p>
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-charcoal-200">
-                    <h3 className="font-bold text-navy-900 mb-2">
+                    <h3 className="font-bold text-teal-900 mb-2">
                       {isTA ? "கோப்பாய் & கொக்குவில்" : "Kopay & Kokuvil"}
                     </h3>
                     <p className="text-charcoal-700 text-sm">
@@ -101,7 +101,7 @@ export default function BuyingLandGuidePage() {
                     </p>
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-charcoal-200">
-                    <h3 className="font-bold text-navy-900 mb-2">
+                    <h3 className="font-bold text-teal-900 mb-2">
                       {isTA ? "பருத்தித்துறை & காரைநகர்" : "Point Pedro & Karainagar"}
                     </h3>
                     <p className="text-charcoal-700 text-sm">
@@ -181,7 +181,7 @@ export default function BuyingLandGuidePage() {
                 </h2>
                 <ol className="space-y-4 text-charcoal-700">
                   <li className="flex gap-4">
-                    <span className="text-navy-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
+                    <span className="text-teal-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
                       1
                     </span>
                     <div>
@@ -196,7 +196,7 @@ export default function BuyingLandGuidePage() {
                     </div>
                   </li>
                   <li className="flex gap-4">
-                    <span className="text-navy-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
+                    <span className="text-teal-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
                       2
                     </span>
                     <div>
@@ -211,7 +211,7 @@ export default function BuyingLandGuidePage() {
                     </div>
                   </li>
                   <li className="flex gap-4">
-                    <span className="text-navy-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
+                    <span className="text-teal-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
                       3
                     </span>
                     <div>
@@ -226,7 +226,7 @@ export default function BuyingLandGuidePage() {
                     </div>
                   </li>
                   <li className="flex gap-4">
-                    <span className="text-navy-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
+                    <span className="text-teal-900 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">
                       4
                     </span>
                     <div>
@@ -284,7 +284,7 @@ export default function BuyingLandGuidePage() {
                       <span className="font-bold">
                         {isTA ? "மொத்த கூடுதல் செலவு" : "Total Additional Costs"}
                       </span>
-                      <span className="font-bold text-navy-900">
+                      <span className="font-bold text-teal-900">
                         {isTA ? "5-10%" : "5-10% of price"}
                       </span>
                     </div>
@@ -356,7 +356,7 @@ export default function BuyingLandGuidePage() {
             <div className="lg:col-span-1">
               <div className="sticky top-8 space-y-6">
                 {/* CTA Card */}
-                <div className="bg-navy-900 text-white rounded-lg p-6 border border-navy-800">
+                <div className="bg-teal-900 text-white rounded-lg p-6 border border-teal-800">
                   <h3 className="font-bold text-lg mb-4">
                     {isTA ? "சிறந்த நிலங்கள் தேடுங்கள்" : "Browse Best Land Deals"}
                   </h3>
@@ -381,7 +381,7 @@ export default function BuyingLandGuidePage() {
                       : "Our team is ready to help you find the perfect land."}
                   </p>
                   <a
-                    href="https://wa.me/94771112233?text=I'm interested in buying land in Jaffna. Can you help me?"
+                    href="https://wa.me/94777863333?text=I'm interested in buying land in Jaffna. Can you help me?"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-whatsapp w-full text-center block"

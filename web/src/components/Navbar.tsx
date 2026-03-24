@@ -49,7 +49,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex flex-col items-start gap-0">
-            <span className="text-xl font-bold text-navy-900">
+            <span className="text-xl font-bold text-teal-900">
               {navbarTitle}
             </span>
             <span className="text-xs text-teal-600 font-medium">
@@ -63,7 +63,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-navy-600 hover:text-navy-500 transition-colors duration-200 rounded-md hover:bg-navy-50"
+                className="px-3 py-2 text-sm font-medium text-teal-600 hover:text-teal-500 transition-colors duration-200 rounded-md hover:bg-teal-50"
               >
                 {getLabel(link)}
               </Link>
@@ -78,8 +78,8 @@ export function Navbar() {
               className="p-2 rounded-lg bg-sand-100 hover:bg-sand-200 transition-colors duration-200 flex items-center gap-1"
               aria-label="Toggle language"
             >
-              <Globe className="w-4 h-4 text-navy-600" />
-              <span className="text-xs font-semibold text-navy-600 hidden sm:inline">
+              <Globe className="w-4 h-4 text-teal-600" />
+              <span className="text-xs font-semibold text-teal-600 hidden sm:inline">
                 {language === 'en' ? 'EN' : 'தமிழ்'}
               </span>
             </button>
@@ -87,7 +87,7 @@ export function Navbar() {
             {/* Add Listing CTA - Desktop */}
             <Link
               href="/add-listing"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-warm-500 text-navy-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 shadow-sm hover:-translate-y-0.5"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-warm-500 text-teal-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 shadow-sm hover:-translate-y-0.5"
             >
               <Plus className="w-4 h-4" />
               <span className="text-sm">{addListingLabel}</span>
@@ -100,9 +100,9 @@ export function Navbar() {
               aria-label="Toggle menu"
             >
               {isOpen ? (
-                <X className="w-6 h-6 text-navy-600" />
+                <X className="w-6 h-6 text-teal-600" />
               ) : (
-                <Menu className="w-6 h-6 text-navy-600" />
+                <Menu className="w-6 h-6 text-teal-600" />
               )}
             </button>
           </div>
@@ -116,7 +116,7 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block px-4 py-2 text-base font-medium text-navy-600 hover:text-navy-500 hover:bg-navy-50 rounded-md transition-colors duration-200"
+                  className="block px-4 py-2 text-base font-medium text-teal-600 hover:text-teal-500 hover:bg-teal-50 rounded-md transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   {getLabel(link)}
@@ -126,7 +126,7 @@ export function Navbar() {
               {/* Mobile Add Listing Button */}
               <Link
                 href="/add-listing"
-                className="block mx-2 mt-4 px-4 py-2 bg-warm-500 text-navy-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 text-center"
+                className="block mx-2 mt-4 px-4 py-2 bg-warm-500 text-teal-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 text-center"
                 onClick={() => setIsOpen(false)}
               >
                 {addListingLabel}

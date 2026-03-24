@@ -68,13 +68,13 @@ export default function RequestPropertyPage() {
   const whatsappMessage = encodeURIComponent(
     `Hi! I'm looking for a property on Yaal Nilam: ${formData.propertyType} to ${formData.intent} in ${formData.area}`
   );
-  const whatsappLink = `https://wa.me/94771234567?text=${whatsappMessage}`;
+  const whatsappLink = `https://wa.me/94777863333?text=${whatsappMessage}`;
 
   return (
     <>
       <div>
         {/* Hero Section */}
-        <div className="bg-navy-900 text-white py-16">
+        <div className="bg-teal-900 text-white py-16">
           <div className="container-wide">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-4xl font-bold">Request a Property</h1>
@@ -97,7 +97,7 @@ export default function RequestPropertyPage() {
                 <div className="flex items-start gap-3">
                   <Check className="w-6 h-6 text-teal-600 flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-bold text-navy-900 mb-2">Request Submitted Successfully!</h3>
+                    <h3 className="font-bold text-teal-900 mb-2">Request Submitted Successfully!</h3>
                     <p className="text-charcoal-700 mb-4">
                       Thank you for submitting your property request. Our agents will help you find the perfect property.
                     </p>
@@ -121,7 +121,7 @@ export default function RequestPropertyPage() {
               {/* Row 1: Intent & Property Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     I want to
                   </label>
                   <select
@@ -141,7 +141,7 @@ export default function RequestPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Property Type
                   </label>
                   <select
@@ -164,7 +164,7 @@ export default function RequestPropertyPage() {
               {/* Row 2: Area & Bedrooms */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Preferred Area
                   </label>
                   <select
@@ -184,7 +184,7 @@ export default function RequestPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Bedrooms (Preferred)
                   </label>
                   <input
@@ -201,7 +201,7 @@ export default function RequestPropertyPage() {
               {/* Row 3: Budget Range */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Budget Min (LKR)
                   </label>
                   <input
@@ -215,7 +215,7 @@ export default function RequestPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Budget Max (LKR)
                   </label>
                   <input
@@ -231,7 +231,7 @@ export default function RequestPropertyPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-navy-900 mb-2">
+                <label className="block text-sm font-semibold text-teal-900 mb-2">
                   Describe Your Needs
                 </label>
                 <textarea
@@ -246,7 +246,7 @@ export default function RequestPropertyPage() {
 
               {/* Contact Details */}
               <div>
-                <label className="block text-sm font-semibold text-navy-900 mb-2">
+                <label className="block text-sm font-semibold text-teal-900 mb-2">
                   Your Phone Number
                 </label>
                 <input
@@ -254,7 +254,7 @@ export default function RequestPropertyPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+94 77 123 4567"
+                  placeholder="+94 77 786 3333"
                   required
                   className="input-field w-full"
                 />

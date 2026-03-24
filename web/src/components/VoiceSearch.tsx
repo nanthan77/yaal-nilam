@@ -236,7 +236,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-24 right-6 z-50 bg-navy-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-float hover:bg-navy-700 hover:scale-110 transition-all duration-300"
+            className="fixed bottom-24 right-6 z-50 bg-teal-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-float hover:bg-teal-700 hover:scale-110 transition-all duration-300"
             aria-label="Voice Search"
           >
             <MicIcon className="w-6 h-6" />
@@ -247,17 +247,17 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
         {isOpen && (
           <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-float border border-sand-200 overflow-hidden animate-slide-up">
             {/* Header */}
-            <div className="bg-navy-900 text-white px-4 py-3 flex items-center justify-between">
+            <div className="bg-teal-900 text-white px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
                   <MicIcon className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold">{l === "ta" ? "AI குரல் தேடல்" : "AI Voice Search"}</p>
-                  <p className="text-xs text-navy-300">{l === "ta" ? "தமிழ் & English" : "Tamil & English"}</p>
+                  <p className="text-xs text-teal-300">{l === "ta" ? "தமிழ் & English" : "Tamil & English"}</p>
                 </div>
               </div>
-              <button onClick={() => { setIsOpen(false); stopSpeaking(); }} className="text-navy-300 hover:text-white p-1">
+              <button onClick={() => { setIsOpen(false); stopSpeaking(); }} className="text-teal-300 hover:text-white p-1">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -276,7 +276,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
                   )}
                   {response && (
                     <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 mt-2">
-                      <p className="text-sm text-navy-800 leading-relaxed">{response}</p>
+                      <p className="text-sm text-teal-800 leading-relaxed">{response}</p>
                     </div>
                   )}
                 </div>
@@ -297,7 +297,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
                       ? "bg-teal-500 text-white animate-pulse"
                       : state === "error"
                       ? "bg-red-100 text-red-600 hover:bg-red-200"
-                      : "bg-navy-800 text-white hover:bg-navy-700 hover:scale-105 shadow-card-lg"
+                      : "bg-teal-800 text-white hover:bg-teal-700 hover:scale-105 shadow-card-lg"
                     }
                   `}
                 >
@@ -356,7 +356,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
             <MicIcon className="w-7 h-7" />
           )}
         </button>
-        <p className="text-sm text-navy-200">{stateLabel[state]}</p>
+        <p className="text-sm text-teal-200">{stateLabel[state]}</p>
 
         {/* Response inline */}
         {response && (
@@ -384,7 +384,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
             ? "bg-charcoal-100 text-charcoal-400 cursor-wait"
             : state === "speaking"
             ? "bg-teal-500 text-white"
-            : "bg-navy-50 text-navy-700 hover:bg-navy-100"
+            : "bg-teal-50 text-teal-700 hover:bg-teal-100"
           }
         `}
       >
@@ -400,7 +400,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
 
       {response && (
         <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 max-w-sm">
-          <p className="text-xs text-navy-800 leading-relaxed">{response}</p>
+          <p className="text-xs text-teal-800 leading-relaxed">{response}</p>
         </div>
       )}
     </div>

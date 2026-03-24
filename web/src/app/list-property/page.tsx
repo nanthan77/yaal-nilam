@@ -81,14 +81,14 @@ export default function ListPropertyPage() {
   const whatsappMessage = encodeURIComponent(
     `Hi! I just listed a property on Yaal Nilam: ${formData.title} in ${formData.area}`
   );
-  const whatsappLink = `https://wa.me/94771234567?text=${whatsappMessage}`;
+  const whatsappLink = `https://wa.me/94777863333?text=${whatsappMessage}`;
 
   return (
     <>
       <Navbar />
       <main>
         {/* Hero Section */}
-        <div className="bg-navy-900 text-white py-16">
+        <div className="bg-teal-900 text-white py-16">
           <div className="container-wide">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-4xl font-bold">List Your Property</h1>
@@ -111,7 +111,7 @@ export default function ListPropertyPage() {
                 <div className="flex items-start gap-3">
                   <Check className="w-6 h-6 text-teal-600 flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-bold text-navy-900 mb-2">Property Listed Successfully!</h3>
+                    <h3 className="font-bold text-teal-900 mb-2">Property Listed Successfully!</h3>
                     <p className="text-charcoal-700 mb-4">
                       Thank you for listing your property on Yaal Nilam. Our team will verify your listing shortly.
                     </p>
@@ -135,7 +135,7 @@ export default function ListPropertyPage() {
               {/* Row 1: Property Type & Intent */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Property Type
                   </label>
                   <select
@@ -155,7 +155,7 @@ export default function ListPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Intent
                   </label>
                   <select
@@ -178,7 +178,7 @@ export default function ListPropertyPage() {
               {/* Row 2: Title & Address */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Property Title
                   </label>
                   <input
@@ -193,7 +193,7 @@ export default function ListPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Area / Location
                   </label>
                   <select
@@ -215,7 +215,7 @@ export default function ListPropertyPage() {
 
               {/* Row 3: Full Address */}
               <div>
-                <label className="block text-sm font-semibold text-navy-900 mb-2">
+                <label className="block text-sm font-semibold text-teal-900 mb-2">
                   Full Address
                 </label>
                 <input
@@ -232,7 +232,7 @@ export default function ListPropertyPage() {
               {/* Row 4: Price & Area Details */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Price (LKR)
                   </label>
                   <input
@@ -247,7 +247,7 @@ export default function ListPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Land Size (Perches)
                   </label>
                   <input
@@ -261,7 +261,7 @@ export default function ListPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Sqft
                   </label>
                   <input
@@ -278,7 +278,7 @@ export default function ListPropertyPage() {
               {/* Row 5: Bedrooms & Bathrooms */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Bedrooms
                   </label>
                   <input
@@ -292,7 +292,7 @@ export default function ListPropertyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-navy-900 mb-2">
+                  <label className="block text-sm font-semibold text-teal-900 mb-2">
                     Bathrooms
                   </label>
                   <input
@@ -308,7 +308,7 @@ export default function ListPropertyPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-navy-900 mb-2">
+                <label className="block text-sm font-semibold text-teal-900 mb-2">
                   Description
                 </label>
                 <textarea
@@ -323,7 +323,7 @@ export default function ListPropertyPage() {
 
               {/* Photo Upload */}
               <div>
-                <label className="block text-sm font-semibold text-navy-900 mb-2">
+                <label className="block text-sm font-semibold text-teal-900 mb-2">
                   Upload Photos
                 </label>
                 <div className="border-2 border-dashed border-teal-300 rounded-lg p-8 text-center hover:border-teal-500 transition">
@@ -351,7 +351,7 @@ export default function ListPropertyPage() {
 
               {/* Contact Details */}
               <div>
-                <label className="block text-sm font-semibold text-navy-900 mb-2">
+                <label className="block text-sm font-semibold text-teal-900 mb-2">
                   Your Phone Number
                 </label>
                 <input
@@ -359,7 +359,7 @@ export default function ListPropertyPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+94 77 123 4567"
+                  placeholder="+94 77 786 3333"
                   required
                   className="input-field w-full"
                 />
