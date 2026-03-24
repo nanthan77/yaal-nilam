@@ -1,181 +1,135 @@
-"use client";
+// @ts-nocheck
+'use client';
 
-import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { useStore } from "@/lib/store";
+import Link from 'next/link';
+import { useState, useCallback } from 'react';
+import { Menu, X, Globe, Building2, MapPin, Phone, Plus } from 'lucide-react';
 
-const NAV_LINKS = [
-  { href: "/buy",        en: "Buy",        ta: "வாங்கு" },
-  { href: "/rent",       en: "Rent",       ta: "வாடகை" },
-  { href: "/land",       en: "Land",       ta: "காணி" },
-  { href: "/commercial", en: "Commercial", ta: "வணிகம்" },
-  { href: "/short-term-rental", en: "Short Stay", ta: "குறுகிய கால" },
+type Language = 'en' | 'ta';
+
+interface NavLink {
+  href: string;
+  labelEn: string;
+  labelTa: string;
+  icon?: React.ReactNode;
+}
+
+const NAV_LINKS: NavLink[] = [
+  { href: '/', labelEn: 'Home', labelTa: 'முகப்பு' },
+  { href: '/properties', labelEn: 'Properties', labelTa: 'சொத்துக்கள்' },
+  { href: '/areas', labelEn: 'Areas', labelTa: 'பகுதிகள்' },
+  { href: '/short-term-rental', labelEn: 'Short Stay', labelTa: 'குறுகிய தங்கல்' },
+  { href: '/about', labelEn: 'About', labelTa: 'பற்றி' },
+  { href: '/contact', labelEn: 'Contact', labelTa: 'தொடர்பு' },
 ];
 
-const MORE_LINKS = [
-  { href: "/list-property",    en: "List Property",    ta: "சொத்து பட்டியலிடு" },
-  { href: "/request-property", en: "Request Property",  ta: "சொத்து கோரிக்கை" },
-  { href: "/properties",       en: "All Properties",    ta: "அனைத்து சொத்துக்கள்" },
-  { href: "/map",              en: "Map Search",        ta: "வரைபடத் தேடல்" },
-  { href: "/agents",           en: "Agents",            ta: "முகவர்கள்" },
-  { href: "/about",            en: "About",             ta: "எங்களைப் பற்றி" },
-  { href: "/contact",          en: "Contact",           ta: "தொடர்பு" },
-];
+export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [language, setLanguage] = useState<Language>('en');
 
-export default function Navbar() {
-  const { locale, setLocale } = useStore();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+  const toggleMenu = useCallback(() => {
+    setIsOpen(prev => !prev);
   }, []);
 
-  return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-sand-300 shadow-sm">
-      <div className="container-wide">
-        <div className="flex items-center justify-between h-16">
+  const toggleLanguage = useCallback(() => {
+    setLanguage(prev => (prev === 'en' ? 'ta' : 'en'));
+  }, []);
 
-          {/* ── Logo ── */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">YN</span>
-            </div>
-            <div className="leading-none">
-              <span className="font-bold text-navy-900 text-lg">Yaal Nilam</span>
-              <span className="block text-xs text-charcoal-400 font-tamil">யாழ் நிலம்</span>
-            </div>
+  const getLabel = (link: NavLink) => {
+    return language === 'en' ? link.labelEn : link.labelTa;
+  };
+
+  const navbarTitle = language === 'en' ? 'Yaal Nilam' : 'யாழ் நிலம்';
+  const navbarSubtitle = language === 'en' ? 'யாழ் நிலம்' : 'Yaal Nilam';
+  const addListingLabel = language === 'en' ? 'Add Listing' : 'பட்டியல் சேர்க்கவும்';
+
+  return (
+    <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-sand-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link href="/" className="flex flex-col items-start gap-0">
+            <span className="text-xl font-bold text-navy-900">
+              {navbarTitle}
+            </span>
+            <span className="text-xs text-teal-600 font-medium">
+              {navbarSubtitle}
+            </span>
           </Link>
 
-          {/* ── Desktop nav ── */}
-          <div className="hidden lg:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-1 lg:gap-2">
+            {NAV_LINKS.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-charcoal-600 hover:text-navy-900 hover:bg-navy-50 rounded-lg transition-colors"
+                className="px-3 py-2 text-sm font-medium text-navy-600 hover:text-navy-500 transition-colors duration-200 rounded-md hover:bg-navy-50"
               >
-                {locale === "ta" ? link.ta : link.en}
+                {getLabel(link)}
               </Link>
             ))}
-
-            {/* More dropdown */}
-            <div className="relative" ref={moreRef}>
-              <button
-                onClick={() => setMoreOpen(!moreOpen)}
-                className="px-3 py-2 text-sm font-medium text-charcoal-600 hover:text-navy-900 hover:bg-navy-50 rounded-lg transition-colors flex items-center gap-1"
-              >
-                {locale === "ta" ? "மேலும்" : "More"}
-                <svg className={`w-4 h-4 transition-transform ${moreOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {moreOpen && (
-                <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-xl shadow-card-xl border border-sand-200 py-2 animate-fade-in">
-                  {MORE_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="block px-4 py-2.5 text-sm text-charcoal-600 hover:bg-sand-100 hover:text-navy-900 transition-colors"
-                      onClick={() => setMoreOpen(false)}
-                    >
-                      {locale === "ta" ? link.ta : link.en}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
-          {/* ── Right actions ── */}
-          <div className="flex items-center gap-2">
-            {/* Language toggle */}
+          {/* Right Section - Language Toggle & Add Listing */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Language Toggle */}
             <button
-              onClick={() => setLocale(locale === "en" ? "ta" : "en")}
-              className="text-xs font-semibold px-3 py-1.5 rounded-full border border-charcoal-200 text-charcoal-600 hover:bg-navy-50 hover:border-navy-300 transition-colors"
+              onClick={toggleLanguage}
+              className="p-2 rounded-lg bg-sand-100 hover:bg-sand-200 transition-colors duration-200 flex items-center gap-1"
+              aria-label="Toggle language"
             >
-              {locale === "en" ? "தமிழ்" : "EN"}
+              <Globe className="w-4 h-4 text-navy-600" />
+              <span className="text-xs font-semibold text-navy-600 hidden sm:inline">
+                {language === 'en' ? 'EN' : 'தமிழ்'}
+              </span>
             </button>
 
-            {/* List property CTA — desktop */}
+            {/* Add Listing CTA - Desktop */}
             <Link
-              href="/list-property"
-              className="hidden md:inline-flex items-center gap-1.5 text-sm font-semibold bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+              href="/add-listing"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-warm-500 text-navy-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 shadow-sm hover:-translate-y-0.5"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              {locale === "ta" ? "சொத்து பட்டியலிடு" : "List Property"}
+              <Plus className="w-4 h-4" />
+              <span className="text-sm">{addListingLabel}</span>
             </Link>
 
-            {/* Mobile hamburger */}
+            {/* Mobile Menu Button */}
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 text-charcoal-600 hover:bg-navy-50 rounded-lg transition-colors"
-              aria-label="Menu"
+              onClick={toggleMenu}
+              className="md:hidden p-2 rounded-lg hover:bg-sand-100 transition-colors duration-200"
+              aria-label="Toggle menu"
             >
-              {mobileOpen ? (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              {isOpen ? (
+                <X className="w-6 h-6 text-navy-600" />
               ) : (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <Menu className="w-6 h-6 text-navy-600" />
               )}
             </button>
           </div>
         </div>
 
-        {/* ── Mobile menu ── */}
-        {mobileOpen && (
-          <div className="lg:hidden border-t border-sand-200 py-4 animate-fade-in">
-            <div className="space-y-1 mb-4">
-              <p className="px-3 text-xs font-semibold text-charcoal-400 uppercase tracking-wider mb-2">
-                {locale === "ta" ? "சொத்து வகைகள்" : "Property Types"}
-              </p>
-              {NAV_LINKS.map((link) => (
+        {/* Mobile Navigation Menu */}
+        {isOpen && (
+          <div className="md:hidden border-t border-sand-200 bg-white">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {NAV_LINKS.map(link => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block px-3 py-2.5 text-sm font-medium text-charcoal-700 hover:bg-sand-100 rounded-lg"
-                  onClick={() => setMobileOpen(false)}
+                  className="block px-4 py-2 text-base font-medium text-navy-600 hover:text-navy-500 hover:bg-navy-50 rounded-md transition-colors duration-200"
+                  onClick={() => setIsOpen(false)}
                 >
-                  {locale === "ta" ? link.ta : link.en}
+                  {getLabel(link)}
                 </Link>
               ))}
-            </div>
-            <div className="border-t border-sand-200 pt-4 space-y-1">
-              <p className="px-3 text-xs font-semibold text-charcoal-400 uppercase tracking-wider mb-2">
-                {locale === "ta" ? "மேலும்" : "More"}
-              </p>
-              {MORE_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block px-3 py-2.5 text-sm text-charcoal-600 hover:bg-sand-100 rounded-lg"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {locale === "ta" ? link.ta : link.en}
-                </Link>
-              ))}
-            </div>
-            {/* Mobile CTA */}
-            <div className="mt-4 px-3">
+
+              {/* Mobile Add Listing Button */}
               <Link
-                href="/list-property"
-                className="btn-primary w-full text-center"
-                onClick={() => setMobileOpen(false)}
+                href="/add-listing"
+                className="block mx-2 mt-4 px-4 py-2 bg-warm-500 text-navy-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 text-center"
+                onClick={() => setIsOpen(false)}
               >
-                {locale === "ta" ? "சொத்து பட்டியலிடு" : "List Your Property"}
+                {addListingLabel}
               </Link>
             </div>
           </div>

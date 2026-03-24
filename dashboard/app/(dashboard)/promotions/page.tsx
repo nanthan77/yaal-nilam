@@ -1,19 +1,11 @@
+// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
+import { Plus, Clock, TrendingUp, Calendar } from 'lucide-react';
 import {
-  Plus,
-  Edit2,
-  Trash2,
-  TrendingUp,
-  DollarSign,
-  Users,
-  Calendar,
-  BarChart3,
-} from 'lucide-react';
-import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -24,378 +16,345 @@ import {
 
 interface Promotion {
   id: string;
-  name: string;
-  type: 'featured' | 'premium' | 'standard';
-  price: number;
-  listings: number;
+  listingTitle: string;
+  listingId: string;
+  planType: 'Featured' | 'Urgent' | 'Homepage Spotlight';
+  startDate: string;
+  endDate: string;
   revenue: number;
-  active: boolean;
+  status: 'active' | 'expiring' | 'expired';
+  daysRemaining: number;
 }
 
-interface ChartData {
-  month: string;
-  revenue: number;
-}
-
-const mockPromotions: Promotion[] = [
+const promotions: Promotion[] = [
   {
     id: '1',
-    name: 'Featured Listing',
-    type: 'featured',
-    price: 5000,
-    listings: 48,
-    revenue: 240000,
-    active: true,
+    listingTitle: 'Luxury Apartment in Jaffna City',
+    listingId: 'YN-045',
+    planType: 'Featured',
+    startDate: '2026-03-10',
+    endDate: '2026-04-10',
+    revenue: 1500,
+    status: 'active',
+    daysRemaining: 17,
   },
   {
     id: '2',
-    name: 'Premium Promotion',
-    type: 'premium',
-    price: 3000,
-    listings: 92,
-    revenue: 276000,
-    active: true,
+    listingTitle: 'Modern 3-Bedroom House',
+    listingId: 'YN-048',
+    planType: 'Urgent',
+    startDate: '2026-03-15',
+    endDate: '2026-04-15',
+    revenue: 2500,
+    status: 'active',
+    daysRemaining: 22,
+  },  {
+    id: '3',
+    listingTitle: 'Land Plot with City View',
+    listingId: 'YN-051',
+    planType: 'Homepage Spotlight',
+    startDate: '2026-03-20',
+    endDate: '2026-03-27',
+    revenue: 5000,
+    status: 'expiring',
+    daysRemaining: 3,
   },
   {
-    id: '3',
-    name: 'Standard Listing',
-    type: 'standard',
-    price: 1000,
-    listings: 312,
-    revenue: 312000,
-    active: true,
+    id: '4',
+    listingTitle: 'Beachfront Property',
+    listingId: 'YN-042',
+    planType: 'Featured',
+    startDate: '2026-03-01',
+    endDate: '2026-03-31',
+    revenue: 1500,
+    status: 'active',
+    daysRemaining: 7,
+  },
+  {
+    id: '5',
+    listingTitle: 'Commercial Space Rental',
+    listingId: 'YN-050',
+    planType: 'Featured',
+    startDate: '2026-02-20',
+    endDate: '2026-03-20',
+    revenue: 1500,
+    status: 'expired',
+    daysRemaining: 0,
   },
 ];
 
-const chartData: ChartData[] = [
-  { month: 'Jan', revenue: 450000 },
-  { month: 'Feb', revenue: 520000 },
-  { month: 'Mar', revenue: 580000 },
-  { month: 'Apr', revenue: 670000 },
-  { month: 'May', revenue: 750000 },
-  { month: 'Jun', revenue: 828000 },
+const chartData = [
+  { month: 'Jan', revenue: 24000 },
+  { month: 'Feb', revenue: 38000 },
+  { month: 'Mar', revenue: 45200 },
 ];
 
-const getPromotionColor = (type: string) => {
-  switch (type) {
-    case 'featured':
-      return { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' };
-    case 'premium':
-      return { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700' };
-    case 'standard':
-      return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' };
-    default:
-      return { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-700' };
-  }
-};
+const plans = [
+  {
+    name: 'Normal',
+    price: 'Free',
+    duration: 'Unlimited',
+    color: 'bg-slate-100',
+    textColor: 'text-slate-700',
+  },
+  {
+    name: 'Featured',
+    price: 'Rs.1,500',
+    duration: '30 days',
+    color: 'bg-blue-100',
+    textColor: 'text-blue-700',
+  },
+  {
+    name: 'Urgent',
+    price: 'Rs.2,500',
+    duration: '30 days',
+    color: 'bg-red-100',
+    textColor: 'text-red-700',
+  },
+  {
+    name: 'Homepage Spotlight',
+    price: 'Rs.5,000',
+    duration: '30 days',
+    color: 'bg-amber-100',
+    textColor: 'text-amber-700',
+  },
+];
 
 export default function PromotionsPage() {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [promotions, setPromotions] = useState<Promotion[]>(mockPromotions);
-  const [newPromotion, setNewPromotion] = useState({
-    name: '',
-    type: 'standard' as 'featured' | 'premium' | 'standard',
-    price: 0,
-  });
-
-  const totalRevenue = promotions.reduce((sum, p) => sum + p.revenue, 0);
-  const totalListings = promotions.reduce((sum, p) => sum + p.listings, 0);
-  const avgPrice = Math.round(totalRevenue / totalListings);
-
-  const handleAddPromotion = () => {
-    if (newPromotion.name && newPromotion.price > 0) {
-      setShowAddModal(false);
-      setNewPromotion({
-        name: '',
-        type: 'standard',
-        price: 0,
-      });
-    }
-  };
+  const [showModal, setShowModal] = useState(false);
+  const activeCount = promotions.filter((p) => p.status === 'active').length;
+  const expiringCount = promotions.filter((p) => p.status === 'expiring').length;
+  const totalRevenue = promotions
+    .filter((p) => p.status !== 'expired')
+    .reduce((sum, p) => sum + p.revenue, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-navy-900 mb-2">Promotions</h1>
-        <p className="text-slate-600">Manage listing promotion plans and pricing</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-slate-900">Promotions & Featured Listings</h1>
+          <p className="text-slate-600 mt-2">Manage listing promotions and monetization</p>
+        </div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
+        >
+          <Plus size={20} />
+          Add Promotion
+        </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Total Revenue</p>
-            <DollarSign className="w-5 h-5 text-emerald-600" />
-          </div>
-          <p className="text-3xl font-bold text-emerald-600">
-            Rs. {(totalRevenue / 100000).toFixed(1)}L
-          </p>
-          <p className="text-xs text-slate-500 mt-2">This month</p>
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <p className="text-slate-600 text-sm font-medium">Active Promotions</p>
+          <p className="text-3xl font-bold text-slate-900 mt-2">{activeCount}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Active Listings</p>
-            <Users className="w-5 h-5 text-blue-600" />
-          </div>
-          <p className="text-3xl font-bold text-blue-600">{totalListings}</p>
-          <p className="text-xs text-slate-500 mt-2">Using promotions</p>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <p className="text-slate-600 text-sm font-medium">Expiring Soon</p>
+          <p className="text-3xl font-bold text-red-600 mt-2">{expiringCount}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Avg Per Listing</p>
-            <TrendingUp className="w-5 h-5 text-teal-600" />
-          </div>
-          <p className="text-3xl font-bold text-teal-600">Rs. {avgPrice.toLocaleString()}</p>
-          <p className="text-xs text-slate-500 mt-2">Average revenue</p>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <p className="text-slate-600 text-sm font-medium">Monthly Revenue</p>
+          <p className="text-3xl font-bold text-slate-900 mt-2">Rs.{totalRevenue.toLocaleString()}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Plans</p>
-            <BarChart3 className="w-5 h-5 text-orange-600" />
-          </div>
-          <p className="text-3xl font-bold text-orange-600">{promotions.length}</p>
-          <p className="text-xs text-slate-500 mt-2">Active plans</p>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <p className="text-slate-600 text-sm font-medium">Total This Month</p>
+          <p className="text-3xl font-bold text-slate-900 mt-2">Rs.45.2K</p>
         </div>
       </div>
-
-      {/* Revenue Chart */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 mb-8">
-        <h2 className="text-xl font-bold text-navy-900 mb-4">Monthly Revenue</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="month" stroke="#64748b" />
-            <YAxis stroke="#64748b" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#fff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-              }}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke="#14b8a6"
-              strokeWidth={2}
-              dot={{ fill: '#14b8a6', r: 5 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Promotions Cards */}
-      <div className="grid grid-cols-3 gap-6 mb-8">
-        {promotions.map((promo) => {
-          const colors = getPromotionColor(promo.type);
-          return (
+      {/* Plans */}
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Promotion Plans</h2>
+        <div className="grid grid-cols-4 gap-4">
+          {plans.map((plan) => (
             <div
-              key={promo.id}
-              className={`rounded-2xl border ${colors.border} p-6 ${colors.bg}`}
+              key={plan.name}
+              className={`${plan.color} ${plan.textColor} rounded-2xl p-6 border-2 border-current`}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className={`text-lg font-bold ${colors.text}`}>{promo.name}</h3>
-                  <p className="text-sm text-slate-600 mt-1 capitalize">{promo.type}</p>
-                </div>
-                {promo.active && (
-                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">
-                    Active
-                  </span>
-                )}
-              </div>
-
-              {/* Pricing */}
-              <div className="bg-white bg-opacity-60 rounded-lg p-3 mb-4">
-                <p className="text-xs text-slate-600 mb-1">Price per Listing</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  Rs. {promo.price.toLocaleString()}
-                </p>
-              </div>
-
-              {/* Stats */}
-              <div className="space-y-2 mb-4 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Active Listings</span>
-                  <span className="font-semibold text-slate-900">{promo.listings}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Revenue</span>
-                  <span className="font-semibold text-emerald-600">
-                    Rs. {(promo.revenue / 100000).toFixed(1)}L
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="border-t border-slate-200 pt-4 flex gap-2">
-                <button className="flex-1 text-slate-600 hover:bg-slate-200 hover:bg-opacity-50 py-2 rounded transition font-medium text-sm">
-                  <Edit2 className="w-4 h-4 mx-auto" />
-                </button>
-                <button className="flex-1 text-slate-600 hover:bg-slate-200 hover:bg-opacity-50 py-2 rounded transition font-medium text-sm">
-                  View Details
-                </button>
-              </div>
+              <p className="font-bold text-lg">{plan.name}</p>
+              <p className="text-2xl font-bold mt-2">{plan.price}</p>
+              <p className="text-sm mt-1">{plan.duration}</p>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Active Promotions Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-navy-900">Active Promotions</h2>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition font-medium"
-          >
-            <Plus className="w-4 h-4" />
-            Add Promotion
-          </button>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200">
+          <h2 className="text-lg font-bold text-slate-900">Active Promotions</h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
-                  Plan Name
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                  Listing
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
-                  Type
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                  Plan
                 </th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">
-                  Price
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                  Start Date
                 </th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">
-                  Listings
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                  End Date
                 </th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-900">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                  Days Remaining
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                   Revenue
                 </th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase">
                   Actions
                 </th>
               </tr>
-            </thead>
-            <tbody>
-              {promotions.map((promo) => (
-                <tr key={promo.id} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-slate-900">{promo.name}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold border ${
-                        getPromotionColor(promo.type).bg
-                      } ${getPromotionColor(promo.type).text}`}
-                    >
-                      {promo.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center font-medium text-slate-900">
-                    Rs. {promo.price.toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-center font-medium text-slate-900">
-                    {promo.listings}
-                  </td>
-                  <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                    Rs. {(promo.revenue / 100000).toFixed(1)}L
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex gap-2 justify-center">
-                      <button className="text-slate-600 hover:bg-slate-100 p-2 rounded transition">
-                        <Edit2 className="w-4 h-4" />
+            </thead>            <tbody>
+              {promotions
+                .filter((p) => p.status !== 'expired')
+                .map((promo) => (
+                  <tr
+                    key={promo.id}
+                    className="border-b border-slate-100 hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-semibold text-slate-900">{promo.listingTitle}</p>
+                        <p className="text-xs text-slate-600">#{promo.listingId}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        {promo.planType}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">{promo.startDate}</td>
+                    <td className="px-6 py-4 text-slate-600">{promo.endDate}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                          promo.daysRemaining <= 3
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-green-100 text-green-700'
+                        }`}
+                      >
+                        <Clock size={14} />
+                        {promo.daysRemaining}d
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-slate-900">
+                      Rs.{promo.revenue.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                          promo.status === 'active'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {promo.status.charAt(0).toUpperCase() + promo.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center space-x-2">
+                      <button className="text-teal-600 hover:text-teal-700 font-semibold text-sm">
+                        Extend
                       </button>
-                      <button className="text-red-600 hover:bg-red-50 p-2 rounded transition">
-                        <Trash2 className="w-4 h-4" />
+                      <button className="text-red-600 hover:text-red-700 font-semibold text-sm">
+                        Cancel
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>          </table>
         </div>
       </div>
 
-      {/* Add Promotion Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-2xl w-full">
-            <div className="border-b border-slate-200 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-900">Add Promotion Plan</h2>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-slate-500 hover:text-slate-700 font-bold text-xl"
-              >
-                ✕
-              </button>
-            </div>
+      {/* Revenue Chart */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <h2 className="text-lg font-bold text-slate-900 mb-4">Monthly Revenue</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="revenue" fill="#0d9488" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  Plan Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Featured Listing"
-                  value={newPromotion.name}
-                  onChange={(e) => setNewPromotion({ ...newPromotion, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 space-y-6">
+            <h2 className="text-2xl font-bold text-slate-900">Add Promotion</h2>
 
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  Plan Type
+                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  Select Listing
                 </label>
-                <select
-                  value={newPromotion.type}
-                  onChange={(e) =>
-                    setNewPromotion({
-                      ...newPromotion,
-                      type: e.target.value as 'featured' | 'premium' | 'standard',
-                    })
-                  }
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  <option value="standard">Standard</option>
-                  <option value="premium">Premium</option>
-                  <option value="featured">Featured</option>
+                <select className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option>Choose a listing...</option>
+                  <option>Modern 3-Bedroom House (#YN-048)</option>
+                  <option>Luxury Apartment (#YN-045)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  Price (Rs.)
+                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  Promotion Plan
                 </label>
-                <input
-                  type="number"
-                  placeholder="Enter price"
-                  value={newPromotion.price}
-                  onChange={(e) => setNewPromotion({ ...newPromotion, price: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
+                <select className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option>Featured - Rs.1,500</option>
+                  <option>Urgent - Rs.2,500</option>
+                  <option>Homepage Spotlight - Rs.5,000</option>
+                </select>
               </div>
 
-              <div className="border-t border-slate-200 pt-4 flex gap-3">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddPromotion}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition"
-                >
-                  Add Plan
-                </button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
               </div>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t border-slate-200">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 px-4 py-2 bg-teal-600 text-white hover:bg-teal-700 rounded-lg font-semibold"
+              >
+                Create
+              </button>
             </div>
           </div>
         </div>

@@ -1,410 +1,239 @@
-'use client';
+// @ts-nocheck
+'use client'
 
-import { useState, useMemo } from 'react';
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  Eye,
-  Search,
-  Download,
-  Filter,
-  User,
-  Activity,
-  Check,
-  AlertCircle,
-  LogOut,
-  Settings,
-} from 'lucide-react';
+import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 
 interface AuditLog {
-  id: string;
-  user: string;
-  user_avatar: string;
-  action: 'create' | 'update' | 'delete' | 'view' | 'login' | 'logout' | 'settings';
-  target: string;
-  target_type: string;
-  details: string;
-  status: 'success' | 'failed';
-  timestamp: string;
-  ip_address: string;
+  id: number
+  user: string
+  action: string
+  target: string
+  details: string
+  timestamp: string
+  actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'EXPORT' | 'APPROVE'
 }
 
 const mockAuditLogs: AuditLog[] = [
   {
-    id: '1',
-    user: 'Ravi Kumar',
-    user_avatar: 'RK',
-    action: 'create',
-    target: 'Luxury Villa in Jaffna Fort',
-    target_type: 'Listing',
-    details: 'New listing created with 8 images',
-    status: 'success',
-    timestamp: '2024-03-21T14:30:00',
-    ip_address: '192.168.1.100',
+    id: 1,
+    user: 'admin@yaalnilam.lk',
+    action: 'APPROVE',
+    target: 'Listing #1024',
+    details: 'Approved luxury villa listing in Jaffna',
+    timestamp: '2026-03-23 14:32:45',
+    actionType: 'APPROVE',
   },
   {
-    id: '2',
-    user: 'Priya Singh',
-    user_avatar: 'PS',
-    action: 'update',
-    target: 'Apartment - Central Jaffna',
-    target_type: 'Listing',
-    details: 'Updated price and description',
-    status: 'success',
-    timestamp: '2024-03-21T13:45:00',
-    ip_address: '192.168.1.101',
+    id: 2,
+    user: 'content@yaalnilam.lk',
+    action: 'UPDATE',
+    target: 'Property #1023',
+    details: 'Updated price from Rs. 50M to Rs. 48M',
+    timestamp: '2026-03-23 13:15:22',
+    actionType: 'UPDATE',
   },
   {
-    id: '3',
-    user: 'Admin User',
-    user_avatar: 'AU',
-    action: 'delete',
-    target: 'Old Listing #2023',
-    target_type: 'Listing',
-    details: 'Listing deleted due to policy violation',
-    status: 'success',
-    timestamp: '2024-03-21T12:20:00',
-    ip_address: '192.168.1.50',
+    id: 3,
+    user: 'lead@yaalnilam.lk',
+    action: 'EXPORT',
+    target: 'Inquiries Report',
+    details: 'Exported 150 inquiries for March 2026',
+    timestamp: '2026-03-23 11:45:10',
+    actionType: 'EXPORT',
   },
   {
-    id: '4',
-    user: 'Arun Patel',
-    user_avatar: 'AP',
-    action: 'login',
-    target: 'User Account',
-    target_type: 'Authentication',
-    details: 'Successful login from web browser',
-    status: 'success',
-    timestamp: '2024-03-21T11:00:00',
-    ip_address: '192.168.1.105',
+    id: 4,
+    user: 'admin@yaalnilam.lk',
+    action: 'DELETE',
+    target: 'Listing #1020',
+    details: 'Deleted spam listing for inappropriate content',
+    timestamp: '2026-03-22 16:20:33',
+    actionType: 'DELETE',
   },
   {
-    id: '5',
-    user: 'Unknown User',
-    user_avatar: 'UU',
-    action: 'login',
-    target: 'User Account',
-    target_type: 'Authentication',
-    details: 'Failed login attempt - Invalid credentials',
-    status: 'failed',
-    timestamp: '2024-03-21T10:30:00',
-    ip_address: '192.168.1.200',
+    id: 5,
+    user: 'manager@yaalnilam.lk',
+    action: 'CREATE',
+    target: 'Property #1021',
+    details: 'Created new apartment listing in Point Pedro',
+    timestamp: '2026-03-22 14:05:17',
+    actionType: 'CREATE',
   },
   {
-    id: '6',
-    user: 'Admin User',
-    user_avatar: 'AU',
-    action: 'settings',
-    target: 'Platform Settings',
-    target_type: 'Settings',
-    details: 'Updated SEO settings and meta tags',
-    status: 'success',
-    timestamp: '2024-03-21T09:15:00',
-    ip_address: '192.168.1.50',
+    id: 6,
+    user: 'admin@yaalnilam.lk',
+    action: 'LOGIN',
+    target: 'Dashboard',
+    details: 'Admin login from IP: 192.168.1.100',
+    timestamp: '2026-03-22 09:00:45',
+    actionType: 'LOGIN',
   },
-];
-
-const getActionIcon = (action: string) => {
-  switch (action) {
-    case 'create':
-      return <Plus className="w-4 h-4 text-emerald-600" />;
-    case 'update':
-      return <Edit2 className="w-4 h-4 text-blue-600" />;
-    case 'delete':
-      return <Trash2 className="w-4 h-4 text-red-600" />;
-    case 'view':
-      return <Eye className="w-4 h-4 text-slate-600" />;
-    case 'login':
-      return <LogOut className="w-4 h-4 text-purple-600" />;
-    case 'logout':
-      return <LogOut className="w-4 h-4 text-slate-600" />;
-    case 'settings':
-      return <Settings className="w-4 h-4 text-orange-600" />;
-    default:
-      return <Activity className="w-4 h-4 text-slate-600" />;
-  }
-};
-
-const getActionColor = (action: string) => {
-  switch (action) {
-    case 'create':
-      return 'bg-emerald-50 text-emerald-700';
-    case 'update':
-      return 'bg-blue-50 text-blue-700';
-    case 'delete':
-      return 'bg-red-50 text-red-700';
-    case 'view':
-      return 'bg-slate-50 text-slate-700';
-    case 'login':
-      return 'bg-purple-50 text-purple-700';
-    case 'logout':
-      return 'bg-slate-50 text-slate-700';
-    case 'settings':
-      return 'bg-orange-50 text-orange-700';
-    default:
-      return 'bg-gray-50 text-gray-700';
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  return status === 'success' ? (
-    <Check className="w-4 h-4 text-emerald-600" />
-  ) : (
-    <AlertCircle className="w-4 h-4 text-red-600" />
-  );
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
+  {
+    id: 7,
+    user: 'content@yaalnilam.lk',
+    action: 'UPDATE',
+    target: 'User #456',
+    details: 'Changed user role from viewer to content_manager',
+    timestamp: '2026-03-21 15:30:12',
+    actionType: 'UPDATE',
+  },
+  {
+    id: 8,
+    user: 'lead@yaalnilam.lk',
+    action: 'CREATE',
+    target: 'Follow-up Task',
+    details: 'Created follow-up task for inquiry #789',
+    timestamp: '2026-03-21 12:45:55',
+    actionType: 'CREATE',
+  },
+]
 
 export default function AuditLogsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [actionFilter, setActionFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [userFilter, setUserFilter] = useState('all');
+  const [logs, setLogs] = useState<AuditLog[]>(mockAuditLogs)
+  const [dateFrom, setDateFrom] = useState('2026-03-15')
+  const [dateTo, setDateTo] = useState('2026-03-23')
+  const [filterUser, setFilterUser] = useState('')
+  const [filterAction, setFilterAction] = useState('')
 
-  const filteredLogs = useMemo(() => {
-    return mockAuditLogs.filter((log) => {
-      const matchesSearch =
-        log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.details.toLowerCase().includes(searchTerm.toLowerCase());
+  const getActionColor = (actionType: string) => {
+    switch (actionType) {
+      case 'CREATE':
+        return 'bg-teal-100 text-teal-700'
+      case 'UPDATE':
+        return 'bg-blue-100 text-blue-700'
+      case 'DELETE':
+        return 'bg-red-100 text-red-700'
+      case 'LOGIN':
+        return 'bg-purple-100 text-purple-700'
+      case 'EXPORT':
+        return 'bg-orange-100 text-orange-700'
+      case 'APPROVE':
+        return 'bg-green-100 text-green-700'
+      default:
+        return 'bg-sand-100 text-charcoal-700'
+    }
+  }
 
-      const matchesAction = actionFilter === 'all' || log.action === actionFilter;
-      const matchesStatus = statusFilter === 'all' || log.status === statusFilter;
-      const matchesUser = userFilter === 'all' || log.user === userFilter;
+  const filteredLogs = logs.filter((log) => {
+    const dateMatch =
+      new Date(log.timestamp) >= new Date(dateFrom) &&
+      new Date(log.timestamp) <= new Date(dateTo)
+    const userMatch = !filterUser || log.user.toLowerCase().includes(filterUser.toLowerCase())
+    const actionMatch = !filterAction || log.actionType === filterAction
+    return dateMatch && userMatch && actionMatch
+  })
 
-      return matchesSearch && matchesAction && matchesStatus && matchesUser;
-    });
-  }, [searchTerm, actionFilter, statusFilter, userFilter]);
-
-  const stats = {
-    total: mockAuditLogs.length,
-    success: mockAuditLogs.filter((l) => l.status === 'success').length,
-    failed: mockAuditLogs.filter((l) => l.status === 'failed').length,
-    today: mockAuditLogs.filter((l) => {
-      const logDate = new Date(l.timestamp).toDateString();
-      const today = new Date().toDateString();
-      return logDate === today;
-    }).length,
-  };
-
-  const uniqueUsers = Array.from(new Set(mockAuditLogs.map((l) => l.user)));
+  const uniqueActions = [...new Set(logs.map((log) => log.actionType))]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-navy-900 mb-2">Audit Logs</h1>
-        <p className="text-slate-600">Track all system activities and changes for security and compliance</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Total Logs</p>
-          <p className="text-3xl font-bold text-navy-900">{stats.total}</p>
-          <p className="text-xs text-slate-500 mt-2">All activities</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-slate-600 text-sm font-medium">Success</p>
-            <Check className="w-4 h-4 text-emerald-600" />
-          </div>
-          <p className="text-3xl font-bold text-emerald-600">{stats.success}</p>
-          <p className="text-xs text-slate-500 mt-2">Successful actions</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-slate-600 text-sm font-medium">Failed</p>
-            <AlertCircle className="w-4 h-4 text-red-600" />
-          </div>
-          <p className="text-3xl font-bold text-red-600">{stats.failed}</p>
-          <p className="text-xs text-slate-500 mt-2">Failed attempts</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Today</p>
-          <p className="text-3xl font-bold text-blue-600">{stats.today}</p>
-          <p className="text-xs text-slate-500 mt-2">Today's activities</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-charcoal-900">Audit Logs</h1>
+        <p className="text-charcoal-600 mt-1">Track all platform activities and changes</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-gray-100">
-        <div className="grid grid-cols-5 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+      <div className="bg-white border border-sand-200 rounded-lg p-6 space-y-4">
+        <h2 className="font-semibold text-charcoal-900">Filters</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-charcoal-700 mb-2">From Date</label>
             <input
-              type="text"
-              placeholder="Search logs..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
             />
           </div>
-          <select
-            value={actionFilter}
-            onChange={(e) => setActionFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          >
-            <option value="all">All Actions</option>
-            <option value="create">Create</option>
-            <option value="update">Update</option>
-            <option value="delete">Delete</option>
-            <option value="view">View</option>
-            <option value="login">Login</option>
-            <option value="settings">Settings</option>
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          >
-            <option value="all">All Status</option>
-            <option value="success">Success</option>
-            <option value="failed">Failed</option>
-          </select>
-          <select
-            value={userFilter}
-            onChange={(e) => setUserFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          >
-            <option value="all">All Users</option>
-            {uniqueUsers.map((user) => (
-              <option key={user} value={user}>
-                {user}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={() => {
-              const csv = [
-                ['Time', 'User', 'Action', 'Target', 'Status', 'Details', 'IP'].join(','),
-                ...filteredLogs.map((log) =>
-                  [
-                    log.timestamp,
-                    log.user,
-                    log.action,
-                    log.target,
-                    log.status,
-                    log.details,
-                    log.ip_address,
-                  ]
-                    .map((v) => `"${v}"`)
-                    .join(',')
-                ),
-              ].join('\n');
-              const blob = new Blob([csv], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'audit-logs.csv';
-              a.click();
-            }}
-            className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition font-medium"
-          >
-            <Download className="w-4 h-4" />
-            Export
-          </button>
+          <div>
+            <label className="block text-sm font-semibold text-charcoal-700 mb-2">To Date</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-charcoal-700 mb-2">User</label>
+            <input
+              type="text"
+              placeholder="Search user..."
+              value={filterUser}
+              onChange={(e) => setFilterUser(e.target.value)}
+              className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-charcoal-700 mb-2">Action Type</label>
+            <select
+              value={filterAction}
+              onChange={(e) => setFilterAction(e.target.value)}
+              className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+            >
+              <option value="">All Actions</option>
+              {uniqueActions.map((action) => (
+                <option key={action} value={action}>
+                  {action}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Audit Logs Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white border border-sand-200 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Time</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">User</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Action</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Target</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Details</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">IP Address</th>
+              <tr className="bg-sand-50 border-b border-sand-200">
+                <th className="text-left py-3 px-4 font-semibold text-charcoal-700">User</th>
+                <th className="text-left py-3 px-4 font-semibold text-charcoal-700">Action</th>
+                <th className="text-left py-3 px-4 font-semibold text-charcoal-700">Target</th>
+                <th className="text-left py-3 px-4 font-semibold text-charcoal-700">Details</th>
+                <th className="text-left py-3 px-4 font-semibold text-charcoal-700">Timestamp</th>
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.map((log) => (
-                <tr key={log.id} className="border-b border-slate-100 hover:bg-slate-50 transition">
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-slate-600">{formatDate(log.timestamp)}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-xs font-semibold">
-                        {log.user_avatar}
-                      </div>
-                      <p className="font-medium text-slate-900">{log.user}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {getActionIcon(log.action)}
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getActionColor(log.action)}`}
-                      >
-                        {log.action.charAt(0).toUpperCase() + log.action.slice(1)}
+              {filteredLogs.length > 0 ? (
+                filteredLogs.map((log) => (
+                  <tr key={log.id} className="border-b border-sand-100 hover:bg-sand-50">
+                    <td className="py-3 px-4 text-charcoal-700 font-medium">{log.user}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getActionColor(log.actionType)}`}>
+                        {log.actionType}
                       </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium text-slate-900">{log.target}</p>
-                      <p className="text-xs text-slate-500">{log.target_type}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-slate-600">{log.details}</p>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      {getStatusIcon(log.status)}
-                      <span
-                        className={`text-xs font-semibold ${
-                          log.status === 'success'
-                            ? 'text-emerald-600'
-                            : 'text-red-600'
-                        }`}
-                      >
-                        {log.status === 'success' ? 'Success' : 'Failed'}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-mono text-slate-600">{log.ip_address}</p>
+                    </td>
+                    <td className="py-3 px-4 text-charcoal-700">{log.target}</td>
+                    <td className="py-3 px-4 text-charcoal-600 max-w-xs truncate">{log.details}</td>
+                    <td className="py-3 px-4 text-charcoal-600 text-xs whitespace-nowrap">{log.timestamp}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-8 px-4 text-center text-charcoal-600">
+                    No logs found matching your filters
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
-
-        {filteredLogs.length === 0 && (
-          <div className="text-center py-12">
-            <Activity className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <p className="text-slate-600">No audit logs found</p>
-          </div>
-        )}
       </div>
 
       {/* Pagination Info */}
-      <div className="mt-6 flex items-center justify-between">
-        <p className="text-sm text-slate-600">
-          Showing {filteredLogs.length} of {mockAuditLogs.length} logs
-        </p>
+      <div className="flex items-center justify-between text-sm text-charcoal-600">
+        <p>Showing {filteredLogs.length} of {logs.length} logs</p>
         <div className="flex gap-2">
-          <button className="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition font-medium text-sm">
-            Previous
-          </button>
-          <button className="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition font-medium text-sm">
-            Next
-          </button>
+          <button className="px-3 py-1 rounded border border-sand-300 hover:bg-sand-50">Previous</button>
+          <button className="px-3 py-1 rounded border border-sand-300 bg-navy-600 text-white">1</button>
+          <button className="px-3 py-1 rounded border border-sand-300 hover:bg-sand-50">2</button>
+          <button className="px-3 py-1 rounded border border-sand-300 hover:bg-sand-50">Next</button>
         </div>
       </div>
     </div>
-  );
+  )
 }

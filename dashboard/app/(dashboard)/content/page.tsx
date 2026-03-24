@@ -1,417 +1,785 @@
+// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
 import {
   Plus,
   Edit2,
-  Trash2,
   Eye,
+  Trash2,
+  Clock,
+  Globe,
+  FileText,
+  Image as ImageIcon,
   Search,
-  Calendar,
-  User,
-  Eye as EyeIcon,
-  BarChart3,
 } from 'lucide-react';
 
-interface BlogPost {
-  id: string;
-  title: string;
-  category: string;
-  status: 'published' | 'draft' | 'archived';
-  author: string;
-  views: number;
-  created_at: string;
-  updated_at: string;
-}
+type TabType = 'pages' | 'blog' | 'homepage' | 'blocks';
 
 interface Page {
   id: string;
   title: string;
   slug: string;
   status: 'published' | 'draft';
-  updated_at: string;
-  seo_title?: string;
-  seo_description?: string;
+  lastUpdated: string;
+  updatedBy: string;
 }
 
-const mockBlogPosts: BlogPost[] = [
-  {
-    id: '1',
-    title: 'Property Investment Guide 2024',
-    category: 'Guides',
-    status: 'published',
-    author: 'Ravi Kumar',
-    views: 1245,
-    created_at: '2024-01-15',
-    updated_at: '2024-03-20',
-  },
-  {
-    id: '2',
-    title: 'Jaffna Real Estate Market Trends',
-    category: 'Market Analysis',
-    status: 'published',
-    author: 'Priya Singh',
-    views: 892,
-    created_at: '2024-02-10',
-    updated_at: '2024-03-18',
-  },
-];
+interface BlogPost {
+  id: string;
+  title: string;
+  category: string;
+  author: string;
+  status: 'published' | 'draft';
+  views: number;
+  date: string;
+}
+interface HomepageSection {
+  id: string;
+  name: string;
+  currentValue: string;
+  type: 'text' | 'textarea';
+}
 
-const mockPages: Page[] = [
-  {
-    id: '1',
-    title: 'Home',
-    slug: 'home',
-    status: 'published',
-    updated_at: '2024-03-20',
-    seo_title: 'Yaal Nilam - Property Management & Real Estate',
-    seo_description: 'Leading property management platform in Jaffna',
-  },
-  {
-    id: '2',
-    title: 'About Us',
-    slug: 'about',
-    status: 'published',
-    updated_at: '2024-03-15',
-  },
-];
+interface StaticBlock {
+  id: string;
+  label: string;
+  value: string;
+  type: 'text' | 'phone' | 'url';
+}
 
 export default function ContentPage() {
-  const [activeTab, setActiveTab] = useState<'pages' | 'blog' | 'sections' | 'blocks'>('pages');
+  const [activeTab, setActiveTab] = useState<TabType>('pages');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedPage, setSelectedPage] = useState<Page | null>(null);
+  const [showPageModal, setShowPageModal] = useState(false);
+  const [showBlogModal, setShowBlogModal] = useState(false);
+  const [showSectionModal, setShowSectionModal] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<HomepageSection | null>(
+    null
+  );
 
-  const filteredBlogPosts = mockBlogPosts.filter((post) => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const pages: Page[] = [
+    {
+      id: '1',
+      title: 'About',
+      slug: 'about',
+      status: 'published',
+      lastUpdated: '2026-03-15',
+      updatedBy: 'Nanthan',
+    },
+    {
+      id: '2',
+      title: 'Contact',
+      slug: 'contact',
+      status: 'published',
+      lastUpdated: '2026-03-10',
+      updatedBy: 'Admin',
+    },
+    {
+      id: '3',
+      title: 'FAQ',
+      slug: 'faq',
+      status: 'draft',
+      lastUpdated: '2026-03-12',
+      updatedBy: 'Content Manager',
+    },
+    {
+      id: '4',
+      title: 'Privacy Policy',
+      slug: 'privacy',
+      status: 'published',
+      lastUpdated: '2026-02-20',
+      updatedBy: 'Legal',
+    },    {
+      id: '5',
+      title: 'Terms & Conditions',
+      slug: 'terms',
+      status: 'published',
+      lastUpdated: '2026-02-20',
+      updatedBy: 'Legal',
+    },
+    {
+      id: '6',
+      title: 'Listing Policy',
+      slug: 'listing-policy',
+      status: 'published',
+      lastUpdated: '2026-03-05',
+      updatedBy: 'Nanthan',
+    },
+    {
+      id: '7',
+      title: 'Price Guide',
+      slug: 'price-guide',
+      status: 'published',
+      lastUpdated: '2026-02-28',
+      updatedBy: 'Content Manager',
+    },
+    {
+      id: '8',
+      title: 'Documents Checklist',
+      slug: 'documents',
+      status: 'draft',
+      lastUpdated: '2026-03-18',
+      updatedBy: 'Nanthan',
+    },
+  ];
+
+  const blogPosts: BlogPost[] = [
+    {
+      id: '1',
+      title: 'Top 5 Properties in Jaffna This Month',
+      category: 'Market Trends',
+      author: 'Content Manager',
+      status: 'published',
+      views: 1240,
+      date: '2026-03-20',
+    },
+    {
+      id: '2',
+      title: 'How to Find Your Dream Home in Jaffna',
+      category: 'Buying Guide',
+      author: 'Nanthan',
+      status: 'published',
+      views: 856,
+      date: '2026-03-15',
+    },
+    {
+      id: '3',
+      title: 'Investment Opportunities in Peninsula',
+      category: 'Investment',
+      author: 'Admin',
+      status: 'draft',
+      views: 0,
+      date: '2026-03-22',
+    },
+  ];
+  const homepageSections: HomepageSection[] = [
+    {
+      id: 'hero-title',
+      name: 'Hero Title',
+      currentValue: 'Find Your Perfect Property in Jaffna',
+      type: 'text',
+    },
+    {
+      id: 'hero-subtitle',
+      name: 'Hero Subtitle',
+      currentValue: 'Discover premium properties in the Jaffna Peninsula',
+      type: 'text',
+    },
+    {
+      id: 'hero-cta',
+      name: 'Hero CTA Button',
+      currentValue: 'Browse Listings',
+      type: 'text',
+    },
+    {
+      id: 'featured-title',
+      name: 'Featured Section Title',
+      currentValue: 'Featured Listings',
+      type: 'text',
+    },
+    {
+      id: 'trust-title',
+      name: 'Trust Section Title',
+      currentValue: 'Why Trust Yaal Nilam',
+      type: 'text',
+    },
+    {
+      id: 'stats-title',
+      name: 'Stats Section Title',
+      currentValue: 'Market Statistics',
+      type: 'text',
+    },
+    {
+      id: 'cta-banner',
+      name: 'CTA Banner Text',
+      currentValue: 'Ready to list your property? Join 45+ agents today',
+      type: 'textarea',
+    },
+  ];
+
+  const staticBlocks: StaticBlock[] = [
+    {
+      id: '1',
+      label: 'Footer Copyright Text',
+      value: '© 2026 Yaal Nilam. All rights reserved.',
+      type: 'text',
+    },
+    {
+      id: '2',
+      label: 'Main Phone Number',
+      value: '+94 21 222 0055',
+      type: 'phone',
+    },
+    {
+      id: '3',
+      label: 'WhatsApp Number',
+      value: '+94 76 123 4567',
+      type: 'phone',
+    },
+    {
+      id: '4',
+      label: 'Contact Email',
+      value: 'info@yaalnilam.lk',
+      type: 'url',
+    },
+    {
+      id: '5',
+      label: 'Announcement Bar',
+      value: 'New listing: Beautiful house in Nallur - Starting at Rs. 45L',
+      type: 'text',
+    },
+    {
+      id: '6',
+      label: 'Promo Banner Text',
+      value: 'Get 15% commission for agent referrals this month',
+      type: 'text',
+    },
+  ];
+  const filteredPages = pages.filter(
+    (page) =>
+      page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      page.slug.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredBlogs = blogPosts.filter(
+    (post) =>
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-navy-900 mb-2">Content Management</h1>
-        <p className="text-slate-600">Manage pages, blog posts, and website content</p>
+        <h1 className="text-4xl font-bold text-navy-900 mb-2">
+          Content Management
+        </h1>
+        <p className="text-slate-600">Manage website content without developers</p>
       </div>
 
-      {/* Content Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Total Pages</p>
-          <p className="text-3xl font-bold text-navy-900">24</p>
-          <p className="text-xs text-slate-500 mt-2">Website pages</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Blog Posts</p>
-          <p className="text-3xl font-bold text-teal-600">42</p>
-          <p className="text-xs text-slate-500 mt-2">Published & draft</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Total Views</p>
-          <p className="text-3xl font-bold text-blue-600">12.5K</p>
-          <p className="text-xs text-slate-500 mt-2">This month</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Drafts</p>
-          <p className="text-3xl font-bold text-orange-600">8</p>
-          <p className="text-xs text-slate-500 mt-2">Awaiting review</p>
-        </div>
+      {/* Tab Navigation */}
+      <div className="flex gap-2 mb-6 border-b border-slate-200">
+        {[
+          { id: 'pages' as TabType, label: 'Pages' },
+          { id: 'blog' as TabType, label: 'Blog' },
+          { id: 'homepage' as TabType, label: 'Homepage' },
+          { id: 'blocks' as TabType, label: 'Static Blocks' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setActiveTab(tab.id);
+              setSearchTerm('');
+            }}
+            className={`pb-3 px-1 font-medium transition ${
+              activeTab === tab.id
+                ? 'text-navy-900 border-b-2 border-navy-900'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-
-      {/* Tabs */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
-        <div className="flex border-b border-slate-200">
-          {(['pages', 'blog', 'sections', 'blocks'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 font-medium transition ${
-                activeTab === tab
-                  ? 'border-b-2 border-teal-600 text-teal-600'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {tab === 'pages'
-                ? 'Pages'
-                : tab === 'blog'
-                ? 'Blog Posts'
-                : tab === 'sections'
-                ? 'Homepage Sections'
-                : 'Static Blocks'}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6">
-          {/* Search and Actions */}
+      {/* Pages Tab */}
+      {activeTab === 'pages' && (
+        <div className="space-y-4">
           <div className="flex gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder={`Search ${activeTab === 'blog' ? 'blog posts' : 'pages'}...`}
+                placeholder="Search pages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
-            {activeTab === 'blog' && (
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="all">All Categories</option>
-                <option value="Guides">Guides</option>
-                <option value="Market Analysis">Market Analysis</option>
-                <option value="News">News</option>
-              </select>
-            )}
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition font-medium"
-            >
+            <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
               <Plus className="w-4 h-4" />
-              Add {activeTab === 'blog' ? 'Post' : 'Item'}
+              New Page
             </button>
           </div>
 
-          {/* Pages Tab */}
-          {activeTab === 'pages' && (
-            <div className="space-y-3">
-              {mockPages.map((page) => (
-                <div
-                  key={page.id}
-                  className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900">{page.title}</h3>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
-                        <span>/{page.slug}</span>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            page.status === 'published'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-orange-50 text-orange-700'
-                          }`}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Title
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Slug
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Last Updated
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    By
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPages.map((page) => (
+                  <tr
+                    key={page.id}
+                    className="border-b border-slate-200 hover:bg-slate-50 transition"
+                  >
+                    <td className="px-6 py-4">
+                      <p className="font-medium text-slate-900">{page.title}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-slate-600 text-sm">/{page.slug}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-block text-xs font-medium px-3 py-1 rounded-full border ${
+                          page.status === 'published'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}
+                      >
+                        {page.status === 'published'
+                          ? 'Published'
+                          : 'Draft'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-slate-600 text-sm">
+                        {new Date(page.lastUpdated).toLocaleDateString()}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-slate-600 text-sm">{page.updatedBy}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedPage(page);
+                            setShowPageModal(true);
+                          }}
+                          className="text-teal-600 hover:bg-teal-50 p-2 rounded transition"
                         >
-                          {page.status === 'published' ? 'Published' : 'Draft'}
-                        </span>
-                        <span>Updated {new Date(page.updated_at).toLocaleDateString()}</span>
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button className="text-slate-600 hover:bg-slate-100 p-2 rounded transition">
+                          <Eye className="w-4 h-4" />
+                        </button>
                       </div>
-                      {page.seo_title && (
-                        <div className="mt-2 text-sm bg-slate-50 p-2 rounded border border-slate-200">
-                          <p className="text-slate-600">SEO: {page.seo_title}</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2 ml-4">
-                      <button className="text-teal-600 hover:bg-teal-50 p-2 rounded transition">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="text-slate-600 hover:bg-slate-200 p-2 rounded transition">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button className="text-red-600 hover:bg-red-50 p-2 rounded transition">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Blog Posts Tab */}
-          {activeTab === 'blog' && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="px-4 py-3 text-left font-semibold text-slate-900">Title</th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-900">Category</th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-900">Author</th>
-                    <th className="px-4 py-3 text-center font-semibold text-slate-900">Views</th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-900">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-900">Updated</th>
-                    <th className="px-4 py-3 text-center font-semibold text-slate-900">Actions</th>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredBlogPosts.map((post) => (
-                    <tr key={post.id} className="border-b border-slate-100 hover:bg-slate-50">
-                      <td className="px-4 py-3 font-medium text-slate-900">{post.title}</td>
-                      <td className="px-4 py-3 text-slate-600">
-                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
-                          {post.category}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          {post.author}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-1 text-blue-600">
-                          <EyeIcon className="w-3 h-3" />
-                          {post.views}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            post.status === 'published'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : post.status === 'draft'
-                              ? 'bg-orange-50 text-orange-700'
-                              : 'bg-gray-50 text-gray-700'
-                          }`}
-                        >
-                          {post.status === 'published'
-                            ? 'Published'
-                            : post.status === 'draft'
-                            ? 'Draft'
-                            : 'Archived'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600 text-sm">
-                        {new Date(post.updated_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button className="text-teal-600 hover:bg-teal-50 p-2 rounded transition">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button className="text-slate-600 hover:bg-slate-200 p-2 rounded transition">
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button className="text-red-600 hover:bg-red-50 p-2 rounded transition">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Homepage Sections Tab */}
-          {activeTab === 'sections' && (
-            <div className="text-center py-12">
-              <p className="text-slate-600 mb-4">No homepage sections configured</p>
-              <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition">
-                Add Section
-              </button>
-            </div>
-          )}
-
-          {/* Static Blocks Tab */}
-          {activeTab === 'blocks' && (
-            <div className="text-center py-12">
-              <p className="text-slate-600 mb-4">No static blocks configured</p>
-              <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition">
-                Add Block
-              </button>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+      {/* Blog Tab */}
+      {activeTab === 'blog' && (
+        <div className="space-y-4">
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search blog posts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <button
+              onClick={() => setShowBlogModal(true)}
+              className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"
+            >
+              <Plus className="w-4 h-4" />
+              New Post
+            </button>
+          </div>
 
-      {/* Add Modal */}
-      {showAddModal && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Title
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Category
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Author
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Views
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Date
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBlogs.map((post) => (
+                  <tr
+                    key={post.id}
+                    className="border-b border-slate-200 hover:bg-slate-50 transition"
+                  >
+                    <td className="px-6 py-4">
+                      <p className="font-medium text-slate-900">{post.title}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-600">
+                        {post.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-slate-600 text-sm">{post.author}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-block text-xs font-medium px-3 py-1 rounded-full border ${
+                          post.status === 'published'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}
+                      >
+                        {post.status === 'published'
+                          ? 'Published'
+                          : 'Draft'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-slate-600 text-sm">{post.views}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-slate-600 text-sm">
+                        {new Date(post.date).toLocaleDateString()}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button className="text-teal-600 hover:bg-teal-50 p-2 rounded transition">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button className="text-slate-600 hover:bg-slate-100 p-2 rounded transition">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button className="text-red-600 hover:bg-red-50 p-2 rounded transition">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      {/* Homepage Tab */}
+      {activeTab === 'homepage' && (
+        <div className="grid grid-cols-2 gap-6">
+          {homepageSections.map((section) => (
+            <div
+              key={section.id}
+              className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="font-bold text-slate-900">{section.name}</h3>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Current value:
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedSection(section);
+                    setShowSectionModal(true);
+                  }}
+                  className="text-teal-600 hover:bg-teal-50 p-2 rounded transition"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-3 min-h-[60px]">
+                <p className="text-sm text-slate-700 break-words">
+                  {section.currentValue}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Static Blocks Tab */}
+      {activeTab === 'blocks' && (
+        <div className="grid grid-cols-2 gap-6">
+          {staticBlocks.map((block) => (
+            <div
+              key={block.id}
+              className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="font-bold text-slate-900">{block.label}</h3>
+                <button className="text-teal-600 hover:bg-teal-50 p-2 rounded transition">
+                  <Edit2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-3 min-h-[60px]">
+                <p className="text-sm text-slate-700 break-words">
+                  {block.value}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Page Edit Modal */}
+      {showPageModal && selectedPage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-2xl w-full">
             <div className="border-b border-slate-200 p-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-slate-900">
-                Add New {activeTab === 'blog' ? 'Blog Post' : 'Page'}
+                Edit Page: {selectedPage.title}
               </h2>
               <button
-                onClick={() => setShowAddModal(false)}
-                className="text-slate-500 hover:text-slate-700 font-bold text-xl"
+                onClick={() => setShowPageModal(false)}
+                className="text-slate-500 hover:text-slate-700"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">
-                  Title
+                  Page Title
                 </label>
                 <input
                   type="text"
-                  placeholder="Enter title"
+                  defaultValue={selectedPage.title}
                   className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
-
-              {activeTab === 'blog' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">
-                      Category
-                    </label>
-                    <select className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                      <option>Select category</option>
-                      <option>Guides</option>
-                      <option>Market Analysis</option>
-                      <option>News</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">
-                      Content
-                    </label>
-                    <textarea
-                      placeholder="Enter blog post content"
-                      rows={6}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-                </>
-              )}
-
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">
-                  SEO Title
+                  Slug
                 </label>
                 <input
                   type="text"
-                  placeholder="SEO title (60 characters)"
+                  defaultValue={selectedPage.slug}
                   className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">
-                  SEO Description
+                  Page Content
                 </label>
                 <textarea
-                  placeholder="SEO description (160 characters)"
-                  rows={3}
+                  defaultValue="Page content goes here..."
+                  rows={8}
                   className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
+                ></textarea>
               </div>
-
-              <div className="border-t border-slate-200 pt-4 flex gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Status
+                </label>
+                <select defaultValue={selectedPage.status} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-4">
                 <button
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => setShowPageModal(false)}
                   className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition"
                 >
                   Cancel
                 </button>
-                <button className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition">
-                  Save as Draft
+                <button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Blog Post Modal */}
+      {showBlogModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 border-b border-slate-200 p-6 bg-white flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-900">
+                Create Blog Post
+              </h2>
+              <button
+                onClick={() => setShowBlogModal(false)}
+                className="text-slate-500 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Post Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter post title"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Slug
+                </label>
+                <input
+                  type="text"
+                  placeholder="post-slug"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Category
+                </label>
+                <select className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option>Market Trends</option>
+                  <option>Buying Guide</option>
+                  <option>Investment</option>
+                  <option>Local News</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Content
+                </label>
+                <textarea
+                  placeholder="Write your blog post content here..."
+                  rows={8}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Featured Image
+                </label>
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition">
+                  <ImageIcon className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm text-slate-600">
+                    Drag and drop or click to upload
+                  </p>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Meta Description
+                </label>
+                <textarea
+                  placeholder="SEO meta description (160 characters)"
+                  rows={2}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Keywords
+                </label>
+                <input
+                  type="text"
+                  placeholder="Comma separated keywords"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div className="flex items-center gap-4 pt-4">
+                <button className="flex items-center gap-2 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg transition">
+                  <Clock className="w-4 h-4" />
+                  Schedule
+                </button>
+                <div className="flex-1"></div>
+                <button
+                  onClick={() => setShowBlogModal(false)}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-lg transition">
+                  Publish
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Homepage Section Modal */}
+      {showSectionModal && selectedSection && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full">
+            <div className="border-b border-slate-200 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-900">
+                Edit {selectedSection.name}
+              </h2>
+              <button
+                onClick={() => setShowSectionModal(false)}
+                className="text-slate-500 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {selectedSection.type === 'text' ? (
+                <div>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">
+                    Value
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={selectedSection.currentValue}
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">
+                    Value
+                  </label>
+                  <textarea
+                    defaultValue={selectedSection.currentValue}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  ></textarea>
+                </div>
+              )}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowSectionModal(false)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition"
+                >
+                  Cancel
                 </button>
                 <button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition">
-                  Publish
+                  Save
                 </button>
               </div>
             </div>

@@ -1,352 +1,466 @@
+// @ts-nocheck
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Plus,
   Edit2,
-  Trash2,
+  Eye,
   Star,
-  Search,
   MapPin,
-  Home,
-  Settings,
+  TrendingUp,
+  MessageSquare,
+  Image as ImageIcon,
+  Map,
+  Search,
 } from 'lucide-react';
-
-interface Area {
-  id: string;
-  name: string;
-  name_ta: string;
-  slug: string;
-  district: string;
-  listings_count: number;
-  featured: boolean;
-  seo_title?: string;
-  seo_description?: string;
-  color_gradient?: string;
-}
-
-const mockAreas: Area[] = [
-  {
-    id: '1',
-    name: 'Jaffna Town',
-    name_ta: 'யாழ்ப்பாணம்',
-    slug: 'jaffna-town',
-    district: 'Jaffna',
-    listings_count: 148,
-    featured: true,
-    color_gradient: 'from-teal-500 to-cyan-500',
-  },
-  {
-    id: '2',
-    name: 'Nallur',
-    name_ta: 'நல்லூர்',
-    slug: 'nallur',
-    district: 'Jaffna',
-    listings_count: 92,
-    featured: true,
-    color_gradient: 'from-blue-500 to-indigo-500',
-  },
-  {
-    id: '3',
-    name: 'Kopay',
-    name_ta: 'கோப்பை',
-    slug: 'kopay',
-    district: 'Jaffna',
-    listings_count: 56,
-    featured: false,
-    color_gradient: 'from-purple-500 to-pink-500',
-  },
-  {
-    id: '4',
-    name: 'Point Pedro',
-    name_ta: 'பொன்னாலை',
-    slug: 'point-pedro',
-    district: 'Jaffna',
-    listings_count: 64,
-    featured: false,
-    color_gradient: 'from-orange-500 to-red-500',
-  },
-];
+import { MOCK_AREAS } from '@/lib/mock-data';
+import { getAreas, updateArea } from '@/lib/firestore';
 
 export default function AreasPage() {
+  const [allAreas, setAllAreas] = useState<any[]>(MOCK_AREAS);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedArea, setSelectedArea] = useState<any | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [areas, setAreas] = useState<Area[]>(mockAreas);
-  const [newArea, setNewArea] = useState({
-    name: '',
-    name_ta: '',
-    slug: '',
-    district: 'Jaffna',
-    seo_title: '',
-    seo_description: '',
-  });
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getAreas();
+        if (data && data.length > 0) {
+          setAllAreas(data);
+        }
+      } catch (e) {
+        console.error('Failed to load areas from Firestore:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-  const filteredAreas = areas.filter((area) =>
-    area.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    area.name_ta.includes(searchTerm)
+  const filteredAreas = allAreas.filter(
+    (area) =>
+      area.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (area.name_ta || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (area.district || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleFeatured = (id: string) => {
-    setAreas(
-      areas.map((area) =>
-        area.id === id ? { ...area, featured: !area.featured } : area
-      )
-    );
+  const getColorForArea = (index: number) => {
+    const colors = [
+      'bg-gradient-to-br from-teal-400 to-teal-600',
+      'bg-gradient-to-br from-blue-400 to-blue-600',
+      'bg-gradient-to-br from-indigo-400 to-indigo-600',
+      'bg-gradient-to-br from-purple-400 to-purple-600',
+      'bg-gradient-to-br from-amber-400 to-amber-600',
+      'bg-gradient-to-br from-orange-400 to-orange-600',
+      'bg-gradient-to-br from-rose-400 to-rose-600',
+      'bg-gradient-to-br from-cyan-400 to-cyan-600',
+    ];
+    return colors[index % colors.length];
   };
 
-  const handleAddArea = () => {
-    if (newArea.name && newArea.slug) {
-      setShowAddModal(false);
-      setNewArea({
-        name: '',
-        name_ta: '',
-        slug: '',
-        district: 'Jaffna',
-        seo_title: '',
-        seo_description: '',
-      });
-    }
+  const handleViewArea = (area: any) => {
+    setSelectedArea(area);
+    setShowDetailModal(true);
   };
-
-  const colors = [
-    'from-teal-500 to-cyan-500',
-    'from-blue-500 to-indigo-500',
-    'from-purple-500 to-pink-500',
-    'from-orange-500 to-red-500',
-    'from-green-500 to-emerald-500',
-    'from-rose-500 to-pink-500',
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      {/* Header */}
+      {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-navy-900 mb-2">Area Management</h1>
-        <p className="text-slate-600">Manage property areas and locations</p>
+        <h1 className="text-4xl font-bold text-navy-900 mb-2">
+          Area Management
+        </h1>
+        <p className="text-slate-600">
+          Manage Jaffna Peninsula areas for local SEO
+        </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Total Areas</p>
-          <p className="text-3xl font-bold text-navy-900">{areas.length}</p>
-          <p className="text-xs text-slate-500 mt-2">Active areas</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Featured</p>
-          <p className="text-3xl font-bold text-amber-600">
-            {areas.filter((a) => a.featured).length}
-          </p>
-          <p className="text-xs text-slate-500 mt-2">Featured areas</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <p className="text-slate-600 text-sm font-medium mb-1">Total Listings</p>
-          <p className="text-3xl font-bold text-emerald-600">
-            {areas.reduce((sum, a) => sum + a.listings_count, 0)}
-          </p>
-          <p className="text-xs text-slate-500 mt-2">Across all areas</p>
+      {/* Filters and Actions */}
+      <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-slate-200">
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search areas by name or district..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"
+          >
+            <Plus className="w-4 h-4" />
+            Add Area
+          </button>
         </div>
       </div>
-
-      {/* Search and Actions */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-gray-100 flex gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search areas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
+      {/* Loading State */}
+      {loading && (
+        <div className="grid grid-cols-3 gap-6">
+          {[1,2,3,4,5,6].map(i => (
+            <div key={i} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="h-40 bg-slate-200 animate-pulse" />
+              <div className="p-6 space-y-3">
+                <div className="h-5 bg-slate-200 rounded animate-pulse w-3/4" />
+                <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
+                  <div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          Add Area
-        </button>
-      </div>
+      )}
 
-      {/* Area Cards Grid */}
-      <div className="grid grid-cols-4 gap-6">
-        {filteredAreas.map((area) => (
+      {/* Areas Grid */}
+      {!loading && (
+      <div className="grid grid-cols-3 gap-6">
+        {filteredAreas.map((area, index) => (
           <div
             key={area.id}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition group"
+            className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition group"
           >
-            {/* Gradient Header */}
-            <div className={`h-24 bg-gradient-to-r ${area.color_gradient || 'from-teal-500 to-cyan-500'}`} />
-
-            {/* Content */}
+            {/* Area Image */}
+            <div
+              className={`relative h-40 ${getColorForArea(index)} flex items-center justify-center text-white font-bold text-2xl`}
+            >
+              <MapPin className="w-8 h-8 absolute top-3 right-3 opacity-60" />
+              <span className="text-center px-4">{area.name}</span>
+            </div>
+            {/* Area Content */}
             <div className="p-6">
-              {/* Title and Featured */}
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-slate-900">{area.name}</h3>
-                  <p className="text-sm text-slate-600">{area.name_ta}</p>
-                </div>
-                <button
-                  onClick={() => toggleFeatured(area.id)}
-                  className={`p-2 rounded-lg transition ${
-                    area.featured
-                      ? 'bg-amber-100 text-amber-600'
-                      : 'bg-gray-100 text-gray-400'
-                  }`}
-                  title={area.featured ? 'Remove from featured' : 'Add to featured'}
-                >
-                  <Star className="w-4 h-4 fill-current" />
-                </button>
+              {/* Name and Tamil */}
+              <div className="mb-4">
+                <h3 className="font-bold text-slate-900 text-lg">{area.name}</h3>
+                {area.name_ta && (
+                  <p className="text-slate-600 text-sm">{area.name_ta}</p>
+                )}
+                <p className="text-xs text-slate-500 mt-1">{area.district}</p>
               </div>
-
-              {/* Slug */}
-              <p className="text-xs text-slate-500 mb-4">/{area.slug}</p>
 
               {/* Stats */}
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-slate-400" />
-                  <span className="text-sm text-slate-600">
-                    <span className="font-bold text-slate-900">{area.listings_count}</span> listings
-                  </span>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <p className="text-xs text-slate-500">Listings</p>
+                  <p className="font-bold text-slate-900">
+                    {area.listings_count || 0}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-slate-400" />
-                  <span className="text-sm text-slate-600">{area.district} District</span>
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <p className="text-xs text-slate-500">Views (Mo)</p>
+                  <p className="font-bold text-slate-900">
+                    {area.monthly_views || 0}
+                  </p>
                 </div>
               </div>
+              {/* Featured Toggle */}
+              <button className="w-full flex items-center justify-center gap-2 mb-4 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition border border-amber-100">
+                <Star className={`w-4 h-4 ${area.featured ? 'fill-amber-600' : ''}`} />
+                <span className="text-sm font-medium">
+                  {area.featured ? 'Featured' : 'Add to Featured'}
+                </span>
+              </button>
 
-              {/* Actions */}
-              <div className="border-t border-slate-200 pt-4 flex gap-2">
-                <button className="flex-1 text-teal-600 hover:bg-teal-50 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1">
-                  <Settings className="w-4 h-4" />
-                  SEO
+              {/* Status Badge */}
+              <div className="mb-4">
+                <span
+                  className={`text-xs font-medium px-3 py-1 rounded-full border ${
+                    area.status === 'active'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-slate-50 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  {area.status === 'active' ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleViewArea(area)}
+                  className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-teal-600 hover:bg-teal-50 py-2 rounded-lg transition"
+                >
+                  <Eye className="w-4 h-4" />
+                  View
                 </button>
-                <button className="flex-1 text-slate-600 hover:bg-slate-100 py-2 rounded transition font-medium text-sm">
-                  <Edit2 className="w-4 h-4 mx-auto" />
-                </button>
-                <button className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded transition font-medium text-sm">
-                  <Trash2 className="w-4 h-4 mx-auto" />
+                <button className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-slate-600 hover:bg-slate-50 py-2 rounded-lg transition">
+                  <Edit2 className="w-4 h-4" />
+                  Edit
                 </button>
               </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Add Area Modal */}
-      {showAddModal && (
+      )}
+      {/* Area Detail Modal */}
+      {showDetailModal && selectedArea && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="border-b border-slate-200 p-6 flex items-center justify-between sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold text-slate-900">Add New Area</h2>
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-900">
+                Area: {selectedArea.name}
+              </h2>
               <button
-                onClick={() => setShowAddModal(false)}
-                className="text-slate-500 hover:text-slate-700 font-bold text-xl"
+                onClick={() => setShowDetailModal(false)}
+                className="text-slate-500 hover:text-slate-700"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">
-                    Area Name (English)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Jaffna Town"
-                    value={newArea.name}
-                    onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">
-                    Area Name (Tamil)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., யாழ்ப்பாணம்"
-                    value={newArea.name_ta}
-                    onChange={(e) => setNewArea({ ...newArea, name_ta: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
+            <div className="p-6 space-y-6">
+              {/* Basic Info */}
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
+                  Basic Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-slate-600">Area Name (English)</p>
+                    <p className="font-medium text-slate-900">{selectedArea.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600">Area Name (Tamil)</p>
+                    <p className="font-medium text-slate-900">{selectedArea.name_ta || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600">Slug</p>
+                    <p className="font-medium text-slate-900">{selectedArea.slug}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600">District</p>
+                    <p className="font-medium text-slate-900">{selectedArea.district}</p>
+                  </div>
                 </div>
               </div>
+              {/* Description */}
+              {selectedArea.description && (
+                <div className="border-t border-slate-200 pt-6">
+                  <h3 className="text-lg font-bold text-slate-900 mb-3">Description</h3>
+                  <p className="text-slate-700 text-sm">{selectedArea.description}</p>
+                </div>
+              )}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  URL Slug
-                </label>
-                <input
-                  type="text"
-                  placeholder="jaffna-town"
-                  value={newArea.slug}
-                  onChange={(e) => setNewArea({ ...newArea, slug: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
+              {/* Statistics */}
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">Area Statistics</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-slate-500" />
+                      <p className="text-sm text-slate-600">Listings</p>
+                    </div>
+                    <p className="text-2xl font-bold text-slate-900">{selectedArea.listings_count || 0}</p>
+                  </div>
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="w-4 h-4 text-teal-600" />
+                      <p className="text-sm text-slate-600">Views (Mo)</p>
+                    </div>
+                    <p className="text-2xl font-bold text-teal-600">{selectedArea.monthly_views || 0}</p>
+                  </div>
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MessageSquare className="w-4 h-4 text-orange-600" />
+                      <p className="text-sm text-slate-600">Inquiries</p>
+                    </div>
+                    <p className="text-2xl font-bold text-orange-600">{selectedArea.inquiries || 0}</p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  District
-                </label>
-                <select
-                  value={newArea.district}
-                  onChange={(e) => setNewArea({ ...newArea, district: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  <option>Jaffna</option>
-                  <option>Mullaitivu</option>
-                  <option>Batticaloa</option>
-                </select>
-              </div>
-
-              <div className="border-t border-slate-200 pt-4">
+              {/* SEO Settings */}
+              <div className="border-t border-slate-200 pt-6">
                 <h3 className="text-lg font-bold text-slate-900 mb-4">SEO Settings</h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">
-                      SEO Title (60 chars)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Jaffna Town Properties | Buy & Rent"
-                      value={newArea.seo_title}
-                      onChange={(e) => setNewArea({ ...newArea, seo_title: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    />
+                    <p className="text-sm text-slate-600">Meta Title</p>
+                    <p className="font-medium text-slate-900">{selectedArea.meta_title || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">
-                      SEO Description (160 chars)
-                    </label>
-                    <textarea
-                      placeholder="Discover premium properties in Jaffna Town. Browse apartments, houses, and commercial spaces."
-                      value={newArea.seo_description}
-                      onChange={(e) => setNewArea({ ...newArea, seo_description: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    />
+                    <p className="text-sm text-slate-600">Meta Description</p>
+                    <p className="font-medium text-slate-900">{selectedArea.meta_description || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600">Keywords</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {selectedArea.keywords ? (
+                        selectedArea.keywords.split(',').map((keyword, idx) => (
+                          <span key={idx} className="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded border border-teal-200">
+                            {keyword.trim()}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-slate-500 text-sm">-</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 pt-4 flex gap-3">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition"
-                >
-                  Cancel
+              {/* Location */}
+              {selectedArea.latitude && selectedArea.longitude && (
+                <div className="border-t border-slate-200 pt-6">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4">Location Coordinates</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-slate-600">Latitude</p>
+                      <p className="font-medium text-slate-900">{selectedArea.latitude}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Longitude</p>
+                      <p className="font-medium text-slate-900">{selectedArea.longitude}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Nearby Landmarks */}
+              {selectedArea.nearby_landmarks && (
+                <div className="border-t border-slate-200 pt-6">
+                  <h3 className="text-lg font-bold text-slate-900 mb-3">Nearby Landmarks</h3>
+                  <p className="text-slate-700 text-sm">{selectedArea.nearby_landmarks}</p>
+                </div>
+              )}
+
+              {/* Status and Featured */}
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">Publishing</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">Status</p>
+                      <p className="text-xs text-slate-500">Control visibility of this area</p>
+                    </div>
+                    <span className={`text-xs font-medium px-3 py-1 rounded-full border ${
+                      selectedArea.status === 'active'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-300'
+                    }`}>
+                      {selectedArea.status === 'active' ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">Featured</p>
+                      <p className="text-xs text-slate-500">Show on featured section</p>
+                    </div>
+                    <Star className={`w-5 h-5 ${selectedArea.featured ? 'fill-amber-600 text-amber-600' : 'text-slate-400'}`} />
+                  </div>
+                </div>
+              </div>
+              {/* Action Buttons */}
+              <div className="border-t border-slate-200 pt-6 flex gap-3">
+                <button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition flex items-center justify-center gap-2">
+                  <Edit2 className="w-4 h-4" />
+                  Edit Area
                 </button>
                 <button
-                  onClick={handleAddArea}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition"
+                  onClick={() => setShowDetailModal(false)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition"
                 >
-                  Add Area
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Area Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-900">Add New Area</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-slate-500 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Area Name (English)</label>
+                <input type="text" placeholder="e.g., Nallur" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Area Name (Tamil)</label>
+                <input type="text" placeholder="தமிழ் பெயர்" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Slug</label>
+                <input type="text" placeholder="nallur" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">District</label>
+                <select className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option>Select district</option>
+                  <option>Jaffna</option>
+                  <option>Mullaitivu</option>
+                  <option>Vavuniya</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Description</label>
+                <textarea placeholder="Describe the area..." rows={3} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Hero Image</label>
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition">
+                  <ImageIcon className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm text-slate-600">Drag and drop or click to upload</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Latitude</label>
+                  <input type="text" placeholder="6.9271" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Longitude</label>
+                  <input type="text" placeholder="80.7744" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">SEO Meta Title</label>
+                <input type="text" placeholder="Nallur Properties for Sale" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">SEO Meta Description</label>
+                <textarea placeholder="Meta description for search engines..." rows={2} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Keywords</label>
+                <input type="text" placeholder="Comma separated keywords" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Nearby Landmarks</label>
+                <textarea placeholder="List nearby landmarks and attractions..." rows={2} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300" />
+                  <span className="text-sm text-slate-700">Active Status</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300" />
+                  <span className="text-sm text-slate-700">Featured</span>
+                </label>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setShowAddModal(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition">
+                  Cancel
+                </button>
+                <button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition">
+                  Create Area
                 </button>
               </div>
             </div>

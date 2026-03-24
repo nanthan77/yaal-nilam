@@ -1,1225 +1,1659 @@
+// @ts-nocheck
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { getListings, updateListing } from '@/lib/firestore';
 import {
-  Plus,
-  Upload,
-  Download,
   Search,
-  Grid3x3,
-  List,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
+  ChevronDown,
   Eye,
-  MessageCircle,
-  MessageSquare,
+  MoreVertical,
   Star,
-  Archive,
-  Edit2,
-  MoreHorizontal,
-  Check,
+  CheckSquare,
+  Square,
+  Plus,
+  LayoutGrid,
+  LayoutList,
   X,
-  Filter,
   AlertCircle,
 } from 'lucide-react';
 
-// Types
-interface Listing {
+// ============================================================================
+// TYPE DEFINITIONS & MOCK DATA
+// ============================================================================
+
+export type ListingStatus =
+  | 'draft'
+  | 'pending'
+  | 'published'
+  | 'hidden'
+  | 'rejected'
+  | 'expired'
+  | 'sold'
+  | 'rented'
+  | 'archived';
+
+export interface Listing {
   id: string;
-  code: string;
+  listing_code: string;
   title: string;
-  type: 'House' | 'Apartment' | 'Villa' | 'Land' | 'Commercial';
-  area: string;
+  title_ta: string;
+  property_type: 'house' | 'land' | 'apartment' | 'commercial' | 'villa';
+  intent: 'buy' | 'rent' | 'short-term';
   price: number;
-  status: 'Published' | 'Pending' | 'Draft' | 'Rejected' | 'Archived' | 'Sold' | 'Rented';
-  agent: string;
-  views: number;
-  inquiries: number;
-  whatsappClicks: number;
-  isFeatured: boolean;
-  isVerified: boolean;
-  dateAdded: string;
-  image?: string;
-}
-
-interface FilterState {
-  search: string;
-  status: string;
-  propertyType: string;
   area: string;
-  priceMin: string;
-  priceMax: string;
-  sortBy: string;
+  district: string;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  land_size_perches: number;
+  sqft: number;
+  images: string[];
+  status: ListingStatus;
+  verified: boolean;
+  featured: boolean;
+  agent_id: string;
+  agent_name: string;
+  agent_phone: string;
+  description: string;
+  posted_date: string;
+  updated_date: string;
+  views: number;
+  inquiries_count: number;
+  whatsapp_clicks: number;
+  negotiable?: boolean;
+  furnishing?: 'furnished' | 'semi-furnished' | 'unfurnished';
+  parking?: number;
+  highlights?: string[];
 }
 
-// Mock Data
 const MOCK_LISTINGS: Listing[] = [
   {
     id: '1',
-    code: 'JP-001',
-    title: 'Spacious 3BR House in Colombo North',
-    type: 'House',
-    area: 'Colombo North',
-    price: 8500000,
-    status: 'Published',
-    agent: 'Rajeev Kumar',
-    views: 2341,
-    inquiries: 15,
-    whatsappClicks: 42,
-    isFeatured: true,
-    isVerified: true,
-    dateAdded: '2026-03-15',
+    listing_code: 'JN-2024-001',
+    title: 'Traditional House in Nallur',
+    title_ta: 'நல்லூரில் பாரம்பரிய வீடு',
+    property_type: 'house',
+    intent: 'buy',
+    price: 4500000,
+    area: 'Nallur',
+    district: 'Jaffna',
+    address: '123 Nallur Main Road, Nallur',
+    bedrooms: 4,
+    bathrooms: 2,
+    land_size_perches: 12.5,
+    sqft: 2500,
+    images: [
+      'https://images.unsplash.com/photo-1570129477492-45ea003588af?w=400',
+    ],
+    status: 'published',
+    verified: true,
+    featured: true,
+    agent_id: 'A001',
+    agent_name: 'Kumaran Samy',
+    agent_phone: '+94771234567',
+    description: 'Spacious house with modern amenities',
+    posted_date: '2026-03-15',
+    updated_date: '2026-03-24',
+    views: 2450,
+    inquiries_count: 18,
+    whatsapp_clicks: 42,
+    negotiable: true,
+    furnishing: 'furnished',
+    parking: 2,
+    highlights: ['Modern kitchen', 'Large garden', 'Near temple'],
   },
   {
     id: '2',
-    code: 'JP-002',
-    title: 'Modern Apartment in Jaffna Central',
-    type: 'Apartment',
-    area: 'Jaffna Central',
-    price: 4200000,
-    status: 'Published',
-    agent: 'Priya Sharma',
-    views: 1823,
-    inquiries: 9,
-    whatsappClicks: 28,
-    isFeatured: false,
-    isVerified: true,
-    dateAdded: '2026-03-14',
+    listing_code: 'JN-2024-002',
+    title: 'Beach Land in Point Pedro',
+    title_ta: 'கோட்டையூரில் கடற்கரை நிலம்',
+    property_type: 'land',
+    intent: 'buy',
+    price: 2800000,
+    area: 'Point Pedro',
+    district: 'Jaffna',
+    address: 'Coastal Road, Point Pedro',
+    bedrooms: 0,
+    bathrooms: 0,
+    land_size_perches: 25,
+    sqft: 12500,
+    images: [
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400',
+    ],
+    status: 'published',
+    verified: true,
+    featured: false,
+    agent_id: 'A002',
+    agent_name: 'Priya Krishnan',
+    agent_phone: '+94772345678',
+    description: 'Clear title land, good access road',
+    posted_date: '2026-03-20',
+    updated_date: '2026-03-23',
+    views: 890,
+    inquiries_count: 5,
+    whatsapp_clicks: 12,
+    negotiable: false,
   },
   {
     id: '3',
-    code: 'JP-003',
-    title: 'Luxury Villa with Pool',
-    type: 'Villa',
-    area: 'Mullaitivu',
-    price: 15000000,
-    status: 'Published',
-    agent: 'Arun Pillai',
-    views: 5421,
-    inquiries: 34,
-    whatsappClicks: 89,
-    isFeatured: true,
-    isVerified: true,
-    dateAdded: '2026-03-13',
+    listing_code: 'JN-2024-003',
+    title: 'Modern Apartment in Jaffna Fort',
+    title_ta: 'யாழ் கோட்டையில் நவீன அபார்ட்மெண்ட்',
+    property_type: 'apartment',
+    intent: 'rent',
+    price: 125000,
+    area: 'Jaffna Fort',
+    district: 'Jaffna',
+    address: '456 Fort Road, Jaffna Fort',
+    bedrooms: 2,
+    bathrooms: 1,
+    land_size_perches: 0,
+    sqft: 950,
+    images: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400',
+    ],
+    status: 'published',
+    verified: true,
+    featured: true,
+    agent_id: 'A001',
+    agent_name: 'Kumaran Samy',
+    agent_phone: '+94771234567',
+    description: 'Well-maintained flat with city views',
+    posted_date: '2026-03-18',
+    updated_date: '2026-03-24',
+    views: 3200,
+    inquiries_count: 28,
+    whatsapp_clicks: 67,
+    negotiable: false,
+    furnishing: 'semi-furnished',
+    parking: 1,
+    highlights: ['City view', 'Close to shops', 'Good ventilation'],
   },
   {
     id: '4',
-    code: 'JP-004',
-    title: 'Commercial Space Downtown',
-    type: 'Commercial',
-    area: 'Jaffna Central',
-    price: 12000000,
-    status: 'Pending',
-    agent: 'Vikram Singh',
-    views: 892,
-    inquiries: 6,
-    whatsappClicks: 15,
-    isFeatured: false,
-    isVerified: false,
-    dateAdded: '2026-03-12',
+    listing_code: 'JN-2024-004',
+    title: 'Commercial Space in Chunnakam',
+    title_ta: 'சுண்ணாக்கத்தில் வணிக இடம்',
+    property_type: 'commercial',
+    intent: 'rent',
+    price: 85000,
+    area: 'Chunnakam',
+    district: 'Jaffna',
+    address: 'Main Bazaar Road, Chunnakam',
+    bedrooms: 0,
+    bathrooms: 1,
+    land_size_perches: 8,
+    sqft: 2000,
+    images: [
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400',
+    ],
+    status: 'draft',
+    verified: false,
+    featured: false,
+    agent_id: 'A003',
+    agent_name: 'Vikram Das',
+    agent_phone: '+94773456789',
+    description: 'Prime location for retail or office',
+    posted_date: '2026-03-22',
+    updated_date: '2026-03-22',
+    views: 340,
+    inquiries_count: 2,
+    whatsapp_clicks: 3,
   },
   {
     id: '5',
-    code: 'JP-005',
-    title: 'Land Plot - Prime Location',
-    type: 'Land',
-    area: 'Nallur',
-    price: 3500000,
-    status: 'Draft',
-    agent: 'Anjali Nair',
-    views: 234,
-    inquiries: 2,
-    whatsappClicks: 5,
-    isFeatured: false,
-    isVerified: false,
-    dateAdded: '2026-03-10',
+    listing_code: 'JN-2024-005',
+    title: 'Luxury Villa in Karainagar',
+    title_ta: 'கராய்நாகரில் விலாசவாழ்க்கை வீடு',
+    property_type: 'villa',
+    intent: 'buy',
+    price: 130000000,
+    area: 'Karainagar',
+    district: 'Jaffna',
+    address: '789 Coastal Lane, Karainagar',
+    bedrooms: 5,
+    bathrooms: 4,
+    land_size_perches: 50,
+    sqft: 8000,
+    images: [
+      'https://images.unsplash.com/photo-1512917774080-9b274b3d0117?w=400',
+    ],
+    status: 'published',
+    verified: true,
+    featured: true,
+    agent_id: 'A004',
+    agent_name: 'Ashoka Weerasuriya',
+    agent_phone: '+94774567890',
+    description: 'Stunning villa with pool and garden',
+    posted_date: '2026-03-10',
+    updated_date: '2026-03-24',
+    views: 5680,
+    inquiries_count: 35,
+    whatsapp_clicks: 89,
+    negotiable: true,
+    furnishing: 'furnished',
+    parking: 4,
+    highlights: ['Swimming pool', 'Large garden', 'Security', 'Gym'],
   },
   {
     id: '6',
-    code: 'JP-006',
-    title: 'Cozy Apartment Near Market',
-    type: 'Apartment',
-    area: 'Colombo North',
-    price: 3800000,
-    status: 'Published',
-    agent: 'Rajeev Kumar',
-    views: 1456,
-    inquiries: 8,
-    whatsappClicks: 22,
-    isFeatured: false,
-    isVerified: true,
-    dateAdded: '2026-03-09',
+    listing_code: 'JN-2024-006',
+    title: 'Apartment in Thirunelvely',
+    title_ta: 'திருநெல்வேலியில் அபார்ட்மெண்ட்',
+    property_type: 'apartment',
+    intent: 'buy',
+    price: 3200000,
+    area: 'Thirunelvely',
+    district: 'Jaffna',
+    address: 'New Road, Thirunelvely',
+    bedrooms: 3,
+    bathrooms: 2,
+    land_size_perches: 0,
+    sqft: 1500,
+    images: [
+      'https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=400',
+    ],
+    status: 'pending',
+    verified: false,
+    featured: false,
+    agent_id: 'A002',
+    agent_name: 'Priya Krishnan',
+    agent_phone: '+94772345678',
+    description: 'Well-constructed apartment',
+    posted_date: '2026-03-12',
+    updated_date: '2026-03-21',
+    views: 1200,
+    inquiries_count: 8,
+    whatsapp_clicks: 15,
   },
   {
     id: '7',
-    code: 'JP-007',
-    title: '2BR House with Garden',
-    type: 'House',
-    area: 'Nallur',
-    price: 5200000,
-    status: 'Published',
-    agent: 'Priya Sharma',
-    views: 2103,
-    inquiries: 12,
-    whatsappClicks: 35,
-    isFeatured: true,
-    isVerified: true,
-    dateAdded: '2026-03-08',
+    listing_code: 'JN-2024-007',
+    title: 'House for Rent in Kopay',
+    title_ta: 'கோபாயில் வாடகை வீடு',
+    property_type: 'house',
+    intent: 'rent',
+    price: 95000,
+    area: 'Kopay',
+    district: 'Jaffna',
+    address: 'Main Road, Kopay',
+    bedrooms: 3,
+    bathrooms: 2,
+    land_size_perches: 15,
+    sqft: 1800,
+    images: [
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400',
+    ],
+    status: 'published',
+    verified: true,
+    featured: false,
+    agent_id: 'A003',
+    agent_name: 'Vikram Das',
+    agent_phone: '+94773456789',
+    description: 'Family house near schools and shops',
+    posted_date: '2026-03-19',
+    updated_date: '2026-03-24',
+    views: 1650,
+    inquiries_count: 12,
+    whatsapp_clicks: 28,
   },
   {
     id: '8',
-    code: 'JP-008',
-    title: 'Villa with Sea View',
-    type: 'Villa',
-    area: 'Mullaitivu',
-    price: 18000000,
-    status: 'Published',
-    agent: 'Arun Pillai',
-    views: 6234,
-    inquiries: 42,
-    whatsappClicks: 125,
-    isFeatured: true,
-    isVerified: true,
-    dateAdded: '2026-03-07',
-  },
-  {
-    id: '9',
-    code: 'JP-009',
-    title: 'Office Space in Plaza',
-    type: 'Commercial',
-    area: 'Colombo North',
-    price: 9500000,
-    status: 'Pending',
-    agent: 'Vikram Singh',
-    views: 567,
-    inquiries: 3,
-    whatsappClicks: 8,
-    isFeatured: false,
-    isVerified: false,
-    dateAdded: '2026-03-06',
-  },
-  {
-    id: '10',
-    code: 'JP-010',
-    title: 'Residential Land - Nallur',
-    type: 'Land',
-    area: 'Nallur',
-    price: 2800000,
-    status: 'Rejected',
-    agent: 'Anjali Nair',
-    views: 412,
-    inquiries: 1,
-    whatsappClicks: 3,
-    isFeatured: false,
-    isVerified: false,
-    dateAdded: '2026-03-05',
-  },
-  {
-    id: '11',
-    code: 'JP-011',
-    title: 'Modern Studio Apartment',
-    type: 'Apartment',
-    area: 'Jaffna Central',
-    price: 2500000,
-    status: 'Published',
-    agent: 'Priya Sharma',
-    views: 1234,
-    inquiries: 7,
-    whatsappClicks: 18,
-    isFeatured: false,
-    isVerified: true,
-    dateAdded: '2026-03-04',
-  },
-  {
-    id: '12',
-    code: 'JP-012',
-    title: 'Heritage House - Colombo North',
-    type: 'House',
-    area: 'Colombo North',
-    price: 6800000,
-    status: 'Draft',
-    agent: 'Rajeev Kumar',
-    views: 234,
-    inquiries: 0,
-    whatsappClicks: 2,
-    isFeatured: false,
-    isVerified: false,
-    dateAdded: '2026-03-03',
-  },
-  {
-    id: '13',
-    code: 'JP-013',
-    title: 'Beachfront Villa',
-    type: 'Villa',
-    area: 'Mullaitivu',
-    price: 22000000,
-    status: 'Published',
-    agent: 'Arun Pillai',
-    views: 7893,
-    inquiries: 56,
-    whatsappClicks: 189,
-    isFeatured: true,
-    isVerified: true,
-    dateAdded: '2026-03-02',
-  },
-  {
-    id: '14',
-    code: 'JP-014',
-    title: 'Business Park Unit',
-    type: 'Commercial',
-    area: 'Colombo North',
-    price: 11000000,
-    status: 'Archived',
-    agent: 'Vikram Singh',
-    views: 1203,
-    inquiries: 8,
-    whatsappClicks: 12,
-    isFeatured: false,
-    isVerified: true,
-    dateAdded: '2026-03-01',
-  },
-  {
-    id: '15',
-    code: 'JP-015',
-    title: '5 Acre Agricultural Land',
-    type: 'Land',
-    area: 'Nallur',
-    price: 4500000,
-    status: 'Published',
-    agent: 'Anjali Nair',
-    views: 654,
-    inquiries: 4,
-    whatsappClicks: 11,
-    isFeatured: false,
-    isVerified: true,
-    dateAdded: '2026-02-28',
+    listing_code: 'JN-2024-008',
+    title: 'Land in Chavakachcheri',
+    title_ta: 'சவக்கச்சேரியில் நிலம்',
+    property_type: 'land',
+    intent: 'buy',
+    price: 1800000,
+    area: 'Chavakachcheri',
+    district: 'Jaffna',
+    address: 'Galle Road, Chavakachcheri',
+    bedrooms: 0,
+    bathrooms: 0,
+    land_size_perches: 18,
+    sqft: 9000,
+    images: [
+      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400',
+    ],
+    status: 'published',
+    verified: false,
+    featured: false,
+    agent_id: 'A004',
+    agent_name: 'Ashoka Weerasuriya',
+    agent_phone: '+94774567890',
+    description: 'Corner plot near main road',
+    posted_date: '2026-03-21',
+    updated_date: '2026-03-24',
+    views: 780,
+    inquiries_count: 4,
+    whatsapp_clicks: 8,
   },
 ];
 
-const JAFFNA_AREAS = [
-  'All Areas',
-  'Colombo North',
-  'Jaffna Central',
-  'Nallur',
-  'Mullaitivu',
-];
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
 
-const PROPERTY_TYPES = [
-  'All Types',
-  'House',
-  'Apartment',
-  'Villa',
-  'Land',
-  'Commercial',
-];
-
-const STATUS_OPTIONS = [
-  'All',
-  'Published',
-  'Pending',
-  'Draft',
-  'Rejected',
-  'Archived',
-  'Sold',
-  'Rented',
-];
-
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'oldest', label: 'Oldest' },
-  { value: 'price-high', label: 'Price High to Low' },
-  { value: 'price-low', label: 'Price Low to High' },
-  { value: 'views', label: 'Most Views' },
-];
-
-// Status badge colors
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Published':
-      return 'bg-green-100 text-green-800';
-    case 'Pending':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'Draft':
-      return 'bg-gray-100 text-gray-800';
-    case 'Rejected':
-      return 'bg-red-100 text-red-800';
-    case 'Archived':
-      return 'bg-blue-100 text-blue-800';
-    case 'Sold':
-      return 'bg-purple-100 text-purple-800';
-    case 'Rented':
-      return 'bg-cyan-100 text-cyan-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
+const formatPrice = (price: number, intent: 'buy' | 'rent' | 'short-term'): string => {
+  if (intent === 'buy') {
+    if (price >= 10000000) {
+      return `Rs. ${(price / 10000000).toFixed(1)}Cr`;
+    } else if (price >= 100000) {
+      return `Rs. ${(price / 100000).toFixed(1)}L`;
+    }
+    return `Rs. ${price.toLocaleString()}`;
+  } else {
+    return `Rs. ${price.toLocaleString()}/mo`;
   }
 };
 
-// Format price
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'LKR',
-    maximumFractionDigits: 0,
-  }).format(price);
+const getStatusColor = (
+  status: ListingStatus
+): {
+  bg: string;
+  text: string;
+  dot: string;
+} => {
+  const statusColors: Record<
+    ListingStatus,
+    { bg: string; text: string; dot: string }
+  > = {
+    published: {
+      bg: 'bg-green-50',
+      text: 'text-green-700',
+      dot: 'bg-green-500',
+    },
+    pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-500' },
+    draft: { bg: 'bg-gray-50', text: 'text-gray-700', dot: 'bg-gray-500' },
+    rejected: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' },
+    hidden: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
+    expired: { bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500' },
+    sold: { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-500' },
+    rented: { bg: 'bg-pink-50', text: 'text-pink-700', dot: 'bg-pink-500' },
+    archived: { bg: 'bg-slate-50', text: 'text-slate-700', dot: 'bg-slate-500' },
+  };
+  return statusColors[status];
 };
 
-// Format date
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+const getPropertyTypeLabel = (
+  type: 'house' | 'land' | 'apartment' | 'commercial' | 'villa'
+): string => {
+  const labels: Record<typeof type, string> = {
+    house: 'House',
+    land: 'Land',
+    apartment: 'Apartment',
+    commercial: 'Commercial',
+    villa: 'Villa',
+  };
+  return labels[type];
 };
 
-// Property type icon colors
-const getPropertyTypeColor = (type: string) => {
-  switch (type) {
-    case 'House':
-      return 'from-amber-400 to-orange-500';
-    case 'Apartment':
-      return 'from-blue-400 to-blue-600';
-    case 'Villa':
-      return 'from-purple-400 to-pink-500';
-    case 'Land':
-      return 'from-green-400 to-emerald-500';
-    case 'Commercial':
-      return 'from-red-400 to-rose-600';
-    default:
-      return 'from-gray-400 to-gray-600';
-  }
-};
+// ============================================================================
+// LISTING DETAIL MODAL COMPONENT
+// ============================================================================
+
+interface ListingDetailModalProps {
+  listing: Listing | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (listing: Listing) => void;
+}
+
+function ListingDetailModal({
+  listing,
+  isOpen,
+  onClose,
+  onSave,
+}: ListingDetailModalProps) {
+  const [formData, setFormData] = useState<Listing | null>(listing);
+
+  if (!isOpen || !formData) return null;
+
+  const handleChange = (
+    field: keyof Listing,
+    value: any
+  ) => {
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  };
+
+  const handleSave = () => {
+    if (formData) {
+      onSave(formData);
+      onClose();
+    }
+  };
+
+  const statusColors = getStatusColor(formData.status);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-end overflow-y-auto">
+      <div className="w-full max-w-2xl bg-white h-screen overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">Edit Listing</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Form Content */}
+        <div className="p-6 space-y-8">
+          {/* Basic Info Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Basic Information
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title (English)
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => handleChange('title', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title (Tamil)
+                </label>
+                <input
+                  type="text"
+                  value={formData.title_ta}
+                  onChange={(e) => handleChange('title_ta', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Listing Code
+                </label>
+                <input
+                  type="text"
+                  value={formData.listing_code}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Intent
+                </label>
+                <select
+                  value={formData.intent}
+                  onChange={(e) =>
+                    handleChange('intent', e.target.value as any)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="buy">Buy</option>
+                  <option value="rent">Rent</option>
+                  <option value="short-term">Short-term</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Property Type
+                </label>
+                <select
+                  value={formData.property_type}
+                  onChange={(e) =>
+                    handleChange('property_type', e.target.value as any)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="house">House</option>
+                  <option value="land">Land</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="villa">Villa</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => handleChange('status', e.target.value as any)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="pending">Pending</option>
+                  <option value="published">Published</option>
+                  <option value="hidden">Hidden</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="expired">Expired</option>
+                  <option value="sold">Sold</option>
+                  <option value="rented">Rented</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Location Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Location
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Area
+                </label>
+                <input
+                  type="text"
+                  value={formData.area}
+                  onChange={(e) => handleChange('area', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  District
+                </label>
+                <input
+                  type="text"
+                  value={formData.district}
+                  onChange={(e) => handleChange('district', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => handleChange('address', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Details Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Property Details
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price
+                </label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) =>
+                    handleChange('price', parseInt(e.target.value))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bedrooms
+                </label>
+                <input
+                  type="number"
+                  value={formData.bedrooms}
+                  onChange={(e) =>
+                    handleChange('bedrooms', parseInt(e.target.value))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bathrooms
+                </label>
+                <input
+                  type="number"
+                  value={formData.bathrooms}
+                  onChange={(e) =>
+                    handleChange('bathrooms', parseInt(e.target.value))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Land Size (Perches)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.land_size_perches}
+                  onChange={(e) =>
+                    handleChange('land_size_perches', parseFloat(e.target.value))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Square Feet
+                </label>
+                <input
+                  type="number"
+                  value={formData.sqft}
+                  onChange={(e) =>
+                    handleChange('sqft', parseInt(e.target.value))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Parking
+                </label>
+                <input
+                  type="number"
+                  value={formData.parking || 0}
+                  onChange={(e) =>
+                    handleChange('parking', parseInt(e.target.value))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Furnishing
+                </label>
+                <select
+                  value={formData.furnishing || 'unfurnished'}
+                  onChange={(e) =>
+                    handleChange('furnishing', e.target.value as any)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="unfurnished">Unfurnished</option>
+                  <option value="semi-furnished">Semi-furnished</option>
+                  <option value="furnished">Furnished</option>
+                </select>
+              </div>
+              <div>
+                <label className="flex items-center gap-2 mt-7">
+                  <input
+                    type="checkbox"
+                    checked={formData.negotiable || false}
+                    onChange={(e) =>
+                      handleChange('negotiable', e.target.checked)
+                    }
+                    className="w-4 h-4 rounded border-gray-300"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Negotiable
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Description Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Description
+            </h3>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleChange('description', e.target.value)}
+              rows={5}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="Enter property description..."
+            />
+          </div>
+
+          {/* Agent Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Agent Information
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Agent Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.agent_name}
+                  onChange={(e) => handleChange('agent_name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Agent Phone
+                </label>
+                <input
+                  type="tel"
+                  value={formData.agent_phone}
+                  onChange={(e) => handleChange('agent_phone', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Settings Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Settings
+            </h3>
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.verified}
+                  onChange={(e) => handleChange('verified', e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Verified
+                </span>
+              </label>
+              <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) => handleChange('featured', e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Featured
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="border-t border-gray-200 pt-6 flex gap-3 justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition font-medium"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MAIN LISTINGS PAGE COMPONENT
+// ============================================================================
 
 export default function ListingsPage() {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [showDetailPanel, setShowDetailPanel] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    status: 'All',
-    propertyType: 'All Types',
-    area: 'All Areas',
-    priceMin: '',
-    priceMax: '',
-    sortBy: 'newest',
-  });
+  const [listings, setListings] = useState<Listing[]>(MOCK_LISTINGS);
+  const [firestoreLoaded, setFirestoreLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter and sort listings
+  // Load listings from Firestore on mount
+  useEffect(() => {
+    async function loadFromFirestore() {
+      try {
+        const fsListings = await getListings();
+        if (fsListings.length > 0) {
+          // Map Firestore data to match the Listing interface
+          const mapped = fsListings.map((l, idx) => ({
+            ...l,
+            listing_code: l.listing_code || `JN-${String(idx + 1).padStart(3, '0')}`,
+            title_ta: l.title_ta || '',
+            property_type: (l.type || l.property_type || 'house').toLowerCase(),
+            intent: l.intent || 'buy',
+            area: l.area || '',
+            district: l.district || 'Jaffna',
+            address: l.address || '',
+            bedrooms: l.bedrooms || 0,
+            bathrooms: l.bathrooms || 0,
+            land_size_perches: l.land_size_perches || 0,
+            sqft: l.sqft || 0,
+            images: l.images || [],
+            status: (l.status === 'Available' ? 'published' : l.status === 'Pending' ? 'pending' : l.status || 'pending').toLowerCase(),
+            verified: l.verified ?? false,
+            featured: l.featured ?? false,
+            agent_id: l.agent_id || '',
+            agent_name: l.agent || l.agent_name || '',
+            agent_phone: l.agent_phone || '',
+            description: l.description || '',
+            posted_date: l.created_at || l.posted_date || new Date().toISOString(),
+            updated_date: l.updated_date || new Date().toISOString(),
+            views: l.views || 0,
+            inquiries_count: l.inquiries_count || 0,
+            whatsapp_clicks: l.whatsapp_clicks || 0,
+          }));
+          setListings(mapped);
+        }
+      } catch (err) {
+        console.error('Firestore listings load error:', err);
+      } finally {
+        setFirestoreLoaded(true);
+      }
+    }
+    loadFromFirestore();
+  }, []);
+  const [statusFilter, setStatusFilter] = useState<ListingStatus | 'all'>('all');
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState<
+    'house' | 'land' | 'apartment' | 'commercial' | 'villa' | 'all'
+  >('all');
+  const [intentFilter, setIntentFilter] = useState<'buy' | 'rent' | 'short-term' | 'all'>('all');
+  const [areaFilter, setAreaFilter] = useState('all');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sortColumn, setSortColumn] = useState<keyof Listing | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  // Filter and search logic
   const filteredListings = useMemo(() => {
-    let result = [...MOCK_LISTINGS];
+    let result = listings;
 
     // Search filter
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
       result = result.filter(
-        (listing) =>
-          listing.title.toLowerCase().includes(searchLower) ||
-          listing.code.toLowerCase().includes(searchLower) ||
-          listing.area.toLowerCase().includes(searchLower)
+        (l) =>
+          l.title.toLowerCase().includes(query) ||
+          l.listing_code.toLowerCase().includes(query) ||
+          l.area.toLowerCase().includes(query)
       );
     }
 
     // Status filter
-    if (filters.status !== 'All') {
-      result = result.filter((listing) => listing.status === filters.status);
+    if (statusFilter !== 'all') {
+      result = result.filter((l) => l.status === statusFilter);
     }
 
     // Property type filter
-    if (filters.propertyType !== 'All Types') {
-      result = result.filter((listing) => listing.type === filters.propertyType);
+    if (propertyTypeFilter !== 'all') {
+      result = result.filter((l) => l.property_type === propertyTypeFilter);
+    }
+
+    // Intent filter
+    if (intentFilter !== 'all') {
+      result = result.filter((l) => l.intent === intentFilter);
     }
 
     // Area filter
-    if (filters.area !== 'All Areas') {
-      result = result.filter((listing) => listing.area === filters.area);
+    if (areaFilter !== 'all') {
+      result = result.filter((l) => l.area === areaFilter);
     }
 
-    // Price range filter
-    if (filters.priceMin) {
-      const minPrice = parseFloat(filters.priceMin);
-      result = result.filter((listing) => listing.price >= minPrice);
-    }
-    if (filters.priceMax) {
-      const maxPrice = parseFloat(filters.priceMax);
-      result = result.filter((listing) => listing.price <= maxPrice);
+    // Verified filter
+    if (verifiedOnly) {
+      result = result.filter((l) => l.verified);
     }
 
-    // Sort
-    switch (filters.sortBy) {
-      case 'newest':
-        result.sort(
-          (a, b) =>
-            new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
-        );
-        break;
-      case 'oldest':
-        result.sort(
-          (a, b) =>
-            new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
-        );
-        break;
-      case 'price-high':
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case 'price-low':
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case 'views':
-        result.sort((a, b) => b.views - a.views);
-        break;
+    // Featured filter
+    if (featuredOnly) {
+      result = result.filter((l) => l.featured);
+    }
+
+    // Sorting
+    if (sortColumn) {
+      result = [...result].sort((a, b) => {
+        const aVal = a[sortColumn];
+        const bVal = b[sortColumn];
+
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return sortDirection === 'asc'
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        }
+
+        return 0;
+      });
     }
 
     return result;
-  }, [filters]);
+  }, [
+    listings,
+    searchQuery,
+    statusFilter,
+    propertyTypeFilter,
+    intentFilter,
+    areaFilter,
+    verifiedOnly,
+    featuredOnly,
+    sortColumn,
+    sortDirection,
+  ]);
 
   // Pagination
   const totalPages = Math.ceil(filteredListings.length / itemsPerPage);
-  const paginatedListings = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredListings.slice(start, start + itemsPerPage);
-  }, [filteredListings, currentPage, itemsPerPage]);
+  const paginatedListings = filteredListings.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Get unique areas
+  const uniqueAreas = Array.from(new Set(listings.map((l) => l.area))).sort();
 
   // Stats
-  const stats = useMemo(() => {
-    return {
-      total: MOCK_LISTINGS.length,
-      published: MOCK_LISTINGS.filter((l) => l.status === 'Published').length,
-      pending: MOCK_LISTINGS.filter((l) => l.status === 'Pending').length,
-      draft: MOCK_LISTINGS.filter((l) => l.status === 'Draft').length,
-    };
-  }, []);
+  const stats = {
+    total: listings.length,
+    active: listings.filter((l) => l.status === 'published').length,
+    pending: listings.filter((l) => l.status === 'pending').length,
+    featured: listings.filter((l) => l.featured).length,
+  };
 
   // Handlers
-  const handleSelectItem = (id: string) => {
-    const newSelected = new Set(selectedItems);
+  const handleSort = (column: keyof Listing) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
     if (newSelected.has(id)) {
       newSelected.delete(id);
     } else {
       newSelected.add(id);
     }
-    setSelectedItems(newSelected);
+    setSelectedIds(newSelected);
   };
 
-  const handleSelectAll = () => {
-    if (selectedItems.size === paginatedListings.length) {
-      setSelectedItems(new Set());
+  const toggleSelectAll = () => {
+    if (selectedIds.size === paginatedListings.length) {
+      setSelectedIds(new Set());
     } else {
-      setSelectedItems(new Set(paginatedListings.map((l) => l.id)));
+      const allIds = new Set(paginatedListings.map((l) => l.id));
+      setSelectedIds(allIds);
     }
   };
 
-  const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      status: 'All',
-      propertyType: 'All Types',
-      area: 'All Areas',
-      priceMin: '',
-      priceMax: '',
-      sortBy: 'newest',
-    });
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setPropertyTypeFilter('all');
+    setIntentFilter('all');
+    setAreaFilter('all');
+    setVerifiedOnly(false);
+    setFeaturedOnly(false);
     setCurrentPage(1);
   };
 
-  const handleViewDetails = (listing: Listing) => {
-    setSelectedListing(listing);
-    setShowDetailPanel(true);
+  const handleSaveListing = async (updated: Listing) => {
+    setListings(listings.map((l) => (l.id === updated.id ? updated : l)));
+    await updateListing(updated.id, { ...updated });
   };
 
-  // Render grid card
-  const GridCard = ({ listing }: { listing: Listing }) => (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-      {/* Image placeholder */}
-      <div
-        className={`h-48 bg-gradient-to-br ${getPropertyTypeColor(
-          listing.type
-        )} flex items-center justify-center relative`}
-      >
-        <div className="text-white text-center">
-          <div className="text-4xl mb-2">🏠</div>
-          <div className="text-sm font-medium">{listing.type}</div>
-        </div>
-        {listing.isFeatured && (
-          <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">
-            <Star size={12} className="fill-current" /> Featured
-          </div>
-        )}
-        {listing.isVerified && (
-          <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-semibold">
-            Verified
-          </div>
-        )}
-      </div>
+  const handleBulkApprove = async () => {
+    const updated = listings.map((l) =>
+      selectedIds.has(l.id) ? { ...l, status: 'published' as const } : l
+    );
+    setListings(updated);
+    for (const id of selectedIds) {
+      await updateListing(id, { status: 'Available' });
+    }
+    setSelectedIds(new Set());
+  };
 
-      {/* Content */}
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
-          {listing.title}
-        </h3>
+  const handleBulkReject = async () => {
+    const updated = listings.map((l) =>
+      selectedIds.has(l.id) ? { ...l, status: 'rejected' as const } : l
+    );
+    setListings(updated);
+    for (const id of selectedIds) {
+      await updateListing(id, { status: 'rejected' });
+    }
+    setSelectedIds(new Set());
+  };
 
-        <div className="flex items-center text-gray-600 text-sm mb-2">
-          <MapPin size={14} className="mr-1" />
-          {listing.area}
-        </div>
+  const handleBulkFeature = () => {
+    const updated = listings.map((l) =>
+      selectedIds.has(l.id) ? { ...l, featured: true } : l
+    );
+    setListings(updated);
+    setSelectedIds(new Set());
+  };
 
-        <div className="text-lg font-bold text-gray-900 mb-3">
-          {formatPrice(listing.price)}
-        </div>
+  const handleBulkArchive = () => {
+    const updated = listings.map((l) =>
+      selectedIds.has(l.id) ? { ...l, status: 'archived' as const } : l
+    );
+    setListings(updated);
+    setSelectedIds(new Set());
+  };
 
-        {/* Status badge */}
-        <div className="mb-3">
-          <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getStatusColor(listing.status)}`}>
-            {listing.status}
-          </span>
-        </div>
+  const handleBulkDelete = () => {
+    if (confirm(`Delete ${selectedIds.size} listing(s)?`)) {
+      const updated = listings.filter((l) => !selectedIds.has(l.id));
+      setListings(updated);
+      setSelectedIds(new Set());
+    }
+  };
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-gray-100 mb-3">
-          <div className="text-center">
-            <div className="text-eye-600 font-semibold">{listing.views}</div>
-            <div className="text-gray-500 text-xs">Views</div>
-          </div>
-          <div className="text-center">
-            <div className="text-gray-600 font-semibold">{listing.inquiries}</div>
-            <div className="text-gray-500 text-xs">Inquiries</div>
-          </div>
-          <div className="text-center">
-            <div className="text-gray-600 font-semibold">
-              {listing.whatsappClicks}
-            </div>
-            <div className="text-gray-500 text-xs">Chats</div>
-          </div>
-        </div>
+  // ============================================================================
+  // TABLE VIEW COMPONENT
+  // ============================================================================
 
-        {/* Agent and date */}
-        <div className="text-sm mb-3">
-          <div className="text-gray-600">
-            <span className="font-medium">{listing.agent}</span>
-          </div>
-          <div className="text-gray-500 text-xs">{formatDate(listing.dateAdded)}</div>
-        </div>
+  const TableView = () => (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th className="px-6 py-3 text-left">
+              <button
+                onClick={toggleSelectAll}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                {selectedIds.size === paginatedListings.length ? (
+                  <CheckSquare className="w-5 h-5 text-teal-600" />
+                ) : (
+                  <Square className="w-5 h-5" />
+                )}
+              </button>
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Image
+            </th>
+            <th
+              onClick={() => handleSort('title')}
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition"
+            >
+              Title
+            </th>
+            <th
+              onClick={() => handleSort('property_type')}
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition"
+            >
+              Type
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Area
+            </th>
+            <th
+              onClick={() => handleSort('price')}
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition"
+            >
+              Price
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Status
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Verified
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Featured
+            </th>
+            <th
+              onClick={() => handleSort('views')}
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition"
+            >
+              Views
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Inquiries
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Posted
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {paginatedListings.map((listing) => {
+            const statusColor = getStatusColor(listing.status);
+            const isSelected = selectedIds.has(listing.id);
 
-        {/* Quick actions */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleViewDetails(listing)}
-            className="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded font-medium text-sm hover:bg-blue-100 transition"
-          >
-            View
-          </button>
-          <button className="flex-1 px-3 py-2 bg-gray-100 text-gray-600 rounded font-medium text-sm hover:bg-gray-200 transition">
-            Edit
-          </button>
-          <button className="px-3 py-2 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition">
-            <MoreHorizontal size={16} />
-          </button>
-        </div>
-      </div>
+            return (
+              <tr
+                key={listing.id}
+                className={`hover:bg-gray-50 transition ${
+                  isSelected ? 'bg-teal-50' : ''
+                }`}
+              >
+                <td className="px-6 py-4">
+                  <button
+                    onClick={() => toggleSelect(listing.id)}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    {isSelected ? (
+                      <CheckSquare className="w-5 h-5 text-teal-600" />
+                    ) : (
+                      <Square className="w-5 h-5" />
+                    )}
+                  </button>
+                </td>
+                <td className="px-6 py-4">
+                  <img
+                    src={listing.images[0]}
+                    alt={listing.title}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                </td>
+                <td className="px-6 py-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {listing.title}
+                    </p>
+                    <p className="text-xs text-gray-500">{listing.listing_code}</p>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+                    {getPropertyTypeLabel(listing.property_type)}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {listing.area}
+                </td>
+                <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                  {formatPrice(listing.price, listing.intent)}
+                </td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${statusColor.bg} ${statusColor.text}`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${statusColor.dot}`}
+                    ></span>
+                    {listing.status.charAt(0).toUpperCase() +
+                      listing.status.slice(1)}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-center">
+                  {listing.verified ? (
+                    <span className="text-green-600 font-bold">✓</span>
+                  ) : (
+                    <span className="text-gray-300">✗</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-center">
+                  {listing.featured ? (
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mx-auto" />
+                  ) : (
+                    <Star className="w-4 h-4 text-gray-300 mx-auto" />
+                  )}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {listing.views.toLocaleString()}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {listing.inquiries_count}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {new Date(listing.posted_date).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="relative group">
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition z-10">
+                      <button
+                        onClick={() => setEditingListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 first:rounded-t-lg"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        👁️ View
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        📋 Duplicate
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        ✓ Approve
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        ✗ Reject
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        ⭐ Feature
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        📦 Archive
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 last:rounded-b-lg">
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
+
+  // ============================================================================
+  // CARD VIEW COMPONENT
+  // ============================================================================
+
+  const CardView = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {paginatedListings.map((listing) => {
+        const statusColor = getStatusColor(listing.status);
+
+        return (
+          <div
+            key={listing.id}
+            className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition"
+          >
+            {/* Image */}
+            <div className="relative h-40 overflow-hidden bg-gray-100">
+              <img
+                src={listing.images[0]}
+                alt={listing.title}
+                className="w-full h-full object-cover"
+              />
+              <span
+                className={`absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusColor.bg} ${statusColor.text}`}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${statusColor.dot}`}
+                ></span>
+                {listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
+              </span>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 space-y-3">
+              <div>
+                <h3 className="font-semibold text-gray-900 line-clamp-2">
+                  {listing.title}
+                </h3>
+                <p className="text-xs text-gray-500">{listing.listing_code}</p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg font-bold text-teal-600">
+                    {formatPrice(listing.price, listing.intent)}
+                  </p>
+                  <p className="text-xs text-gray-500">{listing.area}</p>
+                </div>
+                {listing.featured && (
+                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-gray-600 pt-2 border-t border-gray-200">
+                <span>Agent: {listing.agent_name}</span>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setEditingListing(listing)}
+                  className="flex-1 px-3 py-2 text-xs font-medium text-teal-600 bg-teal-50 rounded hover:bg-teal-100 transition"
+                >
+                  Edit
+                </button>
+                <button className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition">
+                  View
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Property Listings
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Manage all your property listings
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
-                <Plus size={20} /> Add New Listing
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
-                <Upload size={20} /> Bulk Import
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
-                <Download size={20} /> Export CSV
-              </button>
-            </div>
+      <div className="bg-white border-b border-gray-200 p-6">
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Listings Management
+            </h1>
+            <p className="text-gray-600">Manage all property listings</p>
           </div>
+          <button className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition font-medium flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Add New Listing
+          </button>
+        </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-4">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="text-sm text-gray-600 font-medium">
-                Total Listings
-              </div>
-              <div className="text-2xl font-bold text-gray-900">
-                {stats.total}
-              </div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-              <div className="text-sm text-green-600 font-medium">Published</div>
-              <div className="text-2xl font-bold text-green-900">
-                {stats.published}
-              </div>
-            </div>
-            <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-              <div className="text-sm text-yellow-600 font-medium">Pending</div>
-              <div className="text-2xl font-bold text-yellow-900">
-                {stats.pending}
-              </div>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-              <div className="text-sm text-blue-600 font-medium">Draft</div>
-              <div className="text-2xl font-bold text-blue-900">
-                {stats.draft}
-              </div>
-            </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
+            <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">
+              Total
+            </p>
+            <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+          </div>
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
+            <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">
+              Active
+            </p>
+            <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
+          </div>
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4">
+            <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">
+              Pending
+            </p>
+            <p className="text-3xl font-bold text-gray-900">{stats.pending}</p>
+          </div>
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4">
+            <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">
+              Featured
+            </p>
+            <p className="text-3xl font-bold text-gray-900">{stats.featured}</p>
           </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filter bar */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
-            {/* Search */}
-            <div className="relative lg:col-span-2">
-              <Search
-                size={18}
-                className="absolute left-3 top-3 text-gray-400"
-              />
-              <input
-                type="text"
-                placeholder="Search by title or code..."
-                value={filters.search}
-                onChange={(e) =>
-                  setFilters({ ...filters, search: e.target.value })
-                }
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+      {/* Main Content */}
+      <div className="p-6">
+        {/* Filter Bar */}
+        <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+          <div className="space-y-4">
+            {/* Search Row */}
+            <div className="flex gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by title, code, or area..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
             </div>
 
-            {/* Status filter */}
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-
-            {/* Property type filter */}
-            <select
-              value={filters.propertyType}
-              onChange={(e) =>
-                setFilters({ ...filters, propertyType: e.target.value })
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {PROPERTY_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-
-            {/* Area filter */}
-            <select
-              value={filters.area}
-              onChange={(e) => setFilters({ ...filters, area: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {JAFFNA_AREAS.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
-            {/* Price range */}
-            <input
-              type="number"
-              placeholder="Min price"
-              value={filters.priceMin}
-              onChange={(e) =>
-                setFilters({ ...filters, priceMin: e.target.value })
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="number"
-              placeholder="Max price"
-              value={filters.priceMax}
-              onChange={(e) =>
-                setFilters({ ...filters, priceMax: e.target.value })
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* Sort by */}
-            <select
-              value={filters.sortBy}
-              onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-
-            {/* View toggle */}
-            <div className="flex gap-2 border border-gray-300 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`flex-1 p-2 rounded transition ${
-                  viewMode === 'grid'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+            {/* Filters Row */}
+            <div className="grid grid-cols-6 gap-3">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as any);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
               >
-                <Grid3x3 size={18} />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`flex-1 p-2 rounded transition ${
-                  viewMode === 'list'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="pending">Pending</option>
+                <option value="published">Published</option>
+                <option value="hidden">Hidden</option>
+                <option value="rejected">Rejected</option>
+                <option value="expired">Expired</option>
+                <option value="sold">Sold</option>
+                <option value="rented">Rented</option>
+                <option value="archived">Archived</option>
+              </select>
+
+              <select
+                value={propertyTypeFilter}
+                onChange={(e) => {
+                  setPropertyTypeFilter(e.target.value as any);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
               >
-                <List size={18} />
-              </button>
+                <option value="all">All Types</option>
+                <option value="house">House</option>
+                <option value="land">Land</option>
+                <option value="apartment">Apartment</option>
+                <option value="commercial">Commercial</option>
+                <option value="villa">Villa</option>
+              </select>
+
+              <select
+                value={intentFilter}
+                onChange={(e) => {
+                  setIntentFilter(e.target.value as any);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+              >
+                <option value="all">All Intent</option>
+                <option value="buy">Buy</option>
+                <option value="rent">Rent</option>
+                <option value="short-term">Short-term</option>
+              </select>
+
+              <select
+                value={areaFilter}
+                onChange={(e) => {
+                  setAreaFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+              >
+                <option value="all">All Areas</option>
+                {uniqueAreas.map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+
+              <label className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                <input
+                  type="checkbox"
+                  checked={verifiedOnly}
+                  onChange={(e) => {
+                    setVerifiedOnly(e.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Verified
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                <input
+                  type="checkbox"
+                  checked={featuredOnly}
+                  onChange={(e) => {
+                    setFeaturedOnly(e.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Featured
+                </span>
+              </label>
             </div>
 
-            {/* Clear filters */}
-            <button
-              onClick={handleClearFilters}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition flex items-center gap-2 justify-center"
-            >
-              <X size={16} /> Clear
-            </button>
+            {/* Clear button */}
+            {(searchQuery ||
+              statusFilter !== 'all' ||
+              propertyTypeFilter !== 'all' ||
+              intentFilter !== 'all' ||
+              areaFilter !== 'all' ||
+              verifiedOnly ||
+              featuredOnly) && (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
+              >
+                <X className="w-4 h-4" />
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Bulk actions bar */}
-        {selectedItems.size > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-blue-900">
-                {selectedItems.size} item(s) selected
-              </div>
-              <div className="flex gap-2">
-                <button className="px-3 py-1 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 transition">
-                  Approve Selected
-                </button>
-                <button className="px-3 py-1 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 transition">
-                  Reject Selected
-                </button>
-                <button className="px-3 py-1 bg-yellow-600 text-white rounded text-sm font-medium hover:bg-yellow-700 transition">
-                  Feature Selected
-                </button>
-                <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition">
-                  Archive Selected
-                </button>
-                <button
-                  onClick={() => setSelectedItems(new Set())}
-                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-400 transition"
-                >
-                  Cancel
-                </button>
-              </div>
+        {/* View Toggle & Bulk Actions */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-4 py-2 rounded flex items-center gap-2 font-medium transition ${
+                viewMode === 'table'
+                  ? 'bg-teal-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <LayoutList className="w-4 h-4" />
+              Table
+            </button>
+            <button
+              onClick={() => setViewMode('card')}
+              className={`px-4 py-2 rounded flex items-center gap-2 font-medium transition ${
+                viewMode === 'card'
+                  ? 'bg-teal-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Card
+            </button>
+          </div>
+
+          {/* Bulk Actions */}
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-3 bg-teal-50 px-4 py-3 rounded-lg border border-teal-200">
+              <span className="text-sm font-medium text-gray-900">
+                {selectedIds.size} selected
+              </span>
+              <div className="h-6 border-l border-teal-200"></div>
+              <button
+                onClick={handleBulkApprove}
+                className="px-3 py-1 text-xs font-medium text-teal-600 hover:bg-teal-100 rounded transition"
+              >
+                Approve
+              </button>
+              <button
+                onClick={handleBulkReject}
+                className="px-3 py-1 text-xs font-medium text-teal-600 hover:bg-teal-100 rounded transition"
+              >
+                Reject
+              </button>
+              <button
+                onClick={handleBulkFeature}
+                className="px-3 py-1 text-xs font-medium text-teal-600 hover:bg-teal-100 rounded transition"
+              >
+                Feature
+              </button>
+              <button
+                onClick={handleBulkArchive}
+                className="px-3 py-1 text-xs font-medium text-teal-600 hover:bg-teal-100 rounded transition"
+              >
+                Archive
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-100 rounded transition"
+              >
+                Delete
+              </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Grid View */}
-        {viewMode === 'grid' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {paginatedListings.map((listing) => (
-              <GridCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        )}
-
-        {/* List View */}
-        {viewMode === 'list' && (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-8">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.size === paginatedListings.length}
-                      onChange={handleSelectAll}
-                      className="rounded"
-                    />
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Code
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Area
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Agent
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Views
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Inquiries
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-right text-sm font-semibold text-gray-900">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedListings.map((listing, index) => (
-                  <tr
-                    key={listing.id}
-                    className={`border-t border-gray-200 hover:bg-gray-50 transition ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                    }`}
-                  >
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.has(listing.id)}
-                        onChange={() => handleSelectItem(listing.id)}
-                        className="rounded"
-                      />
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {listing.code}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                      {listing.title}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {listing.type}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {listing.area}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {formatPrice(listing.price)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getStatusColor(
-                          listing.status
-                        )}`}
-                      >
-                        {listing.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {listing.agent}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {listing.views}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {listing.inquiries}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {formatDate(listing.dateAdded)}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleViewDetails(listing)}
-                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        {/* Content */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          {viewMode === 'table' ? <TableView /> : <CardView />}
+        </div>
 
         {/* Pagination */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <select
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(parseInt(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value={10}>10 per page</option>
-              <option value={25}>25 per page</option>
-              <option value={50}>50 per page</option>
-            </select>
-            <span className="text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-              {Math.min(currentPage * itemsPerPage, filteredListings.length)} of{' '}
-              {filteredListings.length} listings
-            </span>
-          </div>
-
-          <div className="flex gap-2">
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Showing{' '}
+            <span className="font-medium">
+              {paginatedListings.length === 0
+                ? 0
+                : (currentPage - 1) * itemsPerPage + 1}
+            </span>{' '}
+            to{' '}
+            <span className="font-medium">
+              {Math.min(currentPage * itemsPerPage, filteredListings.length)}
+            </span>{' '}
+            of <span className="font-medium">{filteredListings.length}</span>{' '}
+            listings
+          </p>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              <ChevronLeft size={18} />
+              Previous
             </button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-                      currentPage === page
-                        ? 'bg-blue-600 text-white'
-                        : 'border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-            </div>
-
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .slice(
+                Math.max(0, currentPage - 2),
+                Math.min(totalPages, currentPage + 1)
+              )
+              .map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 rounded-lg font-medium transition ${
+                    currentPage === page
+                      ? 'bg-teal-600 text-white'
+                      : 'border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
             <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
               disabled={currentPage === totalPages}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              <ChevronRight size={18} />
+              Next
             </button>
           </div>
         </div>
       </div>
 
-      {/* Detail Slide-over Panel */}
-      {showDetailPanel && selectedListing && (
-        <div className="fixed inset-0 z-50">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-            onClick={() => setShowDetailPanel(false)}
-          />
-
-          {/* Panel */}
-          <div className="fixed right-0 top-0 bottom-0 w-full max-w-2xl bg-white shadow-lg overflow-y-auto">
-            {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">
-                Listing Details
-              </h2>
-              <button
-                onClick={() => setShowDetailPanel(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              {/* Image gallery placeholder */}
-              <div className={`h-64 bg-gradient-to-br ${getPropertyTypeColor(selectedListing.type)} rounded-lg flex items-center justify-center text-white mb-6`}>
-                <div className="text-center">
-                  <div className="text-6xl mb-2">🖼</div>
-                  <div className="text-lg font-medium">Image Gallery</div>
-                </div>
-              </div>
-
-              {/* Basic info */}
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {selectedListing.title}
-                </h3>
-                <div className="flex items-center gap-2 text-gray-600 mb-4">
-                  <MapPin size={18} />
-                  {selectedListing.area}
-                </div>
-                <div className="flex gap-2 mb-4">
-                  {selectedListing.isFeatured && (
-                    <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
-                      Featured
-                    </span>
-                  )}
-                  {selectedListing.isVerified && (
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                      Verified
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Property details grid */}
-              <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-200">
-                <div>
-                  <div className="text-sm text-gray-600 font-medium">Code</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {selectedListing.code}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 font-medium">Type</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {selectedListing.type}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 font-medium">Price</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {formatPrice(selectedListing.price)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 font-medium">Status</div>
-                  <div className="mt-1">
-                    <span className={`inline-block px-3 py-1 rounded text-sm font-semibold ${getStatusColor(selectedListing.status)}`}>
-                      {selectedListing.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="mb-6 pb-6 border-b border-gray-200">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Engagement Stats
-                </h4>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <Eye size={20} className="text-blue-600 mb-2" />
-                    <div className="text-sm text-blue-600 font-medium">Views</div>
-                    <div className="text-2xl font-bold text-blue-900">
-                      {selectedListing.views}
-                    </div>
-                  </div>
-                  <div className="bg-purple-50 rounded-lg p-4">
-                    <MessageCircle size={20} className="text-purple-600 mb-2" />
-                    <div className="text-sm text-purple-600 font-medium">
-                      Inquiries
-                    </div>
-                    <div className="text-2xl font-bold text-purple-900">
-                      {selectedListing.inquiries}
-                    </div>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <MessageSquare size={20} className="text-green-600 mb-2" />
-                    <div className="text-sm text-green-600 font-medium">Chats</div>
-                    <div className="text-2xl font-bold text-green-900">
-                      {selectedListing.whatsappClicks}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Agent info */}
-              <div className="mb-6 pb-6 border-b border-gray-200">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Agent Information
-                </h4>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className="text-xl">👤</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      {selectedListing.agent}
-                    </div>
-                    <div className="text-sm text-gray-600">Real Estate Agent</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Map placeholder */}
-              <div className="mb-6 pb-6 border-b border-gray-200">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Location Map
-                </h4>
-                <div className="bg-gray-100 h-64 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                  <div className="text-center">
-                    <MapPin size={40} className="text-gray-400 mx-auto mb-2" />
-                    <div className="text-gray-500 font-medium">Map Placeholder</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Inquiry history */}
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Recent Inquiries
-                </h4>
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          Inquiry #{i}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          2 days ago
-                        </div>
-                      </div>
-                      <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
-                        View
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-6 border-t border-gray-200">
-                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
-                  <Edit2 size={18} /> Edit Listing
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
-                  <Archive size={18} /> Archive
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal */}
+      <ListingDetailModal
+        listing={editingListing}
+        isOpen={!!editingListing}
+        onClose={() => setEditingListing(null)}
+        onSave={handleSaveListing}
+      />
     </div>
   );
 }

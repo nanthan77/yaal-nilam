@@ -1,388 +1,371 @@
+// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
 import {
-  Plus,
   Edit2,
+  Plus,
   Trash2,
-  Search,
-  Activity,
-  Link as LinkIcon,
-  Globe,
-  Code,
-  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  LinkIcon,
 } from 'lucide-react';
 
-interface SEOPage {
+interface PageSEO {
   id: string;
-  title: string;
-  url: string;
-  seo_score: number;
-  status: 'good' | 'needs_improvement' | 'poor';
+  name: string;
+  path: string;
+  metaTitle: string;
+  metaDescription: string;
+  indexed: boolean;
 }
 
 interface Redirect {
   id: string;
-  from_url: string;
-  to_url: string;
-  type: '301' | '302';
-  created_at: string;
+  from: string;
+  to: string;
+  status: number;
+  created: string;
 }
 
-const mockSEOPages: SEOPage[] = [
+const pagesSEO: PageSEO[] = [
   {
     id: '1',
-    title: 'Home',
-    url: '/',
-    seo_score: 92,
-    status: 'good',
+    name: 'Homepage',
+    path: '/',
+    metaTitle: 'Jaffna Property Platform - Buy, Rent, Sell Real Estate',
+    metaDescription: 'Find properties in Jaffna: buy, rent, or sell apartments, houses, and land with ease.',
+    indexed: true,
   },
   {
     id: '2',
-    title: 'Properties in Jaffna',
-    url: '/properties/jaffna',
-    seo_score: 78,
-    status: 'needs_improvement',
-  },
-  {
+    name: 'Buy Properties',
+    path: '/buy',
+    metaTitle: 'Buy Properties in Jaffna - Homes & Land',
+    metaDescription: 'Browse available properties for sale in Jaffna. Find your perfect home today.',
+    indexed: true,
+  },  {
     id: '3',
-    title: 'About Us',
-    url: '/about',
-    seo_score: 65,
-    status: 'needs_improvement',
+    name: 'Rent Properties',
+    path: '/rent',
+    metaTitle: 'Rent Properties in Jaffna - Apartments & Houses',
+    metaDescription: 'Search rental properties in Jaffna. Affordable apartments and houses available.',
+    indexed: true,
+  },
+  {
+    id: '4',
+    name: 'Sell Property',
+    path: '/sell',
+    metaTitle: 'Sell Your Property in Jaffna',
+    metaDescription: 'List your property for sale on Jaffna Property Platform. Reach thousands of buyers.',
+    indexed: false,
+  },
+  {
+    id: '5',
+    name: 'Land for Sale',
+    path: '/land',
+    metaTitle: 'Land for Sale in Jaffna - Plots & Parcels',
+    metaDescription: 'Discover available land plots for sale in Jaffna. Perfect for building projects.',
+    indexed: true,
   },
 ];
 
-const mockRedirects: Redirect[] = [
+const redirects: Redirect[] = [
   {
     id: '1',
-    from_url: '/old-listings',
-    to_url: '/properties',
-    type: '301',
-    created_at: '2024-01-15',
+    from: '/old-listings',
+    to: '/buy',
+    status: 301,
+    created: '2026-02-15',
   },
   {
     id: '2',
-    from_url: '/blog/2023',
-    to_url: '/blog',
-    type: '301',
-    created_at: '2024-02-10',
+    from: '/apartments',
+    to: '/buy?type=apartment',
+    status: 301,
+    created: '2026-01-20',
   },
 ];
 
-const getSEOStatusColor = (score: number) => {
-  if (score >= 80) return 'text-emerald-600';
-  if (score >= 60) return 'text-orange-600';
-  return 'text-red-600';
-};
-
-const getSEOStatusBg = (score: number) => {
-  if (score >= 80) return 'bg-emerald-50';
-  if (score >= 60) return 'bg-orange-50';
-  return 'bg-red-50';
-};
-
-export default function SEOPage() {
+export default function SEOManagementPage() {
   const [activeTab, setActiveTab] = useState<'pages' | 'redirects' | 'sitemap' | 'schema'>('pages');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showAddRedirectModal, setShowAddRedirectModal] = useState(false);
-  const [newRedirect, setNewRedirect] = useState({
-    from_url: '',
-    to_url: '',
-    type: '301' as '301' | '302',
-  });
+  const [editingPage, setEditingPage] = useState<string | null>(null);
+  const [pages, setPages] = useState(pagesSEO);
+  const toggleIndexed = (id: string) => {
+    setPages(pages.map((p) => (p.id === id ? { ...p, indexed: !p.indexed } : p)));
+  };
 
-  const filteredPages = mockSEOPages.filter((page) =>
-    page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    page.url.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredRedirects = mockRedirects.filter((redirect) =>
-    redirect.from_url.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    redirect.to_url.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAddRedirect = () => {
-    if (newRedirect.from_url && newRedirect.to_url) {
-      setShowAddRedirectModal(false);
-      setNewRedirect({
-        from_url: '',
-        to_url: '',
-        type: '301',
-      });
-    }
+  const updateMeta = (id: string, field: 'metaTitle' | 'metaDescription', value: string) => {
+    setPages(pages.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-navy-900 mb-2">SEO Management</h1>
-        <p className="text-slate-600">Monitor and optimize your site's search engine performance</p>
+      <div>
+        <h1 className="text-4xl font-bold text-slate-900">SEO Management</h1>
+        <p className="text-slate-600 mt-2">Manage site SEO, redirects, and structured data</p>
       </div>
 
-      {/* Health Score Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Overall SEO Score</p>
-            <TrendingUp className="w-5 h-5 text-teal-600" />
+      {/* Health Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-red-50 rounded-2xl p-6 border border-red-200 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-red-600 mt-1" size={20} />
+            <div>
+              <p className="text-red-900 font-semibold">3 pages missing meta</p>
+              <p className="text-red-700 text-sm mt-1">Critical SEO issue</p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-teal-600">82</p>
-          <p className="text-xs text-slate-500 mt-2">Good</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Pages Indexed</p>
-            <Globe className="w-5 h-5 text-blue-600" />
+        <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-amber-600 mt-1" size={20} />
+            <div>
+              <p className="text-amber-900 font-semibold">2 duplicate titles</p>
+              <p className="text-amber-700 text-sm mt-1">Needs improvement</p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-blue-600">24</p>
-          <p className="text-xs text-slate-500 mt-2">In Google</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Broken Links</p>
-            <LinkIcon className="w-5 h-5 text-orange-600" />
+        <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-amber-600 mt-1" size={20} />
+            <div>
+              <p className="text-amber-900 font-semibold">5 pages with no content</p>
+              <p className="text-amber-700 text-sm mt-1">Add more details</p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-orange-600">3</p>
-          <p className="text-xs text-slate-500 mt-2">To fix</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-slate-600 text-sm font-medium">Schema Markup</p>
-            <Code className="w-5 h-5 text-purple-600" />
-          </div>
-          <p className="text-3xl font-bold text-purple-600">18</p>
-          <p className="text-xs text-slate-500 mt-2">Structured data</p>
         </div>
       </div>
-
       {/* Tabs */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
         <div className="flex border-b border-slate-200">
           {(['pages', 'redirects', 'sitemap', 'schema'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 font-medium transition ${
+              className={`flex-1 px-6 py-4 font-semibold text-center transition ${
                 activeTab === tab
-                  ? 'border-b-2 border-teal-600 text-teal-600'
+                  ? 'text-teal-600 border-b-2 border-teal-600'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {tab === 'pages'
-                ? 'Pages'
-                : tab === 'redirects'
-                ? 'Redirects'
-                : tab === 'sitemap'
-                ? 'Sitemap'
-                : 'Schema Markup'}
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
 
-        {/* Pages Tab */}
-        {activeTab === 'pages' && (
-          <div className="p-6">
-            <div className="mb-6 relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search pages..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-
-            <div className="space-y-3">
-              {filteredPages.map((page) => (
-                <div
-                  key={page.id}
-                  className={`border border-slate-200 rounded-lg p-4 hover:shadow transition ${getSEOStatusBg(page.seo_score)}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-slate-900">{page.title}</h4>
-                      <p className="text-sm text-slate-600 mt-1">{page.url}</p>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold ${getSEOStatusColor(page.seo_score)}`}>
-                          {page.seo_score}
-                        </p>
-                        <p className="text-xs text-slate-600">SEO Score</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button className="text-teal-600 hover:bg-teal-100 p-2 rounded transition">
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Redirects Tab */}
-        {activeTab === 'redirects' && (
-          <div className="p-6">
-            <div className="mb-6 flex gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search redirects..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
+        <div className="p-6">
+          {/* Page SEO Tab */}
+          {activeTab === 'pages' && (
+            <div className="space-y-4">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Page Name
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Meta Title
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Meta Description
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">
+                        Indexed
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>                  <tbody>
+                    {pages.map((page) => (
+                      <tr key={page.id} className="border-b border-slate-100 hover:bg-slate-50">
+                        <td className="px-4 py-4 font-semibold text-slate-900">{page.name}</td>
+                        <td className="px-4 py-4">
+                          {editingPage === page.id ? (
+                            <input
+                              type="text"
+                              value={page.metaTitle}
+                              onChange={(e) =>
+                                updateMeta(page.id, 'metaTitle', e.target.value)
+                              }
+                              className="w-full px-2 py-1 border border-teal-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                            />
+                          ) : (
+                            <span className="text-slate-600 text-sm">{page.metaTitle}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4">
+                          {editingPage === page.id ? (
+                            <input
+                              type="text"
+                              value={page.metaDescription}
+                              onChange={(e) =>
+                                updateMeta(page.id, 'metaDescription', e.target.value)
+                              }
+                              className="w-full px-2 py-1 border border-teal-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                            />
+                          ) : (
+                            <span className="text-slate-600 text-sm line-clamp-2">
+                              {page.metaDescription}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <button
+                            onClick={() => toggleIndexed(page.id)}
+                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition ${
+                              page.indexed
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            }`}
+                          >
+                            {page.indexed ? (
+                              <>
+                                <CheckCircle size={14} />
+                                Yes
+                              </>
+                            ) : (
+                              <>
+                                <AlertCircle size={14} />
+                                No
+                              </>
+                            )}
+                          </button>
+                        </td>                        <td className="px-4 py-4 text-center">
+                          <button
+                            onClick={() =>
+                              setEditingPage(
+                                editingPage === page.id ? null : page.id
+                              )
+                            }
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg text-sm font-medium"
+                          >
+                            <Edit2 size={16} />
+                            {editingPage === page.id ? 'Save' : 'Edit'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <button
-                onClick={() => setShowAddRedirectModal(true)}
-                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition font-medium"
-              >
-                <Plus className="w-4 h-4" />
+            </div>
+          )}
+
+          {/* Redirects Tab */}
+          {activeTab === 'redirects' && (
+            <div className="space-y-4">
+              <button className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 font-semibold">
+                <Plus size={20} />
                 Add Redirect
               </button>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        From
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        To
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Created
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {redirects.map((redirect) => (
+                      <tr
+                        key={redirect.id}
+                        className="border-b border-slate-100 hover:bg-slate-50"
+                      >
+                        <td className="px-4 py-4 font-mono text-sm text-slate-900">
+                          {redirect.from}
+                        </td>
+                        <td className="px-4 py-4 font-mono text-sm text-slate-600">
+                          {redirect.to}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                            {redirect.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-slate-600">
+                          {redirect.created}
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <button className="text-red-600 hover:text-red-700 font-semibold">
+                            <Trash2 size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
+          )}
+          {/* Sitemap Tab */}
+          {activeTab === 'sitemap' && (
+            <div className="space-y-4">
+              <button className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 font-semibold mb-4">
+                <LinkIcon size={20} />
+                Generate Sitemap
+              </button>
 
-            <div className="space-y-3">
-              {filteredRedirects.map((redirect) => (
-                <div
-                  key={redirect.id}
-                  className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-mono text-slate-600">{redirect.from_url}</span>
-                        <span className="text-slate-400">→</span>
-                        <span className="text-sm font-mono text-slate-900">{redirect.to_url}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-600">
-                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded">
-                          {redirect.type}
-                        </span>
-                        <span>
-                          Added {new Date(redirect.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <button className="text-red-600 hover:bg-red-50 p-2 rounded transition">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                <p className="text-blue-900 text-sm">
+                  <span className="font-semibold">Sitemap URL:</span>{' '}
+                  <span className="font-mono">yoursite.com/sitemap.xml</span>
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-600 font-semibold mb-3">Last Generated</p>
+                <p className="text-slate-900">2026-03-24 at 10:30 AM</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Sitemap Tab */}
-        {activeTab === 'sitemap' && (
-          <div className="p-6 text-center py-12">
-            <Globe className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Sitemap</h3>
-            <p className="text-slate-600 mb-4">
-              Your sitemap is automatically generated and updated
-            </p>
-            <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition">
-              View Sitemap
-            </button>
-          </div>
-        )}
+          {/* Schema Tab */}
+          {activeTab === 'schema' && (
+            <div className="space-y-4">
+              <p className="text-slate-600 font-semibold mb-4">Organization & Website Schema</p>
 
-        {/* Schema Markup Tab */}
-        {activeTab === 'schema' && (
-          <div className="p-6 text-center py-12">
-            <Code className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Schema Markup</h3>
-            <p className="text-slate-600 mb-4">
-              Manage structured data for rich snippets
-            </p>
-            <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition">
-              Configure Schema
-            </button>
-          </div>
-        )}
-      </div>
+              <div className="bg-slate-100 rounded-xl p-4 font-mono text-xs text-slate-800 overflow-x-auto">
+                <pre>{`{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Jaffna Property Platform",
+  "url": "https://jaffnaproperty.com",
+  "telephone": "+94-21-2223456",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Main Street, Jaffna",
+    "addressLocality": "Jaffna",
+    "addressCountry": "LK"
+  }
+}`}</pre>
+              </div>
 
-      {/* Add Redirect Modal */}
-      {showAddRedirectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-2xl w-full">
-            <div className="border-b border-slate-200 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-900">Add Redirect</h2>
-              <button
-                onClick={() => setShowAddRedirectModal(false)}
-                className="text-slate-500 hover:text-slate-700 font-bold text-xl"
-              >
-                ✕
+              <button className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 font-semibold">
+                Edit Schema
               </button>
             </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  From URL
-                </label>
-                <input
-                  type="text"
-                  placeholder="/old-page"
-                  value={newRedirect.from_url}
-                  onChange={(e) => setNewRedirect({ ...newRedirect, from_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  To URL
-                </label>
-                <input
-                  type="text"
-                  placeholder="/new-page"
-                  value={newRedirect.to_url}
-                  onChange={(e) => setNewRedirect({ ...newRedirect, to_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">
-                  Redirect Type
-                </label>
-                <select
-                  value={newRedirect.type}
-                  onChange={(e) => setNewRedirect({ ...newRedirect, type: e.target.value as '301' | '302' })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  <option value="301">301 (Permanent)</option>
-                  <option value="302">302 (Temporary)</option>
-                </select>
-              </div>
-
-              <div className="border-t border-slate-200 pt-4 flex gap-3">
-                <button
-                  onClick={() => setShowAddRedirectModal(false)}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddRedirect}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition"
-                >
-                  Add Redirect
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

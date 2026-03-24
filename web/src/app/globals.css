@@ -1,180 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  body {
-    @apply text-charcoal-800 bg-sand-50 antialiased;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-navy-900;
-  }
-  ::selection {
-    @apply bg-teal-100 text-navy-900;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
-@layer components {
-
-  /* ── Layout ──────────────────────────────────────── */
-  .container-wide {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  .container-narrow {
-    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-
-  /* ── Buttons ─────────────────────────────────────── */
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 font-semibold
-           rounded-xl transition-all duration-200 cursor-pointer
-           focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
-  .btn-primary {
-    @apply btn bg-teal-600 text-white px-6 py-3
-           hover:bg-teal-700 active:bg-teal-800
-           focus:ring-teal-500 shadow-sm hover:shadow-md;
-  }
-  .btn-secondary {
-    @apply btn bg-white text-navy-800 border-2 border-navy-200 px-6 py-3
-           hover:bg-navy-50 hover:border-navy-300 active:bg-navy-100
-           focus:ring-navy-400;
-  }
-  .btn-whatsapp {
-    @apply btn bg-green-600 text-white px-6 py-3
-           hover:bg-green-700 active:bg-green-800
-           focus:ring-green-500 shadow-sm hover:shadow-md;
-  }
-  .btn-outline {
-    @apply btn bg-transparent text-teal-700 border-2 border-teal-300 px-6 py-3
-           hover:bg-teal-50 hover:border-teal-400
-           focus:ring-teal-500;
-  }
-  .btn-ghost {
-    @apply btn text-navy-600 px-4 py-2
-           hover:bg-navy-50 focus:ring-navy-300;
-  }
-  .btn-sm {
-    @apply text-sm px-4 py-2 rounded-lg;
-  }
-  .btn-lg {
-    @apply text-lg px-8 py-4 rounded-2xl;
-  }
-
-  /* ── Cards ───────────────────────────────────────── */
-  .card {
-    @apply bg-white rounded-2xl shadow-card
-           hover:shadow-card-lg transition-all duration-300 overflow-hidden;
-  }
-  .card-elevated {
-    @apply bg-white rounded-2xl shadow-card-lg
-           hover:shadow-card-xl transition-all duration-300 overflow-hidden;
-  }
-  .card-interactive {
-    @apply card cursor-pointer hover:-translate-y-1;
-  }
-
-  /* ── Form elements ───────────────────────────────── */
-  .input-field {
-    @apply w-full px-4 py-3 bg-white border border-charcoal-200 rounded-xl
-           text-charcoal-800 placeholder-charcoal-400
-           focus:ring-2 focus:ring-teal-400 focus:border-teal-400
-           transition-all duration-200;
-  }
-  .input-field-lg {
-    @apply input-field text-lg py-4 px-5;
-  }
-  .select-field {
-    @apply input-field appearance-none bg-no-repeat cursor-pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-position: right 1rem center;
-    background-size: 12px;
-    padding-right: 2.5rem;
-  }
-  .textarea-field {
-    @apply input-field resize-y min-h-[120px];
-  }
-
-  /* ── Typography ──────────────────────────────────── */
-  .section-heading {
-    @apply text-display-sm font-bold text-navy-900 tracking-tight;
-  }
-  .section-subheading {
-    @apply text-lg text-charcoal-500 mt-3 leading-relaxed;
-  }
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  /* ── Badges ──────────────────────────────────────── */
-  .badge {
-    @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
-  }
-  .badge-teal {
-    @apply badge bg-teal-100 text-teal-800;
-  }
-  .badge-navy {
-    @apply badge bg-navy-100 text-navy-800;
-  }
-  .badge-warm {
-    @apply badge bg-warm-100 text-warm-800;
-  }
-  .badge-verified {
-    @apply badge bg-teal-100 text-teal-800 border border-teal-200;
-  }
-
-  /* ── Chip / Pill (for area tags, categories) ───── */
-  .chip {
-    @apply inline-flex items-center gap-1.5 text-sm font-medium
-           px-4 py-2 rounded-full border transition-all duration-200 cursor-pointer;
-  }
-  .chip-default {
-    @apply chip bg-white border-charcoal-200 text-charcoal-700
-           hover:bg-navy-50 hover:border-navy-300 hover:text-navy-800;
-  }
-  .chip-active {
-    @apply chip bg-navy-800 border-navy-800 text-white;
-  }
-
-  /* ── Divider ─────────────────────────────────────── */
-  .divider {
-    @apply border-t border-sand-300;
-  }
-
-  /* ── WhatsApp CTA floating ───────────────────────── */
-  .whatsapp-float {
-    @apply fixed bottom-6 right-6 z-50 bg-green-500 text-white
-           w-14 h-14 rounded-full flex items-center justify-center
-           shadow-float hover:bg-green-600 hover:scale-110
-           transition-all duration-300 cursor-pointer;
-  }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* ── Leaflet map overrides ───────────────────────── */
-.leaflet-container {
-  @apply rounded-2xl;
-  z-index: 0;
+::-webkit-scrollbar-track {
+  background: #f5f0ea;
 }
 
-/* ── Tamil text helper ───────────────────────────── */
-.text-tamil {
-  font-family: 'Noto Sans Tamil', sans-serif;
+::-webkit-scrollbar-thumb {
+  background: #7fa4b8;
+  border-radius: 4px;
 }
 
-/* ── Smooth image loading ────────────────────────── */
-img {
-  content-visibility: auto;
+::-webkit-scrollbar-thumb:hover {
+  background: #5a8fa8;
 }
 
-/* ── Focus-visible only (better a11y) ──────────── */
-*:focus:not(:focus-visible) {
-  outline: none;
-  box-shadow: none;
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #faf7f3;
+  color: #1a1a1a;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+/* Green Theme Custom Properties */
+:root {
+  --primary: #1B4D3E;
+  --primary-light: #2D7A5F;
+  --primary-dark: #0F2E25;
+  --accent: #D4A853;
+  --accent-light: #E8C97A;
+}
+
+::selection {
+  background: rgba(27, 77, 62, 0.2);
+  color: #0F2E25;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #2D7A5F; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1B4D3E; }

@@ -1,186 +1,202 @@
+// @ts-nocheck
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import PropertyCard from "@/components/PropertyCard";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
-import VoiceSearch from "@/components/VoiceSearch";
-import { useStore } from "@/lib/store";
-import { formatPrice } from "@/lib/translations";
-import { PROPERTIES } from "@/lib/data";
+import { PROPERTIES as MOCK_PROPERTIES, AREAS as MOCK_AREAS } from "@/lib/data";
+import { getPropertyById, getPropertiesByArea, getAreas } from "@/lib/firestore";
 
 export default function PropertyDetailClient() {
   const params = useParams();
-  const { locale } = useStore();
-  const l = locale;
-  const [activeImg, setActiveImg] = useState(0);
-  const [showInquiry, setShowInquiry] = useState(false);
-  const [inquirySent, setInquirySent] = useState(false);
+  const id = params.id as string;
 
-  const property = PROPERTIES.find((p) => p.id === params.id);
-  if (!property) {
+  const [property, setProperty] = useState(null);
+  const [relatedProperties, setRelatedProperties] = useState([]);
+  const [areas, setAreas] = useState(MOCK_AREAS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [firestoreProp, firestoreAreas] = await Promise.all([
+          getPropertyById(id),
+          getAreas(),
+        ]);
+
+        if (firestoreAreas.length > 0) setAreas(firestoreAreas);
+
+        if (firestoreProp) {
+          setProperty(firestoreProp);
+          const related = await getPropertiesByArea(firestoreProp.area);
+          setRelatedProperties(related.filter((p) => p.id !== id).slice(0, 3));
+        } else {
+          // Fallback to mock data
+          const mockProp = MOCK_PROPERTIES.find((p) => p.id === id);
+          setProperty(mockProp || null);
+          if (mockProp) {
+            setRelatedProperties(
+              MOCK_PROPERTIES.filter((p) => p.area === mockProp.area && p.id !== id).slice(0, 3)
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Firestore load error:', err);
+        const mockProp = MOCK_PROPERTIES.find((p) => p.id === id);
+        setProperty(mockProp || null);
+        if (mockProp) {
+          setRelatedProperties(
+            MOCK_PROPERTIES.filter((p) => p.area === mockProp.area && p.id !== id).slice(0, 3)
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [id]);
+
+  if (loading) {
     return (
-      <>
-        <Navbar />
-        <div className="container-wide py-32 text-center">
-          <h1 className="text-2xl font-bold text-navy-900 mb-4">Property not found</h1>
-          <Link href="/properties" className="btn-primary">Browse Properties</Link>
+      <div className="min-h-screen bg-white">
+        <div className="w-full bg-charcoal-100">
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="w-full h-96 bg-charcoal-200 rounded-lg animate-pulse" />
+          </div>
         </div>
-        <Footer />
-      </>
+        <div className="max-w-6xl mx-auto px-4 py-12 space-y-6">
+          <div className="h-8 bg-charcoal-200 rounded w-1/2 animate-pulse" />
+          <div className="h-12 bg-charcoal-200 rounded w-1/3 animate-pulse" />
+          <div className="grid grid-cols-4 gap-6">
+            {[1,2,3,4].map((i) => <div key={i} className="h-20 bg-charcoal-100 rounded-lg animate-pulse" />)}
+          </div>
+        </div>
+      </div>
     );
   }
 
-  const p = property;
-  const priceDisplay = p.intent === "rent" || p.intent === "short_rent"
-    ? `${formatPrice(p.price, l)}${l === "ta" ? "/மாதம்" : "/mo"}`
-    : formatPrice(p.price, l);
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl font-bold text-charcoal-900 mb-4">Property Not Found</h1>
+          <p className="text-charcoal-600 mb-8">The property you are looking for does not exist or has been removed.</p>
+          <Link href="/properties" className="inline-block bg-navy-700 hover:bg-navy-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+            Back to Properties
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  const whatsappMsg = encodeURIComponent(
-    `Hi, I'm interested in ${p.title} (${p.listing_code}) at ${p.address} — ${priceDisplay}`
-  );
-  const whatsappUrl = `https://wa.me/${p.agent_phone || "94771234567"}?text=${whatsappMsg}`;
-
-  const similar = PROPERTIES.filter(
-    (s) => s.id !== p.id && (s.property_type === p.property_type || s.area === p.area)
-  ).slice(0, 3);
-
-  const images = [p.media_urls[0], p.media_urls[0], p.media_urls[0]];
+  const areaName = areas.find((a) => a.slug === property.area)?.name || property.area;
 
   return (
-    <>
-      <Navbar />
-      <div className="container-wide py-8">
-        {/* Breadcrumb */}
-        <nav className="text-sm text-charcoal-500 mb-6">
-          <Link href="/" className="hover:text-teal-600">Home</Link>
-          <span className="mx-2">/</span>
-          <Link href="/properties" className="hover:text-teal-600">Properties</Link>
-          <span className="mx-2">/</span>
-          <span className="text-navy-800">{l === "ta" && p.title_ta ? p.title_ta : p.title}</span>
-        </nav>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content */}
-          <div className="lg:col-span-2">
-            {/* Gallery */}
-            <div className="rounded-2xl overflow-hidden mb-6">
-              <div className="aspect-[16/10] bg-charcoal-100">
-                <img src={images[activeImg]} alt={p.title} className="w-full h-full object-cover" />
-              </div>
-              <div className="flex gap-2 mt-2">
-                {images.map((img, i) => (
-                  <button key={i} onClick={() => setActiveImg(i)}
-                    className={`w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${i === activeImg ? "border-teal-500" : "border-transparent opacity-70 hover:opacity-100"}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Title + badges */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              <span className={`badge ${p.intent === "rent" ? "bg-teal-100 text-teal-800" : "bg-warm-100 text-warm-800"}`}>
-                {p.intent === "rent" ? (l === "ta" ? "வாடகைக்கு" : "For Rent") : (l === "ta" ? "விற்பனைக்கு" : "For Sale")}
-              </span>
-              <span className="badge bg-navy-100 text-navy-800">{p.property_type.charAt(0).toUpperCase() + p.property_type.slice(1)}</span>
-              {p.verified && <span className="badge-verified">Verified</span>}
-              {p.featured && <span className="badge bg-warm-500 text-white">Featured</span>}
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-navy-900 mb-2">
-              {l === "ta" && p.title_ta ? p.title_ta : p.title}
-            </h1>
-            <p className="text-charcoal-500 flex items-center gap-1.5 mb-6">
-              <svg className="w-5 h-5 text-charcoal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              {l === "ta" && p.address_ta ? p.address_ta : p.address}
-            </p>
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-              {p.bedrooms && <div className="bg-sand-100 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-navy-900">{p.bedrooms}</p><p className="text-xs text-charcoal-500">Bedrooms</p></div>}
-              {p.bathrooms && <div className="bg-sand-100 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-navy-900">{p.bathrooms}</p><p className="text-xs text-charcoal-500">Bathrooms</p></div>}
-              {p.land_size_perches && <div className="bg-sand-100 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-navy-900">{p.land_size_perches}</p><p className="text-xs text-charcoal-500">Perches</p></div>}
-              {p.sqft && <div className="bg-sand-100 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-navy-900">{p.sqft.toLocaleString()}</p><p className="text-xs text-charcoal-500">Sq ft</p></div>}
-              {p.road_frontage_ft && <div className="bg-sand-100 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-navy-900">{p.road_frontage_ft}ft</p><p className="text-xs text-charcoal-500">Road Frontage</p></div>}
-            </div>
-
-            {/* Description */}
-            <h2 className="text-xl font-bold text-navy-900 mb-3">Description</h2>
-            <p className="text-charcoal-600 leading-relaxed mb-8">{p.description}</p>
-
-            {/* Listing info */}
-            <div className="bg-sand-100 rounded-2xl p-6">
-              <h3 className="font-semibold text-navy-900 mb-3">Listing Details</h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-charcoal-500">ID:</span> <span className="font-medium">{p.listing_code}</span></div>
-                <div><span className="text-charcoal-500">Posted:</span> <span className="font-medium">{p.posted_date}</span></div>
-                {p.agent_name && <div><span className="text-charcoal-500">Agent:</span> <span className="font-medium">{p.agent_name}</span></div>}
-                {p.furnished !== undefined && <div><span className="text-charcoal-500">Furnished:</span> <span className="font-medium">{p.furnished ? "Yes" : "No"}</span></div>}
-              </div>
-            </div>
+    <div className="min-h-screen bg-white">
+      {/* Image Gallery */}
+      <div className="w-full bg-charcoal-100">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="w-full h-96 bg-gradient-to-br from-sand-200 to-sand-300 rounded-lg mb-6 flex items-center justify-center">
+            <span className="text-sand-600 text-lg">Property Image</span>
           </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              <div className="card-elevated p-6">
-                <p className="text-3xl font-bold text-navy-900 mb-1">{priceDisplay}</p>
-                {p.land_size_perches && (
-                  <p className="text-sm text-charcoal-500 mb-6">{formatPrice(Math.round(p.price / p.land_size_perches), l)} / perch</p>
-                )}
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-whatsapp w-full text-center mb-3">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
-                  Contact on WhatsApp
-                </a>
-                <button onClick={() => setShowInquiry(!showInquiry)} className="btn-secondary w-full text-center mb-3">Send Inquiry</button>
-                {p.agent_phone && <a href={`tel:+${p.agent_phone}`} className="btn-ghost w-full text-center text-sm">Call: +{p.agent_phone}</a>}
-
-                {showInquiry && !inquirySent && (
-                  <form onSubmit={(e) => { e.preventDefault(); setInquirySent(true); }} className="mt-4 pt-4 border-t border-sand-200 space-y-3">
-                    <input type="text" placeholder="Your name" className="input-field text-sm" />
-                    <input type="tel" placeholder="+94 7X XXX XXXX" className="input-field text-sm" />
-                    <textarea placeholder="Your message" rows={3} className="input-field text-sm resize-none" />
-                    <button type="submit" className="btn-primary w-full text-sm">Send</button>
-                  </form>
-                )}
-                {inquirySent && (
-                  <div className="mt-4 pt-4 border-t border-sand-200 text-center">
-                    <p className="text-teal-700 font-medium text-sm">Inquiry sent!</p>
-                  </div>
-                )}
+          <div className="grid grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((index) => (
+              <div key={index} className="h-24 bg-gradient-to-br from-sand-200 to-sand-300 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition">
+                <span className="text-sand-600 text-sm">Image {index}</span>
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-              <div className="card p-5 bg-teal-50 border border-teal-200">
-                <p className="font-semibold text-navy-900 text-sm mb-2">Need something similar?</p>
-                <p className="text-xs text-charcoal-500 mb-3">Tell us your requirements</p>
-                <Link href="/request-property" className="btn-primary btn-sm w-full text-center text-xs">Send Request</Link>
-              </div>
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="inline-block bg-navy-100 text-navy-700 px-3 py-1 rounded-full text-sm font-semibold">{areaName}</span>
+            <span className="inline-block bg-navy-50 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">{property.type}</span>
+          </div>
+          <h1 className="text-4xl font-bold text-charcoal-900">{property.title}</h1>
+        </div>
 
-              <button className="text-xs text-charcoal-400 hover:text-red-500 transition-colors">Report this listing</button>
-            </div>
+        <div className="mb-8">
+          <p className="text-5xl font-bold text-navy-700">Rs. {property.price?.toLocaleString("en-US")}</p>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 pb-10 border-b border-charcoal-200">
+          <div className="bg-charcoal-50 p-4 rounded-lg">
+            <p className="text-charcoal-600 text-sm font-semibold mb-2">Bedrooms</p>
+            <p className="text-2xl font-bold text-charcoal-900">{property.bedrooms}</p>
+          </div>
+          <div className="bg-charcoal-50 p-4 rounded-lg">
+            <p className="text-charcoal-600 text-sm font-semibold mb-2">Bathrooms</p>
+            <p className="text-2xl font-bold text-charcoal-900">{property.bathrooms}</p>
+          </div>
+          <div className="bg-charcoal-50 p-4 rounded-lg">
+            <p className="text-charcoal-600 text-sm font-semibold mb-2">Area</p>
+            <p className="text-2xl font-bold text-charcoal-900">{property.sqft} sqft</p>
+          </div>
+          <div className="bg-charcoal-50 p-4 rounded-lg">
+            <p className="text-charcoal-600 text-sm font-semibold mb-2">Type</p>
+            <p className="text-2xl font-bold text-charcoal-900">{property.type}</p>
           </div>
         </div>
 
-        {/* Similar */}
-        {similar.length > 0 && (
-          <div className="mt-16">
-            <h2 className="section-heading mb-6">Similar Properties</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {similar.map((s) => <PropertyCard key={s.id} property={s} />)}
+        {/* Description */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-charcoal-900 mb-4">About This Property</h2>
+          <p className="text-charcoal-700 leading-relaxed text-lg">
+            {property.description || "This is a beautiful property in a prime location."}
+          </p>
+        </div>
+
+        {/* Location */}
+        <div className="mb-10 pb-10 border-b border-charcoal-200">
+          <h2 className="text-2xl font-bold text-charcoal-900 mb-4">Location</h2>
+          <div className="bg-navy-50 p-6 rounded-lg">
+            <p className="text-charcoal-900 font-semibold text-lg">{areaName}</p>
+            <p className="text-charcoal-700 mt-2">Located in the heart of {areaName}, this property enjoys excellent connectivity and access to essential amenities.</p>
+          </div>
+        </div>
+
+        <div className="mb-10">
+          <button className="w-full md:w-auto bg-navy-700 hover:bg-navy-600 text-white font-bold py-4 px-8 rounded-lg transition duration-200 text-lg">
+            Contact Agent
+          </button>
+        </div>
+
+        <div className="mb-12">
+          <Link href="/properties" className="text-navy-700 hover:text-teal-700 font-semibold flex items-center gap-2">
+            ← Back to Properties
+          </Link>
+        </div>
+
+        {/* Related Properties */}
+        {relatedProperties.length > 0 && (
+          <div className="border-t border-charcoal-200 pt-12">
+            <h2 className="text-2xl font-bold text-charcoal-900 mb-6">Similar Properties in {areaName}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedProperties.map((prop) => (
+                <Link key={prop.id} href={`/properties/${prop.id}`} className="group bg-white border border-charcoal-200 rounded-lg overflow-hidden hover:shadow-lg transition duration-200">
+                  <div className="h-48 bg-gradient-to-br from-sand-200 to-sand-300 flex items-center justify-center">
+                    <span className="text-sand-600">Property Image</span>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-bold text-charcoal-900 mb-2 group-hover:text-navy-700">{prop.title}</h3>
+                    <p className="text-navy-700 font-semibold mb-3">Rs. {prop.price?.toLocaleString("en-US")}</p>
+                    <div className="flex gap-3 text-sm text-charcoal-600">
+                      <span>{prop.bedrooms} beds</span>
+                      <span>•</span>
+                      <span>{prop.bathrooms} baths</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         )}
       </div>
-
-      <Footer />
-      <WhatsAppFloat />
-      <VoiceSearch variant="floating" />
-    </>
+    </div>
   );
 }

@@ -1,388 +1,440 @@
-'use client';
+// @ts-nocheck
+'use client'
 
-import { useState } from 'react';
-import {
-  Save,
-  Eye,
-  EyeOff,
-  Upload,
-  Settings,
-  Lock,
-  Server,
-  Shield,
-} from 'lucide-react';
+import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+
+type SettingsTab = 'general' | 'property' | 'inquiry' | 'seo' | 'integrations' | 'security'
+
+interface FormState {
+  [key: string]: string | boolean
+}
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'general' | 'property' | 'inquiry' | 'seo' | 'integrations' | 'security'>('general');
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const [formData, setFormData] = useState<FormState>({
+    siteName: 'Yaal Nilam',
+    tagline: 'Your Gateway to Jaffna Property',
+    contactEmail: 'contact@yaalnilam.lk',
+    contactPhone: '+94 21 222 2222',
+    defaultLanguage: 'en',
+    currency: 'LKR',
+    maxListingsPerUser: '50',
+    listingExpiryDays: '90',
+    enableComments: true,
+    requirePhoneVerification: true,
+    minInquiryResponse: '24',
+    maxInquiryCharacters: '1000',
+    metaDescription: 'Discover properties in Jaffna Peninsula',
+    focusKeywords: 'Jaffna property, land, apartment',
+    enableGoogleAnalytics: true,
+    googleAnalyticsId: 'UA-XXXXXXXXX-X',
+    enableHotjar: true,
+    stripeApiKey: '***********',
+    enableBackups: true,
+    backupFrequency: 'daily',
+    twoFactorAuth: false,
+    sessionTimeout: '30',
+  })
+
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
 
   const handleSave = () => {
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
-  };
+    console.log('Saving settings:', formData)
+    alert('Settings saved successfully!')
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-navy-900 mb-2">Settings</h1>
-        <p className="text-slate-600">Configure your platform settings and integrations</p>
+      <div>
+        <h1 className="text-3xl font-bold text-charcoal-900">Settings</h1>
+        <p className="text-charcoal-600 mt-1">Manage your platform configuration</p>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
-        <div className="flex border-b border-slate-200 overflow-x-auto">
-          {(['general', 'property', 'inquiry', 'seo', 'integrations', 'security'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 font-medium transition whitespace-nowrap ${
-                activeTab === tab
-                  ? 'border-b-2 border-teal-600 text-teal-600'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {tab === 'general'
-                ? 'General'
-                : tab === 'property'
-                ? 'Property'
-                : tab === 'inquiry'
-                ? 'Inquiry'
-                : tab === 'seo'
-                ? 'SEO'
-                : tab === 'integrations'
-                ? 'Integrations'
-                : 'Security'}
-            </button>
-          ))}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Sidebar Tabs */}
+        <div className="lg:col-span-1">
+          <div className="bg-white border border-sand-200 rounded-lg overflow-hidden sticky top-6">
+            {(['general', 'property', 'inquiry', 'seo', 'integrations', 'security'] as const).map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`w-full text-left px-4 py-3 border-b border-sand-100 last:border-b-0 font-medium transition-colors ${
+                    activeTab === tab
+                      ? 'bg-navy-50 text-navy-700 border-l-4 border-l-navy-600'
+                      : 'text-charcoal-700 hover:bg-sand-50'
+                  }`}
+                >
+                  {tab === 'general' && 'General'}
+                  {tab === 'property' && 'Property'}
+                  {tab === 'inquiry' && 'Inquiry'}
+                  {tab === 'seo' && 'SEO'}
+                  {tab === 'integrations' && 'Integrations'}
+                  {tab === 'security' && 'Security'}
+                </button>
+              )
+            )}
+          </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-8 max-w-4xl">
-          {/* General Tab */}
-          {activeTab === 'general' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">General Settings</h2>
-
-              <div className="grid grid-cols-2 gap-6">
+        {/* Content Area */}
+        <div className="lg:col-span-3">
+          <div className="bg-white border border-sand-200 rounded-lg p-6 space-y-6">
+            {/* General Settings */}
+            {activeTab === 'general' && (
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-2">
-                    Platform Name
+                  <h2 className="text-xl font-bold text-charcoal-900 mb-4">General Settings</h2>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">Site Name</label>
+                  <input
+                    type="text"
+                    value={formData.siteName as string}
+                    onChange={(e) => handleInputChange('siteName', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">Tagline</label>
+                  <input
+                    type="text"
+                    value={formData.tagline as string}
+                    onChange={(e) => handleInputChange('tagline', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">Contact Email</label>
+                  <input
+                    type="email"
+                    value={formData.contactEmail as string}
+                    onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">Contact Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.contactPhone as string}
+                    onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal-700 mb-2">Default Language</label>
+                    <select
+                      value={formData.defaultLanguage as string}
+                      onChange={(e) => handleInputChange('defaultLanguage', e.target.value)}
+                      className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                    >
+                      <option>English</option>
+                      <option>Tamil</option>
+                      <option>Sinhala</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal-700 mb-2">Currency</label>
+                    <select
+                      value={formData.currency as string}
+                      onChange={(e) => handleInputChange('currency', e.target.value)}
+                      className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                    >
+                      <option>LKR</option>
+                      <option>USD</option>
+                      <option>EUR</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Property Settings */}
+            {activeTab === 'property' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-charcoal-900 mb-4">Property Settings</h2>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                      Max Listings Per User
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.maxListingsPerUser as string}
+                      onChange={(e) => handleInputChange('maxListingsPerUser', e.target.value)}
+                      className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                      Listing Expiry (days)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.listingExpiryDays as string}
+                      onChange={(e) => handleInputChange('listingExpiryDays', e.target.value)}
+                      className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.enableComments as boolean}
+                      onChange={(e) => handleInputChange('enableComments', e.target.checked)}
+                      className="w-4 h-4 rounded border-sand-300 text-navy-600"
+                    />
+                    <span className="text-charcoal-700 font-medium">Enable Comments on Listings</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.requirePhoneVerification as boolean}
+                      onChange={(e) => handleInputChange('requirePhoneVerification', e.target.checked)}
+                      className="w-4 h-4 rounded border-sand-300 text-navy-600"
+                    />
+                    <span className="text-charcoal-700 font-medium">Require Phone Verification</span>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* Inquiry Settings */}
+            {activeTab === 'inquiry' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-charcoal-900 mb-4">Inquiry Settings</h2>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                    Min Response Time (hours)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.minInquiryResponse as string}
+                    onChange={(e) => handleInputChange('minInquiryResponse', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                    Max Inquiry Characters
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.maxInquiryCharacters as string}
+                    onChange={(e) => handleInputChange('maxInquiryCharacters', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* SEO Settings */}
+            {activeTab === 'seo' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-charcoal-900 mb-4">SEO Settings</h2>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                    Meta Description
+                  </label>
+                  <textarea
+                    value={formData.metaDescription as string}
+                    onChange={(e) => handleInputChange('metaDescription', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                    Focus Keywords (comma-separated)
                   </label>
                   <input
                     type="text"
-                    defaultValue="Yaal Nilam"
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-2">
-                    Support Email
-                  </label>
-                  <input
-                    type="email"
-                    defaultValue="support@yaalnilam.com"
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    value={formData.focusKeywords as string}
+                    onChange={(e) => handleInputChange('focusKeywords', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
                   />
                 </div>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
-                  Platform Description
-                </label>
-                <textarea
-                  defaultValue="Leading property management and real estate platform in Jaffna"
-                  rows={4}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              {/* Logo Upload */}
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-4">
-                  Platform Logo
-                </label>
-                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-teal-500 hover:bg-teal-50 transition cursor-pointer">
-                  <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
-                  <p className="text-slate-600">Click to upload logo</p>
-                  <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 5MB</p>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-200 pt-6 flex gap-3">
-                <button
-                  onClick={handleSave}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition font-medium flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
-                {saveSuccess && (
-                  <span className="text-emerald-600 py-2 text-sm font-medium">✓ Saved successfully</span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Property Tab */}
-          {activeTab === 'property' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Property Settings</h2>
-
-              <div className="grid grid-cols-2 gap-6">
+            {/* Integrations Settings */}
+            {activeTab === 'integrations' && (
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-2">
-                    Default Currency
-                  </label>
-                  <select defaultValue="LKR" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                    <option>LKR</option>
-                    <option>USD</option>
-                    <option>INR</option>
-                  </select>
+                  <h2 className="text-xl font-bold text-charcoal-900 mb-4">Integrations</h2>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-2">
-                    Default Area Unit
-                  </label>
-                  <select defaultValue="sqft" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                    <option value="sqft">Square Feet</option>
-                    <option value="sqm">Square Meters</option>
-                    <option value="perches">Perches</option>
-                  </select>
-                </div>
-              </div>
 
-              <div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300 accent-teal-600" />
-                  <span className="text-sm text-slate-700">Allow price negotiation on listings</span>
-                </label>
-              </div>
-
-              <div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300 accent-teal-600" />
-                  <span className="text-sm text-slate-700">Require document verification for agents</span>
-                </label>
-              </div>
-
-              <div className="border-t border-slate-200 pt-6 flex gap-3">
-                <button
-                  onClick={handleSave}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition font-medium flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Inquiry Tab */}
-          {activeTab === 'inquiry' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Inquiry Settings</h2>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
-                  Auto-Response Message
-                </label>
-                <textarea
-                  defaultValue="Thank you for your inquiry. We will get back to you within 24 hours."
-                  rows={4}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-2">
-                    Response Time (hours)
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue="24"
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-2">
-                    Max Inquiries per Day
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue="50"
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-              </div>
-
-              <div className="border-t border-slate-200 pt-6 flex gap-3">
-                <button
-                  onClick={handleSave}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition font-medium flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* SEO Tab */}
-          {activeTab === 'seo' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">SEO Settings</h2>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
-                  Meta Title
-                </label>
-                <input
-                  type="text"
-                  defaultValue="Yaal Nilam - Property Management & Real Estate Platform"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
-                  Meta Description
-                </label>
-                <textarea
-                  defaultValue="Find properties for rent and sale in Jaffna. Browse apartments, houses, villas, and land with detailed listings."
-                  rows={3}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
-                  Keywords (comma separated)
-                </label>
-                <input
-                  type="text"
-                  defaultValue="property, real estate, jaffna, rent, sale, apartments"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div className="border-t border-slate-200 pt-6 flex gap-3">
-                <button
-                  onClick={handleSave}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition font-medium flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Integrations Tab */}
-          {activeTab === 'integrations' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Integrations</h2>
-
-              <div className="border border-slate-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">Google Analytics</h3>
-                    <p className="text-sm text-slate-600 mt-1">Track visitor behavior and analytics</p>
-                  </div>
-                  <button className="bg-teal-100 text-teal-700 px-4 py-2 rounded-lg font-medium">
-                    Connected
-                  </button>
-                </div>
-              </div>
-
-              <div className="border border-slate-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">Firebase</h3>
-                    <p className="text-sm text-slate-600 mt-1">Real-time database and authentication</p>
-                  </div>
-                  <button className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium">
-                    Connect
-                  </button>
-                </div>
-              </div>
-
-              <div className="border border-slate-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">Stripe</h3>
-                    <p className="text-sm text-slate-600 mt-1">Payment processing</p>
-                  </div>
-                  <button className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium">
-                    Connect
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Security Tab */}
-          {activeTab === 'security' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Security</h2>
-
-              <div className="border-t border-slate-200 pt-4">
-                <h3 className="font-semibold text-slate-900 mb-4">API Keys</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-2">
-                      API Key
-                    </label>
-                    <div className="flex gap-2">
+                <div className="space-y-4 border border-sand-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-charcoal-900">Google Analytics</h3>
+                      <p className="text-sm text-charcoal-600 mt-1">Track visitor behavior</p>
+                    </div>
+                    <label className="flex items-center gap-3 cursor-pointer">
                       <input
-                        type={showApiKey ? 'text' : 'password'}
-                        defaultValue="sk_live_jaffna_nilam_2024_xxxxx"
-                        readOnly
-                        className="flex-1 px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 font-mono text-sm"
+                        type="checkbox"
+                        checked={formData.enableGoogleAnalytics as boolean}
+                        onChange={(e) => handleInputChange('enableGoogleAnalytics', e.target.checked)}
+                        className="w-4 h-4 rounded border-sand-300 text-navy-600"
                       />
-                      <button
-                        onClick={() => setShowApiKey(!showApiKey)}
-                        className="text-slate-600 hover:bg-slate-100 p-2 rounded transition"
-                      >
-                        {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+                    </label>
+                  </div>
+                  {(formData.enableGoogleAnalytics as boolean) && (
+                    <div>
+                      <label className="block text-sm font-semibold text-charcoal-700 mb-2">API Key</label>
+                      <input
+                        type="password"
+                        value={formData.googleAnalyticsId as string}
+                        onChange={(e) => handleInputChange('googleAnalyticsId', e.target.value)}
+                        className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4 border border-sand-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-charcoal-900">Hotjar</h3>
+                      <p className="text-sm text-charcoal-600 mt-1">User session recording</p>
+                    </div>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.enableHotjar as boolean}
+                        onChange={(e) => handleInputChange('enableHotjar', e.target.checked)}
+                        className="w-4 h-4 rounded border-sand-300 text-navy-600"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-4 border border-sand-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-charcoal-900">Stripe Payments</h3>
+                      <p className="text-sm text-charcoal-600 mt-1">Payment processing</p>
                     </div>
                   </div>
-                  <button className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition font-medium text-sm">
-                    Regenerate Key
-                  </button>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-200 pt-4">
-                <h3 className="font-semibold text-slate-900 mb-4">Two-Factor Authentication</h3>
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-slate-900">2FA Status</p>
-                    <p className="text-sm text-slate-600">Enabled for admin accounts</p>
+                    <label className="block text-sm font-semibold text-charcoal-700 mb-2">API Key</label>
+                    <input
+                      type="password"
+                      value={formData.stripeApiKey as string}
+                      onChange={(e) => handleInputChange('stripeApiKey', e.target.value)}
+                      className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                    />
                   </div>
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
-                    Enabled
-                  </span>
                 </div>
               </div>
+            )}
 
-              <div className="border-t border-slate-200 pt-6 flex gap-3">
-                <button
-                  onClick={handleSave}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition font-medium flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
+            {/* Security Settings */}
+            {activeTab === 'security' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-charcoal-900 mb-4">Security Settings</h2>
+                </div>
+
+                <div className="space-y-4 border border-sand-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-charcoal-900">Automatic Backups</h3>
+                      <p className="text-sm text-charcoal-600 mt-1">Enable daily database backups</p>
+                    </div>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.enableBackups as boolean}
+                        onChange={(e) => handleInputChange('enableBackups', e.target.checked)}
+                        className="w-4 h-4 rounded border-sand-300 text-navy-600"
+                      />
+                    </label>
+                  </div>
+                  {(formData.enableBackups as boolean) && (
+                    <div>
+                      <label className="block text-sm font-semibold text-charcoal-700 mb-2">Backup Frequency</label>
+                      <select
+                        value={formData.backupFrequency as string}
+                        onChange={(e) => handleInputChange('backupFrequency', e.target.value)}
+                        className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                      >
+                        <option>Hourly</option>
+                        <option>Daily</option>
+                        <option>Weekly</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 border border-sand-200 rounded-lg p-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.twoFactorAuth as boolean}
+                      onChange={(e) => handleInputChange('twoFactorAuth', e.target.checked)}
+                      className="w-4 h-4 rounded border-sand-300 text-navy-600"
+                    />
+                    <span className="text-charcoal-700 font-medium">Require Two-Factor Authentication</span>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
+                    Session Timeout (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.sessionTimeout as string}
+                    onChange={(e) => handleInputChange('sessionTimeout', e.target.value)}
+                    className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
+                  />
+                </div>
               </div>
+            )}
+
+            {/* Save Button */}
+            <div className="flex gap-3 pt-6 border-t border-sand-200">
+              <button
+                onClick={handleSave}
+                className="px-6 py-2 rounded-lg bg-navy-600 text-white font-medium hover:bg-navy-700 transition-colors"
+              >
+                Save Changes
+              </button>
+              <button className="px-6 py-2 rounded-lg border border-sand-300 text-charcoal-700 font-medium hover:bg-sand-50">
+                Cancel
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,40 +1,77 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import FirebaseProvider from "@/components/FirebaseProvider";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import WhatsAppButton from '@/components/WhatsAppButton';
+import FirebaseProvider from '@/components/FirebaseProvider';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Yaal Nilam | Find Land, Homes & Rentals in Jaffna",
-    template: "%s | Yaal Nilam",
+    default: 'Yaal Nilam | யாழ் நிலம் - Jaffna Property Marketplace',
+    template: '%s | Yaal Nilam',
   },
   description:
-    "Jaffna's smarter property platform. Browse land, houses, rentals, and commercial spaces across the Jaffna Peninsula. WhatsApp-first. Bilingual Tamil & English.",
-  keywords: [
-    "Jaffna property", "Jaffna real estate", "யாழ்ப்பாணம் சொத்து",
-    "land for sale Jaffna", "houses for rent Jaffna", "Nallur property",
-    "Jaffna land", "commercial property Jaffna", "Yaal Nilam", "யாழ் நிலம்",
-    "buy land Jaffna", "rent house Jaffna", "Jaffna Peninsula real estate",
-  ],
+    'Discover verified properties in Jaffna. Buy, rent, or list homes, land, apartments, villas, and commercial properties across the Jaffna Peninsula. Bilingual Tamil & English support with WhatsApp-first service.',
+  keywords:
+    'Jaffna property, Jaffna real estate, land for sale Jaffna, house for rent Jaffna, apartment Jaffna, commercial property, Tamil Nadu property, Northern Province Sri Lanka, Nallur property, Chunnakam land, Point Pedro house, villa Jaffna, short-term rental Jaffna',
   openGraph: {
-    title: "Yaal Nilam — Find Land, Homes & Rentals in Jaffna",
-    description: "Browse land, houses, rentals, and commercial spaces across Jaffna Peninsula. WhatsApp-first property platform.",
-    url: "https://yaalnilam.lk",
-    siteName: "Yaal Nilam",
-    locale: "en_LK",
-    type: "website",
+    title: 'Yaal Nilam | யாழ் நிலம் - Jaffna Property Marketplace',
+    description: 'Discover verified properties in Jaffna. Buy, rent, or list properties with WhatsApp-first support.',
+    type: 'website',
+    siteName: 'Yaal Nilam',
+    locale: 'en_LK',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Yaal Nilam — Jaffna's Smarter Property Platform",
-    description: "Find land, homes & rentals across Jaffna. WhatsApp-first. Bilingual.",
+    card: 'summary_large_image',
+    title: 'Yaal Nilam | Jaffna Property Marketplace',
+    description: 'Find your dream property in Jaffna. Verified listings, bilingual support.',
   },
   robots: {
     index: true,
     follow: true,
   },
   alternates: {
-    canonical: "https://yaalnilam.lk",
+    canonical: 'https://yaal-nilam.web.app',
   },
+};
+
+// JSON-LD Structured Data
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'RealEstateAgent',
+      '@id': 'https://yaal-nilam.web.app/#organization',
+      name: 'Yaal Nilam',
+      alternateName: 'யாழ் நிலம்',
+      url: 'https://yaal-nilam.web.app',
+      description: 'Leading bilingual property marketplace for the Jaffna Peninsula, Sri Lanka.',
+      areaServed: {
+        '@type': 'Place',
+        name: 'Jaffna District',
+        address: { '@type': 'PostalAddress', addressRegion: 'Northern Province', addressCountry: 'LK' },
+      },
+      contactPoint: [
+        { '@type': 'ContactPoint', telephone: '+94-21-222-3456', contactType: 'sales', availableLanguage: ['English', 'Tamil'] },
+      ],
+      knowsLanguage: ['en', 'ta'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://yaal-nilam.web.app/#website',
+      url: 'https://yaal-nilam.web.app',
+      name: 'Yaal Nilam',
+      publisher: { '@id': 'https://yaal-nilam.web.app/#organization' },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://yaal-nilam.web.app/properties?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -43,51 +80,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* JSON-LD: Organization */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "RealEstateAgent",
-              name: "Yaal Nilam",
-              alternateName: "யாழ் நிலம்",
-              url: "https://yaalnilam.lk",
-              description: "Jaffna's smarter property platform for land, homes, rentals, and commercial spaces.",
-              areaServed: {
-                "@type": "Place",
-                name: "Jaffna Peninsula, Sri Lanka",
-              },
-              contactPoint: {
-                "@type": "ContactPoint",
-                contactType: "customer service",
-                availableLanguage: ["English", "Tamil"],
-              },
-            }),
-          }}
-        />
-        {/* JSON-LD: WebSite with search */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Yaal Nilam",
-              url: "https://yaalnilam.lk",
-              potentialAction: {
-                "@type": "SearchAction",
-                target: "https://yaalnilam.lk/properties?search={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-sand-50 flex flex-col">
-        <FirebaseProvider>{children}</FirebaseProvider>
+      <body className={`${inter.className} min-h-screen bg-sand-50 flex flex-col`}>
+        <FirebaseProvider>
+          <Navbar />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+          <WhatsAppButton />
+        </FirebaseProvider>
       </body>
     </html>
   );

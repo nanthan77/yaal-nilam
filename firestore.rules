@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read for listings and areas
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+    match /areas/{areaId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    // Inquiries - public can create and read
+    match /inquiries/{inquiryId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+    // Requirements - read/write open for now
+    match /requirements/{reqId} {
+      allow read, write: if true;
+    }
+    // Agents - public read, open write for now
+    match /agents/{agentId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    // WhatsApp conversations
+    match /whatsapp_conversations/{convId} {
+      allow read, write: if true;
+      match /messages/{msgId} {
+        allow read, write: if true;
+      }
+    }
+    // Config
+    match /config/{configId} {
+      allow read, write: if true;
+    }
+  }
+}
