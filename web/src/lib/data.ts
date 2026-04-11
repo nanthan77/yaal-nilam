@@ -8,6 +8,7 @@ export interface Property {
   title: string;
   title_ta: string;
   description: string;
+  description_ta?: string;
   price: number;
   area: string;
   slug: string;
@@ -35,6 +36,7 @@ export interface Area {
   name: string;
   name_ta: string;
   description: string;
+  description_ta?: string;
   properties_count: number;
   image: string;
 }
@@ -53,6 +55,7 @@ export const PROPERTIES: Property[] = [
     title: 'Modern Villa in Jaffna Fort',
     title_ta: 'யாழ் கோட்டையில் நவீன வில்லா',
     description: 'A stunning modern villa with sea views and contemporary amenities.',
+    description_ta: 'கடற்காட்சி மற்றும் நவீன வசதிகளுடன் அமைந்த அழகிய வில்லா. குடும்ப வாழ்வுக்கும் உயர்தர முதலீட்டுக்கும் ஏற்ற தேர்வு.',
     price: 85000000,
     area: 'jaffna-fort',
     slug: 'jaffna-fort',
@@ -76,6 +79,7 @@ export const PROPERTIES: Property[] = [
     title: 'Spacious Family Home in Nallur',
     title_ta: 'நல்லூரில் விசாலமான குடும்ப வீடு',
     description: 'Well-maintained family home with large garden and traditional charm.',
+    description_ta: 'பராமரிப்பு சிறப்பாக செய்யப்பட்ட, பெரிய தோட்டத்துடன் அமைந்த குடும்ப வீடு. பாரம்பரிய இனிமையும் வசதியும் ஒருங்கே தருகிறது.',
     price: 45000000,
     area: 'nallur',
     slug: 'nallur',
@@ -97,8 +101,9 @@ export const PROPERTIES: Property[] = [
   {
     id: 'prop-003',
     title: 'Luxury Apartment in Chunnakam',
-    title_ta: 'சுன்னகமில் பொக்கிஷ அபார்ட்மென்ட்',
+    title_ta: 'சுன்னாகத்தில் உயர்தர அபார்ட்மென்ட்',
     description: 'Premium apartment with modern facilities and prime location.',
+    description_ta: 'நவீன வசதிகளும் சிறந்த இடத்தும் கொண்ட உயர்தர அபார்ட்மென்ட். நகரத்துக்கு அருகில் வசிக்க விரும்புவோருக்கு ஏற்றது.',
     price: 32000000,
     area: 'chunnakam',
     slug: 'chunnakam',
@@ -120,8 +125,9 @@ export const PROPERTIES: Property[] = [
   {
     id: 'prop-004',
     title: 'Commercial Space in Kopay',
-    title_ta: 'கோப்பையில் வணிக இடம்',
+    title_ta: 'கோப்பாயில் வணிக பயன்பாட்டு இடம்',
     description: 'Strategic commercial property ideal for retail or office use.',
+    description_ta: 'சில்லறை விற்பனை, அலுவலகம் அல்லது சேவை வணிகத்திற்குப் பொருத்தமான முக்கிய இடத்தில் உள்ள வணிகச் சொத்து.',
     price: 28000000,
     area: 'kopay',
     slug: 'kopay',
@@ -143,8 +149,9 @@ export const PROPERTIES: Property[] = [
   {
     id: 'prop-005',
     title: 'Beach Land Plot in Point Pedro',
-    title_ta: 'பெத்தாயி பேட்டையில் கடற்கரை நிலம்',
+    title_ta: 'பருத்தித்துறையில் கடற்கரை காணித் துண்டு',
     description: 'Beachfront land with development potential and scenic views.',
+    description_ta: 'கடற்கரையை அண்மித்த, அபிவிருத்தி சாத்தியமுள்ள அழகிய காணி. சுற்றுலா அல்லது விடுதி முதலீட்டுக்கு நல்ல வாய்ப்பு.',
     price: 55000000,
     area: 'point-pedro',
     slug: 'point-pedro',
@@ -167,8 +174,9 @@ export const PROPERTIES: Property[] = [
   {
     id: 'prop-006',
     title: 'Island Villa in Karainagar',
-    title_ta: 'கரைநாகரில் தீவு வில்லா',
+    title_ta: 'காரைநகரில் தீவு வில்லா',
     description: 'Exclusive villa on Karainagar island with panoramic views.',
+    description_ta: 'காரைநகரின் அமைதியான சூழலில் விரிந்த காட்சியுடன் அமைந்த தனியுரிமை மிக்க வில்லா.',
     price: 92000000,
     area: 'karainagar',
     slug: 'karainagar',
@@ -190,8 +198,9 @@ export const PROPERTIES: Property[] = [
   {
     id: 'prop-007',
     title: 'Heritage House in Thirunelvely',
-    title_ta: 'திருநெல்வேலியில் ஐதிஹ்ய வீடு',
+    title_ta: 'திருநெல்வேலியில் பாரம்பரிய வீடு',
     description: 'Historic property with traditional architecture and cultural significance.',
+    description_ta: 'பாரம்பரிய கட்டிட வடிவமும் பண்பாட்டு மதிப்பும் கொண்ட வரலாற்றுச் சிறப்புமிக்க வீடு.',
     price: 38000000,
     area: 'thirunelvely',
     slug: 'thirunelvely',
@@ -218,6 +227,7 @@ export const AREAS: Area[] = [
     name: 'Jaffna Fort',
     name_ta: 'யாழ் கோட்டை',
     description: 'Historic district with colonial charm and modern amenities.',
+    description_ta: 'காலனித்துவ மரபையும் நவீன வசதிகளையும் இணைத்துப் பேணும் வரலாற்றுப் பகுதி.',
     properties_count: 24,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
@@ -226,38 +236,43 @@ export const AREAS: Area[] = [
     name: 'Nallur',
     name_ta: 'நல்லூர்',
     description: 'Traditional neighborhood with cultural heritage and community spirit.',
+    description_ta: 'பண்பாட்டு மரபும் சமூகவாழ்வின் உயிரும் செழித்து நிற்கும் நல்லூர் பகுதி.',
     properties_count: 18,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
     slug: 'chunnakam',
     name: 'Chunnakam',
-    name_ta: 'சுன்னகம்',
+    name_ta: 'சுன்னாகம்',
     description: 'Residential area with excellent schools and family-friendly amenities.',
+    description_ta: 'பாடசாலைகள், சேவைகள் மற்றும் குடும்பங்களுக்கு ஏற்ற வசதிகள் நிறைந்த குடியிருப்பு பகுதி.',
     properties_count: 21,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
     slug: 'kopay',
     name: 'Kopay',
-    name_ta: 'கோப்பை',
+    name_ta: 'கோப்பாய்',
     description: 'Vibrant commercial hub with retail and office spaces.',
+    description_ta: 'சில்லறை விற்பனை, அலுவலகம் மற்றும் புதிய வணிக வளர்ச்சிக்கு ஏற்ற சுறுசுறுப்பான பகுதி.',
     properties_count: 15,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
     slug: 'point-pedro',
     name: 'Point Pedro',
-    name_ta: 'பெத்தாயி பேட்டை',
+    name_ta: 'பருத்தித்துறை',
     description: 'Coastal area with pristine beaches and recreational facilities.',
+    description_ta: 'கடற்கரை வளமும் அமைதியான வாழ்வுமுள்ள வடக்கு முனைப் பகுதி. விடுதி மற்றும் சுற்றுலா முதலீட்டுக்கும் ஏற்றது.',
     properties_count: 12,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
     slug: 'karainagar',
     name: 'Karainagar',
-    name_ta: 'கரைநாகர்',
+    name_ta: 'காரைநகர்',
     description: 'Island community with exclusive properties and serene environment.',
+    description_ta: 'தீவு அமைதியுடன் தனியுரிமை மிக்க வீடுகள் மற்றும் விரிந்த நிலப் பகுதிகள் கொண்ட பகுதி.',
     properties_count: 8,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
@@ -266,14 +281,16 @@ export const AREAS: Area[] = [
     name: 'Thirunelvely',
     name_ta: 'திருநெல்வேலி',
     description: 'Sacred spiritual area with heritage temples and historic landmarks.',
+    description_ta: 'கோவில்கள், மரபுச் சின்னங்கள் மற்றும் குடியிருப்பு வசதிகளுடன் பெயர்பெற்ற பகுதி.',
     properties_count: 10,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
     slug: 'chavakachcheri',
     name: 'Chavakachcheri',
-    name_ta: 'சவகச்சேரி',
+    name_ta: 'சாவகச்சேரி',
     description: 'Growing residential community with modern infrastructure.',
+    description_ta: 'வேகமாக வளர்ந்து வரும் அடிப்படை வசதிகளுடன் கூடிய குடியிருப்பு மற்றும் குடும்ப நட்பு பகுதி.',
     properties_count: 14,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },

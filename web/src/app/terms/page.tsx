@@ -1,187 +1,238 @@
 'use client';
 
 import Link from 'next/link';
+import { useStore } from '@/lib/store';
+import { localize } from '@/lib/translations';
+
+interface TermsSection {
+  title: string;
+  body: string[];
+  bullets?: string[];
+}
 
 export default function TermsPage() {
+  const { locale } = useStore();
+
+  const copy = localize(locale, {
+    en: {
+      title: 'Terms of Service',
+      home: 'Home',
+      updated: 'Last updated: April 11, 2026',
+      intro:
+        'These terms govern your use of the Yaal Nilam website, public property pages, forms, WhatsApp support, and any related services offered through our platform.',
+      contactTitle: 'Contact Information',
+      contactBody:
+        'If you have questions about these terms, please contact us before using the service further.',
+      location: 'Jaffna, Sri Lanka',
+    },
+    ta: {
+      title: 'சேவை விதிமுறைகள்',
+      home: 'முகப்பு',
+      updated: 'கடைசியாக புதுப்பிக்கப்பட்டது: ஏப்ரல் 11, 2026',
+      intro:
+        'யாழ் நிலம் இணையதளம், பொதுச் சொத்து பக்கங்கள், கோரிக்கை படிவங்கள், WhatsApp ஆதரவு மற்றும் எங்கள் தளம் மூலம் வழங்கப்படும் தொடர்புடைய சேவைகளை நீங்கள் பயன்படுத்தும் விதத்தை இந்த விதிமுறைகள் ஒழுங்குபடுத்துகின்றன.',
+      contactTitle: 'தொடர்பு தகவல்',
+      contactBody:
+        'இந்த விதிமுறைகள் குறித்து கேள்விகள் இருந்தால் சேவையை தொடர்ந்து பயன்படுத்துவதற்கு முன் எங்களைத் தொடர்பு கொள்ளுங்கள்.',
+      location: 'யாழ்ப்பாணம், இலங்கை',
+    },
+  });
+
+  const sections = localize<TermsSection[]>(locale, {
+    en: [
+      {
+        title: '1. Acceptance of Terms',
+        body: [
+          'By accessing or using Yaal Nilam, you agree to these terms. If you do not agree, please do not use the platform.',
+        ],
+      },
+      {
+        title: '2. Use of the Platform',
+        body: [
+          'You may browse public listings, submit property requests, contact us, and list properties only for lawful and genuine purposes.',
+        ],
+        bullets: [
+          'Do not impersonate another person or business',
+          'Do not submit false, misleading, or stolen information',
+          'Do not abuse forms, messaging channels, or automated systems',
+        ],
+      },
+      {
+        title: '3. Listings and User Content',
+        body: [
+          'When you submit a listing, message, photograph, or description, you confirm that you have the right to share that content and that it accurately represents the property or request.',
+          'We may edit, reject, hide, or remove content that is incomplete, misleading, unsafe, offensive, unlawful, or outside our marketplace scope.',
+        ],
+      },
+      {
+        title: '4. Verification and Moderation',
+        body: [
+          'Yaal Nilam may review listings, make follow-up contact, request additional proof, and delay publication until reasonable verification is completed.',
+          'Verification does not create a legal guarantee, warranty, or certification of ownership, title, or suitability.',
+        ],
+      },
+      {
+        title: '5. Messaging and WhatsApp Use',
+        body: [
+          'If you contact us through WhatsApp or similar messaging services, you consent to receiving replies, follow-up questions, and relevant property communication through those channels.',
+          'Automated or AI-assisted replies may be used to help route, summarize, or respond to your requests.',
+        ],
+      },
+      {
+        title: '6. Intellectual Property',
+        body: [
+          'The Yaal Nilam brand, site design, text, and platform materials remain our property or the property of our licensors. You may not copy, republish, or reuse them for commercial purposes without permission.',
+        ],
+      },
+      {
+        title: '7. Disclaimers',
+        body: [
+          'The platform is provided on an “as available” basis. We do not guarantee uninterrupted access, complete accuracy, or that every listing, price, document, or description will remain current at all times.',
+          'Users are responsible for conducting their own legal, financial, and practical due diligence before making property decisions.',
+        ],
+      },
+      {
+        title: '8. Limitation of Liability',
+        body: [
+          'To the fullest extent permitted by law, Yaal Nilam is not liable for indirect, incidental, or consequential losses arising from use of the platform, failed transactions, incorrect listings, or third-party actions.',
+        ],
+      },
+      {
+        title: '9. Suspension or Termination',
+        body: [
+          'We may suspend access, remove listings, or stop responding through platform channels where misuse, fraud risk, repeated policy violations, or legal concerns arise.',
+        ],
+      },
+      {
+        title: '10. Governing Law',
+        body: [
+          'These terms are governed by the laws of Sri Lanka. Any dispute relating to the service will be handled under the applicable jurisdiction of Sri Lankan courts.',
+        ],
+      },
+    ],
+    ta: [
+      {
+        title: '1. விதிமுறைகளை ஏற்றுக்கொள்வது',
+        body: [
+          'யாழ் நிலத்தை நீங்கள் அணுகும் போது அல்லது பயன்படுத்தும் போது இந்த விதிமுறைகளை ஏற்றுக்கொண்டதாக கருதப்படும். ஏற்கவில்லை என்றால் தளத்தை பயன்படுத்த வேண்டாம்.',
+        ],
+      },
+      {
+        title: '2. தளத்தின் பயன்பாடு',
+        body: [
+          'பொது பட்டியல்களைப் பார்ப்பது, சொத்து கோரிக்கை அனுப்புவது, எங்களைத் தொடர்பு கொள்வது, மற்றும் சொத்துகளை பட்டியலிடுவது ஆகியவை சட்டப்படி மற்றும் உண்மையான நோக்கத்திற்காக மட்டுமே செய்யப்பட வேண்டும்.',
+        ],
+        bullets: [
+          'மற்றவர் அல்லது வேறு வணிகமாக உங்களைச் சித்தரிக்கக்கூடாது',
+          'தவறான, ஏமாற்றும் அல்லது திருடப்பட்ட தகவலை சமர்ப்பிக்கக்கூடாது',
+          'படிவங்கள், செய்திச் சேனல்கள் அல்லது தானியங்கி அமைப்புகளை தவறாக பயன்படுத்தக்கூடாது',
+        ],
+      },
+      {
+        title: '3. பட்டியல்கள் மற்றும் பயனர் உள்ளடக்கம்',
+        body: [
+          'நீங்கள் சமர்ப்பிக்கும் பட்டியல், செய்தி, படம் அல்லது விளக்கம் அனைத்திற்கும் உரிய உரிமை உங்களிடம் இருப்பதையும் அது சொத்து அல்லது கோரிக்கையை சரியாக பிரதிபலிப்பதையும் உறுதிப்படுத்துகிறீர்கள்.',
+          'முழுமையற்ற, தவறாக வழிநடத்தும், பாதுகாப்பற்ற, ஒழுங்குமுறைக்கு முரணான, சட்டவிரோதமான, அல்லது எங்கள் தளத்தின் வரம்பிற்கு வெளியான உள்ளடக்கத்தை திருத்த, மறுக்க, மறைக்க அல்லது நீக்க எங்களுக்கு உரிமை உள்ளது.',
+        ],
+      },
+      {
+        title: '4. சரிபார்ப்பு மற்றும் மதிப்பாய்வு',
+        body: [
+          'யாழ் நிலம் பட்டியல்களை ஆய்வு செய்யலாம், தொடர்ச்சித் தொடர்பு கொள்ளலாம், கூடுதல் ஆதாரங்களை கேட்கலாம், மற்றும் நியாயமான சரிபார்ப்பு முடியும் வரை வெளியீட்டை தாமதிக்கலாம்.',
+          'சரிபார்ப்பு என்பது உரிமை, பத்திரம் அல்லது சொத்தின் பொருத்தம் குறித்து சட்ட உத்தரவாதம் அல்லது சான்றிதழ் அளிப்பதல்ல.',
+        ],
+      },
+      {
+        title: '5. செய்தி சேவைகள் மற்றும் WhatsApp பயன்பாடு',
+        body: [
+          'நீங்கள் எங்களை WhatsApp அல்லது இதற்குச் சமமான சேவைகள் மூலம் தொடர்பு கொண்டால், அதே வழியே பதில்கள், தொடர்ச்சிக் கேள்விகள் மற்றும் சொத்து தொடர்பான தகவல்களைப் பெற சம்மதிக்கிறீர்கள்.',
+          'உங்கள் கோரிக்கையை வகைப்படுத்த, சுருக்கமாகப் புரிந்துகொள்ள, அல்லது பதில் அளிக்க தானியக்க அல்லது AI உதவியுடன் உருவாகும் பதில்கள் பயன்படுத்தப்படலாம்.',
+        ],
+      },
+      {
+        title: '6. அறிவுசார் சொத்து உரிமை',
+        body: [
+          'யாழ் நிலம் என்ற பெயர், தள வடிவமைப்பு, உரைகள் மற்றும் தளப் பொருட்கள் எங்களுடையவை அல்லது எங்களுக்கு உரிமம் வழங்கியவர்களுடையவை. அனுமதியின்றி இவற்றை வணிக நோக்கில் நகலெடுக்க, மறுபதிப்பிக்க அல்லது பயன்படுத்த முடியாது.',
+        ],
+      },
+      {
+        title: '7. மறுப்புகள்',
+        body: [
+          'இந்த தளம் “இருக்கும் நிலையில்” வழங்கப்படுகிறது. இடையறாத அணுகல், முழுமையான துல்லியம், அல்லது ஒவ்வொரு பட்டியல், விலை, ஆவணம், விளக்கம் என்றும் புதுப்பித்த நிலையில் இருக்கும் என்று எங்களால் உத்தரவாதம் அளிக்க முடியாது.',
+          'சொத்து தொடர்பான எந்தத் தீர்மானத்தையும் எடுப்பதற்கு முன் சட்ட, நிதி மற்றும் நடைமுறை சரிபார்ப்பை பயனாளிகள் தாங்களே செய்ய வேண்டும்.',
+        ],
+      },
+      {
+        title: '8. பொறுப்பு வரம்பு',
+        body: [
+          'சட்டம் அனுமதிக்கும் அளவு வரை, தளத்தைப் பயன்படுத்துதல், தோல்வியடைந்த பரிவர்த்தனைகள், தவறான பட்டியல்கள், அல்லது மூன்றாம் தரப்பினரின் செயல்கள் காரணமாக ஏற்படும் மறைமுக அல்லது தொடர்ச்சியான இழப்புகளுக்கு யாழ் நிலம் பொறுப்பாகாது.',
+        ],
+      },
+      {
+        title: '9. இடைநீக்கம் அல்லது நிறுத்தல்',
+        body: [
+          'தவறான பயன்பாடு, மோசடி அபாயம், தொடர்ச்சியான கொள்கை மீறல்கள், அல்லது சட்டப் பிரச்சினைகள் ஏற்பட்டால் அணுகலை நிறுத்த, பட்டியலை நீக்க, அல்லது பதிலளிப்பதை நிறுத்த எங்களுக்கு உரிமை உண்டு.',
+        ],
+      },
+      {
+        title: '10. பொருந்தும் சட்டம்',
+        body: [
+          'இந்த விதிமுறைகள் இலங்கைச் சட்டங்களுக்கு உட்பட்டவை. சேவையை சார்ந்த எந்தத் தகராறும் இலங்கையின் பொருந்தும் நீதித்துறை கீழ் கையாளப்படும்.',
+        ],
+      },
+    ],
+  });
+
   return (
-    <>
-      <div>
-        {/* Hero Section */}
-        <div className="bg-teal-900 text-white py-16">
-          <div className="container-wide">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-4xl font-bold">Terms of Service</h1>
-            </div>
-            <nav className="text-sand-200 text-sm">
-              <Link href="/" className="hover:text-teal-400">
-                Home
-              </Link>
-              <span className="mx-2">/</span>
-              <span className="text-teal-400">Terms of Service</span>
-            </nav>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="container-wide py-12">
-          <div className="max-w-3xl mx-auto prose prose-sm text-charcoal-700 space-y-6">
-            <div className="text-sm text-charcoal-500 mb-8">
-              Last updated: March 2026
-            </div>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">1. Acceptance of Terms</h2>
-              <p>
-                By accessing and using the Yaal Nilam platform, you accept and agree to be bound by the terms 
-                and provision of this agreement. If you do not agree to abide by the above, 
-                please do not use this service.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">2. Use License</h2>
-              <p>
-                Permission is granted to temporarily download one copy of the materials (information or software) 
-                on the Yaal Nilam platform for personal, non-commercial transitory viewing only. 
-                This is the grant of a license, not a transfer of title, and under this license you may not:
-              </p>
-              <ul className="list-disc list-inside space-y-2 mt-4">
-                <li>Modify or copy the materials</li>
-                <li>Use the materials for any commercial purpose or for any public display</li>
-                <li>Attempt to decompile or reverse engineer any software contained on the platform</li>
-                <li>Remove any copyright or other proprietary notations from the materials</li>
-                <li>Transfer the materials to another person or "mirror" the materials on any other server</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">3. User Accounts</h2>
-              <p>
-                If you create an account on our platform, you are responsible for maintaining the confidentiality 
-                of your account information and password. You agree to accept responsibility for all activities 
-                that occur under your account. You agree to notify us immediately of any unauthorized use of your account.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">4. User-Generated Content</h2>
-              <p>
-                When you submit property listings, photos, descriptions, or any other content to Yaal Nilam, 
-                you represent and warrant that:
-              </p>
-              <ul className="list-disc list-inside space-y-2 mt-4">
-                <li>You own or have the right to submit the content</li>
-                <li>The content is accurate and not misleading</li>
-                <li>The content does not violate any laws or third-party rights</li>
-                <li>You grant us a non-exclusive license to use the content</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">5. Prohibited Activities</h2>
-              <p>You agree not to:</p>
-              <ul className="list-disc list-inside space-y-2 mt-4">
-                <li>Post false, misleading, or fraudulent property information</li>
-                <li>Harass, threaten, or abuse other users</li>
-                <li>Spam or send unsolicited communications</li>
-                <li>Engage in any unlawful activities</li>
-                <li>Attempt to gain unauthorized access to our systems</li>
-                <li>Violate intellectual property rights</li>
-                <li>Post content of a sexual, violent, or discriminatory nature</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">6. Property Listing Verification</h2>
-              <p>
-                All property listings on Yaal Nilam are subject to verification. We reserve the right to:
-              </p>
-              <ul className="list-disc list-inside space-y-2 mt-4">
-                <li>Verify property information and photos</li>
-                <li>Remove listings that do not meet our standards</li>
-                <li>Suspend or ban accounts that post fraudulent information</li>
-                <li>Contact property owners for verification</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">7. Disclaimer of Warranties</h2>
-              <p>
-                The materials on Yaal Nilam are provided on an 'as is' basis. Yaal Nilam makes no warranties, 
-                expressed or implied, and hereby disclaims and negates all other warranties including, 
-                without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, 
-                or non-infringement of intellectual property or other violation of rights.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">8. Limitations of Liability</h2>
-              <p>
-                In no event shall Yaal Nilam or its suppliers be liable for any damages (including, without limitation, 
-                damages for loss of data or profit, or due to business interruption) arising out of the use or inability 
-                to use the materials on Yaal Nilam, even if we or our authorized representative has been notified orally 
-                or in writing of the possibility of such damage.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">9. Accuracy of Materials</h2>
-              <p>
-                The materials appearing on Yaal Nilam could include technical, typographical, or photographic errors. 
-                Yaal Nilam does not warrant that any of the materials on the platform are accurate, complete, or current. 
-                Yaal Nilam may make changes to the materials contained on the platform at any time without notice.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">10. Links</h2>
-              <p>
-                Yaal Nilam has not reviewed all of the sites linked to its platform and is not responsible for the contents 
-                of any such linked site. The inclusion of any link does not imply endorsement by Yaal Nilam of the site. 
-                Use of any such linked website is at the user's own risk.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">11. Modifications</h2>
-              <p>
-                Yaal Nilam may revise these terms of service for the platform at any time without notice. 
-                By using this platform, you are agreeing to be bound by the then current version of these terms of service.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">12. Governing Law</h2>
-              <p>
-                These terms and conditions are governed by and construed in accordance with the laws of Sri Lanka, 
-                and you irrevocably submit to the exclusive jurisdiction of the courts in that location.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">13. Termination</h2>
-              <p>
-                Yaal Nilam reserves the right to terminate your access to the platform at any time, 
-                for any reason, with or without notice. This includes termination for violation of these terms, 
-                posting fraudulent information, or engaging in illegal activities.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-teal-900 mb-4">14. Contact Information</h2>
-              <p>
-                If you have questions about these Terms of Service, please contact us at:
-              </p>
-              <div className="mt-4 p-4 bg-teal-50 rounded-lg">
-                <p className="font-medium text-teal-900 mb-2">Yaal Nilam</p>
-                <p>Email: info@yaalnilam.lk</p>
-                <p>Phone: +94 77 786 3333</p>
-                <p>Location: Jaffna, Sri Lanka</p>
-              </div>
-            </section>
-          </div>
+    <div>
+      <div className="bg-teal-900 py-16 text-white">
+        <div className="container-wide">
+          <h1 className="mb-4 text-4xl font-bold">{copy.title}</h1>
+          <nav className="text-sm text-sand-200">
+            <Link href="/" className="hover:text-teal-300">
+              {copy.home}
+            </Link>
+            <span className="mx-2">/</span>
+            <span className="text-teal-300">{copy.title}</span>
+          </nav>
         </div>
       </div>
-    </>
+
+      <div className="container-wide py-12">
+        <div className="mx-auto max-w-3xl space-y-8 text-charcoal-700">
+          <div className="rounded-2xl border border-sand-200 bg-sand-50 p-6">
+            <p className="mb-2 text-sm text-charcoal-500">{copy.updated}</p>
+            <p>{copy.intro}</p>
+          </div>
+
+          {sections.map((section) => (
+            <section key={section.title} className="space-y-4 rounded-2xl bg-white p-6 shadow-sm">
+              <h2 className="text-2xl font-bold text-teal-900">{section.title}</h2>
+              {section.body.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              {section.bullets && (
+                <ul className="list-disc space-y-2 pl-5">
+                  {section.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))}
+
+          <section className="rounded-2xl bg-teal-50 p-6">
+            <h2 className="mb-3 text-2xl font-bold text-teal-900">{copy.contactTitle}</h2>
+            <p className="mb-4">{copy.contactBody}</p>
+            <div className="space-y-1 text-sm">
+              <p className="font-medium text-teal-900">Yaal Nilam</p>
+              <p>Email: info@yaalnilam.lk</p>
+              <p>Phone: +94 77 786 3333</p>
+              <p>{copy.location}</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   );
 }

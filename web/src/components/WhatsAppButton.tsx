@@ -2,8 +2,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useStore } from "@/lib/store";
 
 export default function WhatsAppButton() {
+  const { locale } = useStore();
   const [showTooltip, setShowTooltip] = useState(false);
   const [showBubble, setShowBubble] = useState(true);
 
@@ -13,7 +15,19 @@ export default function WhatsAppButton() {
   }, []);
 
   const phoneNumber = "94777863333";
-  const message = encodeURIComponent("Hi, I'm interested in properties on Yaal Nilam / யாழ் நிலம்");
+  const bubbleTitle =
+    locale === "ta" ? "உதவி வேண்டுமா? எங்களுடன் பேசுங்கள்." : "Need help? Chat with us.";
+  const bubbleBody =
+    locale === "ta"
+      ? "சொத்து தேடல், விலை, பகுதி, அல்லது பட்டியலிடல் பற்றி WhatsApp-ல் உடனே கேளுங்கள்."
+      : "Ask us instantly on WhatsApp about property search, pricing, areas, or listing your property.";
+  const tooltipText =
+    locale === "ta" ? "WhatsApp மூலம் எங்களைத் தொடர்பு கொள்ளுங்கள்" : "Chat with us on WhatsApp";
+  const message = encodeURIComponent(
+    locale === "ta"
+      ? "வணக்கம், யாழ் நிலத்தில் உள்ள சொத்துகள் பற்றி அறிய விரும்புகிறேன்."
+      : "Hi, I'm interested in properties on Yaal Nilam."
+  );
   const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
 
   return (
@@ -21,8 +35,8 @@ export default function WhatsAppButton() {
       {/* Chat bubble */}
       {showBubble && (
         <div className="bg-white rounded-2xl rounded-br-sm shadow-lg px-4 py-3 max-w-[220px] animate-fade-in border border-gray-100">
-          <p className="text-sm text-gray-800 font-medium">Need help? Chat with us!</p>
-          <p className="text-xs text-gray-500 mt-0.5">உதவி தேவையா? எங்களை தொடர்பு கொள்ளுங்கள்!</p>
+          <p className="text-sm text-gray-800 font-medium">{bubbleTitle}</p>
+          <p className="text-xs text-gray-500 mt-0.5">{bubbleBody}</p>
           <button
             onClick={() => setShowBubble(false)}
             className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 rounded-full w-5 h-5 flex items-center justify-center text-xs text-gray-600"
@@ -40,12 +54,12 @@ export default function WhatsAppButton() {
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         className="relative group"
-        aria-label="Chat on WhatsApp"
+        aria-label={tooltipText}
       >
         {/* Tooltip */}
         {showTooltip && (
           <div className="absolute bottom-full right-0 mb-2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
-            Chat with us on WhatsApp
+            {tooltipText}
             <div className="absolute top-full right-4 border-4 border-transparent border-t-gray-900"></div>
           </div>
         )}

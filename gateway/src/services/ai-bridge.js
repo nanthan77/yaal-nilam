@@ -47,7 +47,7 @@ async function sendToAIService(payload) {
     }
 
     return {
-      reply: 'Sorry, I\'m having trouble understanding right now. Please try again. / மன்னிக்கவும், இப்போது புரிந்துகொள்வதில் சிக்கல். மீண்டும் முயற்சிக்கவும்.',
+      reply: 'Sorry, I\'m having a small issue processing that right now. Please try again in a moment. / மன்னிக்கவும், இதை இப்போது செயலாக்க சிறிய சிக்கல் உள்ளது. ஒரு நிமிடத்தில் மீண்டும் முயற்சிக்கவும்.',
       intent: 'error',
       confidence: 0
     };
@@ -63,7 +63,7 @@ function generateMockResponse(payload) {
   // Simple keyword-based intent detection for mock mode
   if (text.includes('buy') || text.includes('venum') || text.includes('looking') || text.includes('want')) {
     return {
-      reply: '🏠 Got it! I understand you\'re looking to buy a property. Could you tell me:\n1. Which area in Jaffna? (எந்த பகுதி?)\n2. Your budget? (உங்கள் பட்ஜெட்?)\n3. How many bedrooms? (எத்தனை அறைகள்?)',
+      reply: '🏠 I can help you look for a property to buy.\nPlease tell me:\n1. Which area in Jaffna do you prefer?\n2. What is your budget range?\n3. How many bedrooms do you need?\n\n🏠 வாங்க ஒரு சொத்து தேட உதவுகிறேன்.\nதயவுசெய்து சொல்லுங்கள்:\n1. யாழ்ப்பாணத்தில் எந்த பகுதி வேண்டும்?\n2. உங்கள் பட்ஜெட் வரம்பு என்ன?\n3. எத்தனை படுக்கையறைகள் வேண்டும்?',
       intent: 'buy_requirement',
       confidence: 0.85,
       session_update: {
@@ -75,7 +75,7 @@ function generateMockResponse(payload) {
 
   if (text.includes('sell') || text.includes('sale') || text.includes('list') || text.includes('post')) {
     return {
-      reply: '📝 You want to list a property! Please share:\n1. Property photos (சொத்து படங்கள்)\n2. Location & type (இடம் & வகை)\n3. Asking price (விலை)\n\nYou can send everything in one message or step by step.',
+      reply: '📝 I can help you list your property.\nPlease share:\n1. Property photos\n2. Property type and location\n3. Asking price\n\nYou can send everything together or step by step.\n\n📝 உங்கள் சொத்தைப் பட்டியலிட உதவுகிறேன்.\nதயவுசெய்து அனுப்புங்கள்:\n1. சொத்து புகைப்படங்கள்\n2. சொத்து வகை மற்றும் இடம்\n3. கேட்கும் விலை\n\nஅனைத்தையும் ஒரே செய்தியிலோ, படிப்படியாகவோ அனுப்பலாம்.',
       intent: 'listing_creation',
       confidence: 0.82,
       session_update: {
@@ -87,7 +87,7 @@ function generateMockResponse(payload) {
 
   if (text.includes('rent') || text.includes('lease') || text.includes('vaadagai')) {
     return {
-      reply: '🏘️ Looking for a rental property! Tell me:\n1. Area preference? (எந்த பகுதி?)\n2. Monthly budget? (மாத வாடகை?)\n3. Rooms needed? (எத்தனை அறைகள்?)',
+      reply: '🏘️ I can help you find a rental property.\nPlease tell me:\n1. Which area do you prefer?\n2. What is your monthly budget?\n3. How many bedrooms or rooms do you need?\n\n🏘️ வாடகைக்கு ஒரு சொத்து தேட உதவுகிறேன்.\nதயவுசெய்து சொல்லுங்கள்:\n1. எந்த பகுதி வேண்டும்?\n2. மாதாந்திர பட்ஜெட் என்ன?\n3. எத்தனை அறைகள் அல்லது படுக்கையறைகள் வேண்டும்?',
       intent: 'rent_requirement',
       confidence: 0.80,
       session_update: {
@@ -100,7 +100,7 @@ function generateMockResponse(payload) {
 
   // Default greeting
   return {
-    reply: '🏠 Welcome to Yaal Nilam! / யாழ் நிலத்திற்கு வருக!\n\nI can help you:\n• 🔍 Find a property to buy or rent\n• 📝 List your property for sale\n• 📊 Get property market info\n\nWhat would you like to do? / நீங்கள் என்ன செய்ய விரும்புகிறீர்கள்?',
+    reply: '🏠 Welcome to Yaal Nilam.\nI can help you buy, rent, or list property in Jaffna.\nJust tell me what you need.\n\n🏠 யாழ் நிலத்திற்கு வரவேற்கிறோம்.\nயாழ்ப்பாணத்தில் வாங்க, வாடகைக்கு எடுக்க, அல்லது சொத்தைப் பட்டியலிட உதவுகிறோம்.\nஉங்களுக்கு என்ன தேவை என்று சொல்லுங்கள்.',
     intent: 'greeting',
     confidence: 0.95,
     session_update: {

@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { downloadMedia, convertOggToMp3 } = require('../services/media');
 const { sendToAIService } = require('../services/ai-bridge');
-const { sendWhatsAppMessage, sendTemplateMessage, sendVoiceReply } = require('../services/whatsapp-api');
+const { sendWhatsAppMessage, sendVoiceReply } = require('../services/whatsapp-api');
 const { getOrCreateSession, updateSession } = require('../services/session');
 const { saveMessage } = require('../services/messages');
 const { upsertUser } = require('../services/users');
@@ -88,7 +88,7 @@ router.post('/', async (req, res) => {
         } catch (audioErr) {
           console.error('Audio processing error:', audioErr);
           await sendWhatsAppMessage(formattedPhone,
-            'Sorry, I had trouble processing your voice note. Could you please type your message instead? / மன்னிக்கவும், உங்கள் குரல் செய்தியை செயலாக்குவதில் சிக்கல். தயவுசெய்து தட்டச்சு செய்யுங்கள்.'
+            'Sorry, I had trouble processing your voice note. Please send it again or type your message instead. / மன்னிக்கவும், உங்கள் குரல் குறிப்பை செயலாக்க சிக்கல் ஏற்பட்டது. மீண்டும் அனுப்பவும் அல்லது தட்டச்சு செய்து அனுப்பவும்.'
           );
           return;
         }
@@ -122,7 +122,7 @@ router.post('/', async (req, res) => {
             // Just acknowledge the image, wait for more
             if (session.media_buffer.length === 1) {
               await sendWhatsAppMessage(formattedPhone,
-                '📸 Got it! Send more photos or describe the property. / படம் கிடைத்தது! மேலும் படங்கள் அனுப்புங்கள் அல்லது சொத்தை விவரிக்கவும்.'
+                '📸 Photo received.\nYou can send more photos or describe the property details next.\n\n📸 படம் கிடைத்தது.\nமேலும் படங்கள் அனுப்பலாம் அல்லது சொத்து விவரத்தை அடுத்த செய்தியில் சொல்லலாம்.'
               );
             }
             return;

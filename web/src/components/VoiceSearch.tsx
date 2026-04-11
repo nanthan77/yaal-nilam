@@ -34,10 +34,10 @@ const MOCK_RESPONSES = {
     "Based on your requirements, I'd recommend looking at properties in Chunnakam and Kokuvil areas. Both have good options within your budget.",
   ],
   ta: [
-    "நல்லூரில் உங்கள் தேடலுக்கு 12 சொத்துக்கள் கிடைத்தன. விலைகள் ரூ. 18 லட்சம் முதல் ரூ. 4.5 கோடி வரை. மேலும் குறிப்பிட்ட தேடல் செய்யவா?",
-    "கோப்பாய் பகுதியில் 5 வாடகை வீடுகள் உள்ளன, மாதம் ரூ. 45,000 முதல். WhatsApp-ல் விவரங்கள் அனுப்பவா?",
-    "திருநெல்வேலியில் 8 காணிகள் கிடைக்கின்றன. 40 அடி சாலை முகப்புடன் 20 பேர்ச் காணி ரூ. 1.8 கோடியில் மிகவும் பிரபலமானது.",
-    "உங்கள் தேவைகளின் அடிப்படையில், சுன்னாகம் மற்றும் கொக்குவில் பகுதிகளைப் பார்க்க பரிந்துரைக்கிறேன்.",
+    "நல்லூரில் உங்கள் தேடலுக்கு பொருந்தும் 12 சொத்துக்கள் உள்ளன. விலைகள் ரூ. 18 லட்சம் முதல் ரூ. 4.5 கோடி வரை செல்கின்றன. இன்னும் குறுக்கித் தேடட்டுமா?",
+    "கோப்பாய் பகுதியில் மாதம் ரூ. 45,000 முதல் 5 வாடகை வீடுகள் கிடைக்கின்றன. விவரங்களை WhatsApp மூலம் அனுப்பவா?",
+    "திருநெல்வேலியில் 8 காணிகள் தற்போது உள்ளன. 40 அடி சாலை முகப்புடன் 20 பேர்ச் காணி ரூ. 1.8 கோடியில் அதிக ஆர்வம் பெறுகிறது.",
+    "உங்கள் தேவைகளைப் பார்க்கும்போது, சுன்னாகமும் கொக்குவிலும் நல்ல தேர்வுகள். உங்கள் பட்ஜெட்டுக்குள் பொருத்தமான சொத்துக்கள் அங்கே அதிகம் உள்ளன.",
   ],
 };
 
@@ -100,7 +100,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
       mediaRecorder.start();
       setState("listening");
     } catch {
-      setErrorMsg(l === "ta" ? "மைக்ரோஃபோன் அணுகல் மறுக்கப்பட்டது" : "Microphone access denied");
+      setErrorMsg(l === "ta" ? "மைக்ரோஃபோன் அணுகல் அனுமதி இல்லை" : "Microphone access denied");
       setState("error");
     }
   }, [l]);
@@ -142,7 +142,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
     // Mock fallback
     const mockList = MOCK_RESPONSES[l] || MOCK_RESPONSES.en;
     const mockResponse = mockList[Math.floor(Math.random() * mockList.length)];
-    setTranscript(l === "ta" ? "(குரல் பதிவு செய்யப்பட்டது)" : "(Voice recorded)");
+    setTranscript(l === "ta" ? "(குரல் பதிவு பெறப்பட்டது)" : "(Voice recorded)");
     setResponse(mockResponse);
     await speakResponse(mockResponse, l);
   };
@@ -213,9 +213,9 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
   // ── State-based label ──────────────────────────────
   const stateLabel = {
     idle: l === "ta" ? "குரலில் தேடுங்கள்" : "Search by voice",
-    listening: l === "ta" ? "கேட்டுக்கொண்டிருக்கிறேன்..." : "Listening...",
-    processing: l === "ta" ? "செயலாக்குகிறது..." : "Processing...",
-    speaking: l === "ta" ? "பேசுகிறது..." : "Speaking...",
+    listening: l === "ta" ? "கேட்டுக் கொண்டிருக்கிறேன்..." : "Listening...",
+    processing: l === "ta" ? "செயலாக்கப்படுகிறது..." : "Processing...",
+    speaking: l === "ta" ? "பதிலளிக்கிறது..." : "Speaking...",
     error: errorMsg || (l === "ta" ? "பிழை" : "Error"),
   };
 
@@ -254,7 +254,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
                 </div>
                 <div>
                   <p className="text-sm font-semibold">{l === "ta" ? "AI குரல் தேடல்" : "AI Voice Search"}</p>
-                  <p className="text-xs text-teal-300">{l === "ta" ? "தமிழ் & English" : "Tamil & English"}</p>
+                  <p className="text-xs text-teal-300">{l === "ta" ? "தமிழ் மற்றும் English" : "Tamil & English"}</p>
                 </div>
               </div>
               <button onClick={() => { setIsOpen(false); stopSpeaking(); }} className="text-teal-300 hover:text-white p-1">
@@ -316,7 +316,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
               {state === "idle" && !response && (
                 <p className="text-xs text-charcoal-400 text-center mt-3 leading-relaxed">
                   {l === "ta"
-                    ? "\"நல்லூரில் 3 படுக்கையறை வீடு வேண்டும்\" என்று சொல்லுங்கள்"
+                    ? "\"நல்லூரில் 3 படுக்கையறை வீடு வேண்டும்\" என்று சொல்லிப் பாருங்கள்"
                     : "Try saying: \"I need a 3-bedroom house in Nallur\""}
                 </p>
               )}

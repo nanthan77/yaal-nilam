@@ -3,15 +3,13 @@
 
 import Link from 'next/link';
 import { useState, useCallback } from 'react';
-import { Menu, X, Globe, Building2, MapPin, Phone, Plus } from 'lucide-react';
-
-type Language = 'en' | 'ta';
+import { Menu, X, Globe, Plus } from 'lucide-react';
+import { useStore } from '@/lib/store';
 
 interface NavLink {
   href: string;
   labelEn: string;
   labelTa: string;
-  icon?: React.ReactNode;
 }
 
 const NAV_LINKS: NavLink[] = [
@@ -24,24 +22,25 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 export function Navbar() {
+  const { locale, setLocale } = useStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>('en');
 
   const toggleMenu = useCallback(() => {
     setIsOpen(prev => !prev);
   }, []);
 
   const toggleLanguage = useCallback(() => {
-    setLanguage(prev => (prev === 'en' ? 'ta' : 'en'));
-  }, []);
+    setLocale(locale === 'en' ? 'ta' : 'en');
+  }, [locale, setLocale]);
 
   const getLabel = (link: NavLink) => {
-    return language === 'en' ? link.labelEn : link.labelTa;
+    return locale === 'en' ? link.labelEn : link.labelTa;
   };
 
-  const navbarTitle = language === 'en' ? 'Yaal Nilam' : 'யாழ் நிலம்';
-  const navbarSubtitle = language === 'en' ? 'யாழ் நிலம்' : 'Yaal Nilam';
-  const addListingLabel = language === 'en' ? 'Add Listing' : 'பட்டியல் சேர்க்கவும்';
+  const navbarTitle = locale === 'en' ? 'Yaal Nilam' : 'யாழ் நிலம்';
+  const navbarSubtitle = locale === 'en' ? 'Trusted Property Marketplace' : 'யாழ்ப்பாணச் சொத்து சந்தை';
+  const addListingLabel = locale === 'en' ? 'Add Listing' : 'சொத்தைச் சேர்க்கவும்';
+  const languageButtonLabel = locale === 'en' ? 'EN' : 'தமிழ்';
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-sand-200">
@@ -80,7 +79,7 @@ export function Navbar() {
             >
               <Globe className="w-4 h-4 text-teal-600" />
               <span className="text-xs font-semibold text-teal-600 hidden sm:inline">
-                {language === 'en' ? 'EN' : 'தமிழ்'}
+                {languageButtonLabel}
               </span>
             </button>
 

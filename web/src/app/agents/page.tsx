@@ -1,7 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { t } from "@/lib/translations";
+import { localize, t } from "@/lib/translations";
 
 const MOCK_AGENTS = [
   { id: "1", name: "Thayalan Sivakumar", ta_name: "தயாளன் சிவகுமார்", area: "Nallur", phone: "+94777863333", listings: 24, verified: true, rating: 4.8, speciality: "Residential" },
@@ -14,12 +14,46 @@ const MOCK_AGENTS = [
 
 export default function AgentsPage() {
   const { locale } = useStore();
+  const copy = localize(locale, {
+    en: {
+      subtitle: "Verified property agents across the Jaffna Peninsula",
+      listings: "Listings",
+      rating: "Rating",
+      verified: "Verified",
+      yes: "Yes",
+      no: "No",
+      call: "Call",
+      residential: "Residential",
+      land: "Land",
+      commercial: "Commercial",
+      apartments: "Apartments",
+    },
+    ta: {
+      subtitle: "யாழ் குடாநாடு முழுவதும் சரிபார்க்கப்பட்ட சொத்து முகவர்கள்",
+      listings: "பட்டியல்கள்",
+      rating: "மதிப்பீடு",
+      verified: "சரிபார்ப்பு",
+      yes: "ஆம்",
+      no: "இல்லை",
+      call: "அழைக்கவும்",
+      residential: "குடியிருப்பு",
+      land: "காணி",
+      commercial: "வணிகம்",
+      apartments: "அபார்ட்மென்ட்",
+    },
+  });
+  const specialityLabels: Record<string, string> = {
+    Residential: copy.residential,
+    Land: copy.land,
+    Commercial: copy.commercial,
+    Apartments: copy.apartments,
+  };
 
   return (
     <>
       <div className="container-wide py-8 flex-1">
         <h1 className="section-heading mb-2">{t("nav.agents", locale)}</h1>
-        <p className="section-subheading mb-10">Verified property agents across Jaffna Peninsula</p>
+        <p className="section-subheading mb-10">{copy.subtitle}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {MOCK_AGENTS.map((agent) => (
@@ -38,22 +72,24 @@ export default function AgentsPage() {
                     )}
                   </div>
                   <p className="text-sm text-gray-500 font-tamil">{agent.ta_name}</p>
-                  <p className="text-sm text-gray-600 mt-1">{agent.area} — {agent.speciality}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {agent.area} — {specialityLabels[agent.speciality] || agent.speciality}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2 mt-4 text-center">
                 <div className="bg-gray-50 rounded-lg py-2">
                   <p className="font-bold text-gray-900">{agent.listings}</p>
-                  <p className="text-xs text-gray-500">Listings</p>
+                  <p className="text-xs text-gray-500">{copy.listings}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg py-2">
                   <p className="font-bold text-gray-900">{agent.rating}</p>
-                  <p className="text-xs text-gray-500">Rating</p>
+                  <p className="text-xs text-gray-500">{copy.rating}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg py-2">
-                  <p className="font-bold text-green-600">{agent.verified ? "Yes" : "No"}</p>
-                  <p className="text-xs text-gray-500">Verified</p>
+                  <p className="font-bold text-green-600">{agent.verified ? copy.yes : copy.no}</p>
+                  <p className="text-xs text-gray-500">{copy.verified}</p>
                 </div>
               </div>
 
@@ -65,7 +101,7 @@ export default function AgentsPage() {
                   WhatsApp
                 </a>
                 <a href={`tel:${agent.phone}`} className="flex-1 btn-secondary text-center text-sm !py-2">
-                  Call
+                  {copy.call}
                 </a>
               </div>
             </div>

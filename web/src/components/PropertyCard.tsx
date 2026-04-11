@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useStore } from "@/lib/store";
-import { formatPrice } from "@/lib/translations";
+import { formatPrice, getIntentLabel, getPropertyTypeLabel, t } from "@/lib/translations";
 import type { Property } from "@/lib/data";
 
 interface PropertyCardProps {
@@ -13,28 +13,22 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   const { locale } = useStore();
   const p = property;
 
-  const intentLabel = p.intent === "rent" || p.intent === "short_rent"
-    ? (locale === "ta" ? "வாடகைக்கு" : "For Rent")
-    : (locale === "ta" ? "விற்பனைக்கு" : "For Sale");
+  const intentLabel = getIntentLabel(p.intent, locale);
 
   const intentColor = p.intent === "rent" || p.intent === "short_rent"
     ? "bg-teal-100 text-teal-800"
     : "bg-warm-100 text-warm-800";
 
-  const typeLabel =
-    p.property_type === "house" ? (locale === "ta" ? "வீடு" : "House") :
-    p.property_type === "land"  ? (locale === "ta" ? "காணி" : "Land") :
-    p.property_type === "commercial" ? (locale === "ta" ? "வணிகம்" : "Commercial") :
-    p.property_type === "villa" ? (locale === "ta" ? "விலா" : "Villa") :
-    p.property_type === "apartment" ? (locale === "ta" ? "குடியிருப்பு" : "Apartment") :
-    p.property_type;
+  const typeLabel = getPropertyTypeLabel(p.property_type, locale);
 
   const priceDisplay = p.intent === "rent" || p.intent === "short_rent"
-    ? `${formatPrice(p.price, locale)}${locale === "ta" ? "/மாதம்" : "/mo"}`
+    ? `${formatPrice(p.price, locale)}${locale === "ta" ? "/மாதம்" : "/month"}`
     : formatPrice(p.price, locale);
 
   const whatsappMsg = encodeURIComponent(
-    `Hi, I'm interested in ${p.title} (${p.listing_code}) — ${priceDisplay}`
+    locale === "ta"
+      ? `${locale === "ta" && p.title_ta ? p.title_ta : p.title} (${p.listing_code}) பற்றி தெரிந்து கொள்ள விரும்புகிறேன்.`
+      : `Hi, I'm interested in ${p.title} (${p.listing_code}) — ${priceDisplay}`
   );
   const whatsappUrl = `https://wa.me/${p.agent_phone || "94777863333"}?text=${whatsappMsg}`;
 
@@ -43,7 +37,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={p.media_urls[0]}
+          src={p.media_urls?.[0] || "/placeholder.jpg"}
           alt={locale === "ta" && p.title_ta ? p.title_ta : p.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
@@ -53,7 +47,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           <span className={`badge ${intentColor}`}>{intentLabel}</span>
           {p.featured && (
             <span className="badge bg-warm-500 text-white">
-              {locale === "ta" ? "சிறப்பு" : "Featured"}
+              {t("common.featured", locale)}
             </span>
           )}
         </div>
@@ -62,7 +56,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.403 12.652a3 3 0 010-5.304 3 3 0 00-1.065-3.745 3 3 0 00-5.304 0 3 3 0 00-3.745 1.065 3 3 0 000 5.304 3 3 0 001.065 3.745 3 3 0 005.304 0 3 3 0 003.745-1.065zM12.707 8.707a1 1 0 00-1.414-1.414L9 9.586 8.707 9.293a1 1 0 00-1.414 1.414l1 1a1 1 0 001.414 0l3-3z" clipRule="evenodd"/>
             </svg>
-            {locale === "ta" ? "சரிபார்" : "Verified"}
+            {t("common.verified", locale)}
           </span>
         )}
         {/* Save button */}
@@ -105,7 +99,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           )}
           {p.property_type !== "land" && p.bathrooms > 0 && (
             <span className="bg-sand-100 px-2.5 py-1 rounded-lg">
-              {p.bathrooms} {locale === "ta" ? "குளியல்" : "Bath"}
+              {p.bathrooms} {locale === "ta" ? "குளியலறை" : "Bath"}
             </span>
           )}
           {p.land_size_perches && (
@@ -126,7 +120,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             href={`/properties/${p.id}`}
             className="flex-1 inline-flex items-center justify-center gap-1 text-sm font-medium bg-teal-50 text-teal-700 hover:bg-teal-100 px-3 py-2 rounded-lg transition-colors"
           >
-            {locale === "ta" ? "விவரங்கள்" : "Details"}
+            {t("common.details", locale)}
           </Link>
           <a
             href={whatsappUrl}

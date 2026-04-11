@@ -4,8 +4,11 @@
 import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import { submitInquiry } from '@/lib/firestore';
+import { useStore } from '@/lib/store';
+import { localize } from '@/lib/translations';
 
 export default function ContactPage() {
+  const { locale } = useStore();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,28 +18,83 @@ export default function ContactPage() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const copy = localize(locale, {
+    en: {
+      title: 'Get in Touch',
+      subtitle: "We'd be happy to help with property questions, listings, or local guidance.",
+      formTitle: 'Send us a Message',
+      success: "Thank you. We've received your message and will get back to you soon.",
+      required: 'This field is required.',
+      invalidEmail: 'Please enter a valid email address.',
+      name: 'Full Name',
+      email: 'Email Address',
+      phone: 'Phone Number',
+      subject: 'Subject',
+      message: 'Message',
+      namePlaceholder: 'Your full name',
+      emailPlaceholder: 'your@email.com',
+      phonePlaceholder: '+94 (0) 77 786 3333',
+      subjectPlaceholder: 'Select a subject',
+      messagePlaceholder: 'Tell us how we can help you...',
+      send: 'Send Message',
+      sending: 'Sending...',
+      general: 'General Inquiry',
+      listing: 'Listing Help',
+      support: 'Technical Support',
+      partnership: 'Partnership',
+      address: 'Address',
+      addressValue: 'Jaffna, Northern Province\nSri Lanka',
+      hours: 'Hours',
+      hoursValue: 'Mon - Fri: 9.00am - 6.00pm\nSat: 10.00am - 4.00pm\nSun: Closed',
+    },
+    ta: {
+      title: 'எங்களைத் தொடர்பு கொள்ளுங்கள்',
+      subtitle: 'சொத்து தேடல், பட்டியலிடல், அல்லது உள்ளூர் வழிகாட்டல் குறித்து உதவ தயாராக உள்ளோம்.',
+      formTitle: 'உங்கள் செய்தியை அனுப்புங்கள்',
+      success: 'நன்றி. உங்கள் செய்தி எங்களுக்குக் கிடைத்துள்ளது. விரைவில் உங்களைத் தொடர்பு கொள்கிறோம்.',
+      required: 'இந்த புலத்தை நிரப்ப வேண்டும்.',
+      invalidEmail: 'செல்லுபடியான மின்னஞ்சல் முகவரியை உள்ளிடுங்கள்.',
+      name: 'முழுப் பெயர்',
+      email: 'மின்னஞ்சல் முகவரி',
+      phone: 'தொலைபேசி எண்',
+      subject: 'பொருள்',
+      message: 'செய்தி',
+      namePlaceholder: 'உங்கள் முழுப் பெயர்',
+      emailPlaceholder: 'your@email.com',
+      phonePlaceholder: '+94 (0) 77 786 3333',
+      subjectPlaceholder: 'பொருளைத் தேர்ந்தெடுக்கவும்',
+      messagePlaceholder: 'எப்படி உதவலாம் என்று சொல்லுங்கள்...',
+      send: 'செய்தியை அனுப்புங்கள்',
+      sending: 'அனுப்பப்படுகிறது...',
+      general: 'பொது விசாரணை',
+      listing: 'பட்டியல் உதவி',
+      support: 'தொழில்நுட்ப உதவி',
+      partnership: 'கூட்டு முயற்சி',
+      address: 'முகவரி',
+      addressValue: 'யாழ்ப்பாணம், வட மாகாணம்\nஇலங்கை',
+      hours: 'சேவை நேரம்',
+      hoursValue: 'திங்கள் - வெள்ளி: காலை 9.00 - மாலை 6.00\nசனி: காலை 10.00 - மாலை 4.00\nஞாயிறு: மூடப்பட்டுள்ளது',
+    },
+  });
 
   const validateField = (name: string, value: string) => {
     if (['name', 'email', 'subject', 'message'].includes(name) && !value.trim()) {
-      return 'This field is required';
+      return copy.required;
     }
     if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Please enter a valid email address';
+      return copy.invalidEmail;
     }
     return '';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     const error = validateField(name, value);
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
-
-  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,197 +131,152 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-sand-50">
-      {/* Page Header */}
       <div className="bg-gradient-to-r from-teal-900 to-teal-800 text-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
-          <p className="text-teal-100">We'd love to hear from you. Contact us today.</p>
+          <h1 className="text-4xl font-bold mb-4">{copy.title}</h1>
+          <p className="text-teal-100">{copy.subtitle}</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto py-12 px-4">
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Contact Form */}
           <div className="md:col-span-2">
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-charcoal-900 mb-6">Send us a Message</h2>
+              <h2 className="text-2xl font-bold text-charcoal-900 mb-6">{copy.formTitle}</h2>
 
               {submitted && (
                 <div className="mb-6 bg-teal-50 border border-teal-400 text-teal-700 px-4 py-3 rounded-lg">
-                  Thank you for your message! We'll get back to you soon.
+                  {copy.success}
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
-                    Full Name
-                  </label>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.name}</label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
-                    placeholder="Your name"
+                    placeholder={copy.namePlaceholder}
                   />
                   {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
                 </div>
 
-                {/* Email */}
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
-                    Email Address
-                  </label>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.email}</label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
-                    placeholder="your@email.com"
+                    placeholder={copy.emailPlaceholder}
                   />
                   {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
                 </div>
 
-                {/* Phone */}
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
-                    Phone Number
-                  </label>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.phone}</label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
-                    placeholder="+94 (0) xxx xxx xxx"
+                    placeholder={copy.phonePlaceholder}
                   />
                 </div>
 
-                {/* Subject */}
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
-                    Subject
-                  </label>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.subject}</label>
                   <select
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
                   >
-                    <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="listing">Property Listing Help</option>
-                    <option value="support">Technical Support</option>
-                    <option value="partnership">Partnership</option>
+                    <option value="">{copy.subjectPlaceholder}</option>
+                    <option value="general">{copy.general}</option>
+                    <option value="listing">{copy.listing}</option>
+                    <option value="support">{copy.support}</option>
+                    <option value="partnership">{copy.partnership}</option>
                   </select>
                   {errors.subject && <p className="text-red-600 text-sm mt-1">{errors.subject}</p>}
                 </div>
 
-                {/* Message */}
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">
-                    Message
-                  </label>
+                  <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.message}</label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    required
                     rows={6}
                     className="w-full border border-charcoal-200 rounded-lg px-4 py-3 text-charcoal-900 focus:outline-none focus:border-teal-500"
-                    placeholder="Tell us what you're interested in..."
+                    placeholder={copy.messagePlaceholder}
                   />
                   {errors.message && <p className="text-red-600 text-sm mt-1">{errors.message}</p>}
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   className="w-full bg-teal-700 hover:bg-teal-600 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  {submitting ? 'Sending...' : 'Send Message'}
+                  {submitting ? copy.sending : copy.send}
                 </button>
               </form>
             </div>
           </div>
 
-          {/* Contact Info Sidebar */}
           <div className="space-y-6">
-            {/* Address */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex gap-4 mb-4">
                 <div className="bg-teal-50 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-6 h-6 text-teal-700" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-charcoal-900 mb-1">Address</h3>
-                  <p className="text-charcoal-600 text-sm">
-                    Jaffna, Northern Province<br />
-                    Sri Lanka
-                  </p>
+                  <h3 className="font-bold text-charcoal-900 mb-1">{copy.address}</h3>
+                  <p className="text-charcoal-600 text-sm whitespace-pre-line">{copy.addressValue}</p>
                 </div>
               </div>
             </div>
 
-            {/* Phone */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex gap-4 mb-4">
                 <div className="bg-teal-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
                   <Phone className="w-6 h-6 text-teal-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-charcoal-900 mb-1">Phone</h3>
-                  <p className="text-charcoal-600 text-sm">
-                    +94 (0) 21 123 4567
-                  </p>
+                  <h3 className="font-bold text-charcoal-900 mb-1">{copy.phone}</h3>
+                  <p className="text-charcoal-600 text-sm">+94 (0) 77 786 3333</p>
                 </div>
               </div>
             </div>
 
-            {/* Email */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex gap-4 mb-4">
                 <div className="bg-warm-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
                   <Mail className="w-6 h-6 text-warm-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-charcoal-900 mb-1">Email</h3>
-                  <p className="text-charcoal-600 text-sm">
-                    hello@yaalnilam.lk
-                  </p>
+                  <h3 className="font-bold text-charcoal-900 mb-1">{copy.email}</h3>
+                  <p className="text-charcoal-600 text-sm">hello@yaalnilam.lk</p>
                 </div>
               </div>
             </div>
 
-            {/* Hours */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex gap-4 mb-4">
                 <div className="bg-sand-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
                   <Clock className="w-6 h-6 text-warm-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-charcoal-900 mb-1">Hours</h3>
-                  <p className="text-charcoal-600 text-sm">
-                    Mon - Fri: 9am - 6pm<br />
-                    Sat: 10am - 4pm<br />
-                    Sun: Closed
-                  </p>
+                  <h3 className="font-bold text-charcoal-900 mb-1">{copy.hours}</h3>
+                  <p className="text-charcoal-600 text-sm whitespace-pre-line">{copy.hoursValue}</p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Map Placeholder */}
-        <div className="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="h-96 bg-teal-100 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-teal-400 mx-auto mb-4" />
-              <p className="text-teal-600 font-semibold">Map View Coming Soon</p>
             </div>
           </div>
         </div>

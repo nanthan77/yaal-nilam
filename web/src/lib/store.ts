@@ -3,6 +3,7 @@
  */
 
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { Locale } from "./translations";
 
 interface User {
@@ -45,27 +46,37 @@ interface AppState {
   clearFilters: () => void;
 }
 
-export const useStore = create<AppState>((set) => ({
-  // Locale — default English, can toggle to Tamil
-  locale: "en",
-  setLocale: (locale) => set({ locale }),
+export const useStore = create<AppState>()(
+  persist(
+    (set) => ({
+      // Locale — default English, can toggle to Tamil
+      locale: "en",
+      setLocale: (locale) => set({ locale }),
 
-  // Auth
-  user: null,
-  isAuthenticated: false,
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+      // Auth
+      user: null,
+      isAuthenticated: false,
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
 
-  // UI state
-  mobileMenuOpen: false,
-  setMobileMenuOpen: (mobileMenuOpen) => set({ mobileMenuOpen }),
-  loginModalOpen: false,
-  setLoginModalOpen: (loginModalOpen) => set({ loginModalOpen }),
-  signupModalOpen: false,
-  setSignupModalOpen: (signupModalOpen) => set({ signupModalOpen }),
+      // UI state
+      mobileMenuOpen: false,
+      setMobileMenuOpen: (mobileMenuOpen) => set({ mobileMenuOpen }),
+      loginModalOpen: false,
+      setLoginModalOpen: (loginModalOpen) => set({ loginModalOpen }),
+      signupModalOpen: false,
+      setSignupModalOpen: (signupModalOpen) => set({ signupModalOpen }),
 
-  // Property filters
-  filters: {},
-  setFilters: (newFilters) =>
-    set((state) => ({ filters: { ...state.filters, ...newFilters } })),
-  clearFilters: () => set({ filters: {} }),
-}));
+      // Property filters
+      filters: {},
+      setFilters: (newFilters) =>
+        set((state) => ({ filters: { ...state.filters, ...newFilters } })),
+      clearFilters: () => set({ filters: {} }),
+    }),
+    {
+      name: "yaal-nilam-public-store",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ locale: state.locale }),
+      skipHydration: true,
+    }
+  )
+);

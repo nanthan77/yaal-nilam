@@ -2,10 +2,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Globe, MapPin, Phone, Mail } from 'lucide-react';
-
-type Language = 'en' | 'ta';
+import { useStore } from '@/lib/store';
 
 interface Column1Config {
   titleEn: string;
@@ -48,7 +47,7 @@ const QUICK_LINKS: QuickLinksConfig = {
     { href: '/', labelEn: 'Home', labelTa: 'முகப்பு' },
     { href: '/properties', labelEn: 'Properties', labelTa: 'சொத்துக்கள்' },
     { href: '/areas', labelEn: 'Areas', labelTa: 'பகுதிகள்' },
-    { href: '/about', labelEn: 'About', labelTa: 'பற்றி' },
+    { href: '/about', labelEn: 'About', labelTa: 'எங்களைப் பற்றி' },
     { href: '/contact', labelEn: 'Contact', labelTa: 'தொடர்பு' },
   ],
 };
@@ -58,10 +57,10 @@ const PROPERTY_TYPES: PropertyTypesConfig = {
   titleTa: 'சொத்து வகைகள்',
   types: [
     { href: '/properties?type=house', labelEn: 'House', labelTa: 'வீடு' },
-    { href: '/properties?type=apartment', labelEn: 'Apartment', labelTa: 'அபார்टमெண்ட்' },
+    { href: '/properties?type=apartment', labelEn: 'Apartment', labelTa: 'அபார்ட்மென்ட்' },
     { href: '/properties?type=villa', labelEn: 'Villa', labelTa: 'வில்லா' },
-    { href: '/properties?type=land', labelEn: 'Land', labelTa: 'நிலம்' },
-    { href: '/properties?type=commercial', labelEn: 'Commercial', labelTa: 'வணிக' },
+    { href: '/properties?type=land', labelEn: 'Land', labelTa: 'காணி' },
+    { href: '/properties?type=commercial', labelEn: 'Commercial', labelTa: 'வணிகச் சொத்து' },
     { href: '/short-term-rental', labelEn: 'Short-Term Rentals', labelTa: 'குறுகிய கால வாடகை' },
   ],
 };
@@ -107,20 +106,20 @@ const SOCIAL_LINKS = [
 ];
 
 export function Footer() {
-  const [language, setLanguage] = useState<Language>('en');
+  const { locale, setLocale } = useStore();
 
   const toggleLanguage = useCallback(() => {
-    setLanguage(prev => (prev === 'en' ? 'ta' : 'en'));
-  }, []);
+    setLocale(locale === 'en' ? 'ta' : 'en');
+  }, [locale, setLocale]);
 
   const getLabel = (config: { labelEn?: string; labelTa?: string; titleEn?: string; titleTa?: string }) => {
-    if (language === 'en') {
+    if (locale === 'en') {
       return config.labelEn || config.titleEn || '';
     }
     return config.labelTa || config.titleTa || '';
   };
 
-  const copyrightText = language === 'en'
+  const copyrightText = locale === 'en'
     ? '© 2026 Yaal Nilam. All rights reserved.'
     : '© 2026 யாழ் நிலம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டுள்ளன.';
 
@@ -133,10 +132,10 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
               <h3 className="text-2xl font-bold text-white">
-                {language === 'en' ? BRAND_CONFIG.titleEn : BRAND_CONFIG.titleTa}
+                {locale === 'en' ? BRAND_CONFIG.titleEn : BRAND_CONFIG.titleTa}
               </h3>
               <p className="text-xs text-sand-300">
-                {language === 'en' ? BRAND_CONFIG.taglineEn : BRAND_CONFIG.taglineTa}
+                {locale === 'en' ? BRAND_CONFIG.taglineEn : BRAND_CONFIG.taglineTa}
               </p>
             </div>
 
@@ -262,7 +261,7 @@ export function Footer() {
             aria-label="Toggle language"
           >
             <Globe className="w-4 h-4" />
-            {language === 'en' ? 'English' : 'தமிழ்'}
+            {locale === 'en' ? 'English' : 'தமிழ்'}
           </button>
         </div>
       </div>

@@ -43,7 +43,7 @@ async def process_voice(
 
         if not transcription or transcription.strip() == "":
             return {
-                "reply": "Sorry, I couldn't understand the voice note. Could you try again or type your message? / மன்னிக்கவும், குரல் செய்தி புரியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+                "reply": "Sorry, I could not understand that voice note clearly. Please try again or type your message. / மன்னிக்கவும், அந்த குரல் குறிப்பை தெளிவாகப் புரிந்துகொள்ள முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது தட்டச்சு செய்யவும்.",
                 "intent": "transcription_failed",
                 "confidence": 0,
                 "transcription": ""

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useStore } from "@/lib/store";
-import { t, formatPrice } from "@/lib/translations";
+import { formatPrice, localize, t } from "@/lib/translations";
 
 // Dynamically import Leaflet (SSR-incompatible)
 const MapContainer = dynamic(
@@ -41,6 +41,16 @@ const JAFFNA_CENTER: [number, number] = [9.6615, 80.0255];
 export default function MapPage() {
   const { locale } = useStore();
   const [mounted, setMounted] = useState(false);
+  const copy = localize(locale, {
+    en: {
+      subtitle: "Explore properties across the Jaffna Peninsula on an interactive map",
+      viewDetails: "View details",
+    },
+    ta: {
+      subtitle: "யாழ் குடாநாடு முழுவதும் உள்ள சொத்துக்களை இடம் அடிப்படையில் வரைபடத்தில் பாருங்கள்",
+      viewDetails: "விவரங்களைப் பார்க்கவும்",
+    },
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -51,7 +61,7 @@ export default function MapPage() {
       <div className="flex-1 flex flex-col">
         <div className="container-wide py-4">
           <h1 className="section-heading">{t("nav.map", locale)}</h1>
-          <p className="section-subheading mb-4">Explore properties across the Jaffna Peninsula on an interactive map</p>
+          <p className="section-subheading mb-4">{copy.subtitle}</p>
         </div>
 
         <div className="flex-1 relative" style={{ minHeight: "600px" }}>
@@ -73,7 +83,7 @@ export default function MapPage() {
                       <p className="font-semibold">{p.title}</p>
                       <p className="text-primary-700 font-bold">{formatPrice(p.price, locale)}</p>
                       <a href={`/properties/${p.id}`} className="text-primary-600 underline text-xs">
-                        View Details →
+                        {copy.viewDetails} →
                       </a>
                     </div>
                   </Popup>

@@ -1,13 +1,26 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Noto_Sans_Tamil } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import VoiceSearch from '@/components/VoiceSearch';
 import FirebaseProvider from '@/components/FirebaseProvider';
+import LocaleEffects from '@/components/LocaleEffects';
+import StoreInitializer from '@/components/StoreInitializer';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const notoSansTamil = Noto_Sans_Tamil({
+  subsets: ['tamil'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-tamil',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -15,9 +28,9 @@ export const metadata: Metadata = {
     template: '%s | Yaal Nilam',
   },
   description:
-    'Discover verified properties in Jaffna. Buy, rent, or list homes, land, apartments, villas, and commercial properties across the Jaffna Peninsula. Bilingual Tamil & English support with WhatsApp-first service.',
+    'Discover verified properties across the Jaffna Peninsula. Buy, rent, or list homes, land, apartments, villas, and commercial properties with Tamil and English support.',
   keywords:
-    'Jaffna property, Jaffna real estate, land for sale Jaffna, house for rent Jaffna, apartment Jaffna, commercial property, Tamil Nadu property, Northern Province Sri Lanka, Nallur property, Chunnakam land, Point Pedro house, villa Jaffna, short-term rental Jaffna',
+    'Jaffna property, Jaffna real estate, land for sale Jaffna, house for rent Jaffna, apartment Jaffna, commercial property, Northern Province Sri Lanka, Nallur property, Chunnakam land, Point Pedro house, villa Jaffna, short-term rental Jaffna, Tamil property search',
   openGraph: {
     title: 'Yaal Nilam | யாழ் நிலம் - Jaffna Property Marketplace',
     description: 'Discover verified properties in Jaffna. Buy, rent, or list properties with WhatsApp-first support.',
@@ -49,7 +62,7 @@ const jsonLd = {
       name: 'Yaal Nilam',
       alternateName: 'யாழ் நிலம்',
       url: 'https://yaal-nilam.web.app',
-      description: 'Leading bilingual property marketplace for the Jaffna Peninsula, Sri Lanka.',
+      description: 'Trusted bilingual property marketplace for the Jaffna Peninsula, Sri Lanka.',
       areaServed: {
         '@type': 'Place',
         name: 'Jaffna District',
@@ -81,15 +94,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en-LK" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.className} min-h-screen bg-sand-50 flex flex-col`}>
+      <body className={`${inter.variable} ${notoSansTamil.variable} min-h-screen bg-sand-50 flex flex-col`}>
         <FirebaseProvider>
+          <StoreInitializer />
+          <LocaleEffects />
           <Navbar />
           <main className="flex-grow">
             {children}
