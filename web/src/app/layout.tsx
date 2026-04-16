@@ -23,6 +23,9 @@ const notoSansTamil = Noto_Sans_Tamil({
 });
 
 export const metadata: Metadata = {
+  verification: {
+    google: 'oKp5epjZ1HeTmijR-ckneDtdH1UYjMNmtk3OytW9Ba0',
+  },
   title: {
     default: 'Yaal Nilam | யாழ் நிலம் - Jaffna Property Marketplace',
     template: '%s | Yaal Nilam',

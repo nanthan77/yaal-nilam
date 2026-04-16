@@ -60,3 +60,12 @@ Thumbs.db
 !web/public/**/*.png
 !dashboard/public/**/*.jpg
 !dashboard/public/**/*.png
+
+# QA / test artifacts
+/test-plan.json
+/specs/
+/test-results/
+web/test-results/
+web/test-manifest.json
+web/playwright-report/
+web/.claude/
