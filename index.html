@@ -95,7 +95,7 @@
             "@type": "Product",
             "name": "Premium House in Nallur, Jaffna",
             "description": "Beautiful house in the heart of Nallur with modern amenities",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+            "image": "./home1.jpg",
             "offers": {
               "@type": "Offer",
               "price": "45000000",
@@ -691,27 +691,27 @@ const JAFFNA_AREAS = [
 ];
 
 const PROPERTY_IMAGES = [
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
-  "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80",
-  "https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=800&q=80",
-  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
-  "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
-  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80",
-  "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80",
-  "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800&q=80",
-  "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80",
-  "https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=800&q=80",
+  "./home1.jpg",
+  "./home2.jpg",
+  "./home3.jpg",
+  "./home4.jpg",
+  "./home1.jpg",
+  "./home2.jpg",
+  "./home3.jpg",
+  "./home4.jpg",
+  "./home1.jpg",
+  "./home2.jpg",
+  "./home3.jpg",
+  "./home4.jpg",
 ];
 
 const AGENT_AVATARS = [
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80",
+  "https://randomuser.me/api/portraits/men/11.jpg",
+  "https://randomuser.me/api/portraits/women/12.jpg",
+  "https://randomuser.me/api/portraits/men/43.jpg",
+  "https://randomuser.me/api/portraits/women/44.jpg",
+  "https://randomuser.me/api/portraits/men/55.jpg",
+  "https://randomuser.me/api/portraits/women/68.jpg",
 ];
 
 function generateProperties() {
@@ -2000,9 +2000,9 @@ function Footer() {
 function TestimonialsSection() {
   const { lang, t } = useContext(AppContext);
   const testimonials = [
-    { name: "Suresh Kumar", nameTa: "சுரேஷ் குமார்", area: "Nallur", areaTa: "நல்லூர்", text: "Yaal Nilam helped me find my dream home in Nallur within 2 weeks. The agents were incredibly professional and the verified listings saved us so much time.", textTa: "யாழ் நிலம் 2 வாரங்களில் நல்லூரில் எனது கனவு வீட்டைக் கண்டறிய உதவியது. முகவர்கள் மிகவும் தொழில்முறையாக இருந்தார்கள்.", rating: 5, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80", type: "buyer" },
-    { name: "Lakshmi Ravindran", nameTa: "லட்சுமி ரவீந்திரன்", area: "Kopay", areaTa: "கோப்பாய்", text: "Sold our family land in Kopay at a fair price. The platform's transparency and bilingual support made the whole process smooth for our diaspora family.", textTa: "கோப்பாயில் எங்கள் குடும்ப நிலத்தை நியாயமான விலையில் விற்றோம். தளத்தின் வெளிப்படைத்தன்மை சிறப்பாக இருந்தது.", rating: 5, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80", type: "seller" },
-    { name: "Kamal Jeyaratnam", nameTa: "கமல் ஜெயரட்ணம்", area: "Chunnakam", areaTa: "சுன்னாகம்", text: "As an investor from Colombo, I found 3 great rental properties through Yaal Nilam. The EMI calculator and agent support made investment decisions easy.", textTa: "கொழும்பிலிருந்து முதலீட்டாளராக, யாழ் நிலம் மூலம் 3 சிறந்த வாடகை சொத்துக்களைக் கண்டறிந்தேன்.", rating: 5, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80", type: "investor" },
+    { name: "Suresh Kumar", nameTa: "சுரேஷ் குமார்", area: "Nallur", areaTa: "நல்லூர்", text: "Yaal Nilam helped me find my dream home in Nallur within 2 weeks. The agents were incredibly professional and the verified listings saved us so much time.", textTa: "யாழ் நிலம் 2 வாரங்களில் நல்லூரில் எனது கனவு வீட்டைக் கண்டறிய உதவியது. முகவர்கள் மிகவும் தொழில்முறையாக இருந்தார்கள்.", rating: 5, avatar: "https://randomuser.me/api/portraits/men/75.jpg", type: "buyer" },
+    { name: "Lakshmi Ravindran", nameTa: "லட்சுமி ரவீந்திரன்", area: "Kopay", areaTa: "கோப்பாய்", text: "Sold our family land in Kopay at a fair price. The platform's transparency and bilingual support made the whole process smooth for our diaspora family.", textTa: "கோப்பாயில் எங்கள் குடும்ப நிலத்தை நியாயமான விலையில் விற்றோம். தளத்தின் வெளிப்படைத்தன்மை சிறப்பாக இருந்தது.", rating: 5, avatar: "https://randomuser.me/api/portraits/women/86.jpg", type: "seller" },
+    { name: "Kamal Jeyaratnam", nameTa: "கமல் ஜெயரட்ணம்", area: "Chunnakam", areaTa: "சுன்னாகம்", text: "As an investor from Colombo, I found 3 great rental properties through Yaal Nilam. The EMI calculator and agent support made investment decisions easy.", textTa: "கொழும்பிலிருந்து முதலீட்டாளராக, யாழ் நிலம் மூலம் 3 சிறந்த வாடகை சொத்துக்களைக் கண்டறிந்தேன்.", rating: 5, avatar: "https://randomuser.me/api/portraits/men/91.jpg", type: "investor" },
   ];
 
   return (
