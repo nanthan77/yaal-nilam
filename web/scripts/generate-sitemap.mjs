@@ -1,20 +1,21 @@
-// Auto-generate sitemap.xml by walking the Next.js static export output.
-// Run AFTER `next build` (which produces web/out/). This captures every
-// actually-generated route, not a hand-maintained list.
+// Auto-generate sitemap.xml (and a sitemap index) by walking the
+// Next.js static export output. Run AFTER `next build`.
 //
-// Usage: node scripts/generate-sitemap.mjs
+// Outputs to both web/public/ (source) and web/out/ (build):
+//   sitemap.xml          — sitemap index pointing to the 3 below
+//   sitemap-core.xml     — homepage, static pages, intent hubs, areas hub
+//   sitemap-listings.xml — buy/rent + short-term-rental pages
+//   sitemap-locations.xml— areas/[slug] + properties/[id]
 
-import { readdirSync, statSync, writeFileSync, existsSync } from 'fs';
+import { readdirSync, statSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, relative, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE_URL = 'https://yaal-nilam.web.app';
 const OUT_DIR = join(__dirname, '..', 'out');
-const PUBLIC_SITEMAP = join(__dirname, '..', 'public', 'sitemap.xml');
-const OUT_SITEMAP = join(OUT_DIR, 'sitemap.xml');
+const PUBLIC_DIR = join(__dirname, '..', 'public');
 
-// Priority rules (first match wins)
 const PRIORITY_RULES = [
   { match: /^\/$/, priority: '1.0', changefreq: 'daily' },
   { match: /^\/(buy|rent)\/$/, priority: '0.9', changefreq: 'daily' },
@@ -29,7 +30,7 @@ const PRIORITY_RULES = [
   { match: /^\/guides\/[^/]+\/$/, priority: '0.6', changefreq: 'monthly' },
 ];
 
-const EXCLUDED_PATHS = [
+const EXCLUDED = [
   /^\/404\/?$/,
   /^\/_next\//,
   /^\/dashboard\//,
@@ -45,17 +46,12 @@ function getPriority(path) {
   return { priority: '0.5', changefreq: 'weekly' };
 }
 
-function isExcluded(path) {
-  return EXCLUDED_PATHS.some((rx) => rx.test(path));
-}
-
 function walk(dir, baseDir) {
   const routes = new Set();
-  const entries = readdirSync(dir);
-  for (const entry of entries) {
+  for (const entry of readdirSync(dir)) {
+    if (entry.startsWith('_') || entry.startsWith('.')) continue;
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
-      if (entry.startsWith('_') || entry.startsWith('.')) continue;
       for (const r of walk(full, baseDir)) routes.add(r);
     } else if (entry === 'index.html') {
       const rel = relative(baseDir, dir);
@@ -66,6 +62,53 @@ function walk(dir, baseDir) {
   return routes;
 }
 
+function bucket(path) {
+  if (/^\/(buy|rent|short-term-rental)\//.test(path)) return 'listings';
+  if (/^\/(areas|properties)\//.test(path)) return 'locations';
+  return 'core';
+}
+
+function urlBlock(r, lastmod) {
+  const { priority, changefreq } = getPriority(r);
+  return `  <url>
+    <loc>${BASE_URL}${r}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+}
+
+function urlsetDoc(urls) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>
+`;
+}
+
+function indexDoc(entries, lastmod) {
+  const items = entries
+    .map(
+      (name) => `  <sitemap>
+    <loc>${BASE_URL}/${name}</loc>
+    <lastmod>${lastmod}</lastmod>
+  </sitemap>`,
+    )
+    .join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${items}
+</sitemapindex>
+`;
+}
+
+function writePair(filename, content) {
+  if (!existsSync(PUBLIC_DIR)) mkdirSync(PUBLIC_DIR, { recursive: true });
+  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+  writeFileSync(join(PUBLIC_DIR, filename), content, 'utf-8');
+  writeFileSync(join(OUT_DIR, filename), content, 'utf-8');
+}
+
 if (!existsSync(OUT_DIR)) {
   console.error(`✗ Build output not found at ${OUT_DIR}. Run 'next build' first.`);
   process.exit(1);
@@ -73,28 +116,22 @@ if (!existsSync(OUT_DIR)) {
 
 const today = new Date().toISOString().split('T')[0];
 const routes = [...walk(OUT_DIR, OUT_DIR)]
-  .filter((r) => !isExcluded(r))
+  .filter((r) => !EXCLUDED.some((rx) => rx.test(r)))
   .sort();
 
-const urls = routes.map((r) => {
-  const { priority, changefreq } = getPriority(r);
-  return `  <url>
-    <loc>${BASE_URL}${r}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`;
-});
+const groups = { core: [], listings: [], locations: [] };
+for (const r of routes) groups[bucket(r)].push(r);
 
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('\n')}
-</urlset>
-`;
+writePair('sitemap-core.xml', urlsetDoc(groups.core.map((r) => urlBlock(r, today))));
+writePair('sitemap-listings.xml', urlsetDoc(groups.listings.map((r) => urlBlock(r, today))));
+writePair('sitemap-locations.xml', urlsetDoc(groups.locations.map((r) => urlBlock(r, today))));
 
-writeFileSync(PUBLIC_SITEMAP, sitemap, 'utf-8');
-writeFileSync(OUT_SITEMAP, sitemap, 'utf-8');
+writePair(
+  'sitemap.xml',
+  indexDoc(['sitemap-core.xml', 'sitemap-listings.xml', 'sitemap-locations.xml'], today),
+);
 
-console.log(`✔ Sitemap generated with ${routes.length} URLs`);
-console.log(`  → ${PUBLIC_SITEMAP}`);
-console.log(`  → ${OUT_SITEMAP}`);
+console.log(`✔ Sitemap index + 3 children generated (${routes.length} total URLs)`);
+console.log(`  core:      ${groups.core.length} URLs`);
+console.log(`  listings:  ${groups.listings.length} URLs`);
+console.log(`  locations: ${groups.locations.length} URLs`);
