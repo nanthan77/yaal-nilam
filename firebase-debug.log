@@ -1,0 +1,21 @@
+[debug] [2026-04-16T18:02:55.321Z] ----------------------------------------------------------------------
+[debug] [2026-04-16T18:02:55.322Z] Command:       /opt/homebrew/Cellar/node/24.9.0/bin/node /opt/homebrew/bin/FIREBASE DEPLOY
+[debug] [2026-04-16T18:02:55.323Z] CLI Version:   15.10.0
+[debug] [2026-04-16T18:02:55.323Z] Platform:      darwin
+[debug] [2026-04-16T18:02:55.323Z] Node Version:  v24.9.0
+[debug] [2026-04-16T18:02:55.323Z] Time:          Thu Apr 16 2026 23:32:55 GMT+0530 (India Standard Time)
+[debug] [2026-04-16T18:02:55.323Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-16T18:02:55.898Z] TypeError: Cannot read properties of undefined (reading 'indexOf')
+    at new Option (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/commander/index.js:23:27)
+    at Command._optionEx (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/commander/index.js:438:20)
+    at Command.option (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/commander/index.js:556:17)
+    at /opt/homebrew/lib/node_modules/firebase-tools/lib/command.js:79:17
+    at Array.forEach (<anonymous>)
+    at Command.register (/opt/homebrew/lib/node_modules/firebase-tools/lib/command.js:77:22)
+    at runner.load (/opt/homebrew/lib/node_modules/firebase-tools/lib/commands/index.js:17:42)
+    at Command.<anonymous> (/opt/homebrew/lib/node_modules/firebase-tools/lib/index.js:95:13)
+    at Command.listener [as _actionHandler] (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/commander/index.js:413:31)
+    at Command._parseCommand (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/commander/index.js:914:14)
+[error] 
+[error] Error: An unexpected error has occurred.

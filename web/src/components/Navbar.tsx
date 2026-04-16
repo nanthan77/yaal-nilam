@@ -97,6 +97,7 @@ export function Navbar() {
               onClick={toggleMenu}
               className="md:hidden p-2 rounded-lg hover:bg-sand-100 transition-colors duration-200"
               aria-label="Toggle menu"
+              aria-expanded={isOpen}
             >
               {isOpen ? (
                 <X className="w-6 h-6 text-teal-600" />
@@ -133,6 +134,20 @@ export function Navbar() {
             </div>
           </div>
         )}
+
+        <div className="md:hidden border-t border-sand-200 bg-sand-50">
+          <div className="flex gap-2 overflow-x-auto px-4 py-3">
+            {NAV_LINKS.slice(1, 4).map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="whitespace-nowrap rounded-full border border-sand-200 bg-white px-4 py-2 text-sm font-medium text-teal-700"
+              >
+                {getLabel(link)}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </nav>
   );

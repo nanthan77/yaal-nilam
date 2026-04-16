@@ -6,12 +6,9 @@ import {
   DASHBOARD_STATS as DEFAULT_STATS,
   MOCK_LISTINGS as DEFAULT_LISTINGS,
   MOCK_INQUIRIES as DEFAULT_INQUIRIES,
-  INQUIRIES_WEEKLY,
-  DEMAND_VS_SUPPLY,
-  LISTINGS_BY_TYPE,
   MOCK_NOTIFICATIONS,
 } from '@/lib/mock-data';
-import { getDashboardStats, getListings, getInquiries } from '@/lib/firestore';
+import { getAnalyticsSummary, getDashboardStats, getListings, getInquiries } from '@/lib/firestore';
 import {
   Home,
   TrendingUp,
@@ -45,19 +42,25 @@ export default function DashboardPage() {
   const [stats, setStats] = useState(DEFAULT_STATS);
   const [listings, setListings] = useState(DEFAULT_LISTINGS);
   const [inquiries, setInquiries] = useState(DEFAULT_INQUIRIES);
+  const [analytics, setAnalytics] = useState({
+    inquiriesWeekly: [],
+    listingsByType: [],
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [fsStats, fsListings, fsInquiries] = await Promise.all([
+        const [fsStats, fsListings, fsInquiries, fsAnalytics] = await Promise.all([
           getDashboardStats(),
           getListings(),
           getInquiries(),
+          getAnalyticsSummary(),
         ]);
         if (fsStats) setStats(fsStats);
         if (fsListings.length > 0) setListings(fsListings);
         if (fsInquiries.length > 0) setInquiries(fsInquiries);
+        if (fsAnalytics) setAnalytics(fsAnalytics);
       } catch (err) {
         console.error('Firestore load error, using mock data:', err);
       } finally {
@@ -193,11 +196,11 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Inquiries Weekly Bar Chart */}
         <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-          <h2 className="text-lg font-bold text-charcoal-900 mb-4">
-            Inquiries This Week
-          </h2>
+            <h2 className="text-lg font-bold text-charcoal-900 mb-4">
+              Inquiries This Week
+            </h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={INQUIRIES_WEEKLY}>
+            <BarChart data={analytics.inquiriesWeekly}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="day" stroke="#6b7280" />
               <YAxis stroke="#6b7280" />
@@ -220,7 +223,7 @@ export default function DashboardPage() {
           </h2>
           <PieChart width={350} height={300}>
             <Pie
-              data={LISTINGS_BY_TYPE}
+              data={analytics.listingsByType}
               cx={175}
               cy={130}
               labelLine={false}
@@ -230,7 +233,7 @@ export default function DashboardPage() {
               dataKey="count"
               nameKey="type"
             >
-              {LISTINGS_BY_TYPE.map((entry, index) => (
+              {analytics.listingsByType.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={pieColors[index % pieColors.length]}
@@ -290,11 +293,11 @@ export default function DashboardPage() {
                       Rs. {listing.price.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-charcoal-600">
-                      {listing.agent}
+                      {listing.agent_name}
                     </td>
                     <td className="px-6 py-4 text-sm text-center">
                       <span className="text-teal-600 font-semibold">
-                        {listing.images}
+                        {Array.isArray(listing.images) ? listing.images.length : listing.images}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm flex gap-2">
@@ -371,9 +374,9 @@ export default function DashboardPage() {
                   <td className="px-6 py-4 text-sm">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                        inquiry.priority === 'high'
+                        inquiry.priority === 'hot'
                           ? 'bg-red-100 text-red-700'
-                          : inquiry.priority === 'medium'
+                          : inquiry.priority === 'warm'
                             ? 'bg-orange-100 text-orange-700'
                             : 'bg-gray-100 text-gray-700'
                       }`}

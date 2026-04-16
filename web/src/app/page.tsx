@@ -389,6 +389,19 @@ export default function HomePage() {
     { key: 'short-stay', icon: TreePine },
   ];
 
+  const heroSearchParams = new URLSearchParams(
+    Object.entries({
+      q: searchQuery || undefined,
+      type: selectedType ? selectedType.toLowerCase() : undefined,
+      intent:
+        activePathway === 'buy'
+          ? 'sell'
+          : activePathway === 'rent'
+            ? 'rent'
+            : 'short_rent',
+    }).filter(([, value]) => Boolean(value))
+  ).toString();
+
   return (
     <div className="min-h-screen bg-sand-50">
       <section className="relative bg-gradient-to-br from-teal-900 via-teal-800 to-teal-700 text-white py-20 md:py-28 px-4 overflow-hidden">
@@ -428,6 +441,8 @@ export default function HomePage() {
               <div className="flex-1 flex items-center bg-sand-50 rounded-lg px-4 py-3 border border-sand-200">
                 <Search className="w-5 h-5 text-charcoal-400 mr-3" />
                 <input
+                  id="hero-searchbox"
+                  role="searchbox"
                   type="search"
                   placeholder={copy.searchPlaceholder}
                   value={searchQuery}
@@ -437,7 +452,7 @@ export default function HomePage() {
                 <VoiceSearch variant="inline" />
               </div>
               <Link
-                href="/properties"
+                href={heroSearchParams ? `/properties?${heroSearchParams}` : '/properties'}
                 className="bg-teal-700 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold transition-all hover:-translate-y-0.5 shadow-float text-center"
               >
                 {copy.searchButton}
