@@ -1,41 +1,106 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Public read for listings and areas
-    match /listings/{listingId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if true;
+    function signedIn() {
+      return request.auth != null;
     }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.admin == true ||
+        request.auth.token.role in [
+          'super_admin',
+          'admin',
+          'listing_manager',
+          'lead_manager',
+          'content_manager'
+        ]
+      );
+    }
+
+    function isPublishedListing() {
+      return resource.data.status in [
+        'available',
+        'approved',
+        'published',
+        'active',
+        'Available',
+        'Published'
+      ];
+    }
+
+    // Public marketplace reads only published listings. Writes are admin-only.
+    match /listings/{listingId} {
+      allow read: if isPublishedListing() || isAdmin();
+      allow write: if isAdmin();
+    }
+
     match /areas/{areaId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
-    // Inquiries - public can create and read
+
+    // Public lead capture. Admins manage after submission.
     match /inquiries/{inquiryId} {
-      allow read: if true;
+      allow read: if isAdmin();
       allow create: if true;
-      allow update, delete: if true;
+      allow update, delete: if isAdmin();
     }
-    // Requirements - read/write open for now
+
+    match /viewing_requests/{requestId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /property_requests/{requestId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /listing_submissions/{submissionId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
     match /requirements/{reqId} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
     }
-    // Agents - public read, open write for now
+
+    // Agent profiles are public, but verification/status changes are admin-only.
     match /agents/{agentId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
-    // WhatsApp conversations
+
+    match /saved_searches/{searchId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if true;
+    }
+
+    match /analytics_events/{eventId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if true;
+    }
+
+    // WhatsApp conversations and config are private admin surfaces.
     match /whatsapp_conversations/{convId} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
       match /messages/{msgId} {
-        allow read, write: if true;
+        allow read, write: if isAdmin();
       }
     }
-    // Config
+
     match /config/{configId} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
+    }
+
+    match /admin_users/{userId} {
+      allow read, write: if isAdmin();
     }
   }
 }

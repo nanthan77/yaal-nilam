@@ -14,6 +14,7 @@ export interface AdminStore {
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   currentUser: CurrentUser;
+  setCurrentUser: (user: CurrentUser) => void;
   locale: Locale;
   setLocale: (locale: Locale) => void;
 }
@@ -28,6 +29,7 @@ export const useAdminStore = create<AdminStore>((set) => ({
     email: 'nanthan77@gmail.com',
     avatar: null,
   },
+  setCurrentUser: (currentUser) => set({ currentUser }),
   locale: 'en',
   setLocale: (locale: Locale) => set({ locale }),
 }));

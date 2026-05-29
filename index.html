@@ -690,20 +690,33 @@ const JAFFNA_AREAS = [
   { name: "Kayts", nameTa: "காய்ட்ஸ்", lat: 9.6833, lng: 79.8833, count: 12 },
 ];
 
-const PROPERTY_IMAGES = [
-  "./home1.jpg",
-  "./home2.jpg",
-  "./home3.jpg",
-  "./home4.jpg",
-  "./home1.jpg",
-  "./home2.jpg",
-  "./home3.jpg",
-  "./home4.jpg",
-  "./home1.jpg",
-  "./home2.jpg",
-  "./home3.jpg",
-  "./home4.jpg",
-];
+const PROPERTY_IMAGES_MAP = {
+  villa: [
+    "./web/public/properties/villa_modern.png",
+    "./web/public/properties/villa_island.png",
+    "./web/public/properties/villa_modern.png"
+  ],
+  house: [
+    "./web/public/properties/house_family.png",
+    "./web/public/properties/house_heritage.png",
+    "./web/public/properties/house_family.png"
+  ],
+  apartment: [
+    "./web/public/properties/apartment_luxury.png",
+    "./web/public/properties/apartment_luxury.png",
+    "./web/public/properties/apartment_luxury.png"
+  ],
+  commercial: [
+    "./web/public/properties/commercial_space.png",
+    "./web/public/properties/commercial_space.png",
+    "./web/public/properties/commercial_space.png"
+  ],
+  land: [
+    "./web/public/properties/land_beach.png",
+    "./web/public/properties/land_beach.png",
+    "./web/public/properties/land_beach.png"
+  ]
+};
 
 const AGENT_AVATARS = [
   "https://randomuser.me/api/portraits/men/11.jpg",
@@ -731,7 +744,9 @@ function generateProperties() {
     const perches = Math.floor(Math.random() * 40) + 5;
     const basePrice = type === 'land' ? perches * 800000 : type === 'villa' ? 35000000 + Math.random() * 30000000 : type === 'commercial' ? 15000000 + Math.random() * 25000000 : 8000000 + Math.random() * 25000000;
     const price = listingType === 'shortterm' ? Math.floor(basePrice / 800) : listingType === 'rent' ? Math.floor(basePrice / 200) : Math.floor(basePrice);
-    const imgStart = (i * 3) % PROPERTY_IMAGES.length;
+    
+    // Select images mapped to type
+    const typeImages = PROPERTY_IMAGES_MAP[type] || PROPERTY_IMAGES_MAP['house'];
     const selectedFeatures = features_en.sort(() => Math.random() - 0.5).slice(0, 4 + Math.floor(Math.random() * 4));
     const selectedFeaturesTa = selectedFeatures.map(f => features_ta[features_en.indexOf(f)]);
 
@@ -750,7 +765,7 @@ function generateProperties() {
       areaTa: area.nameTa,
       lat: area.lat + (Math.random() - 0.5) * 0.02,
       lng: area.lng + (Math.random() - 0.5) * 0.02,
-      images: [PROPERTY_IMAGES[(imgStart) % PROPERTY_IMAGES.length], PROPERTY_IMAGES[(imgStart + 1) % PROPERTY_IMAGES.length], PROPERTY_IMAGES[(imgStart + 2) % PROPERTY_IMAGES.length]],
+      images: typeImages,
       features: selectedFeatures,
       featuresTa: selectedFeaturesTa,
       agentId: (i % 6) + 1,
@@ -1878,66 +1893,238 @@ function AddListingPage() {
   const { lang, t, setToast, setPage } = useContext(AppContext);
   const [formStep, setFormStep] = useState(1);
   const totalSteps = 3;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formStep < totalSteps) { setFormStep(formStep + 1); return; }
+    if (formStep < totalSteps) { 
+      setFormStep(formStep + 1); 
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return; 
+    }
     setToast(lang === 'ta' ? 'சொத்து வெற்றிகரமாக பதிவிடப்பட்டது!' : 'Property listed successfully!');
     setPage('properties');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const prevStep = () => {
+    if (formStep > 1) {
+      setFormStep(formStep - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
-    <div className="container" style={{ padding: '40px 24px', maxWidth: 800 }}>
-      <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>{t('postProperty')}</h1>
-      <p style={{ color: 'var(--text-light)', marginBottom: 24 }}>{lang === 'ta' ? `படி ${formStep} / ${totalSteps}` : `Step ${formStep} of ${totalSteps}`}</p>
-      {/* Progress Bar */}
-      <div className="progress-bar">
-        {[...Array(totalSteps)].map((_, i) => (
-          <div key={i} className={`progress-step ${i + 1 === formStep ? 'active' : i + 1 < formStep ? 'done' : ''}`} />
-        ))}
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '60px 24px', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 800 }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: 40 }} className="fade-in">
+          <h1 className={lang === 'ta' ? 'tamil' : ''} style={{ fontSize: 36, fontWeight: 900, color: 'var(--primary-dark)', marginBottom: 12 }}>
+            {t('postProperty')}
+          </h1>
+          <p style={{ fontSize: 16, color: 'var(--text-light)', maxWidth: 500, margin: '0 auto' }}>
+            {lang === 'ta' 
+              ? 'உங்கள் சொத்தை ஆயிரக்கணக்கான வாங்குபவர்களுக்கு சில எளிய படிகளில் காட்சிப்படுத்துங்கள்.' 
+              : 'Showcase your property to thousands of buyers in just a few simple steps.'}
+          </p>
+        </div>
+
+        {/* Progress Tracker */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40, position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 20, left: '10%', right: '10%', height: 3, background: 'var(--border)', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: 20, left: '10%', right: '10%', height: 3, background: 'var(--primary)', zIndex: 0, width: `${((formStep - 1) / (totalSteps - 1)) * 80}%`, transition: 'width 0.4s ease' }} />
+          
+          {[
+            { step: 1, label: lang === 'ta' ? 'அடிப்படை' : 'Basics' },
+            { step: 2, label: lang === 'ta' ? 'விவரங்கள்' : 'Details' },
+            { step: 3, label: lang === 'ta' ? 'படங்கள்' : 'Media' }
+          ].map((s, i) => {
+            const isActive = formStep === s.step;
+            const isDone = formStep > s.step;
+            return (
+              <div key={i} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: 80 }}>
+                <div style={{ 
+                  width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: isActive ? 'var(--primary)' : isDone ? 'var(--primary)' : 'white',
+                  color: isActive || isDone ? 'white' : 'var(--text-light)',
+                  border: `3px solid ${isActive || isDone ? 'var(--primary)' : 'var(--border)'}`,
+                  fontWeight: 700, fontSize: 16, transition: 'all 0.3s ease',
+                  boxShadow: isActive ? '0 0 0 4px rgba(27,77,62,0.15)' : 'none'
+                }}>
+                  {isDone ? <Icon name="check" size={20} /> : s.step}
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: isActive ? 'var(--primary-dark)' : 'var(--text-light)', transition: 'color 0.3s ease' }}>{s.label}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="card fade-in" style={{ padding: 40, borderRadius: 'var(--radius-xl)', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 20px 40px rgba(0,0,0,0.06)' }}>
+          <form onSubmit={handleSubmit}>
+            {formStep === 1 && (
+              <div className="slide-in" style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+                <div>
+                  <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--primary-dark)', marginBottom: 8 }}>
+                    {lang === 'ta' ? 'அடிப்படை தகவல்' : 'Basic Information'}
+                  </h2>
+                  <p style={{ color: 'var(--text-light)', fontSize: 15 }}>{lang === 'ta' ? 'உங்கள் சொத்தின் அடிப்படை விவரங்களை பதிவு செய்யவும்.' : 'Let us know the core details about your property.'}</p>
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{lang === 'ta' ? 'சொத்து தலைப்பு' : 'Property Title'} <span style={{color: '#EF4444'}}>*</span></label>
+                  <input className="input" placeholder={lang === 'ta' ? 'உ.ம்: நல்லூரில் 3 படுக்கையறை வீடு' : 'e.g. 3 Bedroom House in Nallur'} required style={{ padding: '16px', fontSize: 16, borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)' }} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('propertyType')} <span style={{color: '#EF4444'}}>*</span></label>
+                    <div style={{ position: 'relative' }}>
+                      <select className="select" required style={{ padding: '16px', fontSize: 16, borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', appearance: 'none', width: '100%' }}>
+                        <option value="">{lang === 'ta' ? 'வகை தேர்ந்தெடுக்கவும்' : 'Select Type'}</option>
+                        <option>{t('house')}</option><option>{t('land')}</option><option>{t('apartment')}</option><option>{t('commercial')}</option><option>{t('villa')}</option>
+                      </select>
+                      <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-light)' }}>
+                        <Icon name="chevronDown" size={20} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{lang === 'ta' ? 'விற்பனை/வாடகை' : 'Listing Purpose'} <span style={{color: '#EF4444'}}>*</span></label>
+                    <div style={{ position: 'relative' }}>
+                      <select className="select" required style={{ padding: '16px', fontSize: 16, borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', appearance: 'none', width: '100%' }}>
+                        <option value="">{lang === 'ta' ? 'நோக்கம் தேர்ந்தெடுக்கவும்' : 'Select Purpose'}</option>
+                        <option>{t('forSale')}</option><option>{t('forRent')}</option>
+                      </select>
+                      <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-light)' }}>
+                        <Icon name="chevronDown" size={20} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('location')} <span style={{color: '#EF4444'}}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <select className="select" required style={{ padding: '16px', fontSize: 16, borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', appearance: 'none', width: '100%' }}>
+                      <option value="">{lang === 'ta' ? 'இடத்தை தேர்ந்தெடுக்கவும்' : 'Select Location'}</option>
+                      {JAFFNA_AREAS.map(a => <option key={a.name}>{lang === 'ta' ? a.nameTa : a.name}</option>)}
+                    </select>
+                    <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-light)' }}>
+                      <Icon name="chevronDown" size={20} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formStep === 2 && (
+              <div className="slide-in" style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+                <div>
+                  <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--primary-dark)', marginBottom: 8 }}>
+                    {lang === 'ta' ? 'சொத்து விவரங்கள்' : 'Property Specifications'}
+                  </h2>
+                  <p style={{ color: 'var(--text-light)', fontSize: 15 }}>{lang === 'ta' ? 'உங்கள் சொத்தின் சிறப்பம்சங்களை குறிப்பிடுங்கள்.' : 'Provide the key metrics and features.'}</p>
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('price')} (LKR) <span style={{color: '#EF4444'}}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)', fontWeight: 700 }}>Rs.</span>
+                    <input className="input" type="number" required placeholder="0.00" style={{ padding: '16px 16px 16px 52px', fontSize: 16, borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', fontWeight: 600, width: '100%' }} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 20 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('bedrooms')}</label>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }}><Icon name="bed" size={18} /></div>
+                      <input className="input" type="number" placeholder="0" style={{ padding: '16px 16px 16px 44px', borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', width: '100%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('bathrooms')}</label>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }}><Icon name="bath" size={18} /></div>
+                      <input className="input" type="number" placeholder="0" style={{ padding: '16px 16px 16px 44px', borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', width: '100%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('sqftLabel')}</label>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }}><Icon name="area" size={18} /></div>
+                      <input className="input" type="number" placeholder="0" style={{ padding: '16px 16px 16px 44px', borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', width: '100%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('landSize')} ({t('perches')})</label>
+                    <input className="input" type="number" placeholder="0" style={{ padding: '16px', borderRadius: 'var(--radius-lg)', background: '#F9FAFB', border: '1.5px solid var(--border)', width: '100%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{t('description')} <span style={{color: '#EF4444'}}>*</span></label>
+                  <textarea className="input" required rows={5} placeholder={lang === 'ta' ? 'சொத்து பற்றிய விரிவான விளக்கம்...' : 'Detailed description of the property...'} style={{ resize: 'vertical', padding: '16px', borderRadius: 'var(--radius-lg)', fontSize: 15, background: '#F9FAFB', border: '1.5px solid var(--border)', width: '100%' }} />
+                </div>
+              </div>
+            )}
+
+            {formStep === 3 && (
+              <div className="slide-in" style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+                <div>
+                  <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--primary-dark)', marginBottom: 8 }}>
+                    {lang === 'ta' ? 'படங்கள் & மீடியா' : 'Media & Final Steps'}
+                  </h2>
+                  <p style={{ color: 'var(--text-light)', fontSize: 15 }}>{lang === 'ta' ? 'உயர்தர படங்கள் அதிக வாங்குபவர்களை ஈர்க்கும்.' : 'Upload eye-catching photos to make your listing stand out.'}</p>
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
+                    {lang === 'ta' ? 'புகைப்படங்களை பதிவேற்றவும்' : 'Upload Photos'} <span style={{color: 'var(--text-lighter)', fontWeight: 400}}>(Max 10)</span>
+                  </label>
+                  <div style={{ 
+                    border: '2px dashed var(--primary)', borderRadius: 'var(--radius-lg)', padding: '50px 20px', 
+                    textAlign: 'center', background: 'rgba(27,77,62,0.02)', cursor: 'pointer', transition: 'all 0.3s ease',
+                  }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(27,77,62,0.06)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(27,77,62,0.02)'}>
+                    <div style={{ width: 64, height: 64, background: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'white', boxShadow: '0 8px 20px rgba(27,77,62,0.3)' }}>
+                      <Icon name="plus" size={32} />
+                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--primary-dark)', marginBottom: 8 }}>
+                      {lang === 'ta' ? 'படங்களை இங்கே இழுத்து விடவும்' : 'Drag & Drop photos here'}
+                    </h3>
+                    <p style={{ color: 'var(--text-light)', fontSize: 14 }}>
+                      {lang === 'ta' ? 'அல்லது கோப்புகளை உலாவ கிளிக் செய்யவும்' : 'or click to browse from your device'}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ background: '#FFFBEB', padding: 20, borderRadius: 'var(--radius-lg)', border: '1px solid #FCD34D', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                  <div style={{ color: '#F59E0B', marginTop: 2, background: '#FEF3C7', padding: 8, borderRadius: '50%' }}><Icon name="star" size={20} /></div>
+                  <div>
+                    <h4 style={{ fontWeight: 700, marginBottom: 4, color: '#92400E' }}>{lang === 'ta' ? 'சிறந்த பட்டியலுக்கு' : 'Pro Tip for a better listing'}</h4>
+                    <p style={{ fontSize: 14, color: '#92400E', opacity: 0.8, lineHeight: 1.6 }}>
+                      {lang === 'ta' 
+                        ? 'தெளிவான மற்றும் பிரகாசமான புகைப்படங்களை பதிவேற்றுவது வாங்குபவர்களை அதிகம் ஈர்க்கும். முதல் படம் கவர் படமாகப் பயன்படுத்தப்படும்.' 
+                        : 'Listings with high-quality, well-lit photos get 3x more inquiries. Ensure your first photo is the most attractive, as it will be the cover image.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 16, marginTop: 40, paddingTop: 32, borderTop: '1px solid var(--border)' }}>
+              {formStep > 1 && (
+                <button type="button" onClick={prevStep} className="btn" style={{ flex: 1, background: '#F3F4F6', color: 'var(--text)', fontSize: 16, height: 56, fontWeight: 700, justifyContent: 'center' }}>
+                  <Icon name="chevronLeft" size={20} /> {lang === 'ta' ? 'பின்னால்' : 'Back'}
+                </button>
+              )}
+              <button type="submit" className="btn btn-primary" style={{ flex: 2, fontSize: 16, height: 56, fontWeight: 700, display: 'flex', justifyContent: 'center', gap: 12, boxShadow: '0 8px 24px rgba(27,77,62,0.25)' }}>
+                {formStep < totalSteps ? (lang === 'ta' ? 'தொடரவும்' : 'Continue') : (lang === 'ta' ? 'பட்டியலை சமர்ப்பி' : 'Submit Listing')}
+                {formStep < totalSteps ? <Icon name="chevronRight" size={20} /> : <Icon name="check" size={20} />}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-      <form onSubmit={handleSubmit} className="card" style={{ padding: 32 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-          <div><label>{lang === 'ta' ? 'சொத்து தலைப்பு' : 'Property Title'}</label><input className="input" required /></div>
-          <div><label>{t('propertyType')}</label>
-            <select className="select">
-              <option>{t('house')}</option><option>{t('land')}</option><option>{t('apartment')}</option><option>{t('commercial')}</option><option>{t('villa')}</option>
-            </select>
-          </div>
-          <div><label>{lang === 'ta' ? 'விற்பனை/வாடகை' : 'Sale/Rent'}</label>
-            <select className="select"><option>{t('forSale')}</option><option>{t('forRent')}</option></select>
-          </div>
-          <div><label>{t('price')} (Rs.)</label><input className="input" type="number" required /></div>
-          <div><label>{t('bedrooms')}</label><input className="input" type="number" /></div>
-          <div><label>{t('bathrooms')}</label><input className="input" type="number" /></div>
-          <div><label>{t('sqftLabel')}</label><input className="input" type="number" /></div>
-          <div><label>{t('landSize')} ({t('perches')})</label><input className="input" type="number" /></div>
-          <div><label>{t('location')}</label>
-            <select className="select">{JAFFNA_AREAS.map(a => <option key={a.name}>{lang === 'ta' ? a.nameTa : a.name}</option>)}</select>
-          </div>
-          <div><label>{t('yearBuilt')}</label><input className="input" type="number" /></div>
-        </div>
-        <div style={{ marginBottom: 20 }}>
-          <label>{t('description')}</label>
-          <textarea className="input" rows={4} style={{ resize: 'vertical' }} />
-        </div>
-        <div style={{ marginBottom: 20 }}>
-          <label>{lang === 'ta' ? 'படங்கள்' : 'Images'}</label>
-          <div style={{ border: '2px dashed var(--border)', borderRadius: 'var(--radius)', padding: 40, textAlign: 'center', color: 'var(--text-light)' }}>
-            <Icon name="plus" size={32} color="var(--text-lighter)" />
-            <p style={{ marginTop: 8 }}>{lang === 'ta' ? 'படங்களை இழுத்து விடுங்கள் அல்லது கிளிக் செய்யுங்கள்' : 'Drag & drop images or click to browse'}</p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {formStep > 1 && (
-            <button type="button" onClick={() => setFormStep(formStep - 1)} className="btn btn-outline btn-lg" style={{ flex: 1, justifyContent: 'center' }}>
-              <Icon name="chevronLeft" size={18} /> {lang === 'ta' ? 'பின்னால்' : 'Back'}
-            </button>
-          )}
-          <button type="submit" className="btn btn-primary btn-lg" style={{ flex: 2, justifyContent: 'center' }}>
-            {formStep < totalSteps ? (lang === 'ta' ? 'அடுத்தது →' : 'Next →') : t('postProperty')}
-          </button>
-        </div>
-      </form>
     </div>
   );
 }

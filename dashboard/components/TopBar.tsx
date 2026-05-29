@@ -12,15 +12,19 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export function TopBar() {
   const { toggleSidebar, currentUser, locale, setLocale } = useAdminStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('admin_auth');
     localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_role');
+    await signOut(auth).catch(() => undefined);
     setShowUserMenu(false);
     router.push('/login');
   };

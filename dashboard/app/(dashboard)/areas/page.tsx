@@ -15,7 +15,7 @@ import {
   Search,
 } from 'lucide-react';
 import { MOCK_AREAS } from '@/lib/mock-data';
-import { getAreas, updateArea } from '@/lib/firestore';
+import { createArea, getAreas, updateArea } from '@/lib/firestore';
 
 export default function AreasPage() {
   const [allAreas, setAllAreas] = useState<any[]>(MOCK_AREAS);
@@ -23,6 +23,7 @@ export default function AreasPage() {
   const [selectedArea, setSelectedArea] = useState<any | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function load() {
@@ -65,6 +66,52 @@ export default function AreasPage() {
     setSelectedArea(area);
     setShowDetailModal(true);
   };
+
+  const showMessage = (text: string) => {
+    setMessage(text);
+    window.setTimeout(() => setMessage(''), 3500);
+  };
+
+  const handleToggleFeatured = async (area: any) => {
+    const featured = !area.featured;
+    setAllAreas((current) => current.map((item) => (item.id === area.id ? { ...item, featured } : item)));
+    const ok = await updateArea(area.id, { featured, updated_at: new Date().toISOString() });
+    showMessage(ok ? 'Area updated.' : 'Could not update area.');
+  };
+
+  const handleCreateArea = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const payload = {
+      name: String(form.get('name') || ''),
+      name_ta: String(form.get('name_ta') || ''),
+      slug: String(form.get('slug') || ''),
+      district: String(form.get('district') || 'Jaffna'),
+      description: String(form.get('description') || ''),
+      lat: String(form.get('lat') || ''),
+      lng: String(form.get('lng') || ''),
+      seo_title: String(form.get('seo_title') || ''),
+      seo_description: String(form.get('seo_description') || ''),
+      keywords: String(form.get('keywords') || ''),
+      nearby_landmarks: String(form.get('nearby_landmarks') || ''),
+      status: form.get('status') ? 'active' : 'inactive',
+      featured: Boolean(form.get('featured')),
+    };
+
+    if (!payload.name || !payload.slug) {
+      showMessage('Area name and slug are required.');
+      return;
+    }
+
+    const newId = await createArea(payload);
+    if (newId) {
+      setAllAreas((current) => [{ ...payload, id: newId, listings_count: 0, monthly_views: 0 }, ...current]);
+      setShowAddModal(false);
+      showMessage('Area created.');
+    } else {
+      showMessage('Could not create area. Check admin access.');
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       {/* Header Section */}
@@ -76,6 +123,11 @@ export default function AreasPage() {
           Manage Jaffna Peninsula areas for local SEO
         </p>
       </div>
+      {message && (
+        <div className="mb-6 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
+          {message}
+        </div>
+      )}
 
       {/* Filters and Actions */}
       <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-slate-200">
@@ -160,7 +212,10 @@ export default function AreasPage() {
                 </div>
               </div>
               {/* Featured Toggle */}
-              <button className="w-full flex items-center justify-center gap-2 mb-4 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition border border-amber-100">
+              <button
+                onClick={() => handleToggleFeatured(area)}
+                className="w-full flex items-center justify-center gap-2 mb-4 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition border border-amber-100"
+              >
                 <Star className={`w-4 h-4 ${area.featured ? 'fill-amber-600' : ''}`} />
                 <span className="text-sm font-medium">
                   {area.featured ? 'Featured' : 'Add to Featured'}
@@ -189,7 +244,10 @@ export default function AreasPage() {
                   <Eye className="w-4 h-4" />
                   View
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-slate-600 hover:bg-slate-50 py-2 rounded-lg transition">
+                <button
+                  onClick={() => handleViewArea(area)}
+                  className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-slate-600 hover:bg-slate-50 py-2 rounded-lg transition"
+                >
                   <Edit2 className="w-4 h-4" />
                   Edit
                 </button>
@@ -386,31 +444,30 @@ export default function AreasPage() {
                 ✕
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <form onSubmit={handleCreateArea} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Area Name (English)</label>
-                <input type="text" placeholder="e.g., Nallur" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input name="name" type="text" placeholder="e.g., Nallur" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Area Name (Tamil)</label>
-                <input type="text" placeholder="தமிழ் பெயர்" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input name="name_ta" type="text" placeholder="தமிழ் பெயர்" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Slug</label>
-                <input type="text" placeholder="nallur" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input name="slug" type="text" placeholder="nallur" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">District</label>
-                <select className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                  <option>Select district</option>
-                  <option>Jaffna</option>
+                <select name="district" defaultValue="Jaffna" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="Jaffna">Jaffna</option>
                   <option>Mullaitivu</option>
                   <option>Vavuniya</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Description</label>
-                <textarea placeholder="Describe the area..." rows={3} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                <textarea name="description" placeholder="Describe the area..." rows={3} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Hero Image</label>
@@ -422,48 +479,48 @@ export default function AreasPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-900 mb-1">Latitude</label>
-                  <input type="text" placeholder="6.9271" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  <input name="lat" type="text" placeholder="6.9271" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-900 mb-1">Longitude</label>
-                  <input type="text" placeholder="80.7744" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  <input name="lng" type="text" placeholder="80.7744" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">SEO Meta Title</label>
-                <input type="text" placeholder="Nallur Properties for Sale" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input name="seo_title" type="text" placeholder="Nallur Properties for Sale" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">SEO Meta Description</label>
-                <textarea placeholder="Meta description for search engines..." rows={2} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                <textarea name="seo_description" placeholder="Meta description for search engines..." rows={2} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Keywords</label>
-                <input type="text" placeholder="Comma separated keywords" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input name="keywords" type="text" placeholder="Comma separated keywords" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Nearby Landmarks</label>
-                <textarea placeholder="List nearby landmarks and attractions..." rows={2} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                <textarea name="nearby_landmarks" placeholder="List nearby landmarks and attractions..." rows={2} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
               </div>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300" />
+                  <input name="status" type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300" />
                   <span className="text-sm text-slate-700">Active Status</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300" />
+                  <input name="featured" type="checkbox" className="w-4 h-4 rounded border-slate-300" />
                   <span className="text-sm text-slate-700">Featured</span>
                 </label>
               </div>
               <div className="flex gap-3 pt-4">
-                <button onClick={() => setShowAddModal(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition">
+                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition">
                   Cancel
                 </button>
-                <button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition">
+                <button type="submit" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded-lg transition">
                   Create Area
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}

@@ -2,10 +2,11 @@
 'use client';
 
 import { useState } from 'react';
+import NextImage from 'next/image';
 import {
   Search,
   Upload,
-  Image,
+  Image as ImageIcon,
   File,
   Video,
   ChevronDown,
@@ -201,15 +202,17 @@ export default function MediaLibraryPage() {
                 }`}
               >
                 <div className="relative aspect-square bg-slate-100 overflow-hidden">
-                  <img
+                  <NextImage
                     src={media.thumbnail}
                     alt={media.filename}
+                    fill
                     className="w-full h-full object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                   />
                   <div className="absolute top-2 right-2">
                     {media.type === 'image' && (
                       <div className="bg-blue-500 text-white p-2 rounded-lg">
-                        <Image size={16} />
+                        <ImageIcon size={16} />
                       </div>
                     )}
                     {media.type === 'document' && (
@@ -242,9 +245,11 @@ export default function MediaLibraryPage() {
           {selected ? (
             <div className="space-y-6">
               <div className="aspect-square bg-slate-100 rounded-xl overflow-hidden">
-                <img
+                <NextImage
                   src={selected.thumbnail}
                   alt={selected.filename}
+                  width={320}
+                  height={320}
                   className="w-full h-full object-cover"
                 />
               </div>

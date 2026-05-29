@@ -367,7 +367,7 @@ export function filterListings(listings: NormalizedListing[], filters: ListingFi
     const matchesVerified = !verifiedOnly || listing.verified;
     const matchesLand = !minLand || listing.land_size_perches >= minLand;
     const matchesFurnishing = !filters.furnishing || listing.furnishing === filters.furnishing;
-    const matchesStatus = listing.status === "available" || listing.status === "pending";
+    const matchesStatus = listing.status === "available";
 
     return (
       matchesQuery &&

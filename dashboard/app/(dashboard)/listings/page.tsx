@@ -2,7 +2,8 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { getListings, updateListing } from '@/lib/firestore';
+import Image from 'next/image';
+import { createListing, deleteListing, getListings, publishListing, rejectListing, updateListing } from '@/lib/firestore';
 import {
   Search,
   ChevronDown,
@@ -40,7 +41,7 @@ export interface Listing {
   title: string;
   title_ta: string;
   property_type: 'house' | 'land' | 'apartment' | 'commercial' | 'villa';
-  intent: 'buy' | 'rent' | 'short-term';
+  intent: 'buy' | 'sell' | 'rent' | 'short-term' | 'short_rent';
   price: number;
   area: string;
   district: string;
@@ -66,6 +67,8 @@ export interface Listing {
   furnishing?: 'furnished' | 'semi-furnished' | 'unfurnished';
   parking?: number;
   highlights?: string[];
+  source_collection?: string;
+  published_listing_id?: string;
 }
 
 const MOCK_LISTINGS: Listing[] = [
@@ -336,17 +339,28 @@ const MOCK_LISTINGS: Listing[] = [
 // UTILITY FUNCTIONS
 // ============================================================================
 
-const formatPrice = (price: number, intent: 'buy' | 'rent' | 'short-term'): string => {
-  if (intent === 'buy') {
+const normalizeListingIntent = (intent?: string): Listing['intent'] => {
+  const normalized = (intent || 'sell').toString().toLowerCase();
+  if (normalized === 'buy' || normalized === 'sale') return 'sell';
+  if (normalized === 'short-term' || normalized === 'short stay') return 'short_rent';
+  return normalized as Listing['intent'];
+};
+
+const formatPrice = (price: number, intent: Listing['intent']): string => {
+  if (intent === 'buy' || intent === 'sell') {
     if (price >= 10000000) {
       return `Rs. ${(price / 10000000).toFixed(1)}Cr`;
     } else if (price >= 100000) {
       return `Rs. ${(price / 100000).toFixed(1)}L`;
     }
     return `Rs. ${price.toLocaleString()}`;
-  } else {
-    return `Rs. ${price.toLocaleString()}/mo`;
   }
+
+  if (intent === 'short-term' || intent === 'short_rent') {
+    return `Rs. ${price.toLocaleString()}/night`;
+  }
+
+  return `Rs. ${price.toLocaleString()}/mo`;
 };
 
 const getStatusColor = (
@@ -387,7 +401,47 @@ const getPropertyTypeLabel = (
     commercial: 'Commercial',
     villa: 'Villa',
   };
-  return labels[type];
+  return labels[type] || type;
+};
+
+const buildListingCode = () => `YN-${Date.now().toString().slice(-6)}`;
+
+const buildBlankListing = (): Listing => {
+  const now = new Date().toISOString();
+  return {
+    id: `new-${Date.now()}`,
+    listing_code: buildListingCode(),
+    title: '',
+    title_ta: '',
+    property_type: 'house',
+    intent: 'sell',
+    price: 0,
+    area: 'Jaffna',
+    district: 'Jaffna',
+    address: '',
+    bedrooms: 0,
+    bathrooms: 0,
+    land_size_perches: 0,
+    sqft: 0,
+    images: [],
+    status: 'draft',
+    verified: false,
+    featured: false,
+    agent_id: '',
+    agent_name: '',
+    agent_phone: '',
+    description: '',
+    posted_date: now,
+    updated_date: now,
+    views: 0,
+    inquiries_count: 0,
+    whatsapp_clicks: 0,
+    negotiable: false,
+    furnishing: 'unfurnished',
+    parking: 0,
+    highlights: [],
+    source_collection: 'listings',
+  };
 };
 
 // ============================================================================
@@ -492,13 +546,13 @@ function ListingDetailModal({
                 <select
                   value={formData.intent}
                   onChange={(e) =>
-                    handleChange('intent', e.target.value as any)
+                    handleChange('intent', normalizeListingIntent(e.target.value))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
-                  <option value="buy">Buy</option>
+                  <option value="sell">Sell</option>
                   <option value="rent">Rent</option>
-                  <option value="short-term">Short-term</option>
+                  <option value="short_rent">Short stay</option>
                 </select>
               </div>
               <div>
@@ -800,14 +854,125 @@ function ListingDetailModal({
   );
 }
 
+interface ListingViewModalProps {
+  listing: Listing | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onEdit: (listing: Listing) => void;
+}
+
+function ListingViewModal({ listing, isOpen, onClose, onEdit }: ListingViewModalProps) {
+  if (!isOpen || !listing) return null;
+
+  const publicId = listing.published_listing_id || listing.id;
+  const publicUrl = `/properties/${publicId}/`;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-end overflow-y-auto">
+      <div className="w-full max-w-xl bg-white min-h-screen">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">{listing.title || 'Untitled listing'}</h2>
+            <p className="text-sm text-gray-500">{listing.listing_code}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition" aria-label="Close listing preview">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div className="relative h-64 overflow-hidden rounded-lg bg-sand-100">
+            {listing.images?.[0] ? (
+              <Image src={listing.images[0]} alt={listing.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 576px" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Home className="w-12 h-12 text-sand-400" />
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-lg border border-gray-200 p-4">
+              <p className="text-xs font-semibold uppercase text-gray-500">Price</p>
+              <p className="mt-1 text-lg font-bold text-teal-700">{formatPrice(listing.price, listing.intent)}</p>
+            </div>
+            <div className="rounded-lg border border-gray-200 p-4">
+              <p className="text-xs font-semibold uppercase text-gray-500">Status</p>
+              <p className="mt-1 font-semibold capitalize text-gray-900">{listing.status}</p>
+            </div>
+            <div className="rounded-lg border border-gray-200 p-4">
+              <p className="text-xs font-semibold uppercase text-gray-500">Area</p>
+              <p className="mt-1 font-semibold text-gray-900">{listing.area}</p>
+            </div>
+            <div className="rounded-lg border border-gray-200 p-4">
+              <p className="text-xs font-semibold uppercase text-gray-500">Type</p>
+              <p className="mt-1 font-semibold text-gray-900">{getPropertyTypeLabel(listing.property_type)}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase text-gray-500">Address</p>
+            <p className="mt-1 text-gray-900">{listing.address || 'No address added'}</p>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase text-gray-500">Description</p>
+            <p className="mt-1 text-gray-700">{listing.description || 'No description added.'}</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div className="rounded-lg bg-gray-50 p-3">
+              <p className="font-bold text-gray-900">{listing.views.toLocaleString()}</p>
+              <p className="text-gray-500">Views</p>
+            </div>
+            <div className="rounded-lg bg-gray-50 p-3">
+              <p className="font-bold text-gray-900">{listing.inquiries_count}</p>
+              <p className="text-gray-500">Inquiries</p>
+            </div>
+            <div className="rounded-lg bg-gray-50 p-3">
+              <p className="font-bold text-gray-900">{listing.whatsapp_clicks}</p>
+              <p className="text-gray-500">WhatsApp</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 border-t border-gray-200 pt-6">
+            <button
+              onClick={() => {
+                onClose();
+                onEdit(listing);
+              }}
+              className="px-5 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition font-medium"
+            >
+              Edit
+            </button>
+            {listing.status === 'published' && (
+              <a
+                href={publicUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+              >
+                Open public page
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ============================================================================
 // MAIN LISTINGS PAGE COMPONENT
 // ============================================================================
 
 export default function ListingsPage() {
-  const [listings, setListings] = useState<Listing[]>(MOCK_LISTINGS);
+  const [listings, setListings] = useState<Listing[]>(() =>
+    MOCK_LISTINGS.map((listing) => ({ ...listing, intent: normalizeListingIntent(listing.intent) }))
+  );
   const [firestoreLoaded, setFirestoreLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [actionMessage, setActionMessage] = useState('');
 
   // Load listings from Firestore on mount
   useEffect(() => {
@@ -821,7 +986,7 @@ export default function ListingsPage() {
             listing_code: l.listing_code || `JN-${String(idx + 1).padStart(3, '0')}`,
             title_ta: l.title_ta || '',
             property_type: (l.type || l.property_type || 'house').toLowerCase(),
-            intent: l.intent || 'buy',
+            intent: normalizeListingIntent(l.intent),
             area: l.area || '',
             district: l.district || 'Jaffna',
             address: l.address || '',
@@ -857,7 +1022,7 @@ export default function ListingsPage() {
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<
     'house' | 'land' | 'apartment' | 'commercial' | 'villa' | 'all'
   >('all');
-  const [intentFilter, setIntentFilter] = useState<'buy' | 'rent' | 'short-term' | 'all'>('all');
+  const [intentFilter, setIntentFilter] = useState<'sell' | 'rent' | 'short_rent' | 'all'>('all');
   const [areaFilter, setAreaFilter] = useState('all');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [featuredOnly, setFeaturedOnly] = useState(false);
@@ -866,6 +1031,7 @@ export default function ListingsPage() {
   const [sortColumn, setSortColumn] = useState<keyof Listing | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
+  const [viewingListing, setViewingListing] = useState<Listing | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -1006,53 +1172,153 @@ export default function ListingsPage() {
     setCurrentPage(1);
   };
 
+  const showActionMessage = (message: string) => {
+    setActionMessage(message);
+    window.setTimeout(() => setActionMessage(''), 3500);
+  };
+
   const handleSaveListing = async (updated: Listing) => {
-    setListings(listings.map((l) => (l.id === updated.id ? updated : l)));
-    await updateListing(updated.id, { ...updated });
+    const normalized = {
+      ...updated,
+      intent: normalizeListingIntent(updated.intent),
+      updated_date: new Date().toISOString(),
+      source_collection: updated.source_collection || 'listings',
+    };
+
+    if (updated.id.startsWith('new-')) {
+      const newId = await createListing(normalized);
+      if (!newId) {
+        showActionMessage('Could not create listing. Please check admin access and try again.');
+        return;
+      }
+      setListings((current) => [{ ...normalized, id: newId }, ...current]);
+      showActionMessage('Listing draft created.');
+      return;
+    }
+
+    setListings((current) => current.map((l) => (l.id === normalized.id ? normalized : l)));
+    const ok = await updateListing(normalized.id, { ...normalized, updated_at: new Date().toISOString() }, normalized);
+    showActionMessage(ok ? 'Listing saved.' : 'Could not save listing. Please check admin access.');
+  };
+
+  const handleApproveListing = async (listing: Listing) => {
+    setListings((current) =>
+      current.map((item) => (item.id === listing.id ? { ...item, status: 'published' as const } : item))
+    );
+    await publishListing(listing);
+  };
+
+  const handleRejectListing = async (listing: Listing) => {
+    setListings((current) =>
+      current.map((item) => (item.id === listing.id ? { ...item, status: 'rejected' as const } : item))
+    );
+    await rejectListing(listing);
+  };
+
+  const handleFeatureListing = async (listing: Listing) => {
+    setListings((current) =>
+      current.map((item) => (item.id === listing.id ? { ...item, featured: true } : item))
+    );
+    await updateListing(listing.id, { featured: true, updated_at: new Date().toISOString() }, listing);
+  };
+
+  const handleDuplicateListing = async (listing: Listing) => {
+    const duplicate: Listing = {
+      ...listing,
+      id: `new-${Date.now()}`,
+      listing_code: buildListingCode(),
+      title: `${listing.title || 'Untitled listing'} copy`,
+      status: 'draft',
+      featured: false,
+      verified: false,
+      views: 0,
+      inquiries_count: 0,
+      whatsapp_clicks: 0,
+      posted_date: new Date().toISOString(),
+      updated_date: new Date().toISOString(),
+      source_collection: 'listings',
+      published_listing_id: '',
+    };
+
+    const newId = await createListing(duplicate);
+    if (!newId) {
+      showActionMessage('Could not duplicate listing. Please check admin access.');
+      return;
+    }
+    setListings((current) => [{ ...duplicate, id: newId }, ...current]);
+    showActionMessage('Listing duplicated as a draft.');
+  };
+
+  const handleArchiveListing = async (listing: Listing) => {
+    setListings((current) =>
+      current.map((item) => (item.id === listing.id ? { ...item, status: 'archived' as const } : item))
+    );
+    await updateListing(listing.id, { status: 'archived', updated_at: new Date().toISOString() }, listing);
+  };
+
+  const handleDeleteListing = async (listing: Listing) => {
+    if (confirm(`Delete ${listing.title}?`)) {
+      setListings((current) => current.filter((item) => item.id !== listing.id));
+      await deleteListing(listing.id, listing);
+    }
   };
 
   const handleBulkApprove = async () => {
+    const selectedListings = listings.filter((l) => selectedIds.has(l.id));
     const updated = listings.map((l) =>
       selectedIds.has(l.id) ? { ...l, status: 'published' as const } : l
     );
     setListings(updated);
-    for (const id of selectedIds) {
-      await updateListing(id, { status: 'Available' });
+    for (const listing of selectedListings) {
+      await publishListing(listing);
     }
     setSelectedIds(new Set());
   };
 
   const handleBulkReject = async () => {
+    const selectedListings = listings.filter((l) => selectedIds.has(l.id));
     const updated = listings.map((l) =>
       selectedIds.has(l.id) ? { ...l, status: 'rejected' as const } : l
     );
     setListings(updated);
-    for (const id of selectedIds) {
-      await updateListing(id, { status: 'rejected' });
+    for (const listing of selectedListings) {
+      await rejectListing(listing);
     }
     setSelectedIds(new Set());
   };
 
-  const handleBulkFeature = () => {
+  const handleBulkFeature = async () => {
+    const selectedListings = listings.filter((l) => selectedIds.has(l.id));
     const updated = listings.map((l) =>
       selectedIds.has(l.id) ? { ...l, featured: true } : l
     );
     setListings(updated);
+    for (const listing of selectedListings) {
+      await updateListing(listing.id, { featured: true, updated_at: new Date().toISOString() }, listing);
+    }
     setSelectedIds(new Set());
   };
 
-  const handleBulkArchive = () => {
+  const handleBulkArchive = async () => {
+    const selectedListings = listings.filter((l) => selectedIds.has(l.id));
     const updated = listings.map((l) =>
       selectedIds.has(l.id) ? { ...l, status: 'archived' as const } : l
     );
     setListings(updated);
+    for (const listing of selectedListings) {
+      await updateListing(listing.id, { status: 'archived', updated_at: new Date().toISOString() }, listing);
+    }
     setSelectedIds(new Set());
   };
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = async () => {
     if (confirm(`Delete ${selectedIds.size} listing(s)?`)) {
+      const selectedListings = listings.filter((l) => selectedIds.has(l.id));
       const updated = listings.filter((l) => !selectedIds.has(l.id));
       setListings(updated);
+      for (const listing of selectedListings) {
+        await deleteListing(listing.id, listing);
+      }
       setSelectedIds(new Set());
     }
   };
@@ -1154,9 +1420,11 @@ export default function ListingsPage() {
                 </td>
                 <td className="px-6 py-4">
                   {listing.images && listing.images.length > 0 ? (
-                    <img
+                    <Image
                       src={listing.images[0]}
                       alt={listing.title}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                   ) : (
@@ -1230,25 +1498,46 @@ export default function ListingsPage() {
                       >
                         ✏️ Edit
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button
+                        onClick={() => setViewingListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
                         👁️ View
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button
+                        onClick={() => handleDuplicateListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
                         📋 Duplicate
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button
+                        onClick={() => handleApproveListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
                         ✓ Approve
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button
+                        onClick={() => handleRejectListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
                         ✗ Reject
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button
+                        onClick={() => handleFeatureListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
                         ⭐ Feature
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button
+                        onClick={() => handleArchiveListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
                         📦 Archive
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 last:rounded-b-lg">
+                      <button
+                        onClick={() => handleDeleteListing(listing)}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 last:rounded-b-lg"
+                      >
                         🗑️ Delete
                       </button>
                     </div>
@@ -1279,10 +1568,12 @@ export default function ListingsPage() {
             {/* Image */}
             <div className="relative h-40 overflow-hidden bg-gray-100">
               {listing.images && listing.images.length > 0 ? (
-                <img
+                <Image
                   src={listing.images[0]}
                   alt={listing.title}
+                  fill
                   className="w-full h-full object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -1331,7 +1622,10 @@ export default function ListingsPage() {
                 >
                   Edit
                 </button>
-                <button className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition">
+                <button
+                  onClick={() => setViewingListing(listing)}
+                  className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition"
+                >
                   View
                 </button>
               </div>
@@ -1357,11 +1651,20 @@ export default function ListingsPage() {
             </h1>
             <p className="text-gray-600">Manage all property listings</p>
           </div>
-          <button className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition font-medium flex items-center gap-2">
+          <button
+            onClick={() => setEditingListing(buildBlankListing())}
+            className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition font-medium flex items-center gap-2"
+          >
             <Plus className="w-5 h-5" />
             Add New Listing
           </button>
         </div>
+
+        {actionMessage && (
+          <div className="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
+            {actionMessage}
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-4 gap-4">
@@ -1461,9 +1764,9 @@ export default function ListingsPage() {
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
               >
                 <option value="all">All Intent</option>
-                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
                 <option value="rent">Rent</option>
-                <option value="short-term">Short-term</option>
+                <option value="short_rent">Short stay</option>
               </select>
 
               <select
@@ -1661,6 +1964,12 @@ export default function ListingsPage() {
       </div>
 
       {/* Modal */}
+      <ListingViewModal
+        listing={viewingListing}
+        isOpen={!!viewingListing}
+        onClose={() => setViewingListing(null)}
+        onEdit={setEditingListing}
+      />
       <ListingDetailModal
         listing={editingListing}
         isOpen={!!editingListing}

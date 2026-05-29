@@ -1,7 +1,8 @@
 // @ts-nocheck
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getDashboardSettings, saveDashboardSettings } from '@/lib/firestore'
 import { ChevronDown } from 'lucide-react'
 
 type SettingsTab = 'general' | 'property' | 'inquiry' | 'seo' | 'integrations' | 'security'
@@ -12,6 +13,8 @@ interface FormState {
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
   const [formData, setFormData] = useState<FormState>({
     siteName: 'Yaal Nilam',
     tagline: 'Your Gateway to Jaffna Property',
@@ -37,6 +40,16 @@ export default function SettingsPage() {
     sessionTimeout: '30',
   })
 
+  useEffect(() => {
+    async function loadSettings() {
+      const saved = await getDashboardSettings()
+      if (saved) {
+        setFormData((current) => ({ ...current, ...saved }))
+      }
+    }
+    loadSettings()
+  }, [])
+
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({
       ...prev,
@@ -44,9 +57,12 @@ export default function SettingsPage() {
     }))
   }
 
-  const handleSave = () => {
-    console.log('Saving settings:', formData)
-    alert('Settings saved successfully!')
+  const handleSave = async () => {
+    setSaving(true)
+    const ok = await saveDashboardSettings(formData)
+    setSaving(false)
+    setMessage(ok ? 'Settings saved.' : 'Could not save settings. Check admin access.')
+    window.setTimeout(() => setMessage(''), 3500)
   }
 
   return (
@@ -56,6 +72,11 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold text-charcoal-900">Settings</h1>
         <p className="text-charcoal-600 mt-1">Manage your platform configuration</p>
       </div>
+      {message && (
+        <div className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
+          {message}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Tabs */}
@@ -424,11 +445,15 @@ export default function SettingsPage() {
             <div className="flex gap-3 pt-6 border-t border-sand-200">
               <button
                 onClick={handleSave}
+                disabled={saving}
                 className="px-6 py-2 rounded-lg bg-navy-600 text-white font-medium hover:bg-navy-700 transition-colors"
               >
-                Save Changes
+                {saving ? 'Saving...' : 'Save Changes'}
               </button>
-              <button className="px-6 py-2 rounded-lg border border-sand-300 text-charcoal-700 font-medium hover:bg-sand-50">
+              <button
+                onClick={() => setMessage('Unsaved changes discarded locally.')}
+                className="px-6 py-2 rounded-lg border border-sand-300 text-charcoal-700 font-medium hover:bg-sand-50"
+              >
                 Cancel
               </button>
             </div>

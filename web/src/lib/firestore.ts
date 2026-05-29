@@ -3,14 +3,12 @@ import { db } from "./firebase";
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
   increment,
   limit,
   query,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -27,6 +25,7 @@ import { ALL_LOCATIONS } from "./locations";
 
 const FALLBACK_LISTINGS = MOCK_PROPERTIES.map((listing) => normalizeListing(listing));
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
+const PUBLIC_LISTING_STATUSES = ["available", "approved", "published", "active", "Available", "Published"];
 const FIRESTORE_READ_TIMEOUT_MS = 2200;
 let savedPropertyCache: string[] | null = null;
 let propertyCatalogCache = FALLBACK_LISTINGS;
@@ -159,7 +158,13 @@ areaCatalogCache = DEFAULT_AREA_CATALOG;
 
 export async function getProperties(filters = {}) {
   try {
-    const snapshot = await safeSnapshot("listings");
+    const snapshot = await withFirestoreTimeout(
+      getDocs(query(collection(db, "listings"), where("status", "in", PUBLIC_LISTING_STATUSES))),
+      "collection:listings:published"
+    ).catch((error) => {
+      console.error("Error fetching published listings:", error);
+      return null;
+    });
     if (!snapshot) return filterListings(propertyCatalogCache, filters);
 
     const listings = snapshot.docs
@@ -301,44 +306,21 @@ export async function trackWhatsAppLead(listing: any, source = "property_card") 
 // ========================
 
 export async function getSavedPropertyIds() {
-  const sessionId = getClientSessionId();
   if (savedPropertyCache) return savedPropertyCache;
   if (typeof window !== "undefined") {
     const local = JSON.parse(window.localStorage.getItem("yaal-nilam-saved-properties") || "[]");
-    if (Array.isArray(local) && local.length > 0) {
-      savedPropertyCache = local;
-      return local;
-    }
-  }
-  try {
-    const savedQuery = query(collection(db, "saved_properties"), where("session_id", "==", sessionId));
-    const snapshot = await getDocs(savedQuery);
-    const ids = snapshot.docs
-      .map((item) => item.data()?.listing_id)
-      .filter(Boolean);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(ids));
-    }
-    savedPropertyCache = ids;
-    return ids;
-  } catch (error) {
-    console.error("Error fetching saved properties:", error);
-    if (typeof window === "undefined") return [];
-    const fallback = JSON.parse(window.localStorage.getItem("yaal-nilam-saved-properties") || "[]");
-    savedPropertyCache = Array.isArray(fallback) ? fallback : [];
+    savedPropertyCache = Array.isArray(local) ? local : [];
     return savedPropertyCache;
   }
+  savedPropertyCache = [];
+  return savedPropertyCache;
 }
 
 export async function toggleSavedProperty(listing: any) {
-  const sessionId = getClientSessionId();
-  const savedRef = doc(db, "saved_properties", `${sessionId}_${listing.id}`);
-  const savedDoc = await getDoc(savedRef).catch(() => null);
-
   try {
-    if (savedDoc?.exists()) {
-      await deleteDoc(savedRef);
-      savedPropertyCache = (savedPropertyCache || []).filter((item) => item !== listing.id);
+    const current = await getSavedPropertyIds();
+    if (current.includes(listing.id)) {
+      savedPropertyCache = current.filter((item) => item !== listing.id);
       if (typeof window !== "undefined") {
         window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(savedPropertyCache));
       }
@@ -349,14 +331,7 @@ export async function toggleSavedProperty(listing: any) {
       return false;
     }
 
-    await setDoc(savedRef, {
-      session_id: sessionId,
-      listing_id: listing.id,
-      listing_code: listing.listing_code,
-      area_slug: listing.area_slug,
-      created_at: new Date().toISOString(),
-    });
-    savedPropertyCache = Array.from(new Set([...(savedPropertyCache || []), listing.id]));
+    savedPropertyCache = Array.from(new Set([...current, listing.id]));
     if (typeof window !== "undefined") {
       window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(savedPropertyCache));
     }
@@ -567,33 +542,40 @@ export async function submitListing(data: Record<string, any>) {
       updated_at: new Date().toISOString(),
     };
 
-    const [submissionRef, listingRef] = await Promise.all([
+    const [submissionRef, inquiryRef] = await Promise.all([
       addDoc(collection(db, "listing_submissions"), {
         ...baseListing,
         session_id: getClientSessionId(),
         whatsapp_opt_in: Boolean(data.whatsappOptIn),
         status: "new",
       }),
-      addDoc(collection(db, "listings"), {
-        ...baseListing,
-        listing_code: data.listingCode || `YN-${Date.now().toString().slice(-6)}`,
-        agent_name: data.ownerName || "New seller lead",
-        agent_phone: data.phone,
-        agent_email: data.email || "",
-        views: 0,
-        inquiries_count: 0,
-        whatsapp_clicks: 0,
+      addDoc(collection(db, "inquiries"), {
+        customer_name: data.ownerName || data.contactName || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        whatsapp: data.phone || "",
+        subject: "New listing submission",
+        message: data.description || `New ${data.propertyType || "property"} listing submission in ${data.area || "Jaffna"}.`,
+        listing_id: "",
+        listing_title: data.title || "",
+        source: "public_listing_form",
+        status: "new",
+        priority: "warm",
+        assigned_to: "",
+        notes: "",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }),
     ]);
 
     await trackAnalyticsEvent("submit_listing", {
       listing_submission_id: submissionRef.id,
-      listing_id: listingRef.id,
+      inquiry_id: inquiryRef.id,
       property_type: data.propertyType,
       intent: data.intent,
       area_slug: data.area,
     });
-    return { submissionId: submissionRef.id, listingId: listingRef.id };
+    return { submissionId: submissionRef.id, inquiryId: inquiryRef.id };
   } catch (error) {
     console.error("Error submitting listing:", error);
     return null;

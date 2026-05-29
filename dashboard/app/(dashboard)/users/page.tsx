@@ -1,27 +1,52 @@
 // @ts-nocheck
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MOCK_USERS } from '@/lib/mock-data';
+import { createAdminUser, deleteAdminUser, getAdminUsers, updateAdminUser } from '@/lib/firestore';
 import {
   Search,
   Plus,
   MoreVertical,
   Eye,
   Trash2,
+  X,
 } from 'lucide-react';
 
+const EMPTY_USER = {
+  id: '',
+  name: '',
+  email: '',
+  phone: '',
+  role: 'viewer',
+  status: 'active',
+  last_login: '',
+  created_at: '',
+};
+
 export default function UsersPage() {
+  const [users, setUsers] = useState(MOCK_USERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const roles = ['All', ...new Set(MOCK_USERS.map(u => u.role))];
-  const statuses = ['All', ...new Set(MOCK_USERS.map(u => u.status))];
+  useEffect(() => {
+    async function loadUsers() {
+      const fsUsers = await getAdminUsers();
+      if (fsUsers.length > 0) setUsers(fsUsers);
+    }
+    loadUsers();
+  }, []);
+
+  const roles = ['All', ...new Set(users.map(u => u.role))];
+  const statuses = ['All', ...new Set(users.map(u => u.status))];
 
   const filteredUsers = useMemo(() => {
-    return MOCK_USERS.filter(user => {
+    return users.filter(user => {
       const matchesSearch = 
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -31,7 +56,68 @@ export default function UsersPage() {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [searchTerm, roleFilter, statusFilter]);
+  }, [users, searchTerm, roleFilter, statusFilter]);
+
+  const openUserModal = (user = EMPTY_USER) => {
+    setEditingUser(user);
+    setShowAddModal(true);
+  };
+
+  const closeUserModal = () => {
+    setEditingUser(null);
+    setShowAddModal(false);
+  };
+
+  const showMessage = (text: string) => {
+    setMessage(text);
+    window.setTimeout(() => setMessage(''), 3500);
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser?.name || !editingUser?.email) {
+      showMessage('Name and email are required.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editingUser.id) {
+        const ok = await updateAdminUser(editingUser.id, editingUser);
+        if (ok) {
+          setUsers((current) => current.map((user) => (user.id === editingUser.id ? editingUser : user)));
+          showMessage('User updated.');
+          closeUserModal();
+        } else {
+          showMessage('Could not update user. Check admin access.');
+        }
+      } else {
+        const newId = await createAdminUser(editingUser);
+        if (newId) {
+          setUsers((current) => [{ ...editingUser, id: newId, created_at: new Date().toISOString() }, ...current]);
+          showMessage('User added to admin access list.');
+          closeUserModal();
+        } else {
+          showMessage('Could not add user. Check admin access.');
+        }
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleStatus = async (user: any) => {
+    const nextStatus = user.status === 'active' ? 'inactive' : 'active';
+    setUsers((current) => current.map((item) => (item.id === user.id ? { ...item, status: nextStatus } : item)));
+    const ok = await updateAdminUser(user.id, { status: nextStatus });
+    showMessage(ok ? `User marked ${nextStatus}.` : 'Could not update user status.');
+  };
+
+  const handleDeleteUser = async (user: any) => {
+    if (!confirm(`Delete access record for ${user.name}?`)) return;
+    setUsers((current) => current.filter((item) => item.id !== user.id));
+    const ok = await deleteAdminUser(user.id);
+    showMessage(ok ? 'User deleted from admin access list.' : 'Could not delete user.');
+  };
 
   const getRoleBadgeStyle = (role: string) => {
     switch (role) {
@@ -87,13 +173,18 @@ export default function UsersPage() {
             <p className="text-charcoal-600 mt-1">Manage platform users and permissions</p>
           </div>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => openUserModal()}
             className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition font-medium"
           >
             <Plus className="w-5 h-5" />
             Add User
           </button>
         </div>
+        {message && (
+          <div className="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
+            {message}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -171,13 +262,13 @@ export default function UsersPage() {
                       : 'Never'}
                   </td>
                   <td className="px-6 py-4 flex gap-2">
-                    <button className="p-2 hover:bg-charcoal-100 rounded-lg transition">
+                    <button onClick={() => openUserModal(user)} className="p-2 hover:bg-charcoal-100 rounded-lg transition" aria-label={`Edit ${user.name}`}>
                       <Eye className="w-4 h-4 text-charcoal-600" />
                     </button>
-                    <button className="p-2 hover:bg-charcoal-100 rounded-lg transition">
+                    <button onClick={() => handleToggleStatus(user)} className="p-2 hover:bg-charcoal-100 rounded-lg transition" aria-label={`Toggle ${user.name} status`}>
                       <MoreVertical className="w-4 h-4 text-charcoal-600" />
                     </button>
-                    <button className="p-2 hover:bg-red-100 rounded-lg transition">
+                    <button onClick={() => handleDeleteUser(user)} className="p-2 hover:bg-red-100 rounded-lg transition" aria-label={`Delete ${user.name}`}>
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </button>
                   </td>
@@ -195,22 +286,100 @@ export default function UsersPage() {
 
         {/* Footer Stats */}
         <div className="mt-6 text-sm text-charcoal-600">
-          <p>Showing {filteredUsers.length} of {MOCK_USERS.length} users</p>
+          <p>Showing {filteredUsers.length} of {users.length} users</p>
         </div>
       </div>
 
-      {/* Add User Modal (placeholder) */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-charcoal-900 mb-4">Add New User</h2>
-            <p className="text-charcoal-600 mb-6">Modal form for adding a new user would be displayed here</p>
+          <div className="bg-white rounded-lg p-8 max-w-lg w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-charcoal-900">{editingUser?.id ? 'Edit User' : 'Add New User'}</h2>
+              <button onClick={closeUserModal} className="p-2 hover:bg-charcoal-100 rounded-lg" aria-label="Close user form">
+                <X className="w-5 h-5 text-charcoal-600" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="user-name" className="block text-sm font-semibold text-charcoal-700 mb-2">Name</label>
+                <input
+                  id="user-name"
+                  value={editingUser?.name || ''}
+                  onChange={(e) => setEditingUser((current: any) => ({ ...current, name: e.target.value }))}
+                  className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="user-email" className="block text-sm font-semibold text-charcoal-700 mb-2">Email</label>
+                <input
+                  id="user-email"
+                  type="email"
+                  value={editingUser?.email || ''}
+                  onChange={(e) => setEditingUser((current: any) => ({ ...current, email: e.target.value }))}
+                  className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="user-phone" className="block text-sm font-semibold text-charcoal-700 mb-2">Phone</label>
+                <input
+                  id="user-phone"
+                  value={editingUser?.phone || ''}
+                  onChange={(e) => setEditingUser((current: any) => ({ ...current, phone: e.target.value }))}
+                  className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="user-role" className="block text-sm font-semibold text-charcoal-700 mb-2">Role</label>
+                  <select
+                    id="user-role"
+                    value={editingUser?.role || 'viewer'}
+                    onChange={(e) => setEditingUser((current: any) => ({ ...current, role: e.target.value }))}
+                    className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  >
+                    <option value="super_admin">Super Admin</option>
+                    <option value="admin">Admin</option>
+                    <option value="listing_manager">Listing Manager</option>
+                    <option value="lead_manager">Lead Manager</option>
+                    <option value="content_manager">Content Manager</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="user-status" className="block text-sm font-semibold text-charcoal-700 mb-2">Status</label>
+                  <select
+                    id="user-status"
+                    value={editingUser?.status || 'active'}
+                    onChange={(e) => setEditingUser((current: any) => ({ ...current, status: e.target.value }))}
+                    className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-charcoal-500 mt-5">
+              This controls the dashboard access list. Firebase custom claims must still be set server-side for sign-in authorization.
+            </p>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleSaveUser}
+                disabled={saving}
+                className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60 transition font-medium"
+              >
+                {saving ? 'Saving...' : 'Save User'}
+              </button>
             <button
-              onClick={() => setShowAddModal(false)}
-              className="w-full px-4 py-2 bg-charcoal-200 text-charcoal-900 rounded-lg hover:bg-charcoal-300 transition font-medium"
+                onClick={closeUserModal}
+                className="px-4 py-2 bg-charcoal-200 text-charcoal-900 rounded-lg hover:bg-charcoal-300 transition font-medium"
             >
-              Close
+                Cancel
             </button>
+            </div>
           </div>
         </div>
       )}

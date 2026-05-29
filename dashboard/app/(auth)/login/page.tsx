@@ -2,29 +2,49 @@
 'use client'
 
 import { useState } from 'react'
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import { useRouter } from 'next/navigation'
+import { auth } from '@/lib/firebase'
+
+const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager', 'viewer']
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email && password) {
-        console.log('Login attempt:', { email, password })
-        // In a real app, you would call an authentication API here
-        setLoading(false)
-      } else {
+    try {
+      if (!email || !password) {
         setError('Please fill in all fields')
-        setLoading(false)
+        return
       }
-    }, 1000)
+
+      const credential = await signInWithEmailAndPassword(auth, email, password)
+      const token = await credential.user.getIdTokenResult(true)
+      const role = typeof token.claims.role === 'string' ? token.claims.role : ''
+      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role)
+
+      if (!allowed) {
+        await signOut(auth)
+        setError('This account does not have admin dashboard access.')
+        return
+      }
+
+      localStorage.setItem('admin_auth', 'true')
+      localStorage.setItem('admin_role', role || 'admin')
+      router.push('/')
+    } catch (err: any) {
+      setError(err?.code === 'auth/invalid-credential' ? 'Invalid email or password.' : 'Unable to sign in. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

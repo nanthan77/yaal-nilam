@@ -70,6 +70,16 @@ export default function AgentsPage() {
         return null;
     }
   };
+
+  async function handleAgentUpdate(agent: any, data: Record<string, any>) {
+    const optimistic = { ...agent, ...data };
+    setAllAgents((current) => current.map((item) => (item.id === agent.id ? optimistic : item)));
+    const ok = await updateAgent(agent.id, { ...data, updated_at: new Date().toISOString() });
+    if (!ok) {
+      setAllAgents((current) => current.map((item) => (item.id === agent.id ? agent : item)));
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white p-8">
       <div className="max-w-7xl mx-auto">
@@ -208,26 +218,38 @@ export default function AgentsPage() {
               {/* Card Footer - Actions */}
               <div className="border-t border-charcoal-200 px-6 py-4 bg-charcoal-50 flex gap-3">
                 {agent.status === 'pending' && (
-                  <button className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
+                  <button
+                    onClick={() => handleAgentUpdate(agent, { status: 'active', verified: true, nic_uploaded: true })}
+                    className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm"
+                  >
                     Verify
                   </button>
                 )}
 
                 {agent.status === 'active' && (
-                  <button className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-sm">
+                  <button
+                    onClick={() => handleAgentUpdate(agent, { status: 'suspended' })}
+                    className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-sm"
+                  >
                     Suspend
                   </button>
                 )}
 
                 {agent.status === 'suspended' && (
-                  <button className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
+                  <button
+                    onClick={() => handleAgentUpdate(agent, { status: 'active' })}
+                    className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm"
+                  >
                     Reactivate
                   </button>
                 )}
 
-                <button className="flex-1 px-3 py-2 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition font-medium text-sm">
+                <a
+                  href={`tel:${agent.phone}`}
+                  className="flex-1 px-3 py-2 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition font-medium text-sm text-center"
+                >
                   View Profile
-                </button>
+                </a>
               </div>
             </div>
           ))}

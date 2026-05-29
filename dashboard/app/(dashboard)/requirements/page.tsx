@@ -3,15 +3,35 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { MOCK_REQUIREMENTS } from '@/lib/mock-data';
-import { getRequirements } from '@/lib/firestore';
+import { createRequirement, deleteRequirement, getRequirements, updateRequirement } from '@/lib/firestore';
 import {
   Search,
   Plus,
   Eye,
   Trash2,
+  X,
 } from 'lucide-react';
 
 type StatusType = 'new' | 'in_progress' | 'matched_partial' | 'matched_full';
+
+const EMPTY_REQUIREMENT = {
+  id: '',
+  customer_name: '',
+  phone: '',
+  whatsapp: '',
+  intent: 'buy',
+  property_type: 'house',
+  preferred_area: 'Jaffna',
+  budget_min: 0,
+  budget_max: 0,
+  bedrooms: 0,
+  land_size: '',
+  urgency: 'medium',
+  notes: '',
+  status: 'new',
+  matches_count: 0,
+  created_at: '',
+};
 
 export default function RequirementsPage() {
   const [allRequirements, setAllRequirements] = useState(MOCK_REQUIREMENTS);
@@ -20,6 +40,9 @@ export default function RequirementsPage() {
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState<'All' | StatusType>('All');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingRequirement, setEditingRequirement] = useState<any>(EMPTY_REQUIREMENT);
+  const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function loadReqs() {
@@ -30,6 +53,60 @@ export default function RequirementsPage() {
     }
     loadReqs();
   }, []);
+
+  const showMessage = (text: string) => {
+    setMessage(text);
+    window.setTimeout(() => setMessage(''), 3500);
+  };
+
+  const openRequirementModal = (requirement = EMPTY_REQUIREMENT) => {
+    setEditingRequirement(requirement);
+    setShowAddModal(true);
+  };
+
+  const closeRequirementModal = () => {
+    setEditingRequirement(EMPTY_REQUIREMENT);
+    setShowAddModal(false);
+  };
+
+  const handleSaveRequirement = async () => {
+    if (!editingRequirement.customer_name || !editingRequirement.phone) {
+      showMessage('Customer name and phone are required.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editingRequirement.id) {
+        const ok = await updateRequirement(editingRequirement.id, editingRequirement);
+        if (ok) {
+          setAllRequirements((current) => current.map((req) => (req.id === editingRequirement.id ? editingRequirement : req)));
+          showMessage('Requirement updated.');
+          closeRequirementModal();
+        } else {
+          showMessage('Could not update requirement.');
+        }
+      } else {
+        const newId = await createRequirement(editingRequirement);
+        if (newId) {
+          setAllRequirements((current) => [{ ...editingRequirement, id: newId, created_at: new Date().toISOString() }, ...current]);
+          showMessage('Requirement added.');
+          closeRequirementModal();
+        } else {
+          showMessage('Could not add requirement.');
+        }
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteRequirement = async (requirement: any) => {
+    if (!confirm(`Delete requirement for ${requirement.customer_name}?`)) return;
+    setAllRequirements((current) => current.filter((req) => req.id !== requirement.id));
+    const ok = await deleteRequirement(requirement.id);
+    showMessage(ok ? 'Requirement deleted.' : 'Could not delete requirement.');
+  };
 
   const intents = ['All', ...new Set(allRequirements.map(r => r.intent))];
   const propertyTypes = ['All', ...new Set(allRequirements.map(r => r.property_type || r.propertyType))];
@@ -44,7 +121,7 @@ export default function RequirementsPage() {
 
       return matchesSearch && matchesIntent && matchesType && matchesStatus;
     });
-  }, [searchTerm, intentFilter, propertyTypeFilter, statusFilter]);
+  }, [allRequirements, searchTerm, intentFilter, propertyTypeFilter, statusFilter]);
 
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -86,13 +163,18 @@ export default function RequirementsPage() {
             <p className="text-charcoal-600 mt-1">Track and match property requirements</p>
           </div>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => openRequirementModal()}
             className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition font-medium"
           >
             <Plus className="w-5 h-5" />
             Add Requirement
           </button>
         </div>
+        {message && (
+          <div className="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
+            {message}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -184,10 +266,10 @@ export default function RequirementsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 flex gap-2">
-                    <button className="p-2 hover:bg-charcoal-100 rounded-lg transition">
+                    <button onClick={() => openRequirementModal(req)} className="p-2 hover:bg-charcoal-100 rounded-lg transition" aria-label={`Edit requirement for ${req.customer_name}`}>
                       <Eye className="w-4 h-4 text-charcoal-600" />
                     </button>
-                    <button className="p-2 hover:bg-red-100 rounded-lg transition">
+                    <button onClick={() => handleDeleteRequirement(req)} className="p-2 hover:bg-red-100 rounded-lg transition" aria-label={`Delete requirement for ${req.customer_name}`}>
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </button>
                   </td>
@@ -209,18 +291,90 @@ export default function RequirementsPage() {
         </div>
       </div>
 
-      {/* Add Modal (placeholder) */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-charcoal-900 mb-4">Add New Requirement</h2>
-            <p className="text-charcoal-600 mb-6">Modal form would go here</p>
-            <button
-              onClick={() => setShowAddModal(false)}
-              className="w-full px-4 py-2 bg-charcoal-200 text-charcoal-900 rounded-lg hover:bg-charcoal-300 transition font-medium"
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-charcoal-900">{editingRequirement.id ? 'Edit Requirement' : 'Add New Requirement'}</h2>
+              <button onClick={closeRequirementModal} className="p-2 hover:bg-charcoal-100 rounded-lg" aria-label="Close requirement form">
+                <X className="w-5 h-5 text-charcoal-600" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="req-name" className="block text-sm font-semibold text-charcoal-700 mb-2">Customer name</label>
+                <input id="req-name" value={editingRequirement.customer_name || ''} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, customer_name: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label htmlFor="req-phone" className="block text-sm font-semibold text-charcoal-700 mb-2">Phone</label>
+                <input id="req-phone" value={editingRequirement.phone || ''} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, phone: e.target.value, whatsapp: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label htmlFor="req-intent" className="block text-sm font-semibold text-charcoal-700 mb-2">Intent</label>
+                <select id="req-intent" value={editingRequirement.intent || 'buy'} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, intent: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="buy">Buy</option>
+                  <option value="rent">Rent</option>
+                  <option value="short_rent">Short stay</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="req-type" className="block text-sm font-semibold text-charcoal-700 mb-2">Property type</label>
+                <select id="req-type" value={editingRequirement.property_type || 'house'} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, property_type: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="house">House</option>
+                  <option value="land">Land</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="villa">Villa</option>
+                  <option value="commercial">Commercial</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="req-area" className="block text-sm font-semibold text-charcoal-700 mb-2">Preferred area</label>
+                <input id="req-area" value={editingRequirement.preferred_area || ''} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, preferred_area: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label htmlFor="req-status" className="block text-sm font-semibold text-charcoal-700 mb-2">Status</label>
+                <select id="req-status" value={editingRequirement.status || 'new'} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, status: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="new">New</option>
+                  <option value="in_progress">In progress</option>
+                  <option value="matched_partial">Partial match</option>
+                  <option value="matched_full">Full match</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="req-budget-min" className="block text-sm font-semibold text-charcoal-700 mb-2">Budget min</label>
+                <input id="req-budget-min" type="number" value={editingRequirement.budget_min || 0} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, budget_min: Number(e.target.value) }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label htmlFor="req-budget-max" className="block text-sm font-semibold text-charcoal-700 mb-2">Budget max</label>
+                <input id="req-budget-max" type="number" value={editingRequirement.budget_max || 0} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, budget_max: Number(e.target.value) }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label htmlFor="req-urgency" className="block text-sm font-semibold text-charcoal-700 mb-2">Urgency</label>
+                <select id="req-urgency" value={editingRequirement.urgency || 'medium'} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, urgency: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="req-matches" className="block text-sm font-semibold text-charcoal-700 mb-2">Matches</label>
+                <input id="req-matches" type="number" value={editingRequirement.matches_count || 0} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, matches_count: Number(e.target.value) }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="req-notes" className="block text-sm font-semibold text-charcoal-700 mb-2">Notes</label>
+                <textarea id="req-notes" rows={3} value={editingRequirement.notes || ''} onChange={(e) => setEditingRequirement((current: any) => ({ ...current, notes: e.target.value }))} className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button onClick={handleSaveRequirement} disabled={saving} className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60 transition font-medium">
+                {saving ? 'Saving...' : 'Save Requirement'}
+              </button>
+              <button onClick={closeRequirementModal} className="px-4 py-2 bg-charcoal-200 text-charcoal-900 rounded-lg hover:bg-charcoal-300 transition font-medium">
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
