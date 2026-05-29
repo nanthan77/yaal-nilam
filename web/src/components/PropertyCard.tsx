@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel, t } from "@/lib/translations";
@@ -13,6 +14,7 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
+  const router = useRouter();
   const { locale } = useStore();
   const [saved, setSaved] = useState(false);
   const p = property as any;
@@ -62,8 +64,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     await trackWhatsAppLead(p, "property_card");
   }
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("button") || target.closest("a")) return;
+    router.push(`/properties/${p.id}`);
+  };
+
   return (
-    <article className="card-interactive group overflow-hidden">
+    <article
+      onClick={handleCardClick}
+      className="card-interactive group overflow-hidden cursor-pointer"
+    >
       <div className="relative aspect-[4/3] overflow-hidden bg-sand-100">
         <img
           src={resolvePropertyImage(p)}
