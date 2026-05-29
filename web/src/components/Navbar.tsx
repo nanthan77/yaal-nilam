@@ -43,15 +43,15 @@ export function Navbar() {
   const languageButtonLabel = locale === 'en' ? 'EN' : 'தமிழ்';
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-sand-200">
+    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-sand-200/50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex flex-col items-start gap-0">
-            <span className="text-xl font-bold text-teal-900">
+          <Link href="/" className="flex flex-col items-start gap-0 group">
+            <span className="text-xl font-black text-teal-900 tracking-tight group-hover:text-teal-700 transition-colors">
               {navbarTitle}
             </span>
-            <span className="text-xs text-teal-600 font-medium">
+            <span className="text-[10px] text-teal-600 font-bold uppercase tracking-wider">
               {navbarSubtitle}
             </span>
           </Link>
@@ -62,7 +62,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-teal-600 hover:text-teal-500 transition-colors duration-200 rounded-md hover:bg-teal-50"
+                className="px-3.5 py-2 text-sm font-bold text-teal-950 hover:text-teal-700 transition-all duration-200 rounded-xl hover:bg-sand-100/60"
               >
                 {getLabel(link)}
               </Link>
@@ -74,11 +74,11 @@ export function Navbar() {
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="p-2 rounded-lg bg-sand-100 hover:bg-sand-200 transition-colors duration-200 flex items-center gap-1"
+              className="p-2.5 rounded-xl bg-sand-100/80 hover:bg-sand-200/60 hover:scale-105 transition-all duration-200 flex items-center gap-1.5 border border-sand-200/30"
               aria-label="Toggle language"
             >
-              <Globe className="w-4 h-4 text-teal-600" />
-              <span className="text-xs font-semibold text-teal-600 hidden sm:inline">
+              <Globe className="w-4 h-4 text-teal-700" />
+              <span className="text-xs font-bold text-teal-700 hidden sm:inline">
                 {languageButtonLabel}
               </span>
             </button>
@@ -86,23 +86,23 @@ export function Navbar() {
             {/* Add Listing CTA - Desktop */}
             <Link
               href="/add-listing"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-warm-500 text-teal-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 shadow-sm hover:-translate-y-0.5"
+              className="hidden sm:flex items-center gap-2 px-4.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-teal-950 rounded-xl font-extrabold text-sm hover:from-amber-400 hover:to-amber-500 hover:-translate-y-0.5 transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <Plus className="w-4 h-4" />
-              <span className="text-sm">{addListingLabel}</span>
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>{addListingLabel}</span>
             </Link>
 
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMenu}
-              className="md:hidden p-2 rounded-lg hover:bg-sand-100 transition-colors duration-200"
+              className="md:hidden p-2 rounded-xl hover:bg-sand-100 transition-colors duration-200"
               aria-label="Toggle menu"
               aria-expanded={isOpen}
             >
               {isOpen ? (
-                <X className="w-6 h-6 text-teal-600" />
+                <X className="w-6 h-6 text-teal-700" />
               ) : (
-                <Menu className="w-6 h-6 text-teal-600" />
+                <Menu className="w-6 h-6 text-teal-700" />
               )}
             </button>
           </div>
@@ -126,7 +126,7 @@ export function Navbar() {
               {/* Mobile Add Listing Button */}
               <Link
                 href="/add-listing"
-                className="block mx-2 mt-4 px-4 py-2 bg-warm-500 text-teal-900 rounded-lg font-bold hover:bg-warm-400 transition-all duration-200 text-center"
+                className="block mx-2 mt-4 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-teal-950 rounded-xl font-extrabold transition-all duration-200 text-center shadow-sm"
                 onClick={() => setIsOpen(false)}
               >
                 {addListingLabel}

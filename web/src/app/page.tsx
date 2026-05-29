@@ -418,28 +418,28 @@ export default function HomePage() {
             <p className="text-lg md:text-xl text-teal-100 mb-8 max-w-2xl">{copy.heroBody}</p>
           </div>
 
-          <div className="bg-white/15 backdrop-blur-sm rounded-xl p-1.5 mb-6 inline-flex gap-1">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-1.5 mb-6 inline-flex gap-1.5 border border-white/10 shadow-lg">
             {pathways.map((path) => {
               const Icon = path.icon;
               return (
                 <button
                   key={path.key}
                   onClick={() => setActivePathway(path.key)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                    activePathway === path.key ? 'bg-white text-teal-800 shadow-lg' : 'text-white/80 hover:text-white hover:bg-white/10'
+                  className={`flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 ${
+                    activePathway === path.key ? 'bg-white text-teal-900 shadow-lg scale-102' : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  {copy.pathways[path.key]}
+                  <Icon className="w-4.5 h-4.5" />
+                  <span className="text-sm tracking-tight">{copy.pathways[path.key]}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="bg-white rounded-xl shadow-card-xl p-6">
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="flex-1 flex items-center bg-sand-50 rounded-lg px-4 py-3 border border-sand-200">
-                <Search className="w-5 h-5 text-charcoal-400 mr-3" />
+          <div className="bg-white rounded-3xl shadow-[0_24px_50px_rgba(15,46,37,0.15)] border border-sand-300/50 p-6 md:p-8 animate-fade-in">
+            <div className="flex flex-col md:flex-row gap-4 mb-5">
+              <div className="flex-1 flex items-center bg-sand-50/80 rounded-2xl px-4 py-4 border border-sand-200 focus-within:border-teal-700/60 focus-within:ring-4 focus-within:ring-teal-700/5 transition-all">
+                <Search className="w-5.5 h-5.5 text-teal-700/80 mr-3" />
                 <input
                   id="hero-searchbox"
                   role="searchbox"
@@ -447,26 +447,27 @@ export default function HomePage() {
                   placeholder={copy.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent outline-none text-charcoal-900 placeholder:text-charcoal-400"
+                  className="w-full bg-transparent outline-none text-charcoal-900 placeholder:text-charcoal-400 font-medium text-base"
                 />
                 <VoiceSearch variant="inline" />
               </div>
               <Link
                 href={heroSearchParams ? `/properties?${heroSearchParams}` : '/properties'}
-                className="bg-teal-700 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold transition-all hover:-translate-y-0.5 shadow-float text-center"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-teal-950 px-9 py-4 rounded-2xl font-black transition-all hover:-translate-y-0.5 shadow-md flex items-center justify-center gap-2 text-center text-base"
               >
-                {copy.searchButton}
+                <Search className="w-4.5 h-4.5 stroke-[3]" />
+                <span>{copy.searchButton}</span>
               </Link>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {PROPERTY_TYPES.map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedType(selectedType === type ? '' : type)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4.5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
                     selectedType === type
                       ? 'bg-teal-700 text-white shadow-md'
-                      : 'bg-sand-100 text-charcoal-700 hover:bg-sand-200 border border-sand-200'
+                      : 'bg-sand-100/80 text-charcoal-700 hover:bg-sand-200 border border-sand-200'
                   }`}
                 >
                   {locale === 'ta'
@@ -481,15 +482,15 @@ export default function HomePage() {
                 </button>
               ))}
             </div>
-            <div className="mt-3 text-center">
+            <div className="mt-4 text-center">
               <a
                 href="https://wa.me/94777863333?text=Hi%2C%20I%27m%20looking%20for%20a%20property%20in%20Jaffna"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-teal-700 hover:text-teal-800 transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-bold text-teal-700 hover:text-teal-900 transition-colors"
               >
-                <MessageCircle className="w-4 h-4 text-green-600" />
-                {copy.chatHelp}
+                <MessageCircle className="w-4.5 h-4.5 text-green-600 fill-green-600" />
+                <span>{copy.chatHelp}</span>
               </a>
             </div>
           </div>

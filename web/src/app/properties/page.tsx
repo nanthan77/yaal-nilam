@@ -217,11 +217,11 @@ export default function PropertiesPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
             <div className="md:col-span-12">
               <label htmlFor="property-search" className="sr-only">{copy.title}</label>
-              <div className="flex items-center gap-3 border border-sand-200 bg-sand-50 rounded-2xl px-4 py-3">
-                <Search className="w-5 h-5 text-charcoal-400" />
+              <div className="flex items-center gap-3 border border-sand-300 bg-sand-50/50 rounded-2xl px-4 py-3.5 focus-within:border-teal-700/60 focus-within:ring-4 focus-within:ring-teal-700/5 transition-all">
+                <Search className="w-5.5 h-5.5 text-teal-700/85" />
                 <input
                   id="property-search"
                   role="searchbox"
@@ -229,14 +229,14 @@ export default function PropertiesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={copy.searchPlaceholder}
-                  className="w-full bg-transparent outline-none text-charcoal-900 placeholder:text-charcoal-400"
+                  className="w-full bg-transparent outline-none text-charcoal-900 placeholder:text-charcoal-400 font-medium"
                 />
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.intent}</label>
-              <select value={intent} onChange={(e) => setIntent(e.target.value)} className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900 bg-white">
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.intent}</label>
+              <select value={intent} onChange={(e) => setIntent(e.target.value)} className="select-field w-full">
                 <option value="">{copy.intent}</option>
                 <option value="sell">{copy.forSale}</option>
                 <option value="rent">{copy.forRent}</option>
@@ -245,8 +245,8 @@ export default function PropertiesPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.propertyType}</label>
-              <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900 bg-white">
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.propertyType}</label>
+              <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="select-field w-full">
                 <option value="">{copy.allTypes}</option>
                 {["house", "apartment", "villa", "land", "commercial"].map((type) => (
                   <option key={type} value={type}>{getPropertyTypeLabel(type, locale)}</option>
@@ -255,8 +255,8 @@ export default function PropertiesPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.allAreas}</label>
-              <select value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900 bg-white">
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.allAreas}</label>
+              <select value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="select-field w-full">
                 <option value="">{copy.allAreas}</option>
                 {areas.map((area) => (
                   <option key={area.slug} value={area.slug}>{locale === "ta" ? area.name_ta : area.name}</option>
@@ -265,31 +265,31 @@ export default function PropertiesPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.priceMin}</label>
-              <input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number" className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900" placeholder="0" />
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMin}</label>
+              <input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.priceMax}</label>
-              <input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900" placeholder="0" />
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMax}</label>
+              <input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
             </div>
 
             <div className="md:col-span-1">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.bedrooms}</label>
-              <input value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} type="number" min="0" className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900" />
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.bedrooms}</label>
+              <input value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} type="number" min="0" className="input-field w-full" />
             </div>
 
             <div className="md:col-span-1">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2">{copy.landSize}</label>
-              <input value={landSize} onChange={(e) => setLandSize(e.target.value)} type="number" min="0" className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900" />
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.landSize}</label>
+              <input value={landSize} onChange={(e) => setLandSize(e.target.value)} type="number" min="0" className="input-field w-full" />
             </div>
 
             <div className="md:col-span-3">
-              <label className="block text-sm font-semibold text-charcoal-700 mb-2 flex items-center gap-2">
-                <ArrowUpDown className="w-4 h-4" />
+              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2 flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5 text-teal-700" />
                 {copy.sortBy}
               </label>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full rounded-xl border border-sand-200 px-4 py-3 text-charcoal-900 bg-white">
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="select-field w-full">
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {locale === "ta" ? option.labelTa : option.labelEn}
@@ -299,8 +299,8 @@ export default function PropertiesPage() {
             </div>
 
             <div className="md:col-span-3 flex items-end">
-              <label className="inline-flex items-center gap-3 rounded-xl border border-sand-200 bg-sand-50 px-4 py-3 w-full text-charcoal-700">
-                <input type="checkbox" checked={verifiedOnly} onChange={(e) => setVerifiedOnly(e.target.checked)} className="rounded border-sand-300 text-teal-600" />
+              <label className="inline-flex items-center gap-3 rounded-2xl border border-sand-200 bg-sand-50/50 px-4 py-3 w-full text-charcoal-700 font-semibold cursor-pointer">
+                <input type="checkbox" checked={verifiedOnly} onChange={(e) => setVerifiedOnly(e.target.checked)} className="checkbox-tactile" />
                 {copy.verifiedOnly}
               </label>
             </div>

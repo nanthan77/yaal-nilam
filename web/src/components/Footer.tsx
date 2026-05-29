@@ -257,7 +257,7 @@ export function Footer() {
           {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-700 transition-colors duration-200 text-xs font-semibold text-sand-200"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-950/80 transition-all duration-200 text-xs font-bold text-sand-200 border border-teal-800/40 hover:-translate-y-0.5 shadow-sm"
             aria-label="Toggle language"
           >
             <Globe className="w-4 h-4" />

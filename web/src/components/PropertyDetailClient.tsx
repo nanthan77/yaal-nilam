@@ -231,21 +231,21 @@ export default function PropertyDetailClient() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <section className="bg-charcoal-950 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-white/80 mb-4">
-            <Link href="/properties" className="hover:text-white">{copy.backToProperties}</Link>
+    <div className="min-h-screen bg-[#faf7f3]">
+      <section className="bg-gradient-to-br from-[#0F2E25] via-[#1B4D3E] to-[#0F1419] text-white">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-white/70 mb-6">
+            <Link href="/properties" className="hover:text-white transition duration-200">{copy.backToProperties}</Link>
             <span>/</span>
             <span>{property.area_name}</span>
             <span>/</span>
             <span>{property.listing_code}</span>
           </div>
 
-          <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-6">
+          <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-8">
             <div>
-              <div className="rounded-[28px] overflow-hidden bg-charcoal-900 border border-white/10 mb-4">
-                <img src={gallery[selectedImage] || resolvePropertyImage(property)} alt={propertyTitle} className="w-full h-[440px] object-cover" />
+              <div className="rounded-[28px] overflow-hidden bg-charcoal-900 border border-white/10 mb-4 shadow-xl">
+                <img src={gallery[selectedImage] || resolvePropertyImage(property)} alt={propertyTitle} className="w-full h-[460px] object-cover" />
               </div>
               {gallery.length > 1 && (
                 <div className="grid grid-cols-4 gap-3">
@@ -254,7 +254,7 @@ export default function PropertyDetailClient() {
                       key={image}
                       type="button"
                       onClick={() => setSelectedImage(index)}
-                      className={`rounded-2xl overflow-hidden border ${selectedImage === index ? "border-warm-400" : "border-white/10"}`}
+                      className={`rounded-2xl overflow-hidden border-2 transition duration-200 ${selectedImage === index ? "border-[#D4A853] scale-[1.02]" : "border-white/10 hover:border-white/30"}`}
                     >
                       <img src={image} alt={`${propertyTitle} ${index + 1}`} className="w-full h-24 object-cover" />
                     </button>
@@ -263,67 +263,71 @@ export default function PropertyDetailClient() {
               )}
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur p-6 lg:p-7 h-fit">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                {property.featured && <span className="bg-warm-500 text-charcoal-950 px-3 py-1 rounded-full text-sm font-semibold">Featured</span>}
-                {property.verified && <span className="bg-teal-500/20 text-teal-100 border border-teal-400/30 px-3 py-1 rounded-full text-sm font-semibold">Verified</span>}
-                <span className="bg-white/10 text-white px-3 py-1 rounded-full text-sm font-semibold">{getPropertyTypeLabel(property.property_type, locale)}</span>
+            <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md p-6 lg:p-7 h-fit flex flex-col justify-between shadow-2xl">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {property.featured && <span className="bg-[#D4A853] text-[#0F2E25] px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Featured</span>}
+                  {property.verified && <span className="bg-teal-500/20 text-teal-100 border border-teal-400/30 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Verified</span>}
+                  <span className="bg-white/10 text-white px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{getPropertyTypeLabel(property.property_type, locale)}</span>
+                </div>
+
+                <h1 className="text-3xl md:text-4xl font-extrabold leading-tight mb-3 text-white">{propertyTitle}</h1>
+                <p className="text-white/70 text-sm mb-6">{property.address}</p>
+
+                <div className="flex flex-wrap items-center gap-2 mb-6">
+                  {DISPLAY_CURRENCIES.map((currency) => (
+                    <button
+                      key={currency}
+                      type="button"
+                      onClick={() => setDisplayCurrency(currency)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider transition duration-200 ${displayCurrency === currency ? "bg-[#D4A853] text-[#0F2E25] shadow-lg shadow-[#D4A853]/25" : "bg-white/10 text-white hover:bg-white/20"}`}
+                    >
+                      {currency}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <p className="text-xs uppercase tracking-wider text-white/50 mb-1">{copy.priceLabel}</p>
+                  <p className="text-4xl font-black text-white">{formatConvertedPrice(property.price, displayCurrency)}</p>
+                  <p className="text-xs text-white/50 mt-2 font-medium">{copy.lkrHint} • {formatCompactPrice(property.price, locale)}</p>
+                </div>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-3">{propertyTitle}</h1>
-              <p className="text-white/75 mb-5">{property.address}</p>
+              <div>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                    <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.responseRate}</p>
+                    <p className="text-lg font-bold text-white">{property.agent_response_rate || 84}%</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                    <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.remoteSupport}</p>
+                    <p className="text-xs font-semibold text-white truncate">{copy.remoteSupportValue}</p>
+                  </div>
+                </div>
 
-              <div className="flex flex-wrap items-center gap-3 mb-5">
-                {DISPLAY_CURRENCIES.map((currency) => (
-                  <button
-                    key={currency}
-                    type="button"
-                    onClick={() => setDisplayCurrency(currency)}
-                    className={`px-3 py-2 rounded-xl text-sm font-semibold transition ${displayCurrency === currency ? "bg-white text-charcoal-950" : "bg-white/10 text-white"}`}
-                  >
-                    {currency}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <button type="button" onClick={handleSave} className="rounded-2xl bg-white text-charcoal-950 px-4 py-3.5 font-bold hover:bg-sand-100 transition duration-200 text-sm">
+                    {saved ? copy.saved : copy.save}
                   </button>
-                ))}
-              </div>
-
-              <div className="mb-1">
-                <p className="text-sm uppercase tracking-wide text-white/60">{copy.priceLabel}</p>
-                <p className="text-4xl font-black text-white">{formatConvertedPrice(property.price, displayCurrency)}</p>
-                <p className="text-xs text-white/60 mt-2">{copy.lkrHint} • {formatCompactPrice(property.price, locale)}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mt-6">
-                <div className="rounded-2xl bg-white/6 border border-white/10 px-4 py-3">
-                  <p className="text-xs uppercase tracking-wide text-white/60">{copy.responseRate}</p>
-                  <p className="text-lg font-bold text-white">{property.agent_response_rate || 84}%</p>
+                  <button type="button" onClick={handleShare} className="rounded-2xl bg-white/10 text-white border border-white/10 px-4 py-3.5 font-bold hover:bg-white/20 transition duration-200 text-sm">
+                    {copy.share}
+                  </button>
                 </div>
-                <div className="rounded-2xl bg-white/6 border border-white/10 px-4 py-3">
-                  <p className="text-xs uppercase tracking-wide text-white/60">{copy.remoteSupport}</p>
-                  <p className="text-sm font-semibold text-white">{copy.remoteSupportValue}</p>
+
+                {shareMessage && <p className="text-sm text-teal-200 mt-2 mb-2 font-medium">{shareMessage}</p>}
+
+                <div className="mt-2">
+                  <a
+                    href={primaryWhatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppLead(property, "property_detail")}
+                    className="w-full inline-flex items-center justify-center bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-4 px-6 rounded-2xl transition duration-300 text-base shadow-lg shadow-[#25D366]/20 hover:shadow-[#25D366]/40 hover:-translate-y-0.5"
+                  >
+                    {copy.contact}
+                  </a>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mt-6">
-                <button type="button" onClick={handleSave} className="rounded-2xl bg-white text-charcoal-950 px-4 py-3 font-semibold hover:bg-sand-100">
-                  {saved ? copy.saved : copy.save}
-                </button>
-                <button type="button" onClick={handleShare} className="rounded-2xl bg-white/10 text-white border border-white/10 px-4 py-3 font-semibold hover:bg-white/20">
-                  {copy.share}
-                </button>
-              </div>
-
-              {shareMessage && <p className="text-sm text-teal-200 mt-3">{shareMessage}</p>}
-
-              <div className="mt-6 flex flex-col gap-3">
-                <a
-                  href={primaryWhatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackWhatsAppLead(property, "property_detail")}
-                  className="w-full inline-flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl transition text-base"
-                >
-                  {copy.contact}
-                </a>
               </div>
             </div>
           </div>
@@ -440,52 +444,62 @@ export default function PropertyDetailClient() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-sand-200 p-6 bg-white">
+            <section className="rounded-3xl border border-sand-300 p-6 bg-white shadow-sm">
               <h2 className="text-2xl font-bold text-charcoal-900 mb-2">{copy.bookViewing}</h2>
-              <p className="text-charcoal-600 mb-5">{copy.viewingIntro}</p>
-              {viewingState === "success" && <p className="mb-4 text-sm font-medium text-green-700">{copy.viewingSuccess}</p>}
-              <form onSubmit={handleViewingSubmit} className="space-y-3">
-                <input
-                  type="text"
-                  value={viewingForm.name}
-                  onChange={(e) => setViewingForm((prev) => ({ ...prev, name: e.target.value }))}
-                  placeholder={copy.yourName}
-                  required
-                  className="w-full rounded-2xl border border-sand-200 px-4 py-3"
-                />
-                <input
-                  type="tel"
-                  value={viewingForm.phone}
-                  onChange={(e) => setViewingForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  placeholder={copy.phone}
-                  required
-                  className="w-full rounded-2xl border border-sand-200 px-4 py-3"
-                />
-                <input
-                  type="email"
-                  value={viewingForm.email}
-                  onChange={(e) => setViewingForm((prev) => ({ ...prev, email: e.target.value }))}
-                  placeholder={copy.email}
-                  className="w-full rounded-2xl border border-sand-200 px-4 py-3"
-                />
-                <input
-                  type="date"
-                  value={viewingForm.preferred_date}
-                  onChange={(e) => setViewingForm((prev) => ({ ...prev, preferred_date: e.target.value }))}
-                  placeholder={copy.date}
-                  className="w-full rounded-2xl border border-sand-200 px-4 py-3"
-                />
-                <textarea
-                  value={viewingForm.notes}
-                  onChange={(e) => setViewingForm((prev) => ({ ...prev, notes: e.target.value }))}
-                  placeholder={copy.notes}
-                  rows={4}
-                  className="w-full rounded-2xl border border-sand-200 px-4 py-3"
-                />
+              <p className="text-charcoal-600 text-sm mb-5">{copy.viewingIntro}</p>
+              {viewingState === "success" && <p className="mb-4 text-sm font-semibold text-green-700 bg-green-50 p-3 rounded-xl border border-green-100">{copy.viewingSuccess}</p>}
+              <form onSubmit={handleViewingSubmit} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    value={viewingForm.name}
+                    onChange={(e) => setViewingForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder={copy.yourName}
+                    required
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="tel"
+                    value={viewingForm.phone}
+                    onChange={(e) => setViewingForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    placeholder={copy.phone}
+                    required
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="email"
+                    value={viewingForm.email}
+                    onChange={(e) => setViewingForm((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder={copy.email}
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="date"
+                    value={viewingForm.preferred_date}
+                    onChange={(e) => setViewingForm((prev) => ({ ...prev, preferred_date: e.target.value }))}
+                    placeholder={copy.date}
+                    className="input-field cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <textarea
+                    value={viewingForm.notes}
+                    onChange={(e) => setViewingForm((prev) => ({ ...prev, notes: e.target.value }))}
+                    placeholder={copy.notes}
+                    rows={4}
+                    className="input-field"
+                  />
+                </div>
                 <button
                   type="submit"
                   disabled={viewingState === "submitting"}
-                  className="w-full rounded-2xl bg-teal-700 hover:bg-teal-600 text-white font-semibold px-4 py-3 disabled:opacity-60"
+                  className="w-full btn-primary py-3.5 disabled:opacity-60 text-sm"
                 >
                   {viewingState === "submitting" ? copy.submitting : copy.submitViewing}
                 </button>

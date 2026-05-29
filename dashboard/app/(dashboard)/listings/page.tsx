@@ -463,6 +463,12 @@ function ListingDetailModal({
 }: ListingDetailModalProps) {
   const [formData, setFormData] = useState<Listing | null>(listing);
 
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(listing);
+    }
+  }, [listing, isOpen]);
+
   if (!isOpen || !formData) return null;
 
   const handleChange = (
