@@ -32,9 +32,10 @@ export function Sidebar() {
   const { sidebarOpen, toggleSidebar, setSidebarOpen } = useAdminStore();
   const pathname = usePathname();
 
-  // Auto-collapse sidebar on mobile
+  // Below lg the sidebar is an off-canvas drawer (starts hidden); at lg+ it is
+  // a persistent rail. Align the auto-collapse breakpoint with the `lg:` styles.
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const mediaQuery = window.matchMedia('(max-width: 1023px)');
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
       if (e.matches) {
         setSidebarOpen(false);
@@ -44,6 +45,13 @@ export function Sidebar() {
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [setSidebarOpen]);
+
+  // On mobile, close the drawer after navigating so it doesn't cover the page.
+  const closeOnMobile = () => {
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
+      setSidebarOpen(false);
+    }
+  };
 
   const isActive = (path: string) => pathname.startsWith(path);
 
@@ -197,9 +205,9 @@ export function Sidebar() {
   ];
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-white border-r border-navy-200 transition-all duration-300 z-40 ${
-        sidebarOpen ? 'w-sidebar' : 'w-20'
-      }`}
+      className={`fixed left-0 top-0 h-screen bg-white border-r border-navy-200 transition-all duration-300 z-50 w-sidebar ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0 ${sidebarOpen ? 'lg:w-sidebar' : 'lg:w-20'}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-navy-200">
@@ -243,6 +251,7 @@ export function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={closeOnMobile}
                   className={`flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-all duration-150 ${
                     active
                       ? 'sidebar-link-active bg-navy-100 text-navy-700 border-l-4 border-navy-600'

@@ -31,8 +31,8 @@ export function TopBar() {
 
   return (
     <header
-      className={`fixed top-0 right-0 h-16 bg-white border-b border-navy-200 z-30 transition-all duration-300 ${
-        sidebarOpen ? 'left-sidebar' : 'left-20'
+      className={`fixed top-0 right-0 h-16 bg-white border-b border-navy-200 z-30 transition-all duration-300 left-0 ${
+        sidebarOpen ? 'lg:left-sidebar' : 'lg:left-20'
       }`}
     >
       <div className="h-full px-6 flex items-center justify-between gap-4">

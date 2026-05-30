@@ -41,11 +41,13 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Yaal Nilam',
     locale: 'en_LK',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Yaal Nilam — Jaffna Property Marketplace' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Yaal Nilam | Jaffna Property Marketplace',
     description: 'Find your dream property in Jaffna. Verified listings, bilingual support.',
+    images: ['/og.png'],
   },
   robots: {
     index: true,
@@ -73,7 +75,7 @@ const jsonLd = {
         address: { '@type': 'PostalAddress', addressRegion: 'Northern Province', addressCountry: 'LK' },
       },
       contactPoint: [
-        { '@type': 'ContactPoint', telephone: '+94-21-222-3456', contactType: 'sales', availableLanguage: ['English', 'Tamil'] },
+        { '@type': 'ContactPoint', telephone: '+94-77-786-3333', email: 'info@yaalnilam.lk', contactType: 'sales', availableLanguage: ['English', 'Tamil'] },
       ],
       knowsLanguage: ['en', 'ta'],
     },

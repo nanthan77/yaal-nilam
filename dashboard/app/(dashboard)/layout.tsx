@@ -26,7 +26,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { sidebarOpen, setCurrentUser } = useAdminStore();
+  const { sidebarOpen, setSidebarOpen, setCurrentUser } = useAdminStore();
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -77,9 +77,18 @@ export default function DashboardLayout({
       <Sidebar />
       <TopBar />
 
+      {/* Mobile drawer backdrop — tap to close */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          aria-hidden="true"
+        />
+      )}
+
       <main
-        className={`pt-16 transition-all duration-300 ${
-          sidebarOpen ? 'pl-sidebar' : 'pl-20'
+        className={`pt-16 transition-all duration-300 pl-0 ${
+          sidebarOpen ? 'lg:pl-sidebar' : 'lg:pl-20'
         }`}
       >
         <div className="p-6">

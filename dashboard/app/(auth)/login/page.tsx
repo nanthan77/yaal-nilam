@@ -269,8 +269,8 @@ export default function LoginPage() {
           <p>For admin access only</p>
           <p className="text-sand-400">
             Need help? Contact{' '}
-            <a href="mailto:support@yaalnilam.lk" className="text-teal-300 hover:text-teal-200">
-              support@yaalnilam.lk
+            <a href="mailto:info@yaalnilam.lk" className="text-teal-300 hover:text-teal-200">
+              info@yaalnilam.lk
             </a>
           </p>
         </div>

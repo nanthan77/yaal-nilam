@@ -276,7 +276,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-charcoal-900 mb-1">{copy.email}</h3>
-                  <p className="text-charcoal-600 text-sm">hello@yaalnilam.lk</p>
+                  <p className="text-charcoal-600 text-sm">info@yaalnilam.lk</p>
                 </div>
               </div>
             </div>

@@ -146,7 +146,7 @@ export default function PromotionsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <p className="text-slate-600 text-sm font-medium">Active Promotions</p>
           <p className="text-3xl font-bold text-slate-900 mt-2">{activeCount}</p>
@@ -167,7 +167,7 @@ export default function PromotionsPage() {
       {/* Plans */}
       <div>
         <h2 className="text-xl font-bold text-slate-900 mb-4">Promotion Plans</h2>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {plans.map((plan) => (
             <div
               key={plan.name}

@@ -1673,7 +1673,7 @@ export default function ListingsPage() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
             <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">
               Total
@@ -1724,7 +1724,7 @@ export default function ListingsPage() {
             </div>
 
             {/* Filters Row */}
-            <div className="grid grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
               <select
                 value={statusFilter}
                 onChange={(e) => {

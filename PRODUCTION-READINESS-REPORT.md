@@ -66,7 +66,14 @@ The platform is **close to production-ready** and **all five components build/co
 - **Server-side listing counters** — `functions/src/analytics.ts` adds the `onAnalyticsEvent` Firestore trigger that increments `listings.views` / `whatsapp_clicks` via the Admin SDK from `analytics_events`; removed the always-denied client `updateDoc` calls in `web/src/lib/firestore.ts`.
 - **WebP images** — 7 property photos converted (~7.0 MB → ~1.4 MB, ≈79% smaller); `data.ts` and `scripts/update-firestore-images.mjs` re-pointed to `.webp` (PNG originals retained for any live Firestore listings referencing them).
 
-**Third-pass files:** `web/src/app/icon.svg`, `web/src/app/manifest.ts`, `functions/src/analytics.ts` (+ compiled `lib`), `functions/src/index.ts`, `web/src/lib/data.ts`, `web/src/lib/firestore.ts`, `scripts/update-firestore-images.mjs`, 7 `web/public/properties/*.webp`. Verified green: web 554 pages, functions tsc clean. **Not yet deployed** — needs `firebase deploy` (functions for the counter, hosting for favicon/manifest/WebP).
+**Third-pass files:** `web/src/app/icon.svg`, `web/src/app/manifest.ts`, `functions/src/analytics.ts` (+ compiled `lib`), `functions/src/index.ts`, `web/src/lib/data.ts`, `web/src/lib/firestore.ts`, `scripts/update-firestore-images.mjs`, 7 `web/public/properties/*.webp`. Verified green: web 554 pages, functions tsc clean. **Deployed** to production (incl. new `onAnalyticsEvent` function) and verified live.
+
+### Fourth pass (final polish)
+- **OG/Twitter share image** — branded 1200×630 `web/public/og.png` (gold house mark + "Yaal Nilam" + tagline on the forest-green gradient); wired into root `openGraph.images` + `twitter.images`. Property pages override with their own listing photo; PSEO/hub pages inherit it.
+- **Contact details unified** — `info@yaalnilam.lk` + `+94 77 786 3333` across footer, contact page, web dashboard, admin login and layout JSON-LD (phone landline in JSON-LD corrected to the WhatsApp number).
+- **Admin mobile drawer** — sidebar is now an off-canvas drawer below `lg` (slide-in + dimmed backdrop, tap-to-close, auto-close on navigation); `TopBar`/`main` go full-width on mobile. Stat/filter grids in `listings` + `promotions` made responsive.
+
+**Fourth-pass files:** `web/public/og.png`, `web/src/app/layout.tsx`, `web/src/app/contact/page.tsx`, `web/src/app/dashboard/page.tsx`, `dashboard/app/(auth)/login/page.tsx`, `dashboard/app/(dashboard)/layout.tsx`, `dashboard/components/Sidebar.tsx`, `dashboard/components/TopBar.tsx`, `dashboard/app/(dashboard)/listings/page.tsx`, `dashboard/app/(dashboard)/promotions/page.tsx`. Verified green: web 554 pages, dashboard 23 pages.
 
 ---
 
@@ -89,17 +96,17 @@ These make the fixes effective and the system functional in production:
 - **`firebase.json` `/properties/** → prop-001/index.html` rewrite** — acceptable SPA fallback for post-build listings, but fragile (hard-coded id) and serves prop-001's static HTML to crawlers for any not-yet-pre-rendered id. Consider a neutral `/properties/_fallback` shell, and regenerate the build/sitemap when inventory changes.
 - **Listing view/WhatsApp-click counters** — ✅ resolved (third pass). Added the `onAnalyticsEvent` Cloud Function (Firestore `onCreate` on `analytics_events`) that increments `listings.views` / `whatsapp_clicks` server-side via the Admin SDK, and removed the always-failing client-side `updateDoc` attempts from `web/src/lib/firestore.ts`.
 - **Public Firestore creates** — ✅ field/size validation now added (second pass). Still recommended: enable **Firebase App Check** to stop automated/volume abuse (rules can't rate-limit), and consider tightening to a `hasOnly()` field allowlist.
-- **Dashboard mobile nav** — the offset is fixed, but a proper off-canvas drawer with backdrop would be better than the 80 px icon rail; several admin tables use non-responsive `grid-cols-6`/`grid-cols-4` and a hover-only (keyboard-inaccessible) row-action menu (`listings/page.tsx`). Native `confirm()` is used for destructive deletes.
+- **Dashboard mobile nav** — ✅ off-canvas drawer with backdrop added (sidebar slides in below `lg`, tap-to-close, closes on navigation); stat/filter grids made responsive (`grid-cols-6`/`-4` → mobile-stacked in `listings` + `promotions`). Remaining: the hover-only (keyboard-inaccessible) row-action menu in `listings/page.tsx` and native `confirm()` for destructive deletes.
 - **Admin "View" buttons non-functional** (`inquiries/page.tsx`) — inquiry detail flow not implemented.
 
 ### P2 (medium)
 - **Client-component pages shipping no server metadata** — ✅ resolved. Added segment `layout.tsx` metadata to **22 routes**: blog (index + 4 articles), both tools, the `properties`/`areas`/`buy`/`rent`/`short-term-rental` hubs, `about`, `contact`, `agents`, `land`, `commercial`, `map` (noindex), `guides/buying-land-jaffna`, and the `privacy`/`terms`/`listing-policy` pages. Only `home` relies on root defaults (which are appropriate); remaining enhancement there is a home-specific OG image + `WebPage`/`ItemList` JSON-LD.
-- **Favicon + PWA manifest** — ✅ resolved (third pass). Added `app/icon.svg` (brand mark) and `app/manifest.ts` (`manifest.webmanifest`); `<link rel="icon">` + `<link rel="manifest">` now inject into every page. Remaining: a raster **OG/Twitter share image** (`openGraph.images`) so social/WhatsApp shares aren't blank, and an Apple touch icon.
+- **Favicon + PWA manifest** — ✅ resolved (third pass). Added `app/icon.svg` (brand mark) and `app/manifest.ts` (`manifest.webmanifest`); `<link rel="icon">` + `<link rel="manifest">` now inject into every page. ✅ Branded **OG/Twitter share image** also added (`web/public/og.png`, 1200×630, wired in root `openGraph`/`twitter`). Remaining (optional): a dedicated Apple touch icon PNG.
 - **Image optimization** — ✅ resolved (third pass). Converted the 7 property photos to **WebP** (~7.0 MB → ~1.4 MB, ≈79% smaller) and re-pointed `data.ts` + `scripts/update-firestore-images.mjs` to `.webp`. PNG originals kept (existing Firestore listings may still reference them; re-run the seed script to migrate live data).
 - **Type safety disabled** — 43 files carry `@ts-nocheck`. Burn down incrementally, highest-traffic first.
 - **Contrast** — `text-white/70`, `text-teal-100/200` on translucent panels and `text-sand-400` small print risk failing WCAG AA; verify ratios.
 - **i18n SEO** — bilingual via a client toggle on a single URL; Tamil content isn't separately indexable and `<html lang>` doesn't update for Tamil. Consider locale routes or accept English-only indexing.
-- **Hardcoded contact details diverge** across footer / contact / login / JSON-LD (`info@`, `hello@`, `support@`; two phone numbers). Use a single source of truth.
+- **Contact details** — ✅ unified to `info@yaalnilam.lk` + `+94 77 786 3333` across footer, contact, web dashboard, admin login and the layout JSON-LD (one intentional placeholder sample remains in the admin SEO page). Values are still inline; a shared constant module would be the further-hardening step.
 
 ### P3 (polish)
 - Admin dashboard UI is entirely English despite an EN/TA toggle that does nothing on those pages — wire localization or remove the toggle.

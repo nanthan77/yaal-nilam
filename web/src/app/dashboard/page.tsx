@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
           <div className="mt-12 pt-8 border-t border-charcoal-200">
             <p className="text-charcoal-600 text-sm">
-              {copy.help} <span className="font-semibold">hello@yaalnilam.lk</span>
+              {copy.help} <span className="font-semibold">info@yaalnilam.lk</span>
             </p>
           </div>
         </div>
