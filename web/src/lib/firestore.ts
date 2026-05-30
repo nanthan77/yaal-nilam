@@ -6,10 +6,8 @@ import {
   doc,
   getDoc,
   getDocs,
-  increment,
   limit,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import { AREAS as MOCK_AREAS, PROPERTIES as MOCK_PROPERTIES } from "./data";
@@ -266,15 +264,8 @@ export async function trackAnalyticsEvent(eventName: string, payload: Record<str
 }
 
 export async function trackListingView(listing: any, source = "property_detail") {
-  try {
-    await updateDoc(doc(db, "listings", listing.id), {
-      views: increment(1),
-      updated_at: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.warn("Unable to increment listing views:", error);
-  }
-
+  // The listing `views` counter is incremented server-side by the onAnalyticsEvent
+  // Cloud Function — public clients can't write to listings (see firestore.rules).
   return trackAnalyticsEvent("listing_view", {
     listing_id: listing.id,
     listing_code: listing.listing_code,
@@ -284,15 +275,8 @@ export async function trackListingView(listing: any, source = "property_detail")
 }
 
 export async function trackWhatsAppLead(listing: any, source = "property_card") {
-  try {
-    await updateDoc(doc(db, "listings", listing.id), {
-      whatsapp_clicks: increment(1),
-      updated_at: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.warn("Unable to increment WhatsApp clicks:", error);
-  }
-
+  // The listing `whatsapp_clicks` counter is incremented server-side by the
+  // onAnalyticsEvent Cloud Function (public clients can't write to listings).
   return trackAnalyticsEvent("whatsapp_click", {
     listing_id: listing.id,
     listing_code: listing.listing_code,

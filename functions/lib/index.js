@@ -33,13 +33,16 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onNewWhatsAppMessage = exports.sendWhatsApp = exports.whatsappWebhookHandler = void 0;
+exports.onNewWhatsAppMessage = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.onAnalyticsEvent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const cors = require("cors");
 const whatsapp_1 = require("./whatsapp");
 const whatsapp_send_1 = require("./whatsapp-send");
 admin.initializeApp();
+// Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
+var analytics_1 = require("./analytics");
+Object.defineProperty(exports, "onAnalyticsEvent", { enumerable: true, get: function () { return analytics_1.onAnalyticsEvent; } });
 const corsHandler = cors({ origin: true });
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
 // Must be publicly accessible for Meta to call it

@@ -21,21 +21,21 @@ const db = getFirestore(app);
 
 const PROPERTY_IMAGES_MAP = {
   villa: [
-    "/properties/villa_modern.png",
-    "/properties/villa_island.png"
+    "/properties/villa_modern.webp",
+    "/properties/villa_island.webp"
   ],
   house: [
-    "/properties/house_family.png",
-    "/properties/house_heritage.png"
+    "/properties/house_family.webp",
+    "/properties/house_heritage.webp"
   ],
   apartment: [
-    "/properties/apartment_luxury.png"
+    "/properties/apartment_luxury.webp"
   ],
   commercial: [
-    "/properties/commercial_space.png"
+    "/properties/commercial_space.webp"
   ],
   land: [
-    "/properties/land_beach.png"
+    "/properties/land_beach.webp"
   ]
 };
 

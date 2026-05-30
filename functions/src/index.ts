@@ -6,6 +6,9 @@ import { sendWhatsAppMessage } from "./whatsapp-send";
 
 admin.initializeApp();
 
+// Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
+export { onAnalyticsEvent } from "./analytics";
+
 const corsHandler = cors({ origin: true });
 
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
