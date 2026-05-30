@@ -77,6 +77,12 @@ export default function PropertyDetailClient() {
       titleHistoryValue: "Preliminary review completed",
       remoteSupport: "Remote support",
       remoteSupportValue: "Video walkthrough and lawyer coordination available",
+      partnersTitle: "Local Services & Verified Partners",
+      partnersDesc: "Need a trusted professional in Jaffna to verify this deed or survey plan? Contact our verified local directory partners.",
+      partnerLawyer: "Legal Title & Deed Specialist",
+      partnerSurveyor: "Licensed Land Surveyor",
+      partnerArchitect: "Architect & Construction Planner",
+      chatWhatsapp: "Chat on WhatsApp",
     },
     ta: {
       notFoundTitle: "சொத்து கிடைக்கவில்லை",
@@ -121,6 +127,12 @@ export default function PropertyDetailClient() {
       titleHistoryValue: "ஆரம்ப நிலை ஆவண பரிசோதனை முடிந்தது",
       remoteSupport: "Remote support",
       remoteSupportValue: "Video walkthrough மற்றும் lawyer coordination கிடைக்கும்",
+      partnersTitle: "உள்ளூர் சேவைகள் மற்றும் சரிபார்க்கப்பட்ட கூட்டாளர்கள்",
+      partnersDesc: "இந்த நில உறுதி அல்லது வரைபடத்தை சரிபார்க்க யாழ்ப்பாணத்தில் நம்பகமான வல்லுநர் தேவையா? எங்கள் கூட்டாளர்களைத் தொடர்பு கொள்ளுங்கள்.",
+      partnerLawyer: "நில உறுதி மற்றும் சட்ட ஆவண நிபுணர்",
+      partnerSurveyor: "அங்கீகரிக்கப்பட்ட நில அளவையாளர்",
+      partnerArchitect: "கட்டிட கலைஞர் & திட்ட வடிவமைப்பாளர்",
+      chatWhatsapp: "WhatsApp-ல் பேசுங்கள்",
     },
   });
 
@@ -440,6 +452,88 @@ export default function PropertyDetailClient() {
                       </li>
                     ))}
                   </ul>
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-sand-300 p-6 bg-white shadow-sm animate-fade-in">
+              <h2 className="text-xl font-bold text-charcoal-900 mb-2 flex items-center gap-2">
+                <span className="w-2 h-5 bg-[#D4A853] rounded-full inline-block" />
+                {copy.partnersTitle}
+              </h2>
+              <p className="text-charcoal-500 text-xs mb-5 leading-relaxed">{copy.partnersDesc}</p>
+              
+              <div className="space-y-4">
+                {/* Notary */}
+                <div className="p-4 rounded-2xl border border-sand-200 bg-[#FAF7F3] hover:border-[#2D7A5F]/30 transition duration-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="bg-[#D4A853]/10 text-[#0f2e25] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                        {copy.partnerLawyer}
+                      </span>
+                      <h4 className="text-sm font-bold text-charcoal-900 mt-1">S. Thirukumaran, NP</h4>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-charcoal-600 leading-relaxed mb-3">
+                    Specialist in Northern Province deed registry search, pathmap legal clearance, and diaspora titles.
+                  </p>
+                  <a
+                    href="https://wa.me/94777863333?text=Hi%20Thirukumaran,%20I%20am%20interested%20in%20verifying%20the%20deed%20for%20property%20listing%20on%20Yaal%20Nilam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    {copy.chatWhatsapp} →
+                  </a>
+                </div>
+
+                {/* Surveyor */}
+                <div className="p-4 rounded-2xl border border-sand-200 bg-[#FAF7F3] hover:border-[#2D7A5F]/30 transition duration-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="bg-[#D4A853]/10 text-[#0f2e25] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                        {copy.partnerSurveyor}
+                      </span>
+                      <h4 className="text-sm font-bold text-charcoal-900 mt-1">K. Baskaran, L.S.</h4>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-charcoal-600 leading-relaxed mb-3">
+                    Certified land boundary plotting, GPS mapping, partition survey plans in Jaffna and Vavuniya.
+                  </p>
+                  <a
+                    href="https://wa.me/94777863333?text=Hi%20Baskaran,%20I%20need%20a%20survey%20boundary%20check%20for%20a%20property%20on%20Yaal%20Nilam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    {copy.chatWhatsapp} →
+                  </a>
+                </div>
+
+                {/* Builder */}
+                <div className="p-4 rounded-2xl border border-sand-200 bg-[#FAF7F3] hover:border-[#2D7A5F]/30 transition duration-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="bg-[#D4A853]/10 text-[#0f2e25] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                        {copy.partnerArchitect}
+                      </span>
+                      <h4 className="text-sm font-bold text-charcoal-900 mt-1">NorthBuild Construction</h4>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-charcoal-600 leading-relaxed mb-3">
+                    Modern custom house design, estimating, structural planning, and contract builds for overseas families.
+                  </p>
+                  <a
+                    href="https://wa.me/94777863333?text=Hi%20NorthBuild,%20I%20want%20to%20consult%20about%20a%20new%20home%20design/estimate%20via%20Yaal%20Nilam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    {copy.chatWhatsapp} →
+                  </a>
                 </div>
               </div>
             </section>

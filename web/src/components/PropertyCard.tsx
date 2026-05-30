@@ -73,7 +73,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   return (
     <article
       onClick={handleCardClick}
-      className="card-interactive group overflow-hidden cursor-pointer"
+      className={`card-interactive group overflow-hidden cursor-pointer transition-all duration-300 ${
+        p.featured
+          ? "border-2 border-[#D4A853] hover:shadow-[0_0_25px_rgba(212,168,83,0.3)] shadow-[#D4A853]/10"
+          : "border border-sand-200"
+      }`}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-sand-100">
         <img
@@ -83,10 +87,10 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           loading="lazy"
         />
 
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[70%]">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[70%] z-10">
           <span className={`badge ${intentColor}`}>{intentLabel}</span>
-          {p.featured && <span className="badge bg-warm-500 text-white">{t("common.featured", locale)}</span>}
-          {p.verified && <span className="badge bg-white/90 text-teal-800">{t("common.verified", locale)}</span>}
+          {p.featured && <span className="badge bg-[#D4A853] text-[#0F2E25] font-black uppercase tracking-wider shadow-sm">{locale === "ta" ? "சிறப்பு" : "Featured"}</span>}
+          {p.verified && <span className="badge bg-white/95 text-teal-800 font-bold uppercase tracking-wider">{locale === "ta" ? "சரிபார்க்கப்பட்டது" : "Verified"}</span>}
         </div>
 
         <button

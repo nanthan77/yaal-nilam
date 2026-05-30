@@ -1269,6 +1269,171 @@ export const ALL_LOCATIONS: Location[] = [
     properties_count: 4,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
+  {
+    slug: 'vavuniya',
+    name: 'Vavuniya',
+    name_ta: 'வவுனியா',
+    type: 'ds_division',
+    lat: 8.7542,
+    lng: 80.4982,
+    description: {
+      en: 'The southern gateway to the Northern Province — Vavuniya is a major commercial transport hub connecting the north to the rest of Sri Lanka.',
+      ta: 'வட மாகாணத்தின் தெற்கு நுழைவாயில் — வவுனியா என்பது வடமத்திய மாகாணத்தையும் பிற பகுதிகளையும் வட மாகாணத்துடன் இணைக்கும் ஒரு முக்கிய வணிக போக்குவரத்து மையமாகும்.',
+    },
+    nearbyLandmarks: ['Vavuniya Railway Station', 'Vavuniya General Hospital', 'Vavuniya Kulam', 'Grand Bazaar Vavuniya'],
+    nearbyLocations: ['jaffna', 'kilinochchi', 'mannar'],
+    areaGuide: {
+      en: 'Vavuniya is a vital commercial and residential hub in the Northern Province. Its strategic location makes it a highly desirable area for business warehousing, logistics, and retail spaces. Proximity to the A9 highway and the railway network ensures seamless transport connectivity. The residential real estate market here has grown rapidly, offering competitive land prices for spacious homes compared to central Jaffna. Residential areas near the town centre and major schools are experiencing high demand.',
+      ta: 'வவுனியா வட மாகாணத்தில் ஒரு முக்கிய வணிக மற்றும் குடியிருப்பு மையமாகும். ஏ9 நெடுஞ்சாலை மற்றும் ரயில்வே வலையமைப்புக்கு அருகாமை தடையற்ற போக்குவரத்து இணைப்பை உறுதி செய்கிறது.',
+    },
+    whyLiveHere: {
+      en: 'Excellent connectivity to both Jaffna and Colombo, thriving local markets, quality healthcare at the General Hospital, and affordable land compared to other district capitals.',
+      ta: 'யாழ்ப்பாணம் மற்றும் கொழும்பிற்கு சிறந்த இணைப்பு, செழிப்பான உள்ளூர் சந்தைகள், மற்றும் பிற மாவட்ட தலைநகரங்களுடன் ஒப்பிடும்போது மலிவான நில விலை.',
+    },
+    transportAccess: {
+      en: 'Direct access to the A9 Highway. Major railway station connecting Northern Line to Colombo. Bus services run frequently to all major cities.',
+      ta: 'ஏ9 நெடுஞ்சாலைக்கு நேரடி அணுகல். கொழும்புடன் இணைக்கும் முக்கிய ரயில் நிலையம்.',
+    },
+    priceRange: { min: 8000000, max: 50000000 },
+    searchTerms: {
+      en: ['Vavuniya property', 'land in Vavuniya', 'house for sale Vavuniya', 'Vavuniya town land'],
+      ta: ['வவுனியா சொத்து', 'வவுனியாவில் காணி', 'வவுனியா விற்கப்படும் வீடு'],
+    },
+    properties_count: 14,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
+  },
+  {
+    slug: 'kilinochchi',
+    name: 'Kilinochchi',
+    name_ta: 'கிளிநொச்சி',
+    type: 'ds_division',
+    lat: 9.3803,
+    lng: 80.3982,
+    description: {
+      en: 'The agricultural heartland of the Vanni — Kilinochchi is a rapidly growing administrative hub with fertile soils and vast developmental potential.',
+      ta: 'வன்னியின் விவசாய இதயம் — கிளிநொச்சி என்பது வளமான மண் மற்றும் பரந்த வளர்ச்சித் திறனைக் கொண்ட வேகமாக வளரும் ஒரு நிர்வாக மையமாகும்.',
+    },
+    nearbyLandmarks: ['Iranamadu Tank', 'Kilinochchi General Hospital', 'Kilinochchi Railway Station'],
+    nearbyLocations: ['jaffna', 'vavuniya', 'mullaitivu'],
+    areaGuide: {
+      en: 'Kilinochchi is undergoing a massive post-war reconstruction boom, transforming it into a modern administrative and commercial centre. Anchored by the fertile Iranamadu agricultural region, the district is famous for its paddy cultivation. The real estate market offers large tracts of land at highly competitive rates, making it an excellent investment for agricultural ventures, industrial warehousing, and affordable housing projects.',
+      ta: 'கிளிநொச்சி ஒரு நவீன நிர்வாக மற்றும் வணிக மையமாக வேகமாக வளர்ந்து வருகிறது. வளமான இரணைமடு விவசாயப் பகுதியை மையமாகக் கொண்ட இந்த மாவட்டம் அதன் நெல் விவசாயத்திற்குப் புகழ்பெற்றது.',
+    },
+    whyLiveHere: {
+      en: 'Fertile agricultural land, low cost of living, expanding infrastructure, and rich nature reserves near the Iranamadu tank area.',
+      ta: 'வளமான விவசாய நிலம், குறைந்த வாழ்க்கைச் செலவு, மற்றும் விரிவடையும் உள்கட்டமைப்பு.',
+    },
+    transportAccess: {
+      en: 'Directly situated on the A9 Highway. Fully functional railway station on the Northern Line. Regular local and express bus services.',
+      ta: 'நேரடியாக ஏ9 நெடுஞ்சாலையில் அமைந்துள்ளது. வடமத்திய ரயில் நிலைய இணைப்பு.',
+    },
+    priceRange: { min: 4000000, max: 30000000 },
+    searchTerms: {
+      en: ['Kilinochchi land', 'property in Kilinochchi', 'agricultural land Vanni', 'buy house Kilinochchi'],
+      ta: ['கிளிநொச்சி சொத்து', 'கிளிநொச்சியில் காணி', 'வன்னியில் விவசாய நிலம்'],
+    },
+    properties_count: 9,
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop',
+  },
+  {
+    slug: 'mullaitivu',
+    name: 'Mullaitivu',
+    name_ta: 'முல்லைத்தீவு',
+    type: 'ds_division',
+    lat: 9.2678,
+    lng: 80.8144,
+    description: {
+      en: 'A scenic coastal district on the northeastern shore of the Vanni, famous for its fisheries, lagoons, and pristine beaches.',
+      ta: 'வன்னியின் வடகிழக்குக் கரையில் அமைந்துள்ள எழில் கொஞ்சும் கடலோர மாவட்டம், அதன் மீன்பிடித் தொழில், குளங்கள் மற்றும் தூய கடற்கரைகளுக்குப் புகழ்பெற்றது.',
+    },
+    nearbyLandmarks: ['Mullaitivu Beach', 'Nanthikadal Lagoon', 'Mullaitivu District Hospital'],
+    nearbyLocations: ['kilinochchi', 'trincomalee'],
+    areaGuide: {
+      en: 'Mullaitivu offers exceptional coastal and beachfront properties at a fraction of the cost of Sri Lanka\'s southern coast. Famous for its fisheries and agriculture, the town is a peaceful retreat with massive tourism potential along the Nanthikadal lagoon and the pristine sandy shores. Investing in beachfront land here represents a high-upside opportunity as the tourism infrastructure in the North-East expands.',
+      ta: 'முல்லைத்தீவு இலங்கையின் தெற்கு கடற்கரை விலைகளின் ஒரு பகுதியில் பிரத்யேக கடலோர மற்றும் கடற்கரை சொத்துக்களை வழங்குகிறது. நந்திக்கடல் குளம் மற்றும் தூய கடற்கரையோரம் சுற்றுலாத் திறனைக் கொண்டுள்ளது.',
+    },
+    whyLiveHere: {
+      en: 'Stunning untouched beaches, rich fishing and maritime culture, peaceful coastal living, and highly affordable sea-view properties.',
+      ta: 'அழகான இயற்கை கடற்கரைகள், செழுமையான மீன்பிடி கலாசாரம், மற்றும் மிகக் குறைந்த விலையில் கடல்நோக்கு நிலங்கள்.',
+    },
+    transportAccess: {
+      en: 'Connected via Paranthan-Mullaitivu Road (A35) and Mankulam-Mullaitivu Road (A34). Regular bus connections to Kilinochchi, Vavuniya, and Jaffna.',
+      ta: 'பரந்தன்-முல்லைத்தீவு வீதி (ஏ35) மற்றும் மாங்குளம்-முல்லைத்தீவு வீதி (ஏ34) வழியாக இணைக்கப்பட்டுள்ளது.',
+    },
+    priceRange: { min: 3000000, max: 25000000 },
+    searchTerms: {
+      en: ['Mullaitivu land', 'beachfront Mullaitivu', 'property near Nanthikadal', 'Mullaitivu real estate'],
+      ta: ['முல்லைத்தீவு காணி', 'முல்லைத்தீவு கடற்கரை நிலம்', 'நந்திக்கடல் அருகில் சொத்து'],
+    },
+    properties_count: 6,
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
+  },
+  {
+    slug: 'mannar',
+    name: 'Mannar',
+    name_ta: 'மன்னார்',
+    type: 'ds_division',
+    lat: 8.9814,
+    lng: 79.9044,
+    description: {
+      en: 'A historic island district connected by causeway, known for its ancient baobab trees, fisheries, wind farms, and maritime heritage.',
+      ta: 'நடைபாலத்தால் இணைக்கப்பட்ட ஒரு வரலாற்று சிறப்புமிக்க தீவு மாவட்டம், அதன் பழமையான பெருக்க மரம், மீன்பிடி, காற்றாலைகள் மற்றும் கடல்சார் பாரம்பரியத்திற்கு பெயர் பெற்றது.',
+    },
+    nearbyLandmarks: ['Mannar Fort', 'Thiruketheeswaram Temple', 'Mannar Baobab Tree', 'Talaimannar Pier'],
+    nearbyLocations: ['vavuniya', 'jaffna'],
+    areaGuide: {
+      en: 'Mannar is a historic island bridging Sri Lanka and India via Adams Bridge. The area is famous for the sacred Thiruketheeswaram Temple, Dutch-era forts, and unique wind power developments. Real estate here offers exceptional opportunities for commercial fisheries, dry fish production logistics, and off-grid ecotourism villas. Land prices are highly competitive, and the coastal causeway links provide easy transit to the mainland.',
+      ta: 'மன்னார் ஆதாம் பாலம் வழியாக இலங்கை மற்றும் இந்தியாவை இணைக்கும் ஒரு வரலாற்றுச் சிறப்புமிக்க தீவாகும். புனித திருக்கேதீஸ்வரம் கோவில் மற்றும் டச்சு கால கோட்டைகளுக்கு இப்பகுதி பிரபலமானது.',
+    },
+    whyLiveHere: {
+      en: 'Spiritual heritage with Thiruketheeswaram, unique island ecosystems, major wind-energy projects, and highly competitive land pricing for commercial and residential plots.',
+      ta: 'திருக்கேதீஸ்வரத்துடன் கூடிய ஆன்மீக பாரம்பரியம், தனித்துவமான தீவு சுற்றுச்சூழல், மற்றும் வணிகக் காணி வாய்ப்புகள்.',
+    },
+    transportAccess: {
+      en: 'Connected to the mainland via the Mannar Causeway. Accessible via Medawachchya-Talaimannar highway (A14) and rail line.',
+      ta: 'மன்னார் நடைபாலம் வழியாக நிலப்பரப்புடன் இணைக்கப்பட்டுள்ளது. ஏ14 நெடுஞ்சாலை மற்றும் ரயில் சேவை.',
+    },
+    priceRange: { min: 3500000, max: 30000000 },
+    searchTerms: {
+      en: ['Mannar land', 'property in Mannar', 'coastal land Mannar', 'Thiruketheeswaram temple land'],
+      ta: ['மன்னார் காணி', 'மன்னார் சொத்து', 'திருக்கேதீஸ்வரம் கோவில் அருகில் நிலம்'],
+    },
+    properties_count: 7,
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
+  },
+  {
+    slug: 'trincomalee',
+    name: 'Trincomalee',
+    name_ta: 'திருகோணமலை',
+    type: 'ds_division',
+    lat: 8.5873,
+    lng: 81.2152,
+    description: {
+      en: 'A world-famous deep water natural harbor capital of the Eastern Province, boasting legendary Hindu temples and premier beach resorts.',
+      ta: 'உலகப் புகழ்பெற்ற இயற்கை ஆழ்கடல் துறைமுகத்தைக் கொண்ட கிழக்கு மாகாணத்தின் தலைநகரம், புகழ்பெற்ற இந்து கோவில்கள் மற்றும் சிறந்த கடற்கரை ஓய்வு விடுதிகளைக் கொண்டது.',
+    },
+    nearbyLandmarks: ['Koneswaram Temple', 'Nilaveli Beach', 'Fort Frederick', 'Marble Beach'],
+    nearbyLocations: ['mullaitivu'],
+    areaGuide: {
+      en: 'Trincomalee is a world-class natural harbor city with historical and strategic significance. It offers a premium beachfront real estate market, highly sought after by local and international investors due to Nilaveli and Marble beaches. The area is highly profitable for hotel construction, tourist guest houses, and high-end residential holiday villas. Proximity to the ancient Koneswaram Temple on Swami Rock gives the city a rich cultural heartbeat.',
+      ta: 'திருகோணமலை வரலாற்று மற்றும் மூலோபாய முக்கியத்துவம் வாய்ந்த ஒரு உலகத்தரம் வாய்ந்த இயற்கை துறைமுக நகரமாகும். நிலாவெளி மற்றும் மார்பிள் கடற்கரைகளால் இது உயர்தர கடற்கரை சொத்துச் சந்தையை வழங்குகிறது.',
+    },
+    whyLiveHere: {
+      en: 'Premium natural beaches (Nilaveli), world-famous deep harbor trade routes, spiritual heritage with Koneswaram temple, and massive global tourism and hospitality demand.',
+      ta: 'உலகத்தரம் வாய்ந்த நிலாவெளி கடற்கரை, புகழ்பெற்ற கோணேஸ்வரம் கோவில் ஆன்மீக பாரம்பரியம், மற்றும் சுற்றுலா முதலீட்டு வாய்ப்புகள்.',
+    },
+    transportAccess: {
+      en: 'Connected via A6 Highway (Trincomalee-Colombo Road) and A12 Highway. Train station connecting to Colombo. Domestic air travel available.',
+      ta: 'ஏ6 மற்றும் ஏ12 நெடுஞ்சாலைகள் வழியாக கொழும்புடன் இணைக்கப்பட்டுள்ளது. நேரடி ரயில் சேவைகள்.',
+    },
+    priceRange: { min: 10000000, max: 150000000 },
+    searchTerms: {
+      en: ['Trincomalee property', 'Nilaveli beach land', 'commercial land Trincomalee', 'Koneswaram temple property'],
+      ta: ['திருகோணமலை சொத்து', 'நிலாவெளி கடற்கரை காணி', 'வணிக நிலம் திருகோணமலை'],
+    },
+    properties_count: 19,
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
+  },
 ];
 
 // ─── Utility Functions ───────────────────────────────────────────────────
