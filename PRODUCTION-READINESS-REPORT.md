@@ -61,6 +61,13 @@ The platform is **close to production-ready** and **all five components build/co
 
 **Second-pass files:** `firestore.rules`, plus 16 new files under `web/src/app/` (`not-found.tsx`, `error.tsx`, and 14 `layout.tsx`). Web rebuild re-verified green (552/552 pages).
 
+### Third pass (polish & performance)
+- **Favicon + PWA manifest** — `web/src/app/icon.svg` (brand mark) + `web/src/app/manifest.ts`; `<link rel="icon">` and `<link rel="manifest">` now ship on every page (previously a blank default favicon, no manifest).
+- **Server-side listing counters** — `functions/src/analytics.ts` adds the `onAnalyticsEvent` Firestore trigger that increments `listings.views` / `whatsapp_clicks` via the Admin SDK from `analytics_events`; removed the always-denied client `updateDoc` calls in `web/src/lib/firestore.ts`.
+- **WebP images** — 7 property photos converted (~7.0 MB → ~1.4 MB, ≈79% smaller); `data.ts` and `scripts/update-firestore-images.mjs` re-pointed to `.webp` (PNG originals retained for any live Firestore listings referencing them).
+
+**Third-pass files:** `web/src/app/icon.svg`, `web/src/app/manifest.ts`, `functions/src/analytics.ts` (+ compiled `lib`), `functions/src/index.ts`, `web/src/lib/data.ts`, `web/src/lib/firestore.ts`, `scripts/update-firestore-images.mjs`, 7 `web/public/properties/*.webp`. Verified green: web 554 pages, functions tsc clean. **Not yet deployed** — needs `firebase deploy` (functions for the counter, hosting for favicon/manifest/WebP).
+
 ---
 
 ## ⚠️ Required pre-launch configuration
