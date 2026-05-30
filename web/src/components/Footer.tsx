@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useCallback } from 'react';
-import { Globe, MapPin, Phone, Mail } from 'lucide-react';
+import { Globe, MapPin, Phone, Mail, Award, BookOpen, Wrench, Search } from 'lucide-react';
 import { useStore } from '@/lib/store';
 
 interface Column1Config {
@@ -13,78 +13,79 @@ interface Column1Config {
   taglineTa: string;
 }
 
-interface QuickLinksConfig {
+interface PropertySearchConfig {
   titleEn: string;
   titleTa: string;
   links: Array<{ href: string; labelEn: string; labelTa: string }>;
 }
 
-interface PropertyTypesConfig {
+interface ResourceLinksConfig {
   titleEn: string;
   titleTa: string;
-  types: Array<{ href: string; labelEn: string; labelTa: string }>;
+  links: Array<{ href: string; labelEn: string; labelTa: string }>;
+}
+
+interface UtilityLinksConfig {
+  titleEn: string;
+  titleTa: string;
+  links: Array<{ href: string; labelEn: string; labelTa: string }>;
 }
 
 interface ContactConfig {
   titleEn: string;
   titleTa: string;
-  address: { labelEn: string; labelTa: string; value: string };
-  phone: { labelEn: string; labelTa: string; value: string };
-  email: { labelEn: string; labelTa: string; value: string };
+  phone: string;
+  email: string;
 }
 
 const BRAND_CONFIG: Column1Config = {
   titleEn: 'Yaal Nilam',
   titleTa: 'யாழ் நிலம்',
-  taglineEn: 'Your trusted property marketplace in Jaffna',
-  taglineTa: 'யாழ்ப்பாணத்தில் உங்கள் நம்பகமான சொத்து சந்தை',
+  taglineEn: 'Your trusted hyper-local property marketplace in Jaffna and Northern Sri Lanka.',
+  taglineTa: 'யாழ்ப்பாணம் மற்றும் வட இலங்கையின் நம்பகமான சொத்து சந்தை.',
 };
 
-const QUICK_LINKS: QuickLinksConfig = {
-  titleEn: 'Quick Links',
-  titleTa: 'விரைவு இணைப்புகள்',
+const PROPERTY_SEARCH: PropertySearchConfig = {
+  titleEn: 'Property Search',
+  titleTa: 'சொத்து தேடல்',
   links: [
-    { href: '/', labelEn: 'Home', labelTa: 'முகப்பு' },
-    { href: '/properties', labelEn: 'Properties', labelTa: 'சொத்துக்கள்' },
-    { href: '/areas', labelEn: 'Areas', labelTa: 'பகுதிகள்' },
-    { href: '/tools/land-size-converter', labelEn: 'Land Converter', labelTa: 'நில அளவீடு மாற்றி' },
-    { href: '/blog', labelEn: 'Guides & News', labelTa: 'வழிகாட்டிகள் & செய்திகள்' },
-    { href: '/about', labelEn: 'About', labelTa: 'எங்களைப் பற்றி' },
-    { href: '/contact', labelEn: 'Contact', labelTa: 'தொடர்பு' },
-  ],
-};
-
-const PROPERTY_TYPES: PropertyTypesConfig = {
-  titleEn: 'Property Types',
-  titleTa: 'சொத்து வகைகள்',
-  types: [
-    { href: '/properties?type=house', labelEn: 'House', labelTa: 'வீடு' },
-    { href: '/properties?type=apartment', labelEn: 'Apartment', labelTa: 'அபார்ட்மென்ட்' },
-    { href: '/properties?type=villa', labelEn: 'Villa', labelTa: 'வில்லா' },
-    { href: '/properties?type=land', labelEn: 'Land', labelTa: 'காணி' },
-    { href: '/properties?type=commercial', labelEn: 'Commercial', labelTa: 'வணிகச் சொத்து' },
+    { href: '/properties?type=house', labelEn: 'Houses for Sale', labelTa: 'விற்பனைக்கு வீடுகள்' },
+    { href: '/properties?type=apartment', labelEn: 'Apartments for Sale', labelTa: 'விற்பனைக்கு அபார்ட்மென்ட்கள்' },
+    { href: '/properties?type=villa', labelEn: 'Villas & Luxury Homes', labelTa: 'சொகுசு வில்லாக்கள்' },
+    { href: '/properties?type=land', labelEn: 'Land & Plots for Sale', labelTa: 'விற்பனைக்கு நிலங்கள்' },
+    { href: '/properties?type=commercial', labelEn: 'Commercial Real Estate', labelTa: 'வணிகச் சொத்துக்கள்' },
     { href: '/short-term-rental', labelEn: 'Short-Term Rentals', labelTa: 'குறுகிய கால வாடகை' },
   ],
 };
 
+const RESOURCES_LINKS: ResourceLinksConfig = {
+  titleEn: 'Resources & Guides',
+  titleTa: 'வழிகாட்டிகள்',
+  links: [
+    { href: '/blog/jaffna-real-estate-market-trends', labelEn: '2026 Land Valuations', labelTa: '2026 நில மதிப்புகள்' },
+    { href: '/blog/buying-property-sri-lanka-diaspora', labelEn: 'Diaspora Land Purchase Laws', labelTa: 'வெளிநாட்டு தமிழர் சட்டங்கள்' },
+    { href: '/blog/interior-design-jaffna', labelEn: 'Jaffna Modern Interior Ideas', labelTa: 'உட்புற வடிவமைப்பு யோசனைகள்' },
+    { href: '/blog/best-property-services', labelEn: 'Best Local Services Directory', labelTa: 'சிறந்த சேவைகள் அடைவு' },
+    { href: '/blog', labelEn: 'All Expert Resource Guides', labelTa: 'அனைத்து வழிகாட்டிகள்' },
+  ],
+};
+
+const UTILITY_LINKS: UtilityLinksConfig = {
+  titleEn: 'Free Utilities & Tools',
+  titleTa: 'இலவச கருவிகள்',
+  links: [
+    { href: '/tools/land-size-converter', labelEn: 'Land Size Converter', labelTa: 'நில அளவீடு அலகுகள் மாற்றி' },
+    { href: '/tools/stamp-duty-calculator', labelEn: 'Stamp Duty & Notary Calculator', labelTa: 'முத்திரைத்தாள் கணக்கீடு' },
+    { href: '/about', labelEn: 'About Yaal Nilam', labelTa: 'எங்களைப் பற்றி' },
+    { href: '/contact', labelEn: 'Contact Support & FAQ', labelTa: 'தொடர்பு / உதவிகள்' },
+  ],
+};
+
 const CONTACT_INFO: ContactConfig = {
-  titleEn: 'Contact Info',
-  titleTa: 'தொடர்பு தகவல்',
-  address: {
-    labelEn: 'Address',
-    labelTa: 'முகவரி',
-    value: 'Jaffna, Sri Lanka',
-  },
-  phone: {
-    labelEn: 'Phone',
-    labelTa: 'தொலைபேசி',
-    value: '+94 77 786 3333',
-  },
-  email: {
-    labelEn: 'Email',
-    labelTa: 'மின்னஞ்சல்',
-    value: 'info@yaalnilam.lk',
-  },
+  titleEn: 'Direct Hotline',
+  titleTa: 'நேரடித் தொடர்பு',
+  phone: '+94 77 786 3333',
+  email: 'info@yaalnilam.lk',
 };
 
 const FacebookIcon = () => (
@@ -126,17 +127,18 @@ export function Footer() {
     : '© 2026 யாழ் நிலம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டுள்ளன.';
 
   return (
-    <footer className="bg-teal-900 text-sand-200">
+    <footer className="bg-[#0F2E25] text-sand-200 border-t border-[#D4A853]/20">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+          
           {/* Column 1: Brand */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex flex-col gap-2">
-              <h3 className="text-2xl font-bold text-white">
+              <h3 className="text-2xl font-black text-white tracking-wide">
                 {locale === 'en' ? BRAND_CONFIG.titleEn : BRAND_CONFIG.titleTa}
               </h3>
-              <p className="text-xs text-sand-300">
+              <p className="text-xs text-sand-300 leading-relaxed font-medium">
                 {locale === 'en' ? BRAND_CONFIG.taglineEn : BRAND_CONFIG.taglineTa}
               </p>
             </div>
@@ -147,7 +149,7 @@ export function Footer() {
                 <Link
                   key={social.label}
                   href={social.href}
-                  className="text-sand-200 hover:text-warm-400 transition-colors duration-200"
+                  className="text-sand-200 hover:text-[#D4A853] transition-colors duration-200"
                   aria-label={social.label}
                 >
                   <social.icon />
@@ -156,17 +158,18 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Quick Links */}
+          {/* Column 2: Property Search */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">
-              {getLabel(QUICK_LINKS)}
+            <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <Search className="w-4 h-4 text-[#D4A853]" />
+              {getLabel(PROPERTY_SEARCH)}
             </h4>
-            <ul className="space-y-2">
-              {QUICK_LINKS.links.map(link => (
+            <ul className="space-y-2.5">
+              {PROPERTY_SEARCH.links.map(link => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sand-200 hover:text-white transition-colors duration-200 text-sm"
+                    className="text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold"
                   >
                     {getLabel(link)}
                   </Link>
@@ -175,94 +178,88 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Property Types */}
+          {/* Column 3: Resources & Guides */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">
-              {getLabel(PROPERTY_TYPES)}
+            <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-[#D4A853]" />
+              {getLabel(RESOURCES_LINKS)}
             </h4>
-            <ul className="space-y-2">
-              {PROPERTY_TYPES.types.map(type => (
-                <li key={type.href}>
+            <ul className="space-y-2.5">
+              {RESOURCES_LINKS.links.map(link => (
+                <li key={link.href}>
                   <Link
-                    href={type.href}
-                    className="text-sand-200 hover:text-white transition-colors duration-200 text-sm"
+                    href={link.href}
+                    className="text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold block leading-relaxed"
                   >
-                    {getLabel(type)}
+                    {getLabel(link)}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 4: Contact Info */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">
-              {getLabel(CONTACT_INFO)}
-            </h4>
-            <ul className="space-y-3">
-              {/* Address */}
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-warm-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs text-sand-300">
-                    {getLabel(CONTACT_INFO.address)}
-                  </p>
-                  <p className="text-sm text-sand-200">
-                    {CONTACT_INFO.address.value}
-                  </p>
-                </div>
-              </li>
+          {/* Column 4: Free Utilities & Support */}
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-[#D4A853]" />
+                {getLabel(UTILITY_LINKS)}
+              </h4>
+              <ul className="space-y-2.5">
+                {UTILITY_LINKS.links.map(link => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold"
+                    >
+                      {getLabel(link)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-              {/* Phone */}
-              <li className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-warm-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs text-sand-300">
-                    {getLabel(CONTACT_INFO.phone)}
-                  </p>
-                  <Link
-                    href={`tel:${CONTACT_INFO.phone.value}`}
-                    className="text-sm text-sand-200 hover:text-warm-400 transition-colors duration-200"
-                  >
-                    {CONTACT_INFO.phone.value}
-                  </Link>
-                </div>
-              </li>
-
-              {/* Email */}
-              <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-warm-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs text-sand-300">
-                    {getLabel(CONTACT_INFO.email)}
-                  </p>
-                  <Link
-                    href={`mailto:${CONTACT_INFO.email.value}`}
-                    className="text-sm text-sand-200 hover:text-warm-400 transition-colors duration-200"
-                  >
-                    {CONTACT_INFO.email.value}
-                  </Link>
-                </div>
-              </li>
-            </ul>
+            {/* Direct Contact info integrated */}
+            <div className="pt-4 border-t border-white/5 space-y-2">
+              <h5 className="text-[10px] font-black text-white uppercase tracking-wider">
+                {locale === 'en' ? CONTACT_INFO.titleEn : CONTACT_INFO.titleTa}
+              </h5>
+              <div className="flex flex-col gap-1.5 text-xs text-sand-300 font-bold">
+                <Link
+                  href={`tel:${CONTACT_INFO.phone}`}
+                  className="hover:text-[#D4A853] transition flex items-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#D4A853]" />
+                  {CONTACT_INFO.phone}
+                </Link>
+                <Link
+                  href={`mailto:${CONTACT_INFO.email}`}
+                  className="hover:text-[#D4A853] transition flex items-center gap-1.5"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#D4A853]" />
+                  {CONTACT_INFO.email}
+                </Link>
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-teal-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-sand-300 text-center sm:text-left">
+      <div className="border-t border-white/5 bg-[#0a201a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-[11px] text-sand-400 font-semibold text-center sm:text-left">
             {copyrightText}
           </p>
 
           {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-950/80 transition-all duration-200 text-xs font-bold text-sand-200 border border-teal-800/40 hover:-translate-y-0.5 shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 text-[11px] font-bold text-sand-200 border border-white/10 shadow-sm"
             aria-label="Toggle language"
           >
-            <Globe className="w-4 h-4" />
+            <Globe className="w-3.5 h-3.5 text-[#D4A853]" />
             {locale === 'en' ? 'English' : 'தமிழ்'}
           </button>
         </div>

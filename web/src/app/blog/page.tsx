@@ -4,7 +4,7 @@
 import { useStore } from "@/lib/store";
 import { localize } from "@/lib/translations";
 import Link from "next/link";
-import { BookOpen, Compass, ShieldAlert, Award, ArrowRight } from "lucide-react";
+import { BookOpen, Compass, ShieldAlert, Award, ArrowRight, TrendingUp } from "lucide-react";
 
 export default function BlogHubPage() {
   const { locale } = useStore();
@@ -27,6 +27,10 @@ export default function BlogHubPage() {
       article3Title: "Sri Lanka Land Buying Regulations for Diaspora & Foreign Nationals",
       article3Desc: "A complete analysis of the Land Alienation Act, tax duties, and notary processes for dual citizens and overseas buyers.",
       article3Tag: "Legal & Regulations",
+      
+      article4Title: "Jaffna Real Estate Market Trends & Land Valuation (2026)",
+      article4Desc: "A detailed regional pricing analysis, high-demand residential tracts, and real estate projections across Jaffna city and Northern suburbs.",
+      article4Tag: "Market News",
 
       readMore: "Read Article",
       backToHome: "Back to Home",
@@ -48,6 +52,10 @@ export default function BlogHubPage() {
       article3Title: "வெளிநாடு வாழ் தமிழர்களுக்கான இலங்கை நில கொள்முதல் சட்டங்கள் மற்றும் வரி நடைமுறைகள்",
       article3Desc: "இரட்டை குடியுரிமை மற்றும் வெளிநாட்டு வாங்குபவர்களுக்கான Land Alienation சட்டம், வரி கடமைகள் பற்றிய முழுமையான பகுப்பாய்வு.",
       article3Tag: "சட்டம் மற்றும் விதிமுறைகள்",
+      
+      article4Title: "யாழ்ப்பாண சொத்துச் சந்தை போக்குகள் மற்றும் நில மதிப்பு வழிகாட்டி (2026)",
+      article4Desc: "யாழ்ப்பாணம் மற்றும் வட மாகாண புறநகர்ப் பகுதிகளில் நிலங்களின் தற்போதைய சந்தை மதிப்புகள், சந்தைப் போக்குகள் பற்றிய முழு பகுப்பாய்வு.",
+      article4Tag: "சந்தை செய்திகள்",
 
       readMore: "மேலும் வாசிக்க",
       backToHome: "முகப்பிற்குச் செல்லவும்",
@@ -56,12 +64,21 @@ export default function BlogHubPage() {
 
   const blogs = [
     {
+      slug: "jaffna-real-estate-market-trends",
+      title: copy.article4Title,
+      desc: copy.article4Desc,
+      tag: copy.article4Tag,
+      icon: TrendingUp,
+      color: "text-[#D4A853] bg-[#D4A853]/10",
+      image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=500&h=300&fit=crop",
+    },
+    {
       slug: "interior-design-jaffna",
       title: copy.article1Title,
       desc: copy.article1Desc,
       tag: copy.article1Tag,
       icon: Compass,
-      color: "text-[#D4A853] bg-[#D4A853]/10",
+      color: "text-[#2D7A5F] bg-[#2D7A5F]/10",
       image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=500&h=300&fit=crop",
     },
     {
@@ -101,8 +118,8 @@ export default function BlogHubPage() {
       </div>
 
       {/* Blog Cards Grid */}
-      <div className="max-w-5xl mx-auto px-4 mt-12">
-        <div className="grid md:grid-cols-3 gap-8">
+      <div className="max-w-6xl mx-auto px-4 mt-12">
+        <div className="grid md:grid-cols-2 gap-8">
           {blogs.map((blog) => {
             const Icon = blog.icon;
             return (

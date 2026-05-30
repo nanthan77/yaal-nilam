@@ -22,25 +22,31 @@
     <loc>https://yaal-nilam.web.app/blog/</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.75</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/best-property-services/</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/buying-property-sri-lanka-diaspora/</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/interior-design-jaffna/</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://yaal-nilam.web.app/blog/jaffna-real-estate-market-trends/</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/commercial/</loc>
@@ -106,6 +112,12 @@
     <loc>https://yaal-nilam.web.app/tools/land-size-converter/</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://yaal-nilam.web.app/tools/stamp-duty-calculator/</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

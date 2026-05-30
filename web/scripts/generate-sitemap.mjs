@@ -27,6 +27,9 @@ const PRIORITY_RULES = [
   { match: /^\/short-term-rental\/$/, priority: '0.7', changefreq: 'weekly' },
   { match: /^\/properties\/[^/]+\/$/, priority: '0.7', changefreq: 'weekly' },
   { match: /^\/properties\/$/, priority: '0.7', changefreq: 'daily' },
+  { match: /^\/blog\/[^/]+\/$/, priority: '0.8', changefreq: 'weekly' },
+  { match: /^\/blog\/$/, priority: '0.75', changefreq: 'weekly' },
+  { match: /^\/tools\/[^/]+\/$/, priority: '0.8', changefreq: 'weekly' },
   { match: /^\/guides\/[^/]+\/$/, priority: '0.6', changefreq: 'monthly' },
 ];
 
