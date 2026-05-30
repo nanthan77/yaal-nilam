@@ -47,6 +47,7 @@ const QUICK_LINKS: QuickLinksConfig = {
     { href: '/', labelEn: 'Home', labelTa: 'முகப்பு' },
     { href: '/properties', labelEn: 'Properties', labelTa: 'சொத்துக்கள்' },
     { href: '/areas', labelEn: 'Areas', labelTa: 'பகுதிகள்' },
+    { href: '/tools/land-size-converter', labelEn: 'Land Converter', labelTa: 'நில அளவீடு மாற்றி' },
     { href: '/about', labelEn: 'About', labelTa: 'எங்களைப் பற்றி' },
     { href: '/contact', labelEn: 'Contact', labelTa: 'தொடர்பு' },
   ],
