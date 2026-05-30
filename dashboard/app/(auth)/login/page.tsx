@@ -2,11 +2,22 @@
 'use client'
 
 import { useState } from 'react'
-import { signInWithEmailAndPassword, signOut, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth'
+import { signInWithEmailAndPassword, signOut, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase'
 
 const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager', 'viewer']
+
+// Bootstrap super-admin allowlist. Configurable via env for production; defaults
+// to the project owner. Exact, case-insensitive match — NOT a prefix, so
+// look-alike addresses like "nanthan77@attacker.com" cannot escalate.
+const SUPER_ADMIN_EMAILS = (process.env.NEXT_PUBLIC_SUPERADMIN_EMAILS || 'nanthan77@gmail.com')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean)
+
+const isSuperAdminEmail = (email?: string | null) =>
+  !!email && SUPER_ADMIN_EMAILS.includes(email.toLowerCase())
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,6 +25,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+
+  const handleForgotPassword = async () => {
+    setError('')
+    setNotice('')
+    if (!email) {
+      setError('Enter your email address above, then click "Forgot password?".')
+      return
+    }
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setNotice(`Password reset link sent to ${email}.`)
+    } catch {
+      // Don't reveal whether an account exists.
+      setNotice(`If an account exists for ${email}, a reset link has been sent.`)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,7 +57,7 @@ export default function LoginPage() {
       const credential = await signInWithEmailAndPassword(auth, email, password)
       const token = await credential.user.getIdTokenResult(true)
       const role = typeof token.claims.role === 'string' ? token.claims.role : ''
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || credential.user.email?.startsWith('nanthan77@')
+      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || isSuperAdminEmail(credential.user.email)
 
       if (!allowed) {
         await signOut(auth)
@@ -38,7 +66,7 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('admin_auth', 'true')
-      localStorage.setItem('admin_role', credential.user.email?.startsWith('nanthan77@') ? 'super_admin' : (role || 'admin'))
+      localStorage.setItem('admin_role', isSuperAdminEmail(credential.user.email) ? 'super_admin' : (role || 'admin'))
       router.push('/')
     } catch (err: any) {
       setError(err?.code === 'auth/invalid-credential' ? 'Invalid email or password.' : 'Unable to sign in. Please try again.')
@@ -55,7 +83,7 @@ export default function LoginPage() {
       const credential = await signInWithPopup(auth, provider)
       const token = await credential.user.getIdTokenResult(true)
       const role = typeof token.claims.role === 'string' ? token.claims.role : ''
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || credential.user.email?.startsWith('nanthan77@')
+      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || isSuperAdminEmail(credential.user.email)
 
       if (!allowed) {
         await signOut(auth)
@@ -64,7 +92,7 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('admin_auth', 'true')
-      localStorage.setItem('admin_role', credential.user.email?.startsWith('nanthan77@') ? 'super_admin' : (role || 'admin'))
+      localStorage.setItem('admin_role', isSuperAdminEmail(credential.user.email) ? 'super_admin' : (role || 'admin'))
       router.push('/')
     } catch (err: any) {
       console.error(err)
@@ -82,7 +110,7 @@ export default function LoginPage() {
       const credential = await signInWithPopup(auth, provider)
       const token = await credential.user.getIdTokenResult(true)
       const role = typeof token.claims.role === 'string' ? token.claims.role : ''
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || credential.user.email?.startsWith('nanthan77@')
+      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || isSuperAdminEmail(credential.user.email)
 
       if (!allowed) {
         await signOut(auth)
@@ -91,7 +119,7 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('admin_auth', 'true')
-      localStorage.setItem('admin_role', credential.user.email?.startsWith('nanthan77@') ? 'super_admin' : (role || 'admin'))
+      localStorage.setItem('admin_role', isSuperAdminEmail(credential.user.email) ? 'super_admin' : (role || 'admin'))
       router.push('/')
     } catch (err: any) {
       console.error(err)
@@ -123,8 +151,15 @@ export default function LoginPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+            <div role="alert" className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
               {error}
+            </div>
+          )}
+
+          {/* Notice (e.g. password reset confirmation) */}
+          {notice && (
+            <div role="status" aria-live="polite" className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-700">
+              {notice}
             </div>
           )}
 
@@ -151,9 +186,13 @@ export default function LoginPage() {
                 <label htmlFor="password" className="block text-sm font-semibold text-charcoal-700">
                   Password
                 </label>
-                <a href="#" className="text-xs text-navy-600 hover:text-navy-700 font-medium">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-xs text-navy-600 hover:text-navy-700 font-medium"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
               <input
                 id="password"

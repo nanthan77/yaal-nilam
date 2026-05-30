@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Firebase Storage security rules for Yaal Nilam.
+// Default posture: deny. Only the paths below are reachable, each with
+// size + content-type limits to prevent abuse of public upload endpoints.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.token.role in [
+          'super_admin', 'admin', 'listing_manager', 'content_manager'
+        ]
+      );
+    }
+
+    // Public seller-submission photos (uploaded from the public /list-property form).
+    // Anyone may create an image < 5 MB; the file path is the moderation queue.
+    // Mutations/deletes are reserved for the Admin SDK / console.
+    match /listing-submissions/{fileName} {
+      allow read: if true;
+      allow create: if isImage() && request.resource.size < 5 * 1024 * 1024;
+      allow update, delete: if false;
+    }
+
+    // Approved listing media, written by authenticated admins (or the Admin SDK).
+    match /listings/{listingId}/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Admin-managed media library assets.
+    match /media/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() && request.resource.size < 25 * 1024 * 1024;
+    }
+
+    // Everything else is denied (default-deny is also implied).
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

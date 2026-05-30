@@ -16,7 +16,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 export function TopBar() {
-  const { toggleSidebar, currentUser, locale, setLocale } = useAdminStore();
+  const { toggleSidebar, currentUser, locale, setLocale, sidebarOpen } = useAdminStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
 
@@ -30,7 +30,11 @@ export function TopBar() {
   };
 
   return (
-    <header className="fixed top-0 left-sidebar right-0 h-16 bg-white border-b border-navy-200 z-30">
+    <header
+      className={`fixed top-0 right-0 h-16 bg-white border-b border-navy-200 z-30 transition-all duration-300 ${
+        sidebarOpen ? 'left-sidebar' : 'left-20'
+      }`}
+    >
       <div className="h-full px-6 flex items-center justify-between gap-4">
         {/* Left: Hamburger & Search */}
         <div className="flex items-center gap-4 flex-1">
@@ -65,7 +69,10 @@ export function TopBar() {
           </a>
 
           {/* Notification Bell */}
-          <button className="relative p-2 hover:bg-sand-100 rounded-lg transition-colors">
+          <button
+            className="relative p-2 hover:bg-sand-100 rounded-lg transition-colors"
+            aria-label="Notifications"
+          >
             <Bell className="w-5 h-5 text-charcoal-700" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
           </button>
@@ -98,6 +105,9 @@ export function TopBar() {
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="p-2 hover:bg-sand-100 rounded-lg transition-colors flex items-center gap-2"
+              aria-label="Account menu"
+              aria-haspopup="true"
+              aria-expanded={showUserMenu}
             >
               <div className="w-8 h-8 bg-navy-200 rounded-full flex items-center justify-center text-navy-700 font-bold text-sm">
                 {currentUser.name.charAt(0)}

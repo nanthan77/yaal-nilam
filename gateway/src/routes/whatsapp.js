@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const { downloadMedia, convertOggToMp3 } = require('../services/media');
 const { sendToAIService } = require('../services/ai-bridge');
@@ -31,9 +32,34 @@ router.get('/', (req, res) => {
 });
 
 // ─────────────────────────────────────
+// SIGNATURE VERIFICATION
+// Meta signs every webhook POST with X-Hub-Signature-256 = HMAC-SHA256(rawBody, appSecret).
+// Without this, anyone who knows the URL can inject fake messages.
+// ─────────────────────────────────────
+function verifyMetaSignature(req) {
+  const appSecret = process.env.WHATSAPP_APP_SECRET;
+  if (!appSecret) {
+    console.warn('⚠️ WHATSAPP_APP_SECRET not set — skipping signature verification (NOT for production).');
+    return true; // fail-open only when unconfigured
+  }
+  const header = req.get('x-hub-signature-256') || '';
+  if (!header || !req.rawBody) return false;
+  const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(req.rawBody).digest('hex');
+  const a = Buffer.from(header);
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+// ─────────────────────────────────────
 // INCOMING MESSAGES (POST)
 // ─────────────────────────────────────
 router.post('/', async (req, res) => {
+  // Reject forged requests before doing any work.
+  if (!verifyMetaSignature(req)) {
+    console.warn('⚠️ WhatsApp webhook signature verification failed');
+    return res.sendStatus(403);
+  }
+
   // Immediately acknowledge receipt (Meta requires 200 within 20s)
   res.sendStatus(200);
 

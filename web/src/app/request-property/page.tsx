@@ -37,6 +37,7 @@ export default function RequestPropertyPage() {
   const { locale } = useStore();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitFailed, setSubmitFailed] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -60,6 +61,8 @@ export default function RequestPropertyPage() {
       breadcrumb: 'Request Property',
       successTitle: 'Request submitted successfully',
       successBody: 'Your requirement is now stored in both the public request intake and the dashboard requirement queue for follow-up.',
+      error: "Sorry, we couldn't submit your request. Please try again, or reach us on WhatsApp at +94 77 786 3333.",
+      sending: 'Sending...',
       whatsappCta: 'Continue on WhatsApp',
       name: 'Your name',
       email: 'Email address',
@@ -87,6 +90,8 @@ export default function RequestPropertyPage() {
       breadcrumb: 'சொத்து கோரிக்கை',
       successTitle: 'கோரிக்கை வெற்றிகரமாக பெறப்பட்டது',
       successBody: 'உங்கள் தேவையானது public request intake மற்றும் dashboard requirement queue ஆகிய இரண்டிலும் சேமிக்கப்பட்டது.',
+      error: 'மன்னிக்கவும், உங்கள் கோரிக்கையை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 77 786 3333 இல் WhatsApp மூலம் தொடர்பு கொள்ளுங்கள்.',
+      sending: 'அனுப்பப்படுகிறது...',
       whatsappCta: 'WhatsApp-ல் தொடருங்கள்',
       name: 'உங்கள் பெயர்',
       email: 'மின்னஞ்சல் முகவரி',
@@ -133,9 +138,17 @@ export default function RequestPropertyPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitFailed(false);
     try {
       const result = await submitPropertyRequest(formData);
-      if (result) setSubmitted(true);
+      if (result) {
+        setSubmitted(true);
+      } else {
+        setSubmitFailed(true);
+      }
+    } catch (err) {
+      console.error('Property request submit error:', err);
+      setSubmitFailed(true);
     } finally {
       setSubmitting(false);
     }
@@ -177,6 +190,11 @@ export default function RequestPropertyPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {submitFailed && (
+                <div role="alert" className="rounded-2xl bg-red-50 border border-red-300 text-red-700 px-4 py-3 text-sm">
+                  {copy.error}
+                </div>
+              )}
               <div className="rounded-3xl bg-white border border-sand-200 shadow-sm p-6 space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
@@ -263,7 +281,7 @@ export default function RequestPropertyPage() {
                   {copy.whatsappOptIn}
                 </label>
                 <button type="submit" disabled={submitting} className="rounded-2xl bg-teal-700 hover:bg-teal-600 text-white px-6 py-3 font-semibold disabled:opacity-60">
-                  {submitting ? '...' : copy.submit}
+                  {submitting ? copy.sending : copy.submit}
                 </button>
               </div>
             </form>

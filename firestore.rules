@@ -29,6 +29,53 @@ service cloud.firestore {
       ];
     }
 
+    // ---- Public-submission validation (anti-abuse for create-open collections) ----
+    // These collections accept unauthenticated creates (lead capture). Validation
+    // bounds document size and free-text length so the endpoints can't be used to
+    // write oversized/garbage docs. Volume abuse still needs Firebase App Check.
+    function fieldStr(field, maxLen) {
+      return request.resource.data.get(field, '') is string
+        && request.resource.data.get(field, '').size() <= maxLen;
+    }
+    function boundedDoc(maxKeys) {
+      return request.resource.data.keys().size() <= maxKeys;
+    }
+    function validLead() {
+      // inquiries + viewing_requests
+      return boundedDoc(40)
+        && fieldStr('customer_name', 300)
+        && fieldStr('phone', 40)
+        && fieldStr('email', 320)
+        && fieldStr('message', 10000)
+        && fieldStr('notes', 10000);
+    }
+    function validRequest() {
+      // property_requests + requirements
+      return boundedDoc(45)
+        && fieldStr('customer_name', 300)
+        && fieldStr('phone', 40)
+        && fieldStr('email', 320)
+        && fieldStr('notes', 10000);
+    }
+    function validSubmission() {
+      // listing_submissions (many fields)
+      return boundedDoc(60)
+        && fieldStr('title', 300)
+        && fieldStr('description', 20000)
+        && fieldStr('owner_phone', 40)
+        && fieldStr('owner_email', 320);
+    }
+    function validSavedSearch() {
+      return boundedDoc(20)
+        && fieldStr('session_id', 200)
+        && fieldStr('label', 500);
+    }
+    function validAnalytics() {
+      return boundedDoc(50)
+        && fieldStr('event_name', 200)
+        && fieldStr('session_id', 200);
+    }
+
     // Public marketplace reads only published listings. Writes are admin-only.
     match /listings/{listingId} {
       allow read: if isPublishedListing() || isAdmin();
@@ -43,31 +90,31 @@ service cloud.firestore {
     // Public lead capture. Admins manage after submission.
     match /inquiries/{inquiryId} {
       allow read: if isAdmin();
-      allow create: if true;
+      allow create: if validLead();
       allow update, delete: if isAdmin();
     }
 
     match /viewing_requests/{requestId} {
       allow read: if isAdmin();
-      allow create: if true;
+      allow create: if validLead();
       allow update, delete: if isAdmin();
     }
 
     match /property_requests/{requestId} {
       allow read: if isAdmin();
-      allow create: if true;
+      allow create: if validRequest();
       allow update, delete: if isAdmin();
     }
 
     match /listing_submissions/{submissionId} {
       allow read: if isAdmin();
-      allow create: if true;
+      allow create: if validSubmission();
       allow update, delete: if isAdmin();
     }
 
     match /requirements/{reqId} {
       allow read: if isAdmin();
-      allow create: if true;
+      allow create: if validRequest();
       allow update, delete: if isAdmin();
     }
 
@@ -79,12 +126,12 @@ service cloud.firestore {
 
     match /saved_searches/{searchId} {
       allow read, update, delete: if isAdmin();
-      allow create: if true;
+      allow create: if validSavedSearch();
     }
 
     match /analytics_events/{eventId} {
       allow read, update, delete: if isAdmin();
-      allow create: if true;
+      allow create: if validAnalytics();
     }
 
     // WhatsApp conversations and config are private admin surfaces.

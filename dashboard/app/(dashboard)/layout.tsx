@@ -10,6 +10,17 @@ import { auth } from '@/lib/firebase';
 
 const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager', 'viewer'];
 
+// Bootstrap super-admin allowlist. Configurable via env for production; defaults
+// to the project owner. Exact, case-insensitive match — NOT a prefix, so
+// look-alike addresses like "nanthan77@attacker.com" cannot escalate.
+const SUPER_ADMIN_EMAILS = (process.env.NEXT_PUBLIC_SUPERADMIN_EMAILS || 'nanthan77@gmail.com')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+const isSuperAdminEmail = (email?: string | null) =>
+  !!email && SUPER_ADMIN_EMAILS.includes(email.toLowerCase());
+
 export default function DashboardLayout({
   children,
 }: {
@@ -29,7 +40,8 @@ export default function DashboardLayout({
 
       const token = await user.getIdTokenResult(true);
       const role = typeof token.claims.role === 'string' ? token.claims.role : '';
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || user.email?.startsWith('nanthan77@');
+      const superAdmin = isSuperAdminEmail(user.email);
+      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || superAdmin;
 
       if (!allowed) {
         await signOut(auth);
@@ -40,7 +52,7 @@ export default function DashboardLayout({
 
       setCurrentUser({
         name: user.displayName || user.email?.split('@')[0] || 'Admin',
-        role: user.email?.startsWith('nanthan77@') ? 'super_admin' : (role || 'admin'),
+        role: superAdmin ? 'super_admin' : (role || 'admin'),
         email: user.email || '',
         avatar: user.photoURL || null,
       });

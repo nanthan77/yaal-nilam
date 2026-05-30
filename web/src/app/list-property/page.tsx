@@ -43,6 +43,7 @@ export default function ListPropertyPage() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitFailed, setSubmitFailed] = useState(false);
   const [stepOneError, setStepOneError] = useState('');
   const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
   const [formData, setFormData] = useState({
@@ -105,6 +106,7 @@ export default function ListPropertyPage() {
       breadcrumb: 'List Property',
       quickAssist: 'Prefer to send photos on WhatsApp? That works too.',
       requiredStepOne: 'Please fill owner name, phone, property type, intent, and area before continuing.',
+      submitError: "Sorry, we couldn't submit your listing. Please try again, or send the details on WhatsApp at +94 77 786 3333.",
     },
     ta: {
       title: 'உங்கள் சொத்தைப் பட்டியலிடுங்கள்',
@@ -143,6 +145,7 @@ export default function ListPropertyPage() {
       breadcrumb: 'சொத்தை பட்டியலிடல்',
       quickAssist: 'புகைப்படங்களை WhatsApp மூலம் அனுப்ப விரும்புகிறீர்களா? அதுவும் சரி.',
       requiredStepOne: 'தொடர முன் பெயர், தொலைபேசி, சொத்து வகை, நோக்கம், பகுதி ஆகியவற்றை நிரப்புங்கள்.',
+      submitError: 'மன்னிக்கவும், உங்கள் listing-ஐ அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 77 786 3333 இல் WhatsApp மூலம் அனுப்புங்கள்.',
     },
   });
 
@@ -209,6 +212,7 @@ export default function ListPropertyPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitFailed(false);
     try {
       let photoUrls: string[] = [];
       try {
@@ -224,7 +228,12 @@ export default function ListPropertyPage() {
 
       if (result) {
         setSubmitted(true);
+      } else {
+        setSubmitFailed(true);
       }
+    } catch (error) {
+      console.error('Listing submit error:', error);
+      setSubmitFailed(true);
     } finally {
       setSubmitting(false);
     }
@@ -495,6 +504,12 @@ export default function ListPropertyPage() {
                   {copy.quickAssist}
                 </a>
               </div>
+
+              {submitFailed && (
+                <div role="alert" className="rounded-xl bg-red-50 border border-red-300 text-red-700 px-4 py-3 text-sm">
+                  {copy.submitError}
+                </div>
+              )}
 
               <div className="flex items-center justify-between pt-4">
                 <button

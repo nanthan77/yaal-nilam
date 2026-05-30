@@ -19,6 +19,7 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [submitFailed, setSubmitFailed] = useState(false);
 
   const copy = localize(locale, {
     en: {
@@ -26,6 +27,7 @@ export default function ContactPage() {
       subtitle: "We'd be happy to help with property questions, listings, or local guidance.",
       formTitle: 'Send us a Message',
       success: "Thank you. We've received your message and will get back to you soon.",
+      error: "Sorry, your message couldn't be sent. Please try again, or reach us on WhatsApp at +94 77 786 3333.",
       required: 'This field is required.',
       invalidEmail: 'Please enter a valid email address.',
       name: 'Full Name',
@@ -54,6 +56,7 @@ export default function ContactPage() {
       subtitle: 'சொத்து தேடல், பட்டியலிடல், அல்லது உள்ளூர் வழிகாட்டல் குறித்து உதவ தயாராக உள்ளோம்.',
       formTitle: 'உங்கள் செய்தியை அனுப்புங்கள்',
       success: 'நன்றி. உங்கள் செய்தி எங்களுக்குக் கிடைத்துள்ளது. விரைவில் உங்களைத் தொடர்பு கொள்கிறோம்.',
+      error: 'மன்னிக்கவும், உங்கள் செய்தியை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 77 786 3333 இல் WhatsApp மூலம் தொடர்பு கொள்ளுங்கள்.',
       required: 'இந்த புலத்தை நிரப்ப வேண்டும்.',
       invalidEmail: 'செல்லுபடியான மின்னஞ்சல் முகவரியை உள்ளிடுங்கள்.',
       name: 'முழுப் பெயர்',
@@ -106,6 +109,7 @@ export default function ContactPage() {
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean)) return;
     setSubmitting(true);
+    setSubmitFailed(false);
     try {
       const result = await submitInquiry({
         name: formData.name,
@@ -121,9 +125,13 @@ export default function ContactPage() {
           setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
           setSubmitted(false);
         }, 5000);
+      } else {
+        // submitInquiry swallows errors and returns null — surface the failure.
+        setSubmitFailed(true);
       }
     } catch (err) {
       console.error('Submit error:', err);
+      setSubmitFailed(true);
     } finally {
       setSubmitting(false);
     }
@@ -145,8 +153,14 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold text-charcoal-900 mb-6">{copy.formTitle}</h2>
 
               {submitted && (
-                <div className="mb-6 bg-teal-50 border border-teal-400 text-teal-700 px-4 py-3 rounded-lg">
+                <div role="status" aria-live="polite" className="mb-6 bg-teal-50 border border-teal-400 text-teal-700 px-4 py-3 rounded-lg">
                   {copy.success}
+                </div>
+              )}
+
+              {submitFailed && (
+                <div role="alert" className="mb-6 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
+                  {copy.error}
                 </div>
               )}
 

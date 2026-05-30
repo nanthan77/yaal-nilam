@@ -36,8 +36,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.whatsappVerify = whatsappVerify;
 exports.whatsappWebhook = whatsappWebhook;
 const admin = __importStar(require("firebase-admin"));
+const crypto = __importStar(require("crypto"));
 function getDb() {
     return admin.firestore();
+}
+/**
+ * Verify the X-Hub-Signature-256 header Meta sends with every webhook POST.
+ * The signature is HMAC-SHA256(rawBody, appSecret). Without this check, anyone
+ * who knows the public webhook URL could inject fake conversations/messages.
+ *
+ * Secret resolution: WHATSAPP_APP_SECRET env var first, then the
+ * config/whatsapp Firestore doc (field `app_secret`). If no secret is
+ * configured we log loudly and allow the request through so an unconfigured
+ * deployment is not bricked — set the secret before going to production.
+ */
+function verifyMetaSignature(req, appSecret) {
+    const header = req.get("x-hub-signature-256") || "";
+    const raw = req.rawBody;
+    if (!header || !raw)
+        return false;
+    const expected = "sha256=" +
+        crypto.createHmac("sha256", appSecret).update(raw).digest("hex");
+    const headerBuf = Buffer.from(header);
+    const expectedBuf = Buffer.from(expected);
+    return (headerBuf.length === expectedBuf.length &&
+        crypto.timingSafeEqual(headerBuf, expectedBuf));
 }
 /**
  * Verify webhook - Meta sends a GET request to verify the webhook URL
@@ -62,7 +85,26 @@ async function whatsappVerify(req, res) {
  * Handle incoming WhatsApp messages from Meta Cloud API
  */
 async function whatsappWebhook(req, res) {
+    var _a;
     try {
+        // Authenticate the request actually came from Meta before doing any work.
+        const db = getDb();
+        let appSecret = process.env.WHATSAPP_APP_SECRET || "";
+        if (!appSecret) {
+            const configDoc = await db.collection("config").doc("whatsapp").get();
+            appSecret = ((_a = configDoc.data()) === null || _a === void 0 ? void 0 : _a.app_secret) || "";
+        }
+        if (appSecret) {
+            if (!verifyMetaSignature(req, appSecret)) {
+                console.error("WhatsApp webhook signature verification failed");
+                res.status(403).send("Forbidden");
+                return;
+            }
+        }
+        else {
+            console.warn("WHATSAPP_APP_SECRET not configured — skipping signature verification. " +
+                "Set it before production; unsigned webhooks are being accepted.");
+        }
         const body = req.body;
         if (body.object !== "whatsapp_business_account") {
             res.status(404).send("Not found");

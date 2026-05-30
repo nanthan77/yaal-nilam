@@ -34,7 +34,11 @@ app.use(cors({
   credentials: true
 }));
 app.use(morgan('combined'));
-app.use(express.json({ limit: '50mb' }));
+// Capture the raw body so the WhatsApp webhook can verify Meta's HMAC signature.
+app.use(express.json({
+  limit: '5mb',
+  verify: (req, _res, buf) => { req.rawBody = buf; }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting

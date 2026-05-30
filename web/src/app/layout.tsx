@@ -23,6 +23,7 @@ const notoSansTamil = Noto_Sans_Tamil({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://yaal-nilam.web.app'),
   verification: {
     google: 'oKp5epjZ1HeTmijR-ckneDtdH1UYjMNmtk3OytW9Ba0',
   },
