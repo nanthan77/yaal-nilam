@@ -50,7 +50,9 @@ export default function RegisterPage() {
 
     if (form.name && form.phone && form.password) {
       setUser({ id: "1", name: form.name, phone: form.phone, user_type: form.user_type as any });
-      router.push("/dashboard");
+      // Agents/sellers land on the how-to-use guide; buyers go to listings.
+      const dest = form.user_type === "agent" || form.user_type === "seller" ? "/for-agents" : "/properties";
+      router.push(dest);
     } else {
       setError(copy.requiredError);
     }

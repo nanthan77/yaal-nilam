@@ -688,6 +688,12 @@ export default function HomePage() {
               <MessageCircle className="w-5 h-5" /> {copy.ctaSecondary}
             </a>
           </div>
+          <p className="mt-6 text-sm text-teal-100">
+            {locale === 'ta' ? 'முகவரா அல்லது நிறுவனமா?' : 'Are you an agent or agency?'}{' '}
+            <Link href="/for-agents" className="font-bold underline underline-offset-2 hover:text-white">
+              {locale === 'ta' ? 'எப்படி பட்டியலிடுவது அறிக →' : 'See how to list & use the system →'}
+            </Link>
+          </p>
         </div>
       </section>
     </div>

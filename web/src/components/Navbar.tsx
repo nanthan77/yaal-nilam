@@ -17,6 +17,7 @@ const NAV_LINKS: NavLink[] = [
   { href: '/properties', labelEn: 'Properties', labelTa: 'சொத்துக்கள்' },
   { href: '/areas', labelEn: 'Areas', labelTa: 'பகுதிகள்' },
   { href: '/short-term-rental', labelEn: 'Short Stay', labelTa: 'குறுகிய தங்கல்' },
+  { href: '/for-agents', labelEn: 'For Agents', labelTa: 'முகவர்கள்' },
   { href: '/about', labelEn: 'About', labelTa: 'பற்றி' },
   { href: '/contact', labelEn: 'Contact', labelTa: 'தொடர்பு' },
 ];
