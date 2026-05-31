@@ -10,6 +10,7 @@ import YouTubeEmbed from "@/components/YouTubeEmbed";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import RoiCalculator from "@/components/RoiCalculator";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import PropertyGallery from "@/components/PropertyGallery";
 import { recordRecentlyViewed } from "@/lib/recentlyViewed";
 import { getSavedPropertyIds, getPropertyById, getPropertiesByArea, submitViewingRequest, toggleSavedProperty, trackListingView, trackWhatsAppLead } from "@/lib/firestore";
 import { useStore } from "@/lib/store";
@@ -263,23 +264,7 @@ export default function PropertyDetailClient() {
 
           <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-8">
             <div>
-              <div className="rounded-[28px] overflow-hidden bg-charcoal-900 border border-white/10 mb-4 shadow-xl">
-                <img src={gallery[selectedImage] || resolvePropertyImage(property)} alt={propertyTitle} className="w-full h-64 sm:h-80 lg:h-[460px] object-cover" decoding="async" />
-              </div>
-              {gallery.length > 1 && (
-                <div className="grid grid-cols-4 gap-3">
-                  {gallery.slice(0, 4).map((image, index) => (
-                    <button
-                      key={image}
-                      type="button"
-                      onClick={() => setSelectedImage(index)}
-                      className={`rounded-2xl overflow-hidden border-2 transition duration-200 ${selectedImage === index ? "border-[#D4A853] scale-[1.02]" : "border-white/10 hover:border-white/30"}`}
-                    >
-                      <img src={image} alt={`${propertyTitle} ${index + 1}`} className="w-full h-20 sm:h-24 object-cover" loading="lazy" decoding="async" />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <PropertyGallery images={gallery} videoUrl={property.video_tour_url} title={propertyTitle} />
             </div>
 
             <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md p-6 lg:p-7 h-fit flex flex-col justify-between shadow-2xl">
@@ -398,25 +383,15 @@ export default function PropertyDetailClient() {
               </div>
             </section>
 
-            <section className="grid md:grid-cols-2 gap-5">
-              <div className="rounded-3xl border border-sand-200 p-6">
-                <h3 className="text-xl font-bold text-charcoal-900 mb-3">{copy.floorPlan}</h3>
-                {property.floor_plan_url ? (
-                  <a href={property.floor_plan_url} target="_blank" rel="noopener noreferrer" className="text-teal-700 font-semibold underline">
-                    Open floor plan
-                  </a>
-                ) : (
-                  <p className="text-charcoal-600">{copy.availableOnRequest}</p>
-                )}
-              </div>
-              <div className="rounded-3xl border border-sand-200 p-6">
-                <h3 className="text-xl font-bold text-charcoal-900 mb-3">{copy.videoTour}</h3>
-                {property.video_tour_url ? (
-                  <YouTubeEmbed url={property.video_tour_url} title={propertyTitle} />
-                ) : (
-                  <p className="text-charcoal-600">{copy.availableOnRequest}</p>
-                )}
-              </div>
+            <section className="rounded-3xl border border-sand-200 p-6">
+              <h3 className="text-xl font-bold text-charcoal-900 mb-3">{copy.floorPlan}</h3>
+              {property.floor_plan_url ? (
+                <a href={property.floor_plan_url} target="_blank" rel="noopener noreferrer" className="text-teal-700 font-semibold underline">
+                  Open floor plan
+                </a>
+              ) : (
+                <p className="text-charcoal-600">{copy.availableOnRequest}</p>
+              )}
             </section>
 
             <section className="rounded-3xl border border-sand-200 p-6">

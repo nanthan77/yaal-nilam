@@ -94,7 +94,7 @@ export default function ListPropertyPage() {
       description: 'Property description',
       amenities: 'Highlights / amenities',
       photos: 'Property photos',
-      photoHint: 'Upload a few clear exterior and interior photos. If upload fails, your contact request still reaches us.',
+      photoHint: 'Upload up to 20 clear exterior and interior photos. Add a YouTube link above for a video tour — it shows first on your listing. If upload fails, your contact request still reaches us.',
       whatsappOptIn: 'You may contact me faster through WhatsApp',
       next: 'Continue',
       back: 'Back',
@@ -488,13 +488,13 @@ export default function ListPropertyPage() {
                           multiple
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => setUploadedPhotos(Array.from(e.target.files || []))}
+                          onChange={(e) => setUploadedPhotos(Array.from(e.target.files || []).slice(0, 20))}
                         />
                       </label>
                       {uploadedPhotos.length > 0 && (
                         <div className="flex items-center gap-2 mt-4 px-4 py-3 bg-teal-50 border border-teal-100 rounded-xl text-teal-850 text-sm font-bold animate-fade-in">
                           <Check className="w-4 h-4 text-teal-700 stroke-[3]" />
-                          <span>{uploadedPhotos.length} photo(s) selected</span>
+                          <span>{uploadedPhotos.length} of 20 photo(s) selected</span>
                         </div>
                       )}
                     </div>
