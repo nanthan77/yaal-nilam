@@ -349,6 +349,51 @@ export async function saveSearch(filters: Record<string, any>) {
 }
 
 // ========================
+// PROPERTY ALERTS (new-listing matching → WhatsApp)
+// ========================
+
+export async function createPropertyAlert(data: {
+  name?: string;
+  whatsapp: string;
+  email?: string;
+  purpose: "buy" | "rent";
+  propertyType?: string;
+  area?: string;
+  minBedrooms?: number | string;
+  maxPrice?: number | string;
+  locale?: string;
+}) {
+  try {
+    const docRef = await addDoc(collection(db, "property_alerts"), {
+      name: data.name || "",
+      whatsapp: (data.whatsapp || "").trim(),
+      email: (data.email || "").trim(),
+      purpose: data.purpose,
+      property_type: data.propertyType || "any",
+      area: data.area || "any",
+      min_bedrooms: Number(data.minBedrooms || 0),
+      max_price: Number(data.maxPrice || 0),
+      locale: data.locale || "en",
+      source: "property_alerts_form",
+      status: "active",
+      notified_listing_ids: [],
+      match_count: 0,
+      created_at: new Date().toISOString(),
+    });
+    await trackAnalyticsEvent("create_property_alert", {
+      property_alert_id: docRef.id,
+      purpose: data.purpose,
+      property_type: data.propertyType || "any",
+      area: data.area || "any",
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating property alert:", error);
+    return null;
+  }
+}
+
+// ========================
 // INQUIRY / CONTACT FUNCTIONS
 // ========================
 

@@ -668,6 +668,31 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Property alerts CTA */}
+      <section className="bg-[#0F2E25] text-white py-14 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[#D4A853] font-bold text-sm uppercase tracking-wider mb-2">
+            {locale === 'ta' ? 'சொத்து எச்சரிக்கைகள்' : 'Property alerts'}
+          </p>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            {locale === 'ta'
+              ? 'பொருந்தும் புதிய சொத்து வந்ததும் WhatsApp அறிவிப்பு பெறுங்கள்'
+              : 'Get a WhatsApp alert when your perfect property is listed'}
+          </h2>
+          <p className="text-white/70 mb-7 max-w-2xl mx-auto">
+            {locale === 'ta'
+              ? 'நீங்கள் தேடுவதை ஒருமுறை சொல்லுங்கள் — பொருத்தம் கிடைத்ததும் உடனே தெரிவிப்போம். இலவசம்.'
+              : "Tell us what you want once — we'll message you the moment a match goes live. Free."}
+          </p>
+          <Link
+            href="/alerts"
+            className="inline-flex items-center justify-center gap-2 bg-[#D4A853] hover:bg-[#c79a45] text-[#0F2E25] px-8 py-3 rounded-lg font-bold transition-all hover:-translate-y-0.5 shadow-lg"
+          >
+            <MessageCircle className="w-5 h-5" /> {locale === 'ta' ? 'என் எச்சரிக்கையை அமைக்கவும்' : 'Set my alert'}
+          </Link>
+        </div>
+      </section>
+
       <section className="bg-gradient-to-r from-teal-800 to-teal-700 text-white py-16 px-4 my-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">{copy.ctaTitle}</h2>

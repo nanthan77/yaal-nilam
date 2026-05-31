@@ -33,6 +33,39 @@ export async function saveAgentGuide(data: any) {
   }
 }
 
+// ── Property alerts (buyer alert registrations + delivery log) ──
+export async function getPropertyAlerts() {
+  try {
+    const snap = await getDocs(collection(db, 'property_alerts'));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error('getPropertyAlerts error', e);
+    return [];
+  }
+}
+
+export async function getAlertDeliveries() {
+  try {
+    const snap = await getDocs(collection(db, 'alert_deliveries'));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error('getAlertDeliveries error', e);
+    return [];
+  }
+}
+
+// True when config/whatsapp has the fields needed to actually send alerts.
+export async function getWhatsAppConfigured() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'whatsapp'));
+    const c: any = snap.exists() ? snap.data() : null;
+    return Boolean(c?.phone_number_id && c?.access_token);
+  } catch (e) {
+    console.error('getWhatsAppConfigured error', e);
+    return false;
+  }
+}
+
 function normalizeDashboardIntent(value?: string) {
   const normalized = (value || 'sell').toString().trim().toLowerCase();
   if (normalized === 'buy' || normalized === 'sale' || normalized === 'for sale') return 'sell';

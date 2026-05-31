@@ -85,6 +85,21 @@ service cloud.firestore {
         && fieldStr('event_name', 200)
         && fieldStr('session_id', 200);
     }
+    function validAlert() {
+      // property_alerts — buyer alert registrations (public create)
+      return boundedDoc(25)
+        && request.resource.data.whatsapp is string
+        && request.resource.data.whatsapp.size() >= 7
+        && request.resource.data.whatsapp.size() <= 40
+        && fieldStr('email', 320)
+        && fieldStr('name', 200)
+        && request.resource.data.purpose in ['buy', 'rent']
+        && fieldStr('property_type', 40)
+        && fieldStr('area', 80)
+        && request.resource.data.get('min_bedrooms', 0) is number
+        && request.resource.data.get('max_price', 0) is number
+        && request.resource.data.status == 'active';
+    }
 
     // Public marketplace reads only published listings. Writes are admin-only.
     match /listings/{listingId} {
@@ -142,6 +157,19 @@ service cloud.firestore {
     match /analytics_events/{eventId} {
       allow read, update, delete: if isAdmin();
       allow create: if validAnalytics();
+    }
+
+    // Buyer property-alert registrations: anyone can register (validated);
+    // only admins (and the Cloud Function via Admin SDK) read/manage them.
+    match /property_alerts/{alertId} {
+      allow read: if isAdmin();
+      allow create: if validAlert();
+      allow update, delete: if isAdmin();
+    }
+
+    // Delivery log written by the alerts Cloud Function (Admin SDK); admin-read.
+    match /alert_deliveries/{deliveryId} {
+      allow read, write: if isAdmin();
     }
 
     // WhatsApp conversations and config are private admin surfaces.

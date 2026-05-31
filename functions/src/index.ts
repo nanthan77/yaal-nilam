@@ -9,6 +9,10 @@ admin.initializeApp();
 // Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
 export { onAnalyticsEvent } from "./analytics";
 
+// Property alerts: WhatsApp buyers when a newly-published listing matches the
+// criteria they registered (collection `property_alerts`).
+export { onListingPublishedAlert } from "./alerts";
+
 const corsHandler = cors({ origin: true });
 
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
