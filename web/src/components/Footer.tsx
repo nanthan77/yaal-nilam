@@ -258,9 +258,9 @@ export function Footer() {
             href="https://safenetcreations.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200 order-last sm:order-none"
+            className="group text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200 order-last sm:order-none"
           >
-            {locale === 'en' ? 'Website by ' : 'வலைத்தளம் வடிவமைப்பு: '}
+            {locale === 'en' ? 'Digitally architected by ' : 'டிஜிட்டல் வடிவமைப்பு & உருவாக்கம்: '}
             <span className="text-sand-200 group-hover:text-[#D4A853]">SafeNet Creations</span>
           </a>
 
