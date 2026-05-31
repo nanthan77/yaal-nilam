@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel, t } from "@/lib/translations";
 import { buildWhatsAppUrl, resolvePropertyImage } from "@/lib/marketplace";
+import { googleMapsViewUrl } from "@/lib/maps";
 import { getSavedPropertyIds, toggleSavedProperty, trackWhatsAppLead } from "@/lib/firestore";
 import type { Property } from "@/lib/data";
 
@@ -126,7 +127,14 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <h3 className="font-semibold text-teal-900 leading-snug line-clamp-2 mb-1 group-hover:text-teal-700 transition-colors">
               <Link href={`/properties/${p.id}`}>{locale === "ta" && p.title_ta ? p.title_ta : p.title}</Link>
             </h3>
-            <p className="text-sm text-charcoal-500 flex items-center gap-1.5">
+            <a
+              href={googleMapsViewUrl(p)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={locale === "ta" ? "Google Maps-ல் இருப்பிடத்தைக் காண்க" : "View location on Google Maps"}
+              className="text-sm text-charcoal-500 hover:text-teal-700 flex items-center gap-1.5 transition-colors"
+            >
               <svg className="w-4 h-4 text-charcoal-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
@@ -136,8 +144,10 @@ export default function PropertyCard({ property }: PropertyCardProps) {
                 />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {locale === "ta" ? p.address_ta || p.area_name_ta || p.address : p.address || p.area_name}
-            </p>
+              <span className="line-clamp-1 underline-offset-2 hover:underline">
+                {locale === "ta" ? p.address_ta || p.area_name_ta || p.address : p.address || p.area_name}
+              </span>
+            </a>
           </div>
           <span className="bg-sand-100 px-2.5 py-1 rounded-lg text-xs font-medium text-charcoal-700 whitespace-nowrap">
             {typeLabel}

@@ -75,6 +75,13 @@ The platform is **close to production-ready** and **all five components build/co
 
 **Fourth-pass files:** `web/public/og.png`, `web/src/app/layout.tsx`, `web/src/app/contact/page.tsx`, `web/src/app/dashboard/page.tsx`, `dashboard/app/(auth)/login/page.tsx`, `dashboard/app/(dashboard)/layout.tsx`, `dashboard/components/Sidebar.tsx`, `dashboard/components/TopBar.tsx`, `dashboard/app/(dashboard)/listings/page.tsx`, `dashboard/app/(dashboard)/promotions/page.tsx`. Verified green: web 554 pages, dashboard 23 pages.
 
+### Fifth pass (maps + mobile)
+- **Google Maps on every listing** — new `lib/maps.ts` (keyless embed + Places/Directions URLs from each listing's `coordinates`) and `PropertyMap` component with **click-to-load** (the heavy embed only mounts on tap → zero map cost on initial mobile render). Wired into the property-detail Location section; every `PropertyCard` address is now a tap-through "view on Google Maps" link.
+- **Faster mobile loading** — click-to-load map (above); detail gallery thumbnails `loading="lazy" decoding="async"`; hero image `decoding="async"` (cards were already lazy). Combined with the WebP pass, listing pages are markedly lighter on mobile.
+- **Compact mobile UI** — detail hero image height is now responsive (`h-64 sm:h-80 lg:h-[460px]`) instead of a fixed 460 px; card location truncates to one line; brand `themeColor` (#0F2E25) added via the `viewport` export so the mobile browser chrome matches.
+
+**Fifth-pass files:** `web/src/lib/maps.ts`, `web/src/components/PropertyMap.tsx`, `web/src/components/PropertyDetailClient.tsx`, `web/src/components/PropertyCard.tsx`, `web/src/app/layout.tsx`. Verified green: web 554 pages.
+
 ---
 
 ## ⚠️ Required pre-launch configuration

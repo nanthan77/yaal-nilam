@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
+import PropertyMap from "@/components/PropertyMap";
 import { getSavedPropertyIds, getPropertyById, getPropertiesByArea, submitViewingRequest, toggleSavedProperty, trackListingView, trackWhatsAppLead } from "@/lib/firestore";
 import { useStore } from "@/lib/store";
 import { buildWhatsAppUrl, formatConvertedPrice, resolvePropertyImage } from "@/lib/marketplace";
@@ -257,7 +258,7 @@ export default function PropertyDetailClient() {
           <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-8">
             <div>
               <div className="rounded-[28px] overflow-hidden bg-charcoal-900 border border-white/10 mb-4 shadow-xl">
-                <img src={gallery[selectedImage] || resolvePropertyImage(property)} alt={propertyTitle} className="w-full h-[460px] object-cover" />
+                <img src={gallery[selectedImage] || resolvePropertyImage(property)} alt={propertyTitle} className="w-full h-64 sm:h-80 lg:h-[460px] object-cover" decoding="async" />
               </div>
               {gallery.length > 1 && (
                 <div className="grid grid-cols-4 gap-3">
@@ -268,7 +269,7 @@ export default function PropertyDetailClient() {
                       onClick={() => setSelectedImage(index)}
                       className={`rounded-2xl overflow-hidden border-2 transition duration-200 ${selectedImage === index ? "border-[#D4A853] scale-[1.02]" : "border-white/10 hover:border-white/30"}`}
                     >
-                      <img src={image} alt={`${propertyTitle} ${index + 1}`} className="w-full h-24 object-cover" />
+                      <img src={image} alt={`${propertyTitle} ${index + 1}`} className="w-full h-20 sm:h-24 object-cover" loading="lazy" decoding="async" />
                     </button>
                   ))}
                 </div>
@@ -422,6 +423,7 @@ export default function PropertyDetailClient() {
                 <span className="px-3 py-1.5 rounded-full bg-sand-100 text-charcoal-700">{property.listing_code}</span>
                 {property.road_frontage_ft > 0 && <span className="px-3 py-1.5 rounded-full bg-sand-100 text-charcoal-700">{property.road_frontage_ft} ft road frontage</span>}
               </div>
+              <PropertyMap listing={property} locale={locale} />
             </section>
           </div>
 

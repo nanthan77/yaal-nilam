@@ -1,6 +1,12 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_Tamil } from 'next/font/google';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0F2E25',
+};
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
