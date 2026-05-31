@@ -253,6 +253,17 @@ export function Footer() {
             {copyrightText}
           </p>
 
+          {/* Website credit */}
+          <a
+            href="https://safenetcreations.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200 order-last sm:order-none"
+          >
+            {locale === 'en' ? 'Website by ' : 'வலைத்தளம் வடிவமைப்பு: '}
+            <span className="text-sand-200 group-hover:text-[#D4A853]">SafeNet Creations</span>
+          </a>
+
           {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
