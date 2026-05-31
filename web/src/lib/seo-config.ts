@@ -245,7 +245,7 @@ export function generateRealEstateListingJsonLd(
     name: 'Yaal Nilam',
     alternateName: 'யாழ் நிலம்',
     url: BASE_URL,
-    telephone: '+94777863333',
+    telephone: '+94704846555',
     areaServed: {
       '@type': 'Place',
       name: location ? `${location.name}, Jaffna District` : 'Jaffna District, Northern Province, Sri Lanka',

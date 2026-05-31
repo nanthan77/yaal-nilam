@@ -70,7 +70,7 @@ The platform is **close to production-ready** and **all five components build/co
 
 ### Fourth pass (final polish)
 - **OG/Twitter share image** — branded 1200×630 `web/public/og.png` (gold house mark + "Yaal Nilam" + tagline on the forest-green gradient); wired into root `openGraph.images` + `twitter.images`. Property pages override with their own listing photo; PSEO/hub pages inherit it.
-- **Contact details unified** — `info@yaalnilam.lk` + `+94 77 786 3333` across footer, contact page, web dashboard, admin login and layout JSON-LD (phone landline in JSON-LD corrected to the WhatsApp number).
+- **Contact details unified** — `info@yaalnilam.lk` + `+94 70 484 6555` across footer, contact page, web dashboard, admin login and layout JSON-LD (phone landline in JSON-LD corrected to the WhatsApp number).
 - **Admin mobile drawer** — sidebar is now an off-canvas drawer below `lg` (slide-in + dimmed backdrop, tap-to-close, auto-close on navigation); `TopBar`/`main` go full-width on mobile. Stat/filter grids in `listings` + `promotions` made responsive.
 
 **Fourth-pass files:** `web/public/og.png`, `web/src/app/layout.tsx`, `web/src/app/contact/page.tsx`, `web/src/app/dashboard/page.tsx`, `dashboard/app/(auth)/login/page.tsx`, `dashboard/app/(dashboard)/layout.tsx`, `dashboard/components/Sidebar.tsx`, `dashboard/components/TopBar.tsx`, `dashboard/app/(dashboard)/listings/page.tsx`, `dashboard/app/(dashboard)/promotions/page.tsx`. Verified green: web 554 pages, dashboard 23 pages.
@@ -113,7 +113,7 @@ These make the fixes effective and the system functional in production:
 - **Type safety disabled** — 43 files carry `@ts-nocheck`. Burn down incrementally, highest-traffic first.
 - **Contrast** — `text-white/70`, `text-teal-100/200` on translucent panels and `text-sand-400` small print risk failing WCAG AA; verify ratios.
 - **i18n SEO** — bilingual via a client toggle on a single URL; Tamil content isn't separately indexable and `<html lang>` doesn't update for Tamil. Consider locale routes or accept English-only indexing.
-- **Contact details** — ✅ unified to `info@yaalnilam.lk` + `+94 77 786 3333` across footer, contact, web dashboard, admin login and the layout JSON-LD (one intentional placeholder sample remains in the admin SEO page). Values are still inline; a shared constant module would be the further-hardening step.
+- **Contact details** — ✅ unified to `info@yaalnilam.lk` + `+94 70 484 6555` across footer, contact, web dashboard, admin login and the layout JSON-LD (one intentional placeholder sample remains in the admin SEO page). Values are still inline; a shared constant module would be the further-hardening step.
 
 ### P3 (polish)
 - Admin dashboard UI is entirely English despite an EN/TA toggle that does nothing on those pages — wire localization or remove the toggle.

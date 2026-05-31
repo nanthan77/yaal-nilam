@@ -484,7 +484,7 @@ export default function HomePage() {
             </div>
             <div className="mt-4 text-center">
               <a
-                href="https://wa.me/94777863333?text=Hi%2C%20I%27m%20looking%20for%20a%20property%20in%20Jaffna"
+                href="https://wa.me/94704846555?text=Hi%2C%20I%27m%20looking%20for%20a%20property%20in%20Jaffna"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-bold text-teal-700 hover:text-teal-900 transition-colors"
@@ -680,7 +680,7 @@ export default function HomePage() {
               <Home className="w-5 h-5" /> {copy.ctaPrimary}
             </Link>
             <a
-              href="https://wa.me/94777863333?text=Hi%2C%20I%20want%20to%20list%20my%20property"
+              href="https://wa.me/94704846555?text=Hi%2C%20I%20want%20to%20list%20my%20property"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-bold transition-all hover:-translate-y-0.5"

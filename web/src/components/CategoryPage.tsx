@@ -154,7 +154,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
 
   const properties = PROPERTIES.filter(config.filterFn);
   const displayProperties = properties.length > 0 ? properties : PROPERTIES;
-  const whatsappUrl = `https://wa.me/94777863333?text=${encodeURIComponent(config.whatsappMsg[locale])}`;
+  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(config.whatsappMsg[locale])}`;
 
   return (
     <>

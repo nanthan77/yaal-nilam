@@ -19,7 +19,7 @@ export default function Error({
       <div className="max-w-md text-center">
         <h1 className="text-2xl font-bold text-charcoal-900">Something went wrong</h1>
         <p className="mt-2 text-charcoal-600">
-          We hit an unexpected error. Please try again, or reach us on WhatsApp at +94 77 786 3333.
+          We hit an unexpected error. Please try again, or reach us on WhatsApp at +94 70 484 6555.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button

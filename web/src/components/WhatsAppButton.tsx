@@ -14,7 +14,7 @@ export default function WhatsAppButton() {
     return () => clearTimeout(timer);
   }, []);
 
-  const phoneNumber = "94777863333";
+  const phoneNumber = "94704846555";
   const bubbleTitle =
     locale === "ta" ? "உதவி வேண்டுமா? எங்களுடன் பேசுங்கள்." : "Need help? Chat with us.";
   const bubbleBody =

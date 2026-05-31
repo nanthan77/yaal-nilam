@@ -65,7 +65,7 @@ export default function LoginPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+94 77 786 3333"
+                placeholder="+94 70 484 6555"
                 className="input-field"
                 required
               />

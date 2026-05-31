@@ -187,7 +187,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             {t("common.details", locale)}
           </Link>
           <a
-            href={buildWhatsAppUrl(p.agent_phone || "94777863333", whatsappMsg)}
+            href={buildWhatsAppUrl(p.agent_phone || "94704846555", whatsappMsg)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleWhatsAppClick}

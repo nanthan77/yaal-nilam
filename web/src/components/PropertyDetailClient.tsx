@@ -201,7 +201,7 @@ export default function PropertyDetailClient() {
   const propertyTitle = locale === "ta" && property.title_ta ? property.title_ta : property.title;
   const propertyDescription = locale === "ta" ? property.description_ta || property.description : property.description;
   const primaryWhatsappUrl = buildWhatsAppUrl(
-    property.agent_phone || "94777863333",
+    property.agent_phone || "94704846555",
     locale === "ta"
       ? `${propertyTitle} (${property.listing_code}) பற்றி தெரிந்து கொள்ள விரும்புகிறேன்.`
       : `Hi, I'm interested in ${property.title} (${property.listing_code}).`
@@ -480,7 +480,7 @@ export default function PropertyDetailClient() {
                     Specialist in Northern Province deed registry search, pathmap legal clearance, and diaspora titles.
                   </p>
                   <a
-                    href="https://wa.me/94777863333?text=Hi%20Thirukumaran,%20I%20am%20interested%20in%20verifying%20the%20deed%20for%20property%20listing%20on%20Yaal%20Nilam"
+                    href="https://wa.me/94704846555?text=Hi%20Thirukumaran,%20I%20am%20interested%20in%20verifying%20the%20deed%20for%20property%20listing%20on%20Yaal%20Nilam"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
@@ -504,7 +504,7 @@ export default function PropertyDetailClient() {
                     Certified land boundary plotting, GPS mapping, partition survey plans in Jaffna and Vavuniya.
                   </p>
                   <a
-                    href="https://wa.me/94777863333?text=Hi%20Baskaran,%20I%20need%20a%20survey%20boundary%20check%20for%20a%20property%20on%20Yaal%20Nilam"
+                    href="https://wa.me/94704846555?text=Hi%20Baskaran,%20I%20need%20a%20survey%20boundary%20check%20for%20a%20property%20on%20Yaal%20Nilam"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
@@ -528,7 +528,7 @@ export default function PropertyDetailClient() {
                     Modern custom house design, estimating, structural planning, and contract builds for overseas families.
                   </p>
                   <a
-                    href="https://wa.me/94777863333?text=Hi%20NorthBuild,%20I%20want%20to%20consult%20about%20a%20new%20home%20design/estimate%20via%20Yaal%20Nilam"
+                    href="https://wa.me/94704846555?text=Hi%20NorthBuild,%20I%20want%20to%20consult%20about%20a%20new%20home%20design/estimate%20via%20Yaal%20Nilam"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"

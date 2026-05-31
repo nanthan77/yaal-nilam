@@ -53,7 +53,7 @@ Observer audits, functional driver flows, and Quinn adversarial exploration all 
 | Homepage CTAs (Buy / Rent / Short Stay) | ✅ |
 | Voice-search mic button present | ✅ |
 | All property-type filter pills | ✅ |
-| WhatsApp number `94777863333` on every `wa.me` link (10 sampled) | ✅ |
+| WhatsApp number `94704846555` on every `wa.me` link (10 sampled) | ✅ |
 | Mortgage calculator renders estimate | ✅ |
 | Social links Facebook/Instagram/X/YouTube use HTTPS | ✅ |
 | Language toggle visible | ✅ |

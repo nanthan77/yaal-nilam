@@ -75,7 +75,7 @@ export default function RegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{copy.phone}</label>
-              <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+94 77 786 3333" className="input-field" required />
+              <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+94 70 484 6555" className="input-field" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{copy.email}</label>

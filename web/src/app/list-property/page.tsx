@@ -106,7 +106,7 @@ export default function ListPropertyPage() {
       breadcrumb: 'List Property',
       quickAssist: 'Prefer to send photos on WhatsApp? That works too.',
       requiredStepOne: 'Please fill owner name, phone, property type, intent, and area before continuing.',
-      submitError: "Sorry, we couldn't submit your listing. Please try again, or send the details on WhatsApp at +94 77 786 3333.",
+      submitError: "Sorry, we couldn't submit your listing. Please try again, or send the details on WhatsApp at +94 70 484 6555.",
     },
     ta: {
       title: 'உங்கள் சொத்தைப் பட்டியலிடுங்கள்',
@@ -145,14 +145,14 @@ export default function ListPropertyPage() {
       breadcrumb: 'சொத்தை பட்டியலிடல்',
       quickAssist: 'புகைப்படங்களை WhatsApp மூலம் அனுப்ப விரும்புகிறீர்களா? அதுவும் சரி.',
       requiredStepOne: 'தொடர முன் பெயர், தொலைபேசி, சொத்து வகை, நோக்கம், பகுதி ஆகியவற்றை நிரப்புங்கள்.',
-      submitError: 'மன்னிக்கவும், உங்கள் listing-ஐ அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 77 786 3333 இல் WhatsApp மூலம் அனுப்புங்கள்.',
+      submitError: 'மன்னிக்கவும், உங்கள் listing-ஐ அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 70 484 6555 இல் WhatsApp மூலம் அனுப்புங்கள்.',
     },
   });
 
   const whatsappLink = useMemo(
     () =>
       buildWhatsAppUrl(
-        '94777863333',
+        '94704846555',
         locale === 'ta'
           ? `வணக்கம், ${formData.area || 'யாழ்ப்பாணம்'} பகுதியில் ${formData.title || 'ஒரு சொத்தை'} பட்டியலிக்க விரும்புகிறேன்.`
           : `Hi, I'd like to list ${formData.title || 'a property'} in ${formData.area || 'Jaffna'}.`

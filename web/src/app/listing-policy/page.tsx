@@ -196,7 +196,7 @@ export default function ListingPolicyPage() {
             <div className="space-y-1 text-sm">
               <p className="font-medium text-teal-900">Yaal Nilam</p>
               <p>Email: info@yaalnilam.lk</p>
-              <p>Phone: +94 77 786 3333</p>
+              <p>Phone: +94 70 484 6555</p>
               <p>{copy.available247}</p>
               <p>{copy.location}</p>
             </div>

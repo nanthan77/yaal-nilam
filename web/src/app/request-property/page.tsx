@@ -61,7 +61,7 @@ export default function RequestPropertyPage() {
       breadcrumb: 'Request Property',
       successTitle: 'Request submitted successfully',
       successBody: 'Your requirement is now stored in both the public request intake and the dashboard requirement queue for follow-up.',
-      error: "Sorry, we couldn't submit your request. Please try again, or reach us on WhatsApp at +94 77 786 3333.",
+      error: "Sorry, we couldn't submit your request. Please try again, or reach us on WhatsApp at +94 70 484 6555.",
       sending: 'Sending...',
       whatsappCta: 'Continue on WhatsApp',
       name: 'Your name',
@@ -90,7 +90,7 @@ export default function RequestPropertyPage() {
       breadcrumb: 'சொத்து கோரிக்கை',
       successTitle: 'கோரிக்கை வெற்றிகரமாக பெறப்பட்டது',
       successBody: 'உங்கள் தேவையானது public request intake மற்றும் dashboard requirement queue ஆகிய இரண்டிலும் சேமிக்கப்பட்டது.',
-      error: 'மன்னிக்கவும், உங்கள் கோரிக்கையை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 77 786 3333 இல் WhatsApp மூலம் தொடர்பு கொள்ளுங்கள்.',
+      error: 'மன்னிக்கவும், உங்கள் கோரிக்கையை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 70 484 6555 இல் WhatsApp மூலம் தொடர்பு கொள்ளுங்கள்.',
       sending: 'அனுப்பப்படுகிறது...',
       whatsappCta: 'WhatsApp-ல் தொடருங்கள்',
       name: 'உங்கள் பெயர்',
@@ -118,7 +118,7 @@ export default function RequestPropertyPage() {
   const whatsappLink = useMemo(
     () =>
       buildWhatsAppUrl(
-        '94777863333',
+        '94704846555',
         locale === 'ta'
           ? `வணக்கம், ${formData.area || 'யாழ்ப்பாணம்'} பகுதியில் ${formData.propertyType || 'ஒரு சொத்து'} ${formData.intent || 'வாங்க'} தேடுகிறேன்.`
           : `Hi, I'm looking for a ${formData.propertyType || 'property'} to ${formData.intent || 'buy'} in ${formData.area || 'Jaffna'}.`

@@ -141,7 +141,7 @@ export default function BestServicesBlogPage() {
               <p className="text-xs text-charcoal-500 flex items-center gap-1 mt-1">
                 <MapPin className="w-3.5 h-3.5" /> Jaffna Town, Sri Lanka
               </p>
-              <a href="https://wa.me/94777863333?text=Hi%20Thirukumaran,%20need%20deed%20consultation" target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs font-bold text-[#2D7A5F] hover:underline">
+              <a href="https://wa.me/94704846555?text=Hi%20Thirukumaran,%20need%20deed%20consultation" target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs font-bold text-[#2D7A5F] hover:underline">
                 Contact Partner on WhatsApp →
               </a>
             </div>
@@ -163,7 +163,7 @@ export default function BestServicesBlogPage() {
               <p className="text-xs text-charcoal-500 flex items-center gap-1 mt-1">
                 <MapPin className="w-3.5 h-3.5" /> Kopay Road, Jaffna
               </p>
-              <a href="https://wa.me/94777863333?text=Hi%20Baskaran,%20need%20survey%20boundary%20consultation" target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs font-bold text-[#2D7A5F] hover:underline">
+              <a href="https://wa.me/94704846555?text=Hi%20Baskaran,%20need%20survey%20boundary%20consultation" target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs font-bold text-[#2D7A5F] hover:underline">
                 Contact Partner on WhatsApp →
               </a>
             </div>

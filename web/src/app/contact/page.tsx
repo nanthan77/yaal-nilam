@@ -27,7 +27,7 @@ export default function ContactPage() {
       subtitle: "We'd be happy to help with property questions, listings, or local guidance.",
       formTitle: 'Send us a Message',
       success: "Thank you. We've received your message and will get back to you soon.",
-      error: "Sorry, your message couldn't be sent. Please try again, or reach us on WhatsApp at +94 77 786 3333.",
+      error: "Sorry, your message couldn't be sent. Please try again, or reach us on WhatsApp at +94 70 484 6555.",
       required: 'This field is required.',
       invalidEmail: 'Please enter a valid email address.',
       name: 'Full Name',
@@ -37,7 +37,7 @@ export default function ContactPage() {
       message: 'Message',
       namePlaceholder: 'Your full name',
       emailPlaceholder: 'your@email.com',
-      phonePlaceholder: '+94 (0) 77 786 3333',
+      phonePlaceholder: '+94 (0) 70 484 6555',
       subjectPlaceholder: 'Select a subject',
       messagePlaceholder: 'Tell us how we can help you...',
       send: 'Send Message',
@@ -56,7 +56,7 @@ export default function ContactPage() {
       subtitle: 'சொத்து தேடல், பட்டியலிடல், அல்லது உள்ளூர் வழிகாட்டல் குறித்து உதவ தயாராக உள்ளோம்.',
       formTitle: 'உங்கள் செய்தியை அனுப்புங்கள்',
       success: 'நன்றி. உங்கள் செய்தி எங்களுக்குக் கிடைத்துள்ளது. விரைவில் உங்களைத் தொடர்பு கொள்கிறோம்.',
-      error: 'மன்னிக்கவும், உங்கள் செய்தியை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 77 786 3333 இல் WhatsApp மூலம் தொடர்பு கொள்ளுங்கள்.',
+      error: 'மன்னிக்கவும், உங்கள் செய்தியை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 70 484 6555 இல் WhatsApp மூலம் தொடர்பு கொள்ளுங்கள்.',
       required: 'இந்த புலத்தை நிரப்ப வேண்டும்.',
       invalidEmail: 'செல்லுபடியான மின்னஞ்சல் முகவரியை உள்ளிடுங்கள்.',
       name: 'முழுப் பெயர்',
@@ -66,7 +66,7 @@ export default function ContactPage() {
       message: 'செய்தி',
       namePlaceholder: 'உங்கள் முழுப் பெயர்',
       emailPlaceholder: 'your@email.com',
-      phonePlaceholder: '+94 (0) 77 786 3333',
+      phonePlaceholder: '+94 (0) 70 484 6555',
       subjectPlaceholder: 'பொருளைத் தேர்ந்தெடுக்கவும்',
       messagePlaceholder: 'எப்படி உதவலாம் என்று சொல்லுங்கள்...',
       send: 'செய்தியை அனுப்புங்கள்',
@@ -264,7 +264,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-charcoal-900 mb-1">{copy.phone}</h3>
-                  <p className="text-charcoal-600 text-sm">+94 (0) 77 786 3333</p>
+                  <p className="text-charcoal-600 text-sm">+94 (0) 70 484 6555</p>
                 </div>
               </div>
             </div>

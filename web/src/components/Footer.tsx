@@ -84,7 +84,7 @@ const UTILITY_LINKS: UtilityLinksConfig = {
 const CONTACT_INFO: ContactConfig = {
   titleEn: 'Direct Hotline',
   titleTa: 'நேரடித் தொடர்பு',
-  phone: '+94 77 786 3333',
+  phone: '+94 70 484 6555',
   email: 'info@yaalnilam.lk',
 };
 

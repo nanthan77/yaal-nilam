@@ -120,7 +120,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
     : l === 'ta'
       ? `வணக்கம், யாழ்ப்பாணத்தில் ${type.name.ta} ${intent.name.ta} விரும்புகிறேன்.`
       : `Hello, I am looking to ${intentSlug} a ${type.name.en.toLowerCase()} in Jaffna.`;
-  const whatsappUrl = `https://wa.me/94777863333?text=${encodeURIComponent(whatsappMsg)}`;
+  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(whatsappMsg)}`;
 
   return (
     <>

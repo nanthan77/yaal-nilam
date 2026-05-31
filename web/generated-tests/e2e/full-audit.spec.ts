@@ -58,14 +58,14 @@ test.describe('Driver — Navigation & Core Functions', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('WhatsApp links use correct number 94777863333', async ({ page }) => {
+  test('WhatsApp links use correct number 94704846555', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const wa = page.locator('a[href*="wa.me/"]');
     const n = await wa.count();
     expect(n).toBeGreaterThan(0);
     for (let i = 0; i < Math.min(n, 10); i++) {
       const href = await wa.nth(i).getAttribute('href');
-      expect(href).toContain('wa.me/94777863333');
+      expect(href).toContain('wa.me/94704846555');
     }
   });
 
