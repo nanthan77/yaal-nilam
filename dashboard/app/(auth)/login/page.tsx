@@ -134,12 +134,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-600 rounded-lg mb-4">
-            <span className="text-2xl font-bold text-white">யா</span>
+          <div className="inline-flex items-center justify-center bg-white rounded-2xl p-3 mb-4 shadow-lg">
+            <img src="/logo.png" alt="Yaal Nilam — Jaffna Real Estate" className="h-20 w-auto" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-1">Yaal Nilam</h1>
-          <p className="text-teal-300 text-lg font-tamil">யாழ் நிலம்</p>
-          <p className="text-sand-300 text-sm mt-2">Property Management Dashboard</p>
+          <p className="text-sand-300 text-sm mt-1">Property Management Dashboard</p>
         </div>
 
         {/* Login Card */}

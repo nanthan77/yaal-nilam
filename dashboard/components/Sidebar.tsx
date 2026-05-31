@@ -213,9 +213,7 @@ export function Sidebar() {
       <div className="flex items-center justify-between h-16 px-4 border-b border-navy-200">
         {sidebarOpen && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-navy-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-              YN
-            </div>
+            <img src="/logo-mark.png" alt="" aria-hidden="true" className="w-9 h-9 object-contain shrink-0" />
             <div className="flex flex-col">
               <span className="text-sm font-bold text-navy-900">Yaal Nilam</span>
               <span className="text-xs text-navy-500">Admin</span>

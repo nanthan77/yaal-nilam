@@ -134,10 +134,10 @@ export function Footer() {
           
           {/* Column 1: Brand */}
           <div className="space-y-5">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-2xl font-black text-white tracking-wide">
-                {locale === 'en' ? BRAND_CONFIG.titleEn : BRAND_CONFIG.titleTa}
-              </h3>
+            <div className="flex flex-col gap-3">
+              <Link href="/" className="inline-block bg-white rounded-xl p-3 w-fit shadow-sm" aria-label="Yaal Nilam — home">
+                <img src="/logo.png" alt="Yaal Nilam — Jaffna Real Estate" className="h-16 w-auto" />
+              </Link>
               <p className="text-xs text-sand-300 leading-relaxed font-medium">
                 {locale === 'en' ? BRAND_CONFIG.taglineEn : BRAND_CONFIG.taglineTa}
               </p>

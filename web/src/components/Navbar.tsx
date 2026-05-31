@@ -47,12 +47,15 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex flex-col items-start gap-0 group">
-            <span className="text-xl font-black text-teal-900 tracking-tight group-hover:text-teal-700 transition-colors">
-              {navbarTitle}
-            </span>
-            <span className="text-[10px] text-teal-600 font-bold uppercase tracking-wider">
-              {navbarSubtitle}
+          <Link href="/" className="flex items-center gap-2.5 group" aria-label="Yaal Nilam — home">
+            <img src="/logo-mark.png" alt="" aria-hidden="true" className="h-10 w-auto shrink-0" />
+            <span className="flex flex-col items-start leading-none">
+              <span className="text-xl font-black text-teal-900 tracking-tight group-hover:text-teal-700 transition-colors">
+                {navbarTitle}
+              </span>
+              <span className="text-[10px] text-teal-600 font-bold uppercase tracking-wider mt-0.5">
+                {navbarSubtitle}
+              </span>
             </span>
           </Link>
 
