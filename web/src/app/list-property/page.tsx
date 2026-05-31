@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { Check, ChevronRight, MessageCircle, UploadCloud, User, Phone, Mail, Home, MapPin, DollarSign, Bed, Bath, Car, Layers, Ruler, FileText, Tag } from 'lucide-react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
+import { fileToWebp } from '@/lib/imageToWebp';
 import { submitListing } from '@/lib/firestore';
 import { useStore } from '@/lib/store';
 import { buildWhatsAppUrl } from '@/lib/marketplace';
@@ -201,9 +202,12 @@ export default function ListPropertyPage() {
   async function uploadPhotos(files: File[]) {
     if (!files.length) return [];
 
-    const uploads = files.map(async (file) => {
-      const fileRef = ref(storage, `listing-submissions/${Date.now()}-${file.name}`);
-      await uploadBytes(fileRef, file);
+    const uploads = files.map(async (file, i) => {
+      // Convert to optimized WebP in the browser before upload — keeps listings fast.
+      const webp = await fileToWebp(file);
+      const base = (file.name || 'photo').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '');
+      const fileRef = ref(storage, `listing-submissions/${Date.now()}-${i}-${base}.webp`);
+      await uploadBytes(fileRef, webp, { contentType: 'image/webp' });
       return getDownloadURL(fileRef);
     });
 
