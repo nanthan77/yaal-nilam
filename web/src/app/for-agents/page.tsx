@@ -123,7 +123,7 @@ export default function ForAgentsPage() {
           />
         </div>
         <p className="text-center text-charcoal-500 text-sm mt-3">
-          {ta ? "🔊 ஒலிக்காக வீடியோவைத் தொடவும்" : "🔊 Tap the video for sound"}
+          {ta ? "யாழ் நிலம் — யாழ்ப்பாணத்தின் சொத்து சந்தை" : "Yaal Nilam — Jaffna's property marketplace"}
         </p>
       </section>
 
