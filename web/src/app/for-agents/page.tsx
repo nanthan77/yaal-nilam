@@ -103,6 +103,26 @@ export default function ForAgentsPage() {
         </div>
       </section>
 
+      {/* Brand intro video */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <div className="rounded-2xl overflow-hidden border border-sand-200 shadow-lg bg-black">
+          <video
+            className="w-full aspect-video bg-black"
+            src="/for-agents-intro.mp4"
+            poster="/for-agents-intro-poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            controls
+            preload="metadata"
+          />
+        </div>
+        <p className="text-center text-charcoal-500 text-sm mt-3">
+          {ta ? "🔊 ஒலிக்காக வீடியோவைத் தொடவும்" : "🔊 Tap the video for sound"}
+        </p>
+      </section>
+
       {/* Benefits */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-2xl font-bold text-charcoal-900 mb-6">{L.why}</h2>
