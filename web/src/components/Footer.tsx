@@ -76,6 +76,7 @@ const UTILITY_LINKS: UtilityLinksConfig = {
   links: [
     { href: '/tools/land-size-converter', labelEn: 'Land Size Converter', labelTa: 'நில அளவீடு அலகுகள் மாற்றி' },
     { href: '/tools/stamp-duty-calculator', labelEn: 'Stamp Duty & Notary Calculator', labelTa: 'முத்திரைத்தாள் கணக்கீடு' },
+    { href: '/price-index', labelEn: 'House Price Index', labelTa: 'விலைச் சுட்டெண்' },
     { href: '/about', labelEn: 'About Yaal Nilam', labelTa: 'எங்களைப் பற்றி' },
     { href: '/contact', labelEn: 'Contact Support & FAQ', labelTa: 'தொடர்பு / உதவிகள்' },
   ],

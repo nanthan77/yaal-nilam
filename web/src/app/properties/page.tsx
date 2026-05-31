@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpDown, Map, Search, SlidersHorizontal, Sparkles, BookmarkPlus } from "lucide-react";
 import PropertyCard from "@/components/PropertyCard";
+import RecentlyViewed from "@/components/RecentlyViewed";
 import { DEFAULT_AREA_CATALOG, DEFAULT_PROPERTY_CATALOG, getAreas, getProperties, saveSearch } from "@/lib/firestore";
 import { useStore } from "@/lib/store";
 import { filterListings } from "@/lib/marketplace";
@@ -398,6 +399,8 @@ export default function PropertiesPage() {
           </div>
         )}
       </div>
+
+      <RecentlyViewed limit={4} />
     </div>
   );
 }

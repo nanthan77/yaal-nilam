@@ -10,6 +10,7 @@ export const viewport: Viewport = {
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import CompareBar from '@/components/CompareBar';
 import VoiceSearch from '@/components/VoiceSearch';
 import FirebaseProvider from '@/components/FirebaseProvider';
 import LocaleEffects from '@/components/LocaleEffects';
@@ -130,6 +131,7 @@ export default function RootLayout({
           <Footer />
           <VoiceSearch variant="floating" />
           <WhatsAppButton />
+          <CompareBar />
         </FirebaseProvider>
       </body>
     </html>

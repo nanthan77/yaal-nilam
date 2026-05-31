@@ -17,9 +17,10 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   const router = useRouter();
-  const { locale } = useStore();
+  const { locale, compareIds, toggleCompare } = useStore();
   const [saved, setSaved] = useState(false);
   const p = property as any;
+  const inCompare = compareIds.includes(p.id);
 
   useEffect(() => {
     let mounted = true;
@@ -201,6 +202,16 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <p className="text-sm font-semibold text-charcoal-800">{p.agent_response_rate || 84}%</p>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleCompare(p.id); }}
+          className={`mb-3 w-full inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border transition-colors ${
+            inCompare ? "bg-teal-700 text-white border-teal-700" : "bg-white text-charcoal-600 border-sand-200 hover:bg-sand-50"
+          }`}
+        >
+          {inCompare ? "✓ " : ""}{locale === "ta" ? "ஒப்பிடு" : "Compare"}
+        </button>
 
         <div className="flex gap-2">
           <Link

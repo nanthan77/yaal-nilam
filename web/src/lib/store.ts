@@ -44,6 +44,11 @@ interface AppState {
   };
   setFilters: (filters: Partial<AppState["filters"]>) => void;
   clearFilters: () => void;
+
+  // Compare (max 3)
+  compareIds: string[];
+  toggleCompare: (id: string) => void;
+  clearCompare: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -71,11 +76,23 @@ export const useStore = create<AppState>()(
       setFilters: (newFilters) =>
         set((state) => ({ filters: { ...state.filters, ...newFilters } })),
       clearFilters: () => set({ filters: {} }),
+
+      // Compare list (max 3)
+      compareIds: [],
+      toggleCompare: (id) =>
+        set((state) => {
+          if (state.compareIds.includes(id)) {
+            return { compareIds: state.compareIds.filter((x) => x !== id) };
+          }
+          if (state.compareIds.length >= 3) return state;
+          return { compareIds: [...state.compareIds, id] };
+        }),
+      clearCompare: () => set({ compareIds: [] }),
     }),
     {
       name: "yaal-nilam-public-store",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ locale: state.locale }),
+      partialize: (state) => ({ locale: state.locale, compareIds: state.compareIds }),
       skipHydration: true,
     }
   )

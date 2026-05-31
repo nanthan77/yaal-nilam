@@ -7,6 +7,10 @@ import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyMap from "@/components/PropertyMap";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
+import MortgageCalculator from "@/components/MortgageCalculator";
+import RoiCalculator from "@/components/RoiCalculator";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import { recordRecentlyViewed } from "@/lib/recentlyViewed";
 import { getSavedPropertyIds, getPropertyById, getPropertiesByArea, submitViewingRequest, toggleSavedProperty, trackListingView, trackWhatsAppLead } from "@/lib/firestore";
 import { useStore } from "@/lib/store";
 import { buildWhatsAppUrl, formatConvertedPrice, resolvePropertyImage } from "@/lib/marketplace";
@@ -140,6 +144,7 @@ export default function PropertyDetailClient() {
 
   useEffect(() => {
     let mounted = true;
+    recordRecentlyViewed(id);
 
     async function loadData() {
       try {
@@ -424,6 +429,13 @@ export default function PropertyDetailClient() {
               </div>
               <PropertyMap listing={property} locale={locale} />
             </section>
+
+            {property.intent !== "rent" && property.intent !== "short_rent" && (
+              <section className="grid md:grid-cols-2 gap-5">
+                <MortgageCalculator price={property.price} locale={locale} />
+                <RoiCalculator price={property.price} locale={locale} />
+              </section>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -614,6 +626,8 @@ export default function PropertyDetailClient() {
           </section>
         )}
       </div>
+
+      <RecentlyViewed excludeId={id} limit={4} />
     </div>
   );
 }
