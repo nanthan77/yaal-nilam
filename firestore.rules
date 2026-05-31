@@ -5,6 +5,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Owner emails that get admin access without a custom claim being set.
+    // Safe because the email must be provider-verified (Google verifies it),
+    // and it mirrors the dashboard's client-side allowlist. Add proper custom
+    // claims (scripts/set-admin-claims.mjs) for additional staff.
+    function isOwnerEmail() {
+      return request.auth.token.email_verified == true &&
+        request.auth.token.email in ['nanthan77@gmail.com'];
+    }
+
     function isAdmin() {
       return signedIn() && (
         request.auth.token.admin == true ||
@@ -14,7 +23,8 @@ service cloud.firestore {
           'listing_manager',
           'lead_manager',
           'content_manager'
-        ]
+        ] ||
+        isOwnerEmail()
       );
     }
 

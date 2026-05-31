@@ -15,7 +15,9 @@ service firebase.storage {
         request.auth.token.admin == true ||
         request.auth.token.role in [
           'super_admin', 'admin', 'listing_manager', 'content_manager'
-        ]
+        ] ||
+        (request.auth.token.email_verified == true &&
+         request.auth.token.email in ['nanthan77@gmail.com'])
       );
     }
 
