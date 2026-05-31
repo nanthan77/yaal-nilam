@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useStore } from "@/lib/store";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
 
@@ -34,6 +37,22 @@ const TUTORIALS: { youtube: string; en: { title: string; desc: string }; ta: { t
 export default function ForAgentsPage() {
   const { locale } = useStore();
   const ta = locale === "ta";
+
+  // Admin-managed tutorial videos (config/agent_guide). Falls back to the
+  // built-in steps below when none are set.
+  const [adminVideos, setAdminVideos] = useState<{ title: string; youtube: string }[]>([]);
+  useEffect(() => {
+    let mounted = true;
+    getDoc(doc(db, "config", "agent_guide"))
+      .then((snap) => {
+        const t = snap.exists() ? (snap.data() as any).tutorials : null;
+        if (mounted && Array.isArray(t)) setAdminVideos(t.filter((x: any) => x && (x.youtube || x.title)));
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const L = {
     kicker: ta ? "முகவர்கள் & நிறுவனங்களுக்கு" : "For agents & agencies",
@@ -102,27 +121,27 @@ export default function ForAgentsPage() {
         <h2 className="text-2xl font-bold text-charcoal-900">{L.how}</h2>
         <p className="text-charcoal-600 mt-1 mb-8">{L.howSub}</p>
         <div className="space-y-8">
-          {TUTORIALS.map((step, i) => {
-            const c = ta ? step.ta : step.en;
-            return (
-              <div key={i} className="grid md:grid-cols-2 gap-5 items-start">
-                <div className={i % 2 ? "md:order-2" : ""}>
-                  <h3 className="text-lg font-bold text-charcoal-900">{c.title}</h3>
-                  <p className="text-charcoal-600 mt-2 leading-relaxed">{c.desc}</p>
-                </div>
-                <div className={i % 2 ? "md:order-1" : ""}>
-                  {step.youtube ? (
-                    <YouTubeEmbed url={step.youtube} title={c.title} />
-                  ) : (
-                    <div className="w-full aspect-video rounded-2xl border-2 border-dashed border-sand-300 bg-white flex flex-col items-center justify-center text-charcoal-400">
-                      <svg viewBox="0 0 24 24" className="w-10 h-10 mb-2" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                      <span className="text-sm font-semibold">{L.soon}</span>
-                    </div>
-                  )}
-                </div>
+          {(adminVideos.length > 0
+            ? adminVideos.map((v) => ({ title: v.title, desc: "", youtube: v.youtube }))
+            : TUTORIALS.map((step) => ({ ...(ta ? step.ta : step.en), youtube: step.youtube }))
+          ).map((step, i) => (
+            <div key={i} className="grid md:grid-cols-2 gap-5 items-start">
+              <div className={i % 2 ? "md:order-2" : ""}>
+                <h3 className="text-lg font-bold text-charcoal-900">{step.title}</h3>
+                {step.desc ? <p className="text-charcoal-600 mt-2 leading-relaxed">{step.desc}</p> : null}
               </div>
-            );
-          })}
+              <div className={i % 2 ? "md:order-1" : ""}>
+                {step.youtube ? (
+                  <YouTubeEmbed url={step.youtube} title={step.title} />
+                ) : (
+                  <div className="w-full aspect-video rounded-2xl border-2 border-dashed border-sand-300 bg-white flex flex-col items-center justify-center text-charcoal-400">
+                    <svg viewBox="0 0 24 24" className="w-10 h-10 mb-2" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                    <span className="text-sm font-semibold">{L.soon}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

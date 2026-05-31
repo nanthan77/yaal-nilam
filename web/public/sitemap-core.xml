@@ -2,121 +2,139 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://yaal-nilam.web.app/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/about/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/agents/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/best-property-services/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/buying-property-sri-lanka-diaspora/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/interior-design-jaffna/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/blog/jaffna-real-estate-market-trends/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/commercial/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://yaal-nilam.web.app/compare/</loc>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/contact/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://yaal-nilam.web.app/for-agents/</loc>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/guides/buying-land-jaffna/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/land/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/list-property/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/listing-policy/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/map/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://yaal-nilam.web.app/price-index/</loc>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/privacy/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/request-property/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/terms/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/tools/land-size-converter/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yaal-nilam.web.app/tools/stamp-duty-calculator/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-05-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

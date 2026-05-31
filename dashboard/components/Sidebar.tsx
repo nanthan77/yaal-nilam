@@ -23,6 +23,7 @@ import {
   Settings,
   Shield,
   BookOpen,
+  GraduationCap,
   ChevronLeft,
   Menu,
   MessageCircle,
@@ -141,6 +142,12 @@ export function Sidebar() {
           label: 'Media Library',
           href: '/media',
           icon: Image,
+          badge: null,
+        },
+        {
+          label: 'Agent Guide',
+          href: '/agent-guide',
+          icon: GraduationCap,
           badge: null,
         },
         {

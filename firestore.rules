@@ -152,6 +152,13 @@ service cloud.firestore {
       }
     }
 
+    // Agent-guide tutorial videos are shown on the public /for-agents page,
+    // so this single config doc is world-readable. Edits stay admin-only.
+    match /config/agent_guide {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /config/{configId} {
       allow read, write: if isAdmin();
     }

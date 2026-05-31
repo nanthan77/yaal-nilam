@@ -12,6 +12,27 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 
+// ── Agent guide / how-to-use tutorials (config/agent_guide) ──
+export async function getAgentGuide() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'agent_guide'));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    console.error('getAgentGuide error', e);
+    return null;
+  }
+}
+
+export async function saveAgentGuide(data: any) {
+  try {
+    await setDoc(doc(db, 'config', 'agent_guide'), data, { merge: true });
+    return true;
+  } catch (e) {
+    console.error('saveAgentGuide error', e);
+    return false;
+  }
+}
+
 function normalizeDashboardIntent(value?: string) {
   const normalized = (value || 'sell').toString().trim().toLowerCase();
   if (normalized === 'buy' || normalized === 'sale' || normalized === 'for sale') return 'sell';
