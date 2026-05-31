@@ -47,13 +47,13 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Yaal Nilam',
     locale: 'en_LK',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Yaal Nilam — Jaffna Property Marketplace' }],
+    images: [{ url: '/og-v2.png', width: 1200, height: 630, alt: 'Yaal Nilam — Jaffna Property Marketplace' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Yaal Nilam | Jaffna Property Marketplace',
     description: 'Find your dream property in Jaffna. Verified listings, bilingual support.',
-    images: ['/og.png'],
+    images: ['/og-v2.png'],
   },
   robots: {
     index: true,
