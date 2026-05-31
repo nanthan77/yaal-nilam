@@ -258,7 +258,7 @@ export function Footer() {
             href="https://safenetcreations.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-1.5 text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200 order-last sm:order-none"
+            className="group inline-flex items-center gap-1.5 text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200"
           >
             <svg
               viewBox="0 0 24 24"
