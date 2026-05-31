@@ -21,12 +21,10 @@
 
 import admin from "firebase-admin";
 
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error("\n❌ GOOGLE_APPLICATION_CREDENTIALS is not set. Point it at a service-account JSON.\n");
-  process.exit(1);
-}
-
+// Credentials: a service-account key via GOOGLE_APPLICATION_CREDENTIALS, OR
+// gcloud Application Default Credentials (`gcloud auth application-default login`).
 const dry = process.argv.includes("--dry");
+const PROJECT_ID = process.env.GCLOUD_PROJECT || process.env.FIREBASE_PROJECT || "yaal-nilam";
 
 const toWebp = (u) =>
   typeof u === "string" && u.includes("/properties/")
@@ -34,9 +32,9 @@ const toWebp = (u) =>
     : u;
 
 try {
-  admin.initializeApp({ credential: admin.credential.applicationDefault() });
+  admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: PROJECT_ID });
 } catch (err) {
-  console.error(`Failed to init Admin SDK: ${err.message}`);
+  console.error(`Failed to init Admin SDK (set GOOGLE_APPLICATION_CREDENTIALS or run 'gcloud auth application-default login'): ${err.message}`);
   process.exit(1);
 }
 
