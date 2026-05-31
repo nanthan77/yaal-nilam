@@ -8,27 +8,31 @@ import { useStore } from "@/lib/store";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
 
 // ── Tutorial videos ──────────────────────────────────────────────────────────
-// Paste a YouTube link into `youtube` for each step to show the how-to video.
-// Leave it empty to show a "coming soon" placeholder. (Easy to update here, or
-// ask to have these made admin-editable from the dashboard.)
-const TUTORIALS: { youtube: string; en: { title: string; desc: string }; ta: { title: string; desc: string } }[] = [
+// Each step ships with a default brand video (served from /public). Admins can
+// override the whole list with their own YouTube how-to videos from
+// Dashboard → Agent Guide (config/agent_guide); when set, those replace these.
+const TUTORIALS: { youtube: string; video: string; en: { title: string; desc: string }; ta: { title: string; desc: string } }[] = [
   {
     youtube: "",
+    video: "/guide-1-register.mp4",
     en: { title: "1. Register your agency / agent account", desc: "Create your account and tell us you're an agent or broker." },
     ta: { title: "1. முகவர்/நிறுவனக் கணக்கைப் பதிவு செய்யுங்கள்", desc: "உங்கள் கணக்கை உருவாக்கி, நீங்கள் முகவர் என்பதைத் தெரிவியுங்கள்." },
   },
   {
     youtube: "",
+    video: "/guide-2-post.mp4",
     en: { title: "2. Post your first listing", desc: "Add photos (up to 20), price, details — and a YouTube video tour that shows first." },
     ta: { title: "2. உங்கள் முதல் சொத்தைப் பதிவிடுங்கள்", desc: "புகைப்படங்கள் (20 வரை), விலை, விவரங்கள் — மற்றும் முதலில் காட்டப்படும் YouTube வீடியோ." },
   },
   {
     youtube: "",
+    video: "/guide-3-verified.mp4",
     en: { title: "3. Get verified & published", desc: "Our team reviews your listing and publishes it to local + diaspora buyers." },
     ta: { title: "3. சரிபார்த்து வெளியிடப்படும்", desc: "எங்கள் குழு உங்கள் சொத்தை சரிபார்த்து வெளியிடும்." },
   },
   {
     youtube: "",
+    video: "/guide-4-whatsapp.mp4",
     en: { title: "4. Get leads on WhatsApp", desc: "Buyers reach you directly via WhatsApp — respond and close faster." },
     ta: { title: "4. WhatsApp மூலம் வாடிக்கையாளர்கள்", desc: "வாங்குபவர்கள் WhatsApp மூலம் நேரடியாக உங்களைத் தொடர்புகொள்வார்கள்." },
   },
@@ -142,8 +146,8 @@ export default function ForAgentsPage() {
         <p className="text-charcoal-600 mt-1 mb-8">{L.howSub}</p>
         <div className="space-y-8">
           {(adminVideos.length > 0
-            ? adminVideos.map((v) => ({ title: v.title, desc: "", youtube: v.youtube }))
-            : TUTORIALS.map((step) => ({ ...(ta ? step.ta : step.en), youtube: step.youtube }))
+            ? adminVideos.map((v) => ({ title: v.title, desc: "", youtube: v.youtube, video: "" }))
+            : TUTORIALS.map((step) => ({ ...(ta ? step.ta : step.en), youtube: step.youtube, video: step.video }))
           ).map((step, i) => (
             <div key={i} className="grid md:grid-cols-2 gap-5 items-start">
               <div className={i % 2 ? "md:order-2" : ""}>
@@ -153,6 +157,19 @@ export default function ForAgentsPage() {
               <div className={i % 2 ? "md:order-1" : ""}>
                 {step.youtube ? (
                   <YouTubeEmbed url={step.youtube} title={step.title} />
+                ) : step.video ? (
+                  <div className="rounded-2xl overflow-hidden border border-sand-200 shadow-sm bg-black">
+                    <video
+                      className="w-full aspect-video bg-black"
+                      src={step.video}
+                      poster={step.video.replace(/\.mp4$/, ".jpg")}
+                      muted
+                      loop
+                      playsInline
+                      controls
+                      preload="none"
+                    />
+                  </div>
                 ) : (
                   <div className="w-full aspect-video rounded-2xl border-2 border-dashed border-sand-300 bg-white flex flex-col items-center justify-center text-charcoal-400">
                     <svg viewBox="0 0 24 24" className="w-10 h-10 mb-2" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
