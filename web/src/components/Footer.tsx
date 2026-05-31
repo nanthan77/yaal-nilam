@@ -258,9 +258,24 @@ export function Footer() {
             href="https://safenetcreations.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="group text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200 order-last sm:order-none"
+            className="group inline-flex items-center gap-1.5 text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200 order-last sm:order-none"
           >
-            {locale === 'en' ? 'Digitally architected by ' : 'டிஜிட்டல் வடிவமைப்பு & உருவாக்கம்: '}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-3.5 h-3.5 text-[#D4A853] shrink-0"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="4.5" r="1.6" />
+              <path d="M12 6 L7 20" />
+              <path d="M12 6 L17 20" />
+              <path d="M9 13 H15" />
+            </svg>
+            {locale === 'en' ? 'Building digital homes — ' : 'டிஜிட்டல் இல்லங்களை உருவாக்குகிறோம் — '}
             <span className="text-sand-200 group-hover:text-[#D4A853]">SafeNet Creations</span>
           </a>
 
