@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel, t } from "@/lib/translations";
 import { buildWhatsAppUrl, resolvePropertyImage } from "@/lib/marketplace";
 import { googleMapsViewUrl } from "@/lib/maps";
+import ShareMenu from "@/components/ShareMenu";
 import { getSavedPropertyIds, toggleSavedProperty, trackWhatsAppLead } from "@/lib/firestore";
 import type { Property } from "@/lib/data";
 
@@ -92,6 +93,23 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           <span className={`badge ${intentColor}`}>{intentLabel}</span>
           {p.featured && <span className="badge bg-[#D4A853] text-[#0F2E25] font-black uppercase tracking-wider shadow-sm">{locale === "ta" ? "சிறப்பு" : "Featured"}</span>}
           {p.verified && <span className="badge bg-white/95 text-teal-800 font-bold uppercase tracking-wider">{locale === "ta" ? "சரிபார்க்கப்பட்டது" : "Verified"}</span>}
+          {p.video_tour_url && (
+            <span className="badge bg-red-600 text-white font-bold uppercase tracking-wider inline-flex items-center gap-1">
+              <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+              {locale === "ta" ? "வீடியோ" : "Video"}
+            </span>
+          )}
+        </div>
+
+        {/* Share */}
+        <div className="absolute top-3 right-3 z-10">
+          <ShareMenu
+            url={`/properties/${p.id}/`}
+            title={locale === "ta" && p.title_ta ? p.title_ta : p.title}
+            openUp={false}
+            iconClassName="w-4 h-4"
+            buttonClassName="flex items-center justify-center bg-white/90 p-2.5 rounded-full hover:bg-white transition-colors shadow-sm text-charcoal-600"
+          />
         </div>
 
         <button
@@ -165,6 +183,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           {p.sqft > 0 && <span className="bg-sand-100 px-2.5 py-1 rounded-lg">{p.sqft.toLocaleString()} sqft</span>}
           {p.furnishing && p.furnishing !== "not_specified" && (
             <span className="bg-sand-100 px-2.5 py-1 rounded-lg capitalize">{p.furnishing.replace(/-/g, " ")}</span>
+          )}
+          {p.land_size_perches > 0 && p.price > 0 && p.intent !== "rent" && p.intent !== "short_rent" && (
+            <span className="bg-[#D4A853]/15 text-[#8a6d2f] font-semibold px-2.5 py-1 rounded-lg">
+              {formatCompactPrice(Math.round(p.price / p.land_size_perches), locale)}/{locale === "ta" ? "பேர்ச்" : "perch"}
+            </span>
           )}
         </div>
 

@@ -64,6 +64,7 @@ export default function ListPropertyPage() {
     parking: '',
     furnishing: '',
     description: '',
+    videoUrl: '',
     amenities: [] as string[],
     whatsappOptIn: true,
   });
@@ -466,6 +467,13 @@ export default function ListPropertyPage() {
                     <div>
                       <label htmlFor="description" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.description}</label>
                       <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={5} className="input-field w-full" />
+                    </div>
+
+                    <div>
+                      <label htmlFor="videoUrl" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                        {locale === 'ta' ? 'YouTube வீடியோ இணைப்பு (விருப்பம்)' : 'YouTube video link (optional)'}
+                      </label>
+                      <input id="videoUrl" name="videoUrl" type="url" value={formData.videoUrl} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..." className="input-field w-full" />
                     </div>
 
                     <div>

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyMap from "@/components/PropertyMap";
+import YouTubeEmbed from "@/components/YouTubeEmbed";
 import { getSavedPropertyIds, getPropertyById, getPropertiesByArea, submitViewingRequest, toggleSavedProperty, trackListingView, trackWhatsAppLead } from "@/lib/firestore";
 import { useStore } from "@/lib/store";
 import { buildWhatsAppUrl, formatConvertedPrice, resolvePropertyImage } from "@/lib/marketplace";
@@ -406,9 +407,7 @@ export default function PropertyDetailClient() {
               <div className="rounded-3xl border border-sand-200 p-6">
                 <h3 className="text-xl font-bold text-charcoal-900 mb-3">{copy.videoTour}</h3>
                 {property.video_tour_url ? (
-                  <a href={property.video_tour_url} target="_blank" rel="noopener noreferrer" className="text-teal-700 font-semibold underline">
-                    Watch virtual tour
-                  </a>
+                  <YouTubeEmbed url={property.video_tour_url} title={propertyTitle} />
                 ) : (
                   <p className="text-charcoal-600">{copy.availableOnRequest}</p>
                 )}

@@ -514,6 +514,7 @@ export async function submitListing(data: Record<string, any>) {
       parking: Number(data.parking || 0),
       amenities: Array.isArray(data.amenities) ? data.amenities : [],
       media_urls: Array.isArray(data.photos) ? data.photos : [],
+      video_tour_url: data.videoUrl || "",
       featured: false,
       verified: false,
       remote_purchase_support: true,

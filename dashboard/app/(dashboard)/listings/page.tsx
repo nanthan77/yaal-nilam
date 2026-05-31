@@ -777,6 +777,22 @@ function ListingDetailModal({
             />
           </div>
 
+          {/* Video Tour Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Video Tour
+            </h3>
+            <label className="block text-sm font-medium text-gray-700 mb-1">YouTube video URL</label>
+            <input
+              type="url"
+              value={formData.video_tour_url || ''}
+              onChange={(e) => handleChange('video_tour_url', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+            <p className="mt-1 text-xs text-gray-500">Paste a YouTube link — it plays inline on the property page.</p>
+          </div>
+
           {/* Agent Section */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
@@ -1008,6 +1024,7 @@ export default function ListingsPage() {
             agent_name: l.agent || l.agent_name || '',
             agent_phone: l.agent_phone || '',
             description: l.description || '',
+            video_tour_url: l.video_tour_url || '',
             posted_date: l.created_at || l.posted_date || new Date().toISOString(),
             updated_date: l.updated_date || new Date().toISOString(),
             views: l.views || 0,
