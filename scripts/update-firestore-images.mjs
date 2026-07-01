@@ -1,3 +1,4 @@
+// NOTE: requires admin credentials; client SDK writes are denied by rules
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import dotenv from 'dotenv';

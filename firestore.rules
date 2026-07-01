@@ -14,6 +14,20 @@ service cloud.firestore {
         request.auth.token.email in ['nanthan77@gmail.com'];
     }
 
+    function isAdminUserRecord() {
+      return signedIn() &&
+        request.auth.token.email != null &&
+        exists(/databases/$(database)/documents/admin_users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/admin_users/$(request.auth.token.email)).data.status == 'active' &&
+        get(/databases/$(database)/documents/admin_users/$(request.auth.token.email)).data.role in [
+          'super_admin',
+          'admin',
+          'listing_manager',
+          'lead_manager',
+          'content_manager'
+        ];
+    }
+
     function isAdmin() {
       return signedIn() && (
         request.auth.token.admin == true ||
@@ -24,7 +38,8 @@ service cloud.firestore {
           'lead_manager',
           'content_manager'
         ] ||
-        isOwnerEmail()
+        isOwnerEmail() ||
+        isAdminUserRecord()
       );
     }
 
@@ -75,6 +90,62 @@ service cloud.firestore {
         && fieldStr('owner_phone', 40)
         && fieldStr('owner_email', 320);
     }
+    function isSubmissionOwner() {
+      return signedIn() && (
+        resource.data.get('agent_id', '') == request.auth.uid ||
+        (
+          request.auth.token.email != null &&
+          (
+            resource.data.get('owner_email', '') == request.auth.token.email ||
+            resource.data.get('agent_email', '') == request.auth.token.email
+          )
+        )
+      );
+    }
+    function validUserProfile(userId) {
+      return boundedDoc(20)
+        && request.resource.data.uid == userId
+        && request.resource.data.user_type in ['buyer', 'seller', 'agent']
+        && fieldStr('name', 300)
+        && fieldStr('email', 320)
+        && fieldStr('phone', 40);
+    }
+    function validAgentCreate(agentId) {
+      return boundedDoc(55)
+        && request.resource.data.uid == agentId
+        && request.resource.data.role == 'agent'
+        && request.resource.data.status == 'pending'
+        && request.resource.data.verified == false
+        && request.resource.data.nic_uploaded == false
+        && fieldStr('name', 300)
+        && fieldStr('email', 320)
+        && fieldStr('phone', 40)
+        && fieldStr('whatsapp', 40)
+        && fieldStr('company', 300)
+        && fieldStr('logo_url', 1000)
+        && fieldStr('agency_type', 120)
+        && fieldStr('public_email', 320)
+        && fieldStr('internal_email', 320)
+        && fieldStr('website', 1000)
+        && fieldStr('office_address', 1000)
+        && fieldStr('company_registration_no', 120)
+        && fieldStr('license_no', 120)
+        && fieldStr('business_hours', 240)
+        && fieldStr('agency_plan', 80)
+        && fieldStr('billing_status', 80)
+        && fieldStr('source', 80)
+        && request.resource.data.service_areas is list
+        && request.resource.data.service_areas.size() <= 20
+        && request.resource.data.specializations is list
+        && request.resource.data.specializations.size() <= 20
+        && request.resource.data.languages is list
+        && request.resource.data.languages.size() <= 10
+        && request.resource.data.active_listings is number
+        && request.resource.data.total_inquiries is number
+        && request.resource.data.response_rate is number
+        && request.resource.data.team_size is number
+        && request.resource.data.years_experience is number;
+    }
     function validSavedSearch() {
       return boundedDoc(20)
         && fieldStr('session_id', 200)
@@ -99,6 +170,21 @@ service cloud.firestore {
         && request.resource.data.get('min_bedrooms', 0) is number
         && request.resource.data.get('max_price', 0) is number
         && request.resource.data.status == 'active';
+    }
+    function validAuditLog() {
+      // audit_logs — append-only admin action trail
+      return boundedDoc(30)
+        && request.resource.data.action is string
+        && request.resource.data.action.size() >= 1
+        && request.resource.data.action.size() <= 200
+        && request.resource.data.entity_type is string
+        && request.resource.data.entity_type.size() >= 1
+        && request.resource.data.entity_type.size() <= 100
+        && request.resource.data.performed_by is string
+        && request.resource.data.performed_by.size() >= 1
+        && request.resource.data.performed_by.size() <= 320
+        && fieldStr('entity_id', 200)
+        && fieldStr('details', 10000);
     }
 
     // Public marketplace reads only published listings. Writes are admin-only.
@@ -132,7 +218,7 @@ service cloud.firestore {
     }
 
     match /listing_submissions/{submissionId} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || isSubmissionOwner();
       allow create: if validSubmission();
       allow update, delete: if isAdmin();
     }
@@ -146,7 +232,22 @@ service cloud.firestore {
     // Agent profiles are public, but verification/status changes are admin-only.
     match /agents/{agentId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if signedIn()
+        && request.auth.uid == agentId
+        && validAgentCreate(agentId);
+      allow update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && validUserProfile(userId);
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && validUserProfile(userId)
+        && request.resource.data.user_type == resource.data.user_type;
+      allow delete: if isAdmin();
     }
 
     match /saved_searches/{searchId} {
@@ -191,8 +292,38 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
-    match /admin_users/{userId} {
+    // Social lead monitor CRM: discovered public posts, manual imports, and
+    // monitor run logs are admin-only. Cloud Functions write with Admin SDK.
+    match /social_leads/{leadId} {
       allow read, write: if isAdmin();
+    }
+
+    match /social_monitor_runs/{runId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Admin action audit trail. Append-only: admins can create and read,
+    // but entries can never be updated or deleted (immutable log).
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validAuditLog();
+      allow update, delete: if false;
+    }
+
+    match /admin_users/{userId} {
+      allow get: if isAdmin() || (
+        signedIn()
+        && request.auth.token.email == userId
+        && resource.data.status == 'active'
+        && resource.data.role in [
+          'super_admin',
+          'admin',
+          'listing_manager',
+          'lead_manager',
+          'content_manager'
+        ]
+      );
+      allow list, create, update, delete: if isAdmin();
     }
   }
 }

@@ -14,11 +14,11 @@ import {
   Map,
   Search,
 } from 'lucide-react';
-import { MOCK_AREAS } from '@/lib/mock-data';
 import { createArea, getAreas, updateArea } from '@/lib/firestore';
 
 export default function AreasPage() {
-  const [allAreas, setAllAreas] = useState<any[]>(MOCK_AREAS);
+  const [allAreas, setAllAreas] = useState<any[]>([]);
+  const [areasError, setAreasError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState<any | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -29,11 +29,14 @@ export default function AreasPage() {
     async function load() {
       try {
         const data = await getAreas();
-        if (data && data.length > 0) {
-          setAllAreas(data);
+        setAllAreas(data || []);
+      } catch (e: any) {
+        const msg = e?.message || '';
+        if (msg.toLowerCase().includes('permission') || msg.includes('PERMISSION_DENIED')) {
+          setAreasError('Permission denied — your account lacks an admin role');
+        } else {
+          setAreasError('Failed to load areas.');
         }
-      } catch (e) {
-        console.error('Failed to load areas from Firestore:', e);
       } finally {
         setLoading(false);
       }
@@ -123,6 +126,11 @@ export default function AreasPage() {
           Manage Jaffna Peninsula areas for local SEO
         </p>
       </div>
+      {areasError && (
+        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">
+          {areasError}
+        </div>
+      )}
       {message && (
         <div className="mb-6 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
           {message}
@@ -167,6 +175,15 @@ export default function AreasPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && !areasError && allAreas.length === 0 && (
+        <div className="py-16 text-center">
+          <MapPin className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-600 font-medium text-lg">No areas yet</p>
+          <p className="text-slate-400 text-sm mt-2">Add areas of the Jaffna Peninsula to help buyers find properties by location.</p>
         </div>
       )}
 

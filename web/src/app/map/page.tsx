@@ -1,6 +1,7 @@
 // @ts-nocheck
 "use client";
 
+import "leaflet/dist/leaflet.css";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
@@ -203,9 +204,9 @@ export default function MapPage() {
           </aside>
 
           <section className="bg-white rounded-3xl border border-sand-200 shadow-sm overflow-hidden">
-            <div className="flex-1 relative" style={{ minHeight: "760px" }}>
+            <div className="flex-1 relative h-[380px] lg:h-[760px]">
               {mounted ? (
-                <MapContainer center={JAFFNA_CENTER} zoom={11} style={{ height: "100%", width: "100%" }} scrollWheelZoom>
+                <MapContainer center={JAFFNA_CENTER} zoom={11} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

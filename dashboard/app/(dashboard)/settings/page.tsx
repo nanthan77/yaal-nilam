@@ -33,7 +33,6 @@ export default function SettingsPage() {
     enableGoogleAnalytics: true,
     googleAnalyticsId: 'UA-XXXXXXXXX-X',
     enableHotjar: true,
-    stripeApiKey: '***********',
     enableBackups: true,
     backupFrequency: 'daily',
     twoFactorAuth: false,
@@ -59,7 +58,13 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true)
-    const ok = await saveDashboardSettings(formData)
+    // Strip any placeholder/masked values before persisting
+    const payload: FormState = {}
+    for (const [key, value] of Object.entries(formData)) {
+      if (typeof value === 'string' && /^\*{3,}$/.test(value)) continue
+      payload[key] = value
+    }
+    const ok = await saveDashboardSettings(payload)
     setSaving(false)
     setMessage(ok ? 'Settings saved.' : 'Could not save settings. Check admin access.')
     window.setTimeout(() => setMessage(''), 3500)
@@ -357,23 +362,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4 border border-sand-200 rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-charcoal-900">Stripe Payments</h3>
-                      <p className="text-sm text-charcoal-600 mt-1">Payment processing</p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-charcoal-700 mb-2">API Key</label>
-                    <input
-                      type="password"
-                      value={formData.stripeApiKey as string}
-                      onChange={(e) => handleInputChange('stripeApiKey', e.target.value)}
-                      className="w-full px-4 py-2 border border-sand-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
-                    />
-                  </div>
-                </div>
               </div>
             )}
 

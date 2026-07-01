@@ -71,269 +71,6 @@ export interface Listing {
   published_listing_id?: string;
 }
 
-const MOCK_LISTINGS: Listing[] = [
-  {
-    id: '1',
-    listing_code: 'JN-2024-001',
-    title: 'Traditional House in Nallur',
-    title_ta: 'நல்லூரில் பாரம்பரிய வீடு',
-    property_type: 'house',
-    intent: 'buy',
-    price: 4500000,
-    area: 'Nallur',
-    district: 'Jaffna',
-    address: '123 Nallur Main Road, Nallur',
-    bedrooms: 4,
-    bathrooms: 2,
-    land_size_perches: 12.5,
-    sqft: 2500,
-    images: [
-      'https://images.unsplash.com/photo-1570129477492-45ea003588af?w=400',
-    ],
-    status: 'published',
-    verified: true,
-    featured: true,
-    agent_id: 'A001',
-    agent_name: 'Kumaran Samy',
-    agent_phone: '+94771234567',
-    description: 'Spacious house with modern amenities',
-    posted_date: '2026-03-15',
-    updated_date: '2026-03-24',
-    views: 2450,
-    inquiries_count: 18,
-    whatsapp_clicks: 42,
-    negotiable: true,
-    furnishing: 'furnished',
-    parking: 2,
-    highlights: ['Modern kitchen', 'Large garden', 'Near temple'],
-  },
-  {
-    id: '2',
-    listing_code: 'JN-2024-002',
-    title: 'Beach Land in Point Pedro',
-    title_ta: 'கோட்டையூரில் கடற்கரை நிலம்',
-    property_type: 'land',
-    intent: 'buy',
-    price: 2800000,
-    area: 'Point Pedro',
-    district: 'Jaffna',
-    address: 'Coastal Road, Point Pedro',
-    bedrooms: 0,
-    bathrooms: 0,
-    land_size_perches: 25,
-    sqft: 12500,
-    images: [
-      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400',
-    ],
-    status: 'published',
-    verified: true,
-    featured: false,
-    agent_id: 'A002',
-    agent_name: 'Priya Krishnan',
-    agent_phone: '+94772345678',
-    description: 'Clear title land, good access road',
-    posted_date: '2026-03-20',
-    updated_date: '2026-03-23',
-    views: 890,
-    inquiries_count: 5,
-    whatsapp_clicks: 12,
-    negotiable: false,
-  },
-  {
-    id: '3',
-    listing_code: 'JN-2024-003',
-    title: 'Modern Apartment in Jaffna Fort',
-    title_ta: 'யாழ் கோட்டையில் நவீன அபார்ட்மெண்ட்',
-    property_type: 'apartment',
-    intent: 'rent',
-    price: 125000,
-    area: 'Jaffna Fort',
-    district: 'Jaffna',
-    address: '456 Fort Road, Jaffna Fort',
-    bedrooms: 2,
-    bathrooms: 1,
-    land_size_perches: 0,
-    sqft: 950,
-    images: [
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400',
-    ],
-    status: 'published',
-    verified: true,
-    featured: true,
-    agent_id: 'A001',
-    agent_name: 'Kumaran Samy',
-    agent_phone: '+94771234567',
-    description: 'Well-maintained flat with city views',
-    posted_date: '2026-03-18',
-    updated_date: '2026-03-24',
-    views: 3200,
-    inquiries_count: 28,
-    whatsapp_clicks: 67,
-    negotiable: false,
-    furnishing: 'semi-furnished',
-    parking: 1,
-    highlights: ['City view', 'Close to shops', 'Good ventilation'],
-  },
-  {
-    id: '4',
-    listing_code: 'JN-2024-004',
-    title: 'Commercial Space in Chunnakam',
-    title_ta: 'சுண்ணாக்கத்தில் வணிக இடம்',
-    property_type: 'commercial',
-    intent: 'rent',
-    price: 85000,
-    area: 'Chunnakam',
-    district: 'Jaffna',
-    address: 'Main Bazaar Road, Chunnakam',
-    bedrooms: 0,
-    bathrooms: 1,
-    land_size_perches: 8,
-    sqft: 2000,
-    images: [
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400',
-    ],
-    status: 'draft',
-    verified: false,
-    featured: false,
-    agent_id: 'A003',
-    agent_name: 'Vikram Das',
-    agent_phone: '+94773456789',
-    description: 'Prime location for retail or office',
-    posted_date: '2026-03-22',
-    updated_date: '2026-03-22',
-    views: 340,
-    inquiries_count: 2,
-    whatsapp_clicks: 3,
-  },
-  {
-    id: '5',
-    listing_code: 'JN-2024-005',
-    title: 'Luxury Villa in Karainagar',
-    title_ta: 'கராய்நாகரில் விலாசவாழ்க்கை வீடு',
-    property_type: 'villa',
-    intent: 'buy',
-    price: 130000000,
-    area: 'Karainagar',
-    district: 'Jaffna',
-    address: '789 Coastal Lane, Karainagar',
-    bedrooms: 5,
-    bathrooms: 4,
-    land_size_perches: 50,
-    sqft: 8000,
-    images: [
-      'https://images.unsplash.com/photo-1512917774080-9b274b3d0117?w=400',
-    ],
-    status: 'published',
-    verified: true,
-    featured: true,
-    agent_id: 'A004',
-    agent_name: 'Ashoka Weerasuriya',
-    agent_phone: '+94774567890',
-    description: 'Stunning villa with pool and garden',
-    posted_date: '2026-03-10',
-    updated_date: '2026-03-24',
-    views: 5680,
-    inquiries_count: 35,
-    whatsapp_clicks: 89,
-    negotiable: true,
-    furnishing: 'furnished',
-    parking: 4,
-    highlights: ['Swimming pool', 'Large garden', 'Security', 'Gym'],
-  },
-  {
-    id: '6',
-    listing_code: 'JN-2024-006',
-    title: 'Apartment in Thirunelvely',
-    title_ta: 'திருநெல்வேலியில் அபார்ட்மெண்ட்',
-    property_type: 'apartment',
-    intent: 'buy',
-    price: 3200000,
-    area: 'Thirunelvely',
-    district: 'Jaffna',
-    address: 'New Road, Thirunelvely',
-    bedrooms: 3,
-    bathrooms: 2,
-    land_size_perches: 0,
-    sqft: 1500,
-    images: [
-      'https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=400',
-    ],
-    status: 'pending',
-    verified: false,
-    featured: false,
-    agent_id: 'A002',
-    agent_name: 'Priya Krishnan',
-    agent_phone: '+94772345678',
-    description: 'Well-constructed apartment',
-    posted_date: '2026-03-12',
-    updated_date: '2026-03-21',
-    views: 1200,
-    inquiries_count: 8,
-    whatsapp_clicks: 15,
-  },
-  {
-    id: '7',
-    listing_code: 'JN-2024-007',
-    title: 'House for Rent in Kopay',
-    title_ta: 'கோபாயில் வாடகை வீடு',
-    property_type: 'house',
-    intent: 'rent',
-    price: 95000,
-    area: 'Kopay',
-    district: 'Jaffna',
-    address: 'Main Road, Kopay',
-    bedrooms: 3,
-    bathrooms: 2,
-    land_size_perches: 15,
-    sqft: 1800,
-    images: [
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400',
-    ],
-    status: 'published',
-    verified: true,
-    featured: false,
-    agent_id: 'A003',
-    agent_name: 'Vikram Das',
-    agent_phone: '+94773456789',
-    description: 'Family house near schools and shops',
-    posted_date: '2026-03-19',
-    updated_date: '2026-03-24',
-    views: 1650,
-    inquiries_count: 12,
-    whatsapp_clicks: 28,
-  },
-  {
-    id: '8',
-    listing_code: 'JN-2024-008',
-    title: 'Land in Chavakachcheri',
-    title_ta: 'சவக்கச்சேரியில் நிலம்',
-    property_type: 'land',
-    intent: 'buy',
-    price: 1800000,
-    area: 'Chavakachcheri',
-    district: 'Jaffna',
-    address: 'Galle Road, Chavakachcheri',
-    bedrooms: 0,
-    bathrooms: 0,
-    land_size_perches: 18,
-    sqft: 9000,
-    images: [
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400',
-    ],
-    status: 'published',
-    verified: false,
-    featured: false,
-    agent_id: 'A004',
-    agent_name: 'Ashoka Weerasuriya',
-    agent_phone: '+94774567890',
-    description: 'Corner plot near main road',
-    posted_date: '2026-03-21',
-    updated_date: '2026-03-24',
-    views: 780,
-    inquiries_count: 4,
-    whatsapp_clicks: 8,
-  },
-];
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -989,10 +726,9 @@ function ListingViewModal({ listing, isOpen, onClose, onEdit }: ListingViewModal
 // ============================================================================
 
 export default function ListingsPage() {
-  const [listings, setListings] = useState<Listing[]>(() =>
-    MOCK_LISTINGS.map((listing) => ({ ...listing, intent: normalizeListingIntent(listing.intent) }))
-  );
-  const [firestoreLoaded, setFirestoreLoaded] = useState(false);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [listingsError, setListingsError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [actionMessage, setActionMessage] = useState('');
 
@@ -1001,42 +737,44 @@ export default function ListingsPage() {
     async function loadFromFirestore() {
       try {
         const fsListings = await getListings();
-        if (fsListings.length > 0) {
-          // Map Firestore data to match the Listing interface
-          const mapped = fsListings.map((l, idx) => ({
-            ...l,
-            listing_code: l.listing_code || `JN-${String(idx + 1).padStart(3, '0')}`,
-            title_ta: l.title_ta || '',
-            property_type: (l.type || l.property_type || 'house').toLowerCase(),
-            intent: normalizeListingIntent(l.intent),
-            area: l.area || '',
-            district: l.district || 'Jaffna',
-            address: l.address || '',
-            bedrooms: l.bedrooms || 0,
-            bathrooms: l.bathrooms || 0,
-            land_size_perches: l.land_size_perches || 0,
-            sqft: l.sqft || 0,
-            images: l.images || [],
-            status: (l.status === 'Available' ? 'published' : l.status === 'Pending' ? 'pending' : l.status || 'pending').toLowerCase(),
-            verified: l.verified ?? false,
-            featured: l.featured ?? false,
-            agent_id: l.agent_id || '',
-            agent_name: l.agent || l.agent_name || '',
-            agent_phone: l.agent_phone || '',
-            description: l.description || '',
-            video_tour_url: l.video_tour_url || '',
-            posted_date: l.created_at || l.posted_date || new Date().toISOString(),
-            updated_date: l.updated_date || new Date().toISOString(),
-            views: l.views || 0,
-            inquiries_count: l.inquiries_count || 0,
-            whatsapp_clicks: l.whatsapp_clicks || 0,
-          }));
-          setListings(mapped);
+        const mapped = fsListings.map((l, idx) => ({
+          ...l,
+          listing_code: l.listing_code || `JN-${String(idx + 1).padStart(3, '0')}`,
+          title_ta: l.title_ta || '',
+          property_type: (l.type || l.property_type || 'house').toLowerCase(),
+          intent: normalizeListingIntent(l.intent),
+          area: l.area || '',
+          district: l.district || 'Jaffna',
+          address: l.address || '',
+          bedrooms: l.bedrooms || 0,
+          bathrooms: l.bathrooms || 0,
+          land_size_perches: l.land_size_perches || 0,
+          sqft: l.sqft || 0,
+          images: l.images || [],
+          status: (l.status === 'Available' ? 'published' : l.status === 'Pending' ? 'pending' : l.status || 'pending').toLowerCase(),
+          verified: l.verified ?? false,
+          featured: l.featured ?? false,
+          agent_id: l.agent_id || '',
+          agent_name: l.agent || l.agent_name || '',
+          agent_phone: l.agent_phone || '',
+          description: l.description || '',
+          video_tour_url: l.video_tour_url || '',
+          posted_date: l.created_at || l.posted_date || new Date().toISOString(),
+          updated_date: l.updated_date || new Date().toISOString(),
+          views: l.views || 0,
+          inquiries_count: l.inquiries_count || 0,
+          whatsapp_clicks: l.whatsapp_clicks || 0,
+        }));
+        setListings(mapped);
+      } catch (err: any) {
+        const msg = err?.message || '';
+        if (msg.toLowerCase().includes('permission') || msg.includes('PERMISSION_DENIED')) {
+          setListingsError('Permission denied — your account lacks an admin role');
+        } else {
+          setListingsError('Failed to load listings. Check your connection.');
         }
-      } catch (err) {
-        console.error('Firestore listings load error:', err);
       } finally {
-        setFirestoreLoaded(true);
+        setLoadingListings(false);
       }
     }
     loadFromFirestore();
@@ -1683,6 +1421,12 @@ export default function ListingsPage() {
           </button>
         </div>
 
+        {listingsError && (
+          <div className="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">
+            {listingsError}
+          </div>
+        )}
+
         {actionMessage && (
           <div className="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
             {actionMessage}
@@ -1928,7 +1672,15 @@ export default function ListingsPage() {
 
         {/* Content */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          {viewMode === 'table' ? <TableView /> : <CardView />}
+          {loadingListings ? (
+            <div className="py-20 text-center text-gray-500 text-sm">Loading listings…</div>
+          ) : listings.length === 0 && !listingsError ? (
+            <div className="py-20 text-center">
+              <Home className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 font-medium text-lg">No listings yet</p>
+              <p className="text-gray-400 text-sm mt-2">Add your first property listing to get started.</p>
+            </div>
+          ) : viewMode === 'table' ? <TableView /> : <CardView />}
         </div>
 
         {/* Pagination */}

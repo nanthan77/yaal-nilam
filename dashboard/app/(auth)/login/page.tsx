@@ -4,9 +4,10 @@
 import { useState } from 'react'
 import { signInWithEmailAndPassword, signOut, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
-import { auth } from '@/lib/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '@/lib/firebase'
 
-const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager', 'viewer']
+const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager']
 
 // Bootstrap super-admin allowlist. Configurable via env for production; defaults
 // to the project owner. Exact, case-insensitive match — NOT a prefix, so
@@ -18,6 +19,23 @@ const SUPER_ADMIN_EMAILS = (process.env.NEXT_PUBLIC_SUPERADMIN_EMAILS || 'nantha
 
 const isSuperAdminEmail = (email?: string | null) =>
   !!email && SUPER_ADMIN_EMAILS.includes(email.toLowerCase())
+
+async function getAccessFromAdminUserRecord(email?: string | null) {
+  if (!email) return ''
+  const snap = await getDoc(doc(db, 'admin_users', email.toLowerCase()))
+  if (!snap.exists()) return ''
+  const data = snap.data() as any
+  return data?.status === 'active' && ADMIN_ROLES.includes(data?.role) ? data.role : ''
+}
+
+async function resolveAdminAccess(user: any) {
+  const token = await user.getIdTokenResult(true)
+  const claimRole = typeof token.claims.role === 'string' ? token.claims.role : ''
+  const superAdmin = isSuperAdminEmail(user.email)
+  const recordRole = claimRole || (superAdmin ? 'super_admin' : await getAccessFromAdminUserRecord(user.email))
+  const allowed = token.claims.admin === true || ADMIN_ROLES.includes(recordRole) || superAdmin
+  return { allowed, role: superAdmin ? 'super_admin' : (recordRole || 'admin') }
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -55,18 +73,16 @@ export default function LoginPage() {
       }
 
       const credential = await signInWithEmailAndPassword(auth, email, password)
-      const token = await credential.user.getIdTokenResult(true)
-      const role = typeof token.claims.role === 'string' ? token.claims.role : ''
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || isSuperAdminEmail(credential.user.email)
+      const access = await resolveAdminAccess(credential.user)
 
-      if (!allowed) {
+      if (!access.allowed) {
         await signOut(auth)
         setError('This account does not have admin dashboard access.')
         return
       }
 
       localStorage.setItem('admin_auth', 'true')
-      localStorage.setItem('admin_role', isSuperAdminEmail(credential.user.email) ? 'super_admin' : (role || 'admin'))
+      localStorage.setItem('admin_role', access.role)
       router.push('/')
     } catch (err: any) {
       setError(err?.code === 'auth/invalid-credential' ? 'Invalid email or password.' : 'Unable to sign in. Please try again.')
@@ -81,18 +97,16 @@ export default function LoginPage() {
     try {
       const provider = new GoogleAuthProvider()
       const credential = await signInWithPopup(auth, provider)
-      const token = await credential.user.getIdTokenResult(true)
-      const role = typeof token.claims.role === 'string' ? token.claims.role : ''
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || isSuperAdminEmail(credential.user.email)
+      const access = await resolveAdminAccess(credential.user)
 
-      if (!allowed) {
+      if (!access.allowed) {
         await signOut(auth)
         setError('This account does not have admin dashboard access.')
         return
       }
 
       localStorage.setItem('admin_auth', 'true')
-      localStorage.setItem('admin_role', isSuperAdminEmail(credential.user.email) ? 'super_admin' : (role || 'admin'))
+      localStorage.setItem('admin_role', access.role)
       router.push('/')
     } catch (err: any) {
       console.error(err)
@@ -108,18 +122,16 @@ export default function LoginPage() {
     try {
       const provider = new GithubAuthProvider()
       const credential = await signInWithPopup(auth, provider)
-      const token = await credential.user.getIdTokenResult(true)
-      const role = typeof token.claims.role === 'string' ? token.claims.role : ''
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || isSuperAdminEmail(credential.user.email)
+      const access = await resolveAdminAccess(credential.user)
 
-      if (!allowed) {
+      if (!access.allowed) {
         await signOut(auth)
         setError('This account does not have admin dashboard access.')
         return
       }
 
       localStorage.setItem('admin_auth', 'true')
-      localStorage.setItem('admin_role', isSuperAdminEmail(credential.user.email) ? 'super_admin' : (role || 'admin'))
+      localStorage.setItem('admin_role', access.role)
       router.push('/')
     } catch (err: any) {
       console.error(err)

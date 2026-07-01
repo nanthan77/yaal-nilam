@@ -13,8 +13,8 @@ function getDb() {
  *
  * Secret resolution: WHATSAPP_APP_SECRET env var first, then the
  * config/whatsapp Firestore doc (field `app_secret`). If no secret is
- * configured we log loudly and allow the request through so an unconfigured
- * deployment is not bricked — set the secret before going to production.
+ * configured we FAIL CLOSED: every webhook POST is rejected with 403 until
+ * the secret is set. (The GET verify-token handshake is unaffected.)
  */
 function verifyMetaSignature(
   req: functions.https.Request,
@@ -67,27 +67,42 @@ export async function whatsappWebhook(
   req: functions.https.Request,
   res: functions.Response
 ): Promise<void> {
+  // Authenticate the request actually came from Meta before doing any work.
+  // Fail CLOSED: with no app secret configured (or the config unreadable) we
+  // reject every POST instead of accepting unsigned traffic.
+  let appSecret = "";
   try {
-    // Authenticate the request actually came from Meta before doing any work.
-    const db = getDb();
-    let appSecret = process.env.WHATSAPP_APP_SECRET || "";
+    appSecret = process.env.WHATSAPP_APP_SECRET || "";
     if (!appSecret) {
-      const configDoc = await db.collection("config").doc("whatsapp").get();
+      const configDoc = await getDb()
+        .collection("config")
+        .doc("whatsapp")
+        .get();
       appSecret = configDoc.data()?.app_secret || "";
     }
-    if (appSecret) {
-      if (!verifyMetaSignature(req, appSecret)) {
-        console.error("WhatsApp webhook signature verification failed");
-        res.status(403).send("Forbidden");
-        return;
-      }
-    } else {
-      console.warn(
-        "WHATSAPP_APP_SECRET not configured — skipping signature verification. " +
-          "Set it before production; unsigned webhooks are being accepted."
-      );
-    }
+  } catch (error) {
+    console.error("Failed to resolve WhatsApp app secret:", error);
+    res.status(403).send("Forbidden");
+    return;
+  }
 
+  if (!appSecret) {
+    console.error(
+      "WHATSAPP_APP_SECRET is not configured (env var or config/whatsapp " +
+        "field app_secret). Rejecting webhook POST — set the secret to " +
+        "enable WhatsApp message ingestion."
+    );
+    res.status(403).send("Forbidden");
+    return;
+  }
+
+  if (!verifyMetaSignature(req, appSecret)) {
+    console.error("WhatsApp webhook signature verification failed");
+    res.status(403).send("Forbidden");
+    return;
+  }
+
+  try {
     const body = req.body;
 
     if (body.object !== "whatsapp_business_account") {

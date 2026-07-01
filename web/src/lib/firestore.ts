@@ -63,11 +63,29 @@ async function safeSnapshot(path: string) {
   }
 }
 
+async function safeQuerySnapshot(label: string, firestoreQuery: any) {
+  try {
+    return await withFirestoreTimeout(getDocs(firestoreQuery), label);
+  } catch (error: any) {
+    if (error?.code !== "permission-denied") {
+      console.error(`Error fetching ${label}:`, error);
+    }
+    return null;
+  }
+}
+
 async function safeDoc(path: string, id: string) {
+  // Guard against missing/invalid ids (e.g. stale localStorage entries) before
+  // calling doc(), which throws on undefined/empty segments.
+  if (!id || typeof id !== "string" || id === "undefined") return null;
   try {
     return await withFirestoreTimeout(getDoc(doc(db, path, id)), `document:${path}/${id}`);
-  } catch (error) {
-    console.error(`Error fetching ${path}/${id}:`, error);
+  } catch (error: any) {
+    // permission-denied / not-found for a stale id is expected and non-fatal —
+    // don't spam the console; surface only unexpected errors.
+    if (error?.code !== "permission-denied" && error?.code !== "not-found") {
+      console.error(`Error fetching ${path}/${id}:`, error);
+    }
     return null;
   }
 }
@@ -223,7 +241,8 @@ export async function getAreas(seedListings?: any[]) {
 
 export async function getAreaBySlug(slug: string) {
   const areas = await getAreas();
-  return areas.find((area) => area.slug === slug) || null;
+  const normSlug = slug === 'kokuvil' ? 'kokkuvil' : slug;
+  return areas.find((area) => area.slug === normSlug) || null;
 }
 
 // ========================
@@ -234,13 +253,165 @@ export async function getAgents() {
   try {
     const [agentsSnapshot, listings] = await Promise.all([safeSnapshot("agents"), getProperties()]);
     const directAgents = agentsSnapshot
-      ? agentsSnapshot.docs.map((item) => normalizeAgent({ id: item.id, ...item.data() }))
+      ? agentsSnapshot.docs
+          .map((item) => normalizeAgent({ id: item.id, ...item.data() }))
+          .filter((agent) => agent.status === "active" && agent.verified)
       : [];
     if (directAgents.length > 0) return directAgents;
     return buildAgentFallbackFromListings(listings);
   } catch (error) {
     console.error("Error fetching agents:", error);
     return buildAgentFallbackFromListings(FALLBACK_LISTINGS);
+  }
+}
+
+function normalizeContact(value?: string) {
+  return (value || "").toString().replace(/[^0-9a-z]/gi, "").toLowerCase();
+}
+
+export async function getAgentById(id: string) {
+  try {
+    const docSnap = await safeDoc("agents", id);
+    if (docSnap?.exists()) {
+      const agent = normalizeAgent({ id: docSnap.id, ...docSnap.data() });
+      return agent.status === "active" && agent.verified ? agent : null;
+    }
+
+    const agents = await getAgents();
+    return agents.find((agent) => agent.id === id) || null;
+  } catch (error) {
+    console.error("Error fetching agent:", error);
+    return null;
+  }
+}
+
+export async function getListingsByAgent(agent: any) {
+  try {
+    const listings = await getProperties();
+    const agentId = normalizeContact(agent?.id);
+    const agentPhone = normalizeContact(agent?.phone || agent?.whatsapp);
+    const agentEmail = normalizeContact(agent?.email);
+    const agentName = normalizeContact(agent?.name);
+
+    return listings
+      .filter((listing) => {
+        const listingAgentId = normalizeContact(listing.agent_id);
+        const listingPhone = normalizeContact(listing.agent_phone);
+        const listingEmail = normalizeContact(listing.agent_email);
+        const listingName = normalizeContact(listing.agent_name);
+
+        return (
+          (agentId && listingAgentId === agentId) ||
+          (agentPhone && listingPhone === agentPhone) ||
+          (agentEmail && listingEmail === agentEmail) ||
+          (agentName && listingName === agentName)
+        );
+      })
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+  } catch (error) {
+    console.error("Error fetching agent listings:", error);
+    return [];
+  }
+}
+
+export async function getAgentProfileForUser(user: any) {
+  const fallback = normalizeAgent({
+    id: user?.id,
+    uid: user?.id,
+    name: user?.name,
+    email: user?.email,
+    phone: user?.phone,
+    whatsapp: user?.phone,
+    company: user?.company || (user?.user_type === "agent" ? "Independent advisor" : "Yaal Nilam member"),
+    status: user?.user_type === "agent" ? "pending" : "active",
+    verified: false,
+    nic_uploaded: false,
+    active_listings: 0,
+    total_inquiries: 0,
+    response_rate: user?.user_type === "agent" ? 72 : 0,
+    recent_activity: "Profile setup in progress",
+  });
+  if (!user?.phone) {
+    fallback.phone = "";
+    fallback.whatsapp = "";
+  }
+
+  try {
+    const docSnap = await safeDoc("agents", user?.id);
+    if (docSnap?.exists()) {
+      return normalizeAgent({ id: docSnap.id, ...docSnap.data() });
+    }
+  } catch (error) {
+    console.error("Error loading current agent profile:", error);
+  }
+
+  return fallback;
+}
+
+export async function getListingSubmissionsForUser(user: any) {
+  if (!user?.id && !user?.email) return [];
+
+  const queries = [];
+  if (user?.id) {
+    queries.push({
+      label: `collection:listing_submissions:agent_id:${user.id}`,
+      request: query(collection(db, "listing_submissions"), where("agent_id", "==", user.id), limit(40)),
+    });
+  }
+  if (user?.email) {
+    queries.push(
+      {
+        label: `collection:listing_submissions:owner_email:${user.email}`,
+        request: query(collection(db, "listing_submissions"), where("owner_email", "==", user.email), limit(40)),
+      },
+      {
+        label: `collection:listing_submissions:agent_email:${user.email}`,
+        request: query(collection(db, "listing_submissions"), where("agent_email", "==", user.email), limit(40)),
+      }
+    );
+  }
+
+  const snapshots = await Promise.all(
+    queries.map((item) => safeQuerySnapshot(item.label, item.request))
+  );
+
+  const rawItems = snapshots.flatMap((snapshot) =>
+    snapshot ? snapshot.docs.map((item: any) => ({ id: item.id, ...item.data() })) : []
+  );
+
+  return uniqueBy(rawItems, (item) => item.id)
+    .map((item) => {
+      const normalizedStatus = ["new", "pending_review", "pending", "draft"].includes(
+        (item.status || "").toString().toLowerCase()
+      )
+        ? "pending"
+        : item.status;
+
+      return {
+        ...normalizeListing({ ...item, status: normalizedStatus }),
+        review_status: item.status || "new",
+        source_collection: "listing_submissions",
+      };
+    })
+    .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+}
+
+export async function getAgentDashboardData(user: any) {
+  try {
+    const agent = await getAgentProfileForUser(user);
+    const [approvedListings, pendingListings] = await Promise.all([
+      getListingsByAgent(agent),
+      getListingSubmissionsForUser(user),
+    ]);
+
+    return { agent, approvedListings, pendingListings };
+  } catch (error) {
+    console.error("Error loading agent dashboard data:", error);
+    return {
+      agent: await getAgentProfileForUser(user),
+      approvedListings: [],
+      pendingListings: [],
+    };
   }
 }
 
@@ -282,6 +453,14 @@ export async function trackWhatsAppLead(listing: any, source = "property_card") 
     listing_code: listing.listing_code,
     source,
     area_slug: listing.area_slug,
+  });
+}
+
+export async function trackAgentProfileView(agent: any, source = "agent_profile") {
+  return trackAnalyticsEvent("agent_profile_view", {
+    agent_id: agent.id,
+    agent_name: agent.name,
+    source,
   });
 }
 
@@ -537,6 +716,9 @@ export async function submitPropertyRequest(data: Record<string, any>) {
 
 export async function submitListing(data: Record<string, any>) {
   try {
+    const agentName = data.agentName || data.ownerName || data.contactName || "";
+    const agentPhone = data.agentPhone || data.phone || "";
+    const agentEmail = data.agentEmail || data.email || "";
     const baseListing = {
       title: data.title,
       title_ta: data.title_ta || "",
@@ -568,6 +750,11 @@ export async function submitListing(data: Record<string, any>) {
       owner_name: data.ownerName || data.contactName || "",
       owner_phone: data.phone,
       owner_email: data.email || "",
+      agent_id: data.agentId || data.agent_id || "",
+      agent_name: agentName,
+      agent_phone: agentPhone,
+      agent_email: agentEmail,
+      agent_company: data.agentCompany || "",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

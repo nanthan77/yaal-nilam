@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { MOCK_USERS } from '@/lib/mock-data';
 import { createAdminUser, deleteAdminUser, getAdminUsers, updateAdminUser } from '@/lib/firestore';
 import {
   Search,
@@ -18,14 +17,16 @@ const EMPTY_USER = {
   name: '',
   email: '',
   phone: '',
-  role: 'viewer',
+  role: 'listing_manager',
   status: 'active',
   last_login: '',
   created_at: '',
 };
 
 export default function UsersPage() {
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [usersError, setUsersError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -36,8 +37,19 @@ export default function UsersPage() {
 
   useEffect(() => {
     async function loadUsers() {
-      const fsUsers = await getAdminUsers();
-      if (fsUsers.length > 0) setUsers(fsUsers);
+      try {
+        const fsUsers = await getAdminUsers();
+        setUsers(fsUsers);
+      } catch (err: any) {
+        const msg = err?.message || '';
+        if (msg.toLowerCase().includes('permission') || msg.includes('PERMISSION_DENIED')) {
+          setUsersError('Permission denied — your account lacks an admin role');
+        } else {
+          setUsersError('Failed to load users.');
+        }
+      } finally {
+        setLoadingUsers(false);
+      }
     }
     loadUsers();
   }, []);
@@ -180,6 +192,11 @@ export default function UsersPage() {
             Add User
           </button>
         </div>
+        {usersError && (
+          <div className="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">
+            {usersError}
+          </div>
+        )}
         {message && (
           <div className="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
             {message}
@@ -225,6 +242,15 @@ export default function UsersPage() {
         </div>
 
         {/* Table */}
+        {loadingUsers ? (
+          <div className="py-16 text-center text-charcoal-500 text-sm">Loading users…</div>
+        ) : users.length === 0 && !usersError ? (
+          <div className="py-16 text-center">
+            <Eye className="w-12 h-12 text-charcoal-300 mx-auto mb-4" />
+            <p className="text-charcoal-600 font-medium text-lg">No users yet</p>
+            <p className="text-charcoal-400 text-sm mt-2">Add the first admin user to get started.</p>
+          </div>
+        ) : null}
         <div className="overflow-x-auto rounded-lg border border-charcoal-200">
           <table className="w-full">
             <thead>
@@ -334,7 +360,7 @@ export default function UsersPage() {
                   <label htmlFor="user-role" className="block text-sm font-semibold text-charcoal-700 mb-2">Role</label>
                   <select
                     id="user-role"
-                    value={editingUser?.role || 'viewer'}
+                    value={editingUser?.role || 'listing_manager'}
                     onChange={(e) => setEditingUser((current: any) => ({ ...current, role: e.target.value }))}
                     className="w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
@@ -343,7 +369,6 @@ export default function UsersPage() {
                     <option value="listing_manager">Listing Manager</option>
                     <option value="lead_manager">Lead Manager</option>
                     <option value="content_manager">Content Manager</option>
-                    <option value="viewer">Viewer</option>
                   </select>
                 </div>
                 <div>
@@ -362,7 +387,7 @@ export default function UsersPage() {
             </div>
 
             <p className="text-xs text-charcoal-500 mt-5">
-              This controls the dashboard access list. Firebase custom claims must still be set server-side for sign-in authorization.
+              Active users can sign in when their Firebase Auth email matches this access-list record. Use roles carefully because these roles can manage live marketplace data.
             </p>
 
             <div className="flex gap-3 mt-6">

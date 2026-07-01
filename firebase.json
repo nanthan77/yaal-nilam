@@ -21,10 +21,26 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "cleanUrls": true,
       "trailingSlash": true,
+      "redirects": [
+        {
+          "source": "/areas/kokuvil",
+          "destination": "/areas/kokkuvil/",
+          "type": 301
+        },
+        {
+          "source": "/areas/kokuvil/",
+          "destination": "/areas/kokkuvil/",
+          "type": 301
+        }
+      ],
       "rewrites": [
         {
+          "source": "/agents/**",
+          "destination": "/agents/view/index.html"
+        },
+        {
           "source": "/properties/**",
-          "destination": "/properties/prop-001/index.html"
+          "destination": "/properties/view/index.html"
         },
         {
           "source": "/sitemap.xml/**",

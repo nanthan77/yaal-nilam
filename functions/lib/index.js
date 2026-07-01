@@ -33,16 +33,21 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onNewWhatsAppMessage = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.onAnalyticsEvent = void 0;
+exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const cors = require("cors");
 const whatsapp_1 = require("./whatsapp");
 const whatsapp_send_1 = require("./whatsapp-send");
+const social_monitor_1 = require("./social-monitor");
 admin.initializeApp();
 // Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
 var analytics_1 = require("./analytics");
 Object.defineProperty(exports, "onAnalyticsEvent", { enumerable: true, get: function () { return analytics_1.onAnalyticsEvent; } });
+// Property alerts: WhatsApp buyers when a newly-published listing matches the
+// criteria they registered (collection `property_alerts`).
+var alerts_1 = require("./alerts");
+Object.defineProperty(exports, "onListingPublishedAlert", { enumerable: true, get: function () { return alerts_1.onListingPublishedAlert; } });
 const corsHandler = cors({ origin: true });
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
 // Must be publicly accessible for Meta to call it
@@ -60,13 +65,62 @@ exports.whatsappWebhookHandler = functions
         res.status(405).send("Method not allowed");
     });
 });
+// Admin gate for callable functions. Mirrors isAdmin() in firestore.rules —
+// keep the role list and owner-email allowlist in sync with that file:
+// admin custom claim, OR a staff role claim, OR the verified owner email
+// bootstrap (Google verifies the email; same allowlist as the rules).
+const ADMIN_ROLES = [
+    "super_admin",
+    "admin",
+    "listing_manager",
+    "lead_manager",
+    "content_manager",
+];
+const OWNER_ADMIN_EMAILS = ["nanthan77@gmail.com"];
+async function isAdminToken(token) {
+    if (token.admin === true)
+        return true;
+    if (typeof token.role === "string" && ADMIN_ROLES.includes(token.role)) {
+        return true;
+    }
+    if (token.email_verified === true &&
+        typeof token.email === "string" &&
+        OWNER_ADMIN_EMAILS.includes(token.email)) {
+        return true;
+    }
+    if (typeof token.email === "string") {
+        const snap = await admin
+            .firestore()
+            .collection("admin_users")
+            .doc(token.email.toLowerCase())
+            .get();
+        const record = snap.data();
+        if ((record === null || record === void 0 ? void 0 : record.status) === "active" &&
+            typeof record.role === "string" &&
+            ADMIN_ROLES.includes(record.role)) {
+            return true;
+        }
+    }
+    return false;
+}
 // Send WhatsApp message - called from admin dashboard
 exports.sendWhatsApp = functions.https.onCall(async (data, context) => {
-    // Verify admin auth
-    if (!context.auth || !context.auth.token.admin) {
+    // Verify admin auth (same admins firestore.rules isAdmin() accepts)
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
         throw new functions.https.HttpsError("permission-denied", "Only admins can send WhatsApp messages");
     }
     return (0, whatsapp_send_1.sendWhatsAppMessage)(data);
+});
+// Run source-specific social lead monitors and save discovered property posts
+// into `social_leads`. Triggered manually from the admin dashboard; scheduling
+// should be enabled only after choosing approved API/search providers.
+exports.runSocialLeadMonitor = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 180 })
+    .https.onCall(async (_data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+        throw new functions.https.HttpsError("permission-denied", "Only admins can run the social lead monitor");
+    }
+    return (0, social_monitor_1.runSocialLeadMonitorJob)();
 });
 // Auto-create inquiry when WhatsApp message mentions a listing
 exports.onNewWhatsAppMessage = functions.firestore

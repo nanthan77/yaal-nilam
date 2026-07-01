@@ -1,3 +1,4 @@
+// NOTE: requires admin credentials; client SDK writes are denied by rules
 /**
  * Firestore Seed Script for Yaal Nilam
  * Run from project root: node scripts/seed-firestore.mjs

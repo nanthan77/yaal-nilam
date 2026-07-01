@@ -5,10 +5,11 @@ import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { useAdminStore } from '@/lib/store';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 
-const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager', 'viewer'];
+const ADMIN_ROLES = ['super_admin', 'admin', 'listing_manager', 'lead_manager', 'content_manager'];
 
 // Bootstrap super-admin allowlist. Configurable via env for production; defaults
 // to the project owner. Exact, case-insensitive match — NOT a prefix, so
@@ -20,6 +21,23 @@ const SUPER_ADMIN_EMAILS = (process.env.NEXT_PUBLIC_SUPERADMIN_EMAILS || 'nantha
 
 const isSuperAdminEmail = (email?: string | null) =>
   !!email && SUPER_ADMIN_EMAILS.includes(email.toLowerCase());
+
+async function getAccessFromAdminUserRecord(email?: string | null) {
+  if (!email) return '';
+  const snap = await getDoc(doc(db, 'admin_users', email.toLowerCase()));
+  if (!snap.exists()) return '';
+  const data = snap.data() as any;
+  return data?.status === 'active' && ADMIN_ROLES.includes(data?.role) ? data.role : '';
+}
+
+async function resolveAdminAccess(user: any) {
+  const token = await user.getIdTokenResult(true);
+  const claimRole = typeof token.claims.role === 'string' ? token.claims.role : '';
+  const superAdmin = isSuperAdminEmail(user.email);
+  const recordRole = claimRole || (superAdmin ? 'super_admin' : await getAccessFromAdminUserRecord(user.email));
+  const allowed = token.claims.admin === true || ADMIN_ROLES.includes(recordRole) || superAdmin;
+  return { allowed, role: superAdmin ? 'super_admin' : (recordRole || 'admin') };
+}
 
 export default function DashboardLayout({
   children,
@@ -38,12 +56,9 @@ export default function DashboardLayout({
         return;
       }
 
-      const token = await user.getIdTokenResult(true);
-      const role = typeof token.claims.role === 'string' ? token.claims.role : '';
-      const superAdmin = isSuperAdminEmail(user.email);
-      const allowed = token.claims.admin === true || ADMIN_ROLES.includes(role) || superAdmin;
+      const access = await resolveAdminAccess(user);
 
-      if (!allowed) {
+      if (!access.allowed) {
         await signOut(auth);
         setCheckingAuth(false);
         router.replace('/login');
@@ -52,7 +67,7 @@ export default function DashboardLayout({
 
       setCurrentUser({
         name: user.displayName || user.email?.split('@')[0] || 'Admin',
-        role: superAdmin ? 'super_admin' : (role || 'admin'),
+        role: access.role,
         email: user.email || '',
         avatar: user.photoURL || null,
       });

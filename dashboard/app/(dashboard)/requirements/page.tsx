@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { MOCK_REQUIREMENTS } from '@/lib/mock-data';
 import { createRequirement, deleteRequirement, getRequirements, updateRequirement } from '@/lib/firestore';
 import {
   Search,
@@ -34,7 +33,9 @@ const EMPTY_REQUIREMENT = {
 };
 
 export default function RequirementsPage() {
-  const [allRequirements, setAllRequirements] = useState(MOCK_REQUIREMENTS);
+  const [allRequirements, setAllRequirements] = useState([]);
+  const [loadingReqs, setLoadingReqs] = useState(true);
+  const [reqsError, setReqsError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [intentFilter, setIntentFilter] = useState('All');
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('All');
@@ -48,8 +49,17 @@ export default function RequirementsPage() {
     async function loadReqs() {
       try {
         const fsReqs = await getRequirements();
-        if (fsReqs.length > 0) setAllRequirements(fsReqs);
-      } catch (err) { console.error('Firestore requirements load error:', err); }
+        setAllRequirements(fsReqs || []);
+      } catch (err: any) {
+        const msg = err?.message || '';
+        if (msg.toLowerCase().includes('permission') || msg.includes('PERMISSION_DENIED')) {
+          setReqsError('Permission denied — your account lacks an admin role');
+        } else {
+          setReqsError('Failed to load requirements.');
+        }
+      } finally {
+        setLoadingReqs(false);
+      }
     }
     loadReqs();
   }, []);
@@ -170,6 +180,11 @@ export default function RequirementsPage() {
             Add Requirement
           </button>
         </div>
+        {reqsError && (
+          <div className="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">
+            {reqsError}
+          </div>
+        )}
         {message && (
           <div className="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800" role="status">
             {message}
@@ -225,6 +240,18 @@ export default function RequirementsPage() {
             ))}
           </select>
         </div>
+
+        {/* Loading / Empty states */}
+        {loadingReqs && (
+          <div className="py-16 text-center text-charcoal-500 text-sm">Loading requirements…</div>
+        )}
+        {!loadingReqs && !reqsError && allRequirements.length === 0 && (
+          <div className="py-16 text-center">
+            <Search className="w-12 h-12 text-charcoal-300 mx-auto mb-4" />
+            <p className="text-charcoal-600 font-medium text-lg">No requirements yet</p>
+            <p className="text-charcoal-400 text-sm mt-2">Add buyer requirements to match them with listings.</p>
+          </div>
+        )}
 
         {/* Table */}
         <div className="overflow-x-auto rounded-lg border border-charcoal-200">

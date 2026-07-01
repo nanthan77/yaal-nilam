@@ -197,10 +197,12 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <p className="text-[11px] uppercase tracking-wide text-charcoal-500">{verificationLabel}</p>
             <p className="text-sm font-semibold text-charcoal-800">{p.verified ? "Yes" : "Pending"}</p>
           </div>
-          <div className="rounded-xl border border-sand-200 bg-sand-50 px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-charcoal-500">{responseLabel}</p>
-            <p className="text-sm font-semibold text-charcoal-800">{p.agent_response_rate || 84}%</p>
-          </div>
+          {p.agent_response_rate > 0 && (
+            <div className="rounded-xl border border-sand-200 bg-sand-50 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-wide text-charcoal-500">{responseLabel}</p>
+              <p className="text-sm font-semibold text-charcoal-800">{p.agent_response_rate}%</p>
+            </div>
+          )}
         </div>
 
         <button

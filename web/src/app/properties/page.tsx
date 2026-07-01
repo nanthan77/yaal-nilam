@@ -35,6 +35,7 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(false);
   const [savingSearch, setSavingSearch] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   const copy = localize(locale, {
     en: {
@@ -235,7 +236,28 @@ export default function PropertiesPage() {
               </div>
             </div>
 
-            <div className="md:col-span-2">
+            {/* Mobile Filters Toggle Button */}
+            <div className="md:hidden flex w-full">
+              <button
+                type="button"
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex-1 flex items-center justify-center gap-2 rounded-2xl border font-bold py-3 text-sm transition-all duration-200 ${
+                  showFilters
+                    ? "bg-teal-700 text-white border-teal-700 shadow-inner"
+                    : "bg-teal-50 text-teal-700 border-teal-100 hover:bg-teal-100/70"
+                }`}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span>
+                  {locale === "ta" ? "கூடுதல் வடிப்பான்கள்" : "Advanced Filters"}{" "}
+                  {Object.values(filters).filter(v => v !== "" && v !== 0 && v !== false && v !== searchQuery && v !== sortBy).length > 0
+                    ? `(${Object.values(filters).filter(v => v !== "" && v !== 0 && v !== false && v !== searchQuery && v !== sortBy).length})`
+                    : ""}
+                </span>
+              </button>
+            </div>
+
+            <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.intent}</label>
               <select value={intent} onChange={(e) => setIntent(e.target.value)} className="select-field w-full">
                 <option value="">{copy.intent}</option>
@@ -245,7 +267,7 @@ export default function PropertiesPage() {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.propertyType}</label>
               <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="select-field w-full">
                 <option value="">{copy.allTypes}</option>
@@ -255,7 +277,7 @@ export default function PropertiesPage() {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.allAreas}</label>
               <select value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="select-field w-full">
                 <option value="">{copy.allAreas}</option>
@@ -265,27 +287,27 @@ export default function PropertiesPage() {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMin}</label>
               <input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
             </div>
 
-            <div className="md:col-span-2">
+            <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMax}</label>
               <input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
             </div>
 
-            <div className="md:col-span-1">
+            <div className={`md:col-span-1 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.bedrooms}</label>
               <input value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} type="number" min="0" className="input-field w-full" />
             </div>
 
-            <div className="md:col-span-1">
+            <div className={`md:col-span-1 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.landSize}</label>
               <input value={landSize} onChange={(e) => setLandSize(e.target.value)} type="number" min="0" className="input-field w-full" />
             </div>
 
-            <div className="md:col-span-3">
+            <div className={`md:col-span-3 ${showFilters ? "block" : "hidden"} md:block`}>
               <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2 flex items-center gap-1.5">
                 <ArrowUpDown className="w-3.5 h-3.5 text-teal-700" />
                 {copy.sortBy}
@@ -299,14 +321,14 @@ export default function PropertiesPage() {
               </select>
             </div>
 
-            <div className="md:col-span-3 flex items-end">
+            <div className={`md:col-span-3 flex items-end ${showFilters ? "flex" : "hidden"} md:flex`}>
               <label className="inline-flex items-center gap-3 rounded-2xl border border-sand-200 bg-sand-50/50 px-4 py-3 w-full text-charcoal-700 font-semibold cursor-pointer">
                 <input type="checkbox" checked={verifiedOnly} onChange={(e) => setVerifiedOnly(e.target.checked)} className="checkbox-tactile" />
                 {copy.verifiedOnly}
               </label>
             </div>
 
-            <div className="md:col-span-6 flex flex-wrap items-end gap-3">
+            <div className={`md:col-span-6 flex flex-wrap items-end gap-3 ${showFilters ? "flex" : "hidden"} md:flex`}>
               <button
                 type="button"
                 onClick={handleSaveSearch}

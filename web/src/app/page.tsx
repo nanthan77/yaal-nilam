@@ -75,7 +75,7 @@ function MortgageCalculator({ locale }: { locale: 'en' | 'ta' }) {
           <p className="text-sm text-charcoal-500">{copy.subtitle}</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div>
           <label className="text-sm font-semibold text-charcoal-600 mb-1 block">{copy.propertyPrice}</label>
           <input
@@ -418,14 +418,14 @@ export default function HomePage() {
             <p className="text-lg md:text-xl text-teal-100 mb-8 max-w-2xl">{copy.heroBody}</p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-1.5 mb-6 inline-flex gap-1.5 border border-white/10 shadow-lg">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-1.5 mb-6 flex overflow-x-auto whitespace-nowrap scrollbar-none max-w-full sm:inline-flex gap-1.5 border border-white/10 shadow-lg">
             {pathways.map((path) => {
               const Icon = path.icon;
               return (
                 <button
                   key={path.key}
                   onClick={() => setActivePathway(path.key)}
-                  className={`flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl font-bold transition-all duration-300 shrink-0 whitespace-nowrap ${
                     activePathway === path.key ? 'bg-white text-teal-900 shadow-lg scale-102' : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -561,14 +561,20 @@ export default function HomePage() {
 
       <section className="bg-white py-16 md:py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-charcoal-900 mb-2">{copy.areaTitle}</h2>
-            <p className="text-charcoal-500">{copy.areaSubtitle}</p>
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-charcoal-900 mb-2">{copy.areaTitle}</h2>
+              <p className="text-charcoal-500">{copy.areaSubtitle}</p>
+            </div>
+            <Link href="/areas" className="hidden md:flex items-center gap-1 text-teal-700 font-semibold hover:text-teal-500 transition-colors">
+              {locale === 'ta' ? 'அனைத்தையும் பார்க்கவும்' : 'View All'} <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {areas.map((area) => (
-              <Link key={area.slug} href={`/areas/${area.slug}`} className="group">
-                <div className="bg-gradient-to-br from-teal-800 to-teal-600 rounded-xl p-6 text-white hover:shadow-card-lg transition-all duration-300 group-hover:-translate-y-1 min-h-[120px] flex flex-col justify-between">
+
+          <div className="flex overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4 md:pb-0 scrollbar-none snap-x snap-mandatory">
+            {areas.filter((a) => a.featured !== false).slice(0, 4).map((area) => (
+              <Link key={area.slug} href={`/areas/${area.slug}`} className="min-w-[260px] md:min-w-0 snap-start group">
+                <div className="bg-gradient-to-br from-teal-800 to-teal-600 rounded-xl p-6 text-white hover:shadow-card-lg transition-all duration-300 group-hover:-translate-y-1 min-h-[120px] flex flex-col justify-between h-full">
                   <div>
                     <h3 className="text-xl font-bold mb-0.5">
                       {locale === 'ta' ? area.name_ta || area.name : area.name}
@@ -584,6 +590,12 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+
+          <div className="mt-6 text-center md:hidden">
+            <Link href="/areas" className="inline-flex items-center gap-2 text-teal-700 font-semibold hover:text-teal-500">
+              {locale === 'ta' ? 'அனைத்து பகுதிகளும்' : 'View All Areas'} <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

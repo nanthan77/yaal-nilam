@@ -12,7 +12,7 @@ const areas = [
   { value: 'jaffna', en: 'Jaffna', ta: 'யாழ்ப்பாணம்' },
   { value: 'nallur', en: 'Nallur', ta: 'நல்லூர்' },
   { value: 'chunnakam', en: 'Chunnakam', ta: 'சுன்னாகம்' },
-  { value: 'kokuvil', en: 'Kokuvil', ta: 'கொக்குவில்' },
+  { value: 'kokkuvil', en: 'Kokuvil', ta: 'கொக்குவில்' },
   { value: 'kopay', en: 'Kopay', ta: 'கோப்பாய்' },
   { value: 'point-pedro', en: 'Point Pedro', ta: 'பருத்தித்துறை' },
   { value: 'karainagar', en: 'Karainagar', ta: 'காரைநகர்' },

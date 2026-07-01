@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import PropertyCard from '@/components/PropertyCard';
 import VoiceSearch from '@/components/VoiceSearch';
 import Breadcrumbs from './Breadcrumbs';
@@ -9,12 +10,15 @@ import NearbyLandmarks from './NearbyLandmarks';
 import InternalLinks from './InternalLinks';
 import AreaGuideContent from './AreaGuideContent';
 import { useStore } from '@/lib/store';
-import { PROPERTIES } from '@/lib/data';
+import { PROPERTIES as MOCK_PROPERTIES } from '@/lib/data';
+import { getProperties } from '@/lib/firestore';
+import { filterListings, normalizeListing } from '@/lib/marketplace';
 import { getLocationBySlug, getPlacesForLocation } from '@/lib/locations';
 import { getPropertyType, getIntent, generatePageTitle, generatePageTitleTa } from '@/lib/seo-config';
 import { generateTier3FAQs, generateTier2FAQs } from '@/lib/faq-data';
 import { formatCompactPrice, localize } from '@/lib/translations';
-import type { Property } from '@/lib/data';
+
+const MOCK_FALLBACK = MOCK_PROPERTIES.map((p) => normalizeListing(p));
 
 interface PSEOListingPageProps {
   intentSlug: string;
@@ -30,21 +34,47 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
   const type = getPropertyType(typeSlug);
   const location = locationSlug ? getLocationBySlug(locationSlug) : undefined;
 
+  const [allListings, setAllListings] = useState<any[]>([]);
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [usingFallback, setUsingFallback] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const data = await getProperties();
+        if (!mounted) return;
+        setAllListings(data);
+        setUsingFallback(false);
+      } catch {
+        if (!mounted) return;
+        setAllListings(MOCK_FALLBACK);
+        setUsingFallback(true);
+      } finally {
+        if (mounted) setLoadingListings(false);
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, []);
+
   if (!intent || !type) return null;
 
-  // Filter properties
-  const filterFn = (p: Property): boolean => {
-    const intentMatch = intentSlug === 'buy' ? p.intent === 'sell' : p.intent === 'rent' || p.intent === 'short_rent';
-    const typeMatch = p.property_type === type.filterKey;
-    const locationMatch = !locationSlug || p.slug === locationSlug || p.area === locationSlug;
-    return intentMatch && typeMatch && locationMatch;
-  };
+  // Build filters from intent/type/location
+  const intentValue = intentSlug === 'buy' ? 'sell' : intentSlug === 'rent' ? 'rent' : 'short_rent';
+  const filtered = filterListings(allListings, {
+    intent: intentValue,
+    type: type.filterKey,
+    area: locationSlug || undefined,
+  } as any);
 
-  const filtered = PROPERTIES.filter(filterFn);
-  const displayProperties = filtered.length > 0 ? filtered : PROPERTIES.filter((p) => {
-    if (locationSlug) return p.slug === locationSlug || p.area === locationSlug;
-    return p.property_type === type.filterKey;
-  });
+  // Fallback: broaden to just type/location when no exact matches
+  const displayProperties = filtered.length > 0
+    ? filtered
+    : filterListings(allListings, {
+        type: type.filterKey,
+        area: locationSlug || undefined,
+      } as any);
   const showingAll = filtered.length === 0;
 
   const title = generatePageTitle(intent, type, location);
@@ -204,16 +234,34 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
       </section>
 
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <p className="text-sm text-gray-500 mb-6">
-          {showingAll
-            ? copy.noMatches
-            : `${filtered.length} ${copy.found}`}
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayProperties.map((p) => (
-            <PropertyCard key={p.id} property={p} />
-          ))}
-        </div>
+        {usingFallback && (
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-4 py-2 text-xs font-semibold text-amber-700">
+            <span>⚠</span>{' '}
+            {locale === 'ta' ? 'மாதிரி தரவு — நேரடி சொத்துகள் கிடைக்கவில்லை' : 'Sample data — live listings unavailable'}
+          </div>
+        )}
+        {loadingListings ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => <div key={i} className="h-72 rounded-3xl bg-sand-100 animate-pulse" />)}
+          </div>
+        ) : displayProperties.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-sand-300 px-6 py-16 text-center text-charcoal-500">
+            <p className="text-lg font-medium">{copy.noMatches}</p>
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-gray-500 mb-6">
+              {showingAll
+                ? copy.noMatches
+                : `${filtered.length} ${copy.found}`}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayProperties.map((p) => (
+                <PropertyCard key={p.id} property={p as any} />
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       {location && <AreaGuideContent location={location} />}

@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminStore } from '@/lib/store';
-import { MOCK_LISTINGS, MOCK_INQUIRIES, MOCK_REQUIREMENTS, MOCK_AGENTS, MOCK_NOTIFICATIONS } from '@/lib/mock-data';
 import {
   LayoutDashboard,
   Home,
@@ -15,9 +14,6 @@ import {
   UserCheck,
   FileText,
   MapPin,
-  Image,
-  Search,
-  TrendingUp,
   FileBarChart,
   Bell,
   Settings,
@@ -28,195 +24,91 @@ import {
   ChevronLeft,
   Menu,
   MessageCircle,
+  Radar,
 } from 'lucide-react';
 
 export function Sidebar() {
-  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useAdminStore();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen, currentUser } = useAdminStore();
   const pathname = usePathname();
 
-  // Below lg the sidebar is an off-canvas drawer (starts hidden); at lg+ it is
-  // a persistent rail. Align the auto-collapse breakpoint with the `lg:` styles.
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 1023px)');
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      if (e.matches) {
-        setSidebarOpen(false);
-      }
+      if (e.matches) setSidebarOpen(false);
     };
     handleChange(mediaQuery);
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [setSidebarOpen]);
 
-  // On mobile, close the drawer after navigating so it doesn't cover the page.
   const closeOnMobile = () => {
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
       setSidebarOpen(false);
     }
   };
 
-  const isActive = (path: string) => pathname.startsWith(path);
+  const isActive = (path: string) =>
+    path === '/' ? pathname === '/' : pathname.startsWith(path);
 
   const menuItems = [
     {
       section: 'OVERVIEW',
       items: [
-        {
-          label: 'Dashboard',
-          href: '/',
-          icon: LayoutDashboard,
-          badge: null,
-        },
+        { label: 'Dashboard', href: '/', icon: LayoutDashboard, badge: null },
       ],
     },
     {
       section: 'OPERATIONS',
       items: [
-        {
-          label: 'Listings',
-          href: '/listings',
-          icon: Home,
-          badge: MOCK_LISTINGS.length,
-        },
-        {
-          label: 'Inquiries',
-          href: '/inquiries',
-          icon: MessageSquare,
-          badge: MOCK_INQUIRIES.length,
-        },
-        {
-          label: 'Requirements',
-          href: '/requirements',
-          icon: CheckCircle,
-          badge: MOCK_REQUIREMENTS.length,
-        },        {
-          label: 'Matching Engine',
-          href: '/matching',
-          icon: Zap,
-          badge: null,
-        },
+        { label: 'Listings', href: '/listings', icon: Home, badge: null },
+        { label: 'Inquiries', href: '/inquiries', icon: MessageSquare, badge: null },
+        { label: 'Requirements', href: '/requirements', icon: CheckCircle, badge: null },
+        { label: 'Matching Engine', href: '/matching', icon: Zap, badge: null },
+        { label: 'Social Leads', href: '/social-leads', icon: Radar, badge: null },
       ],
     },
     {
       section: 'MANAGEMENT',
       items: [
-        {
-          label: 'Agents',
-          href: '/agents',
-          icon: Users,
-          badge: MOCK_AGENTS.length,
-        },
-        {
-          label: 'Users',
-          href: '/users',
-          icon: UserCheck,
-          badge: null,
-        },
-        {
-          label: 'Property Alerts',
-          href: '/alerts',
-          icon: BellRing,
-          badge: null,
-        },
+        { label: 'Agents', href: '/agents', icon: Users, badge: null },
+        { label: 'Users', href: '/users', icon: UserCheck, badge: null },
+        { label: 'Property Alerts', href: '/alerts', icon: BellRing, badge: null },
       ],
     },
     {
       section: 'WHATSAPP CRM',
       items: [
-        {
-          label: 'WhatsApp Inbox',
-          href: '/whatsapp',
-          icon: MessageCircle,
-          badge: null,
-        },
+        { label: 'WhatsApp Inbox', href: '/whatsapp', icon: MessageCircle, badge: null },
       ],
     },
     {
       section: 'CONTENT',
       items: [
-        {
-          label: 'CMS',
-          href: '/content',
-          icon: FileText,
-          badge: null,
-        },        {
-          label: 'Areas',
-          href: '/areas',
-          icon: MapPin,
-          badge: null,
-        },
-        {
-          label: 'Media Library',
-          href: '/media',
-          icon: Image,
-          badge: null,
-        },
-        {
-          label: 'Agent Guide',
-          href: '/agent-guide',
-          icon: GraduationCap,
-          badge: null,
-        },
-        {
-          label: 'SEO',
-          href: '/seo',
-          icon: Search,
-          badge: null,
-        },
+        { label: 'Areas', href: '/areas', icon: MapPin, badge: null },
+        { label: 'Agent Guide', href: '/agent-guide', icon: GraduationCap, badge: null },
       ],
     },
     {
       section: 'BUSINESS',
       items: [
-        {
-          label: 'Promotions',
-          href: '/promotions',
-          icon: TrendingUp,
-          badge: null,
-        },
-        {
-          label: 'Analytics',
-          href: '/analytics',
-          icon: FileBarChart,
-          badge: null,
-        },        {
-          label: 'Reports',
-          href: '/reports',
-          icon: FileBarChart,
-          badge: null,
-        },
+        { label: 'Analytics', href: '/analytics', icon: FileBarChart, badge: null },
       ],
     },
     {
       section: 'SYSTEM',
       items: [
-        {
-          label: 'Notifications',
-          href: '/notifications',
-          icon: Bell,
-          badge: MOCK_NOTIFICATIONS.filter(n => !n.read).length,
-        },
-        {
-          label: 'Settings',
-          href: '/settings',
-          icon: Settings,
-          badge: null,
-        },
-        {
-          label: 'Roles & Permissions',
-          href: '/roles',
-          icon: Shield,
-          badge: null,
-        },
-        {
-          label: 'Audit Logs',
-          href: '/audit-logs',
-          icon: BookOpen,
-          badge: null,
-        },
+        { label: 'Notifications', href: '/notifications', icon: Bell, badge: null },
+        { label: 'Settings', href: '/settings', icon: Settings, badge: null },
+        { label: 'Audit Logs', href: '/audit-logs', icon: BookOpen, badge: null },
       ],
     },
   ];
+
+  // Display info from store (set by layout after Firebase Auth confirms)
+  const displayName = currentUser?.name || '—';
+  const displayRole = currentUser?.role ? currentUser.role.replace(/_/g, ' ') : '—';
+  const initials = displayName !== '—' ? displayName[0].toUpperCase() : '?';
+
   return (
     <aside
       className={`fixed left-0 top-0 h-screen bg-white border-r border-navy-200 transition-all duration-300 z-50 w-sidebar ${
@@ -246,6 +138,7 @@ export function Sidebar() {
           )}
         </button>
       </div>
+
       {/* Menu */}
       <nav className="flex-1 overflow-y-auto py-4">
         {menuItems.map((group) => (
@@ -273,14 +166,7 @@ export function Sidebar() {
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {sidebarOpen && (
-                    <div className="flex items-center justify-between flex-1 min-w-0">
-                      <span className="text-sm font-medium truncate">{item.label}</span>
-                      {item.badge && (
-                        <span className="ml-2 px-2 py-0.5 bg-info text-white text-xs font-semibold rounded-full flex-shrink-0">
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
+                    <span className="text-sm font-medium truncate">{item.label}</span>
                   )}
                 </Link>
               );
@@ -288,16 +174,17 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
-      {/* User Profile */}
+
+      {/* User footer */}
       {sidebarOpen && (
         <div className="border-t border-navy-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-navy-200 rounded-full flex items-center justify-center text-navy-700 font-bold text-sm flex-shrink-0">
-              N
+              {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-charcoal-900 truncate">Nanthan</p>
-              <p className="text-xs text-charcoal-500 truncate">Super Admin</p>
+              <p className="text-sm font-semibold text-charcoal-900 truncate">{displayName}</p>
+              <p className="text-xs text-charcoal-500 truncate capitalize">{displayRole}</p>
             </div>
           </div>
         </div>

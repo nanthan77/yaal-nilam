@@ -13,8 +13,8 @@ export interface AdminStore {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
-  currentUser: CurrentUser;
-  setCurrentUser: (user: CurrentUser) => void;
+  currentUser: CurrentUser | null;
+  setCurrentUser: (user: CurrentUser | null) => void;
   locale: Locale;
   setLocale: (locale: Locale) => void;
 }
@@ -23,12 +23,8 @@ export const useAdminStore = create<AdminStore>((set) => ({
   sidebarOpen: true,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
-  currentUser: {
-    name: 'Nanthan',
-    role: 'super_admin',
-    email: 'nanthan77@gmail.com',
-    avatar: null,
-  },
+  // No user until Firebase Auth confirms one — consumers must handle null.
+  currentUser: null,
   setCurrentUser: (currentUser) => set({ currentUser }),
   locale: 'en',
   setLocale: (locale: Locale) => set({ locale }),

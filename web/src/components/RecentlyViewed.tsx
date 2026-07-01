@@ -21,6 +21,8 @@ export default function RecentlyViewed({
   useEffect(() => {
     let mounted = true;
     const ids = getRecentlyViewedIds()
+      // drop invalid/legacy ids (undefined entries, old mock "prop-XXX" ids)
+      .filter((id) => typeof id === "string" && id && id !== "undefined" && !/^prop-\d+$/.test(id))
       .filter((id) => id !== excludeId)
       .slice(0, limit);
     if (!ids.length) return;

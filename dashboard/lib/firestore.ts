@@ -8,6 +8,9 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  orderBy,
+  query,
+  limit,
   setDoc,
   updateDoc,
 } from 'firebase/firestore';
@@ -110,6 +113,9 @@ function normalizeListing(raw: any) {
     agent_id: raw.agent_id || '',
     agent_name: raw.agent_name || raw.owner_name || raw.agent || 'Yaal Nilam Lead',
     agent_phone: raw.agent_phone || raw.owner_phone || raw.phone || '',
+    agent_email: raw.agent_email || raw.owner_email || '',
+    agent_company: raw.agent_company || '',
+    agent_response_rate: Number(raw.agent_response_rate || raw.response_rate || 0),
     description: raw.description || '',
     posted_date: raw.created_at || raw.posted_date || new Date().toISOString(),
     updated_date: raw.updated_at || raw.created_at || new Date().toISOString(),
@@ -167,6 +173,42 @@ function normalizeRequirement(raw: any) {
   };
 }
 
+function normalizeSocialLead(raw: any) {
+  const source = (raw.source || 'manual').toString().toLowerCase();
+  const url = raw.source_url || raw.url || '';
+  const title = raw.title || raw.post_title || 'Untitled social lead';
+  return {
+    id: raw.id,
+    source,
+    source_label: raw.source_label || source.charAt(0).toUpperCase() + source.slice(1),
+    source_url: url,
+    external_id: raw.external_id || '',
+    title,
+    author_name: raw.author_name || raw.owner_name || '',
+    author_url: raw.author_url || '',
+    snippet: raw.snippet || raw.description || '',
+    matched_query: raw.matched_query || raw.query || '',
+    property_type: raw.property_type || 'unknown',
+    intent: raw.intent || 'unknown',
+    area: raw.area || raw.location || '',
+    price_text: raw.price_text || '',
+    phone: raw.phone || '',
+    email: raw.email || '',
+    score: Number(raw.score || 0),
+    priority: raw.priority || (Number(raw.score || 0) >= 80 ? 'hot' : Number(raw.score || 0) >= 55 ? 'warm' : 'cold'),
+    status: raw.status || 'new',
+    assigned_to: raw.assigned_to || '',
+    notes: raw.notes || '',
+    tags: Array.isArray(raw.tags) ? raw.tags : [],
+    outreach_message: raw.outreach_message || '',
+    platform_posted_at: raw.platform_posted_at || '',
+    discovered_at: raw.discovered_at || raw.created_at || new Date().toISOString(),
+    last_seen_at: raw.last_seen_at || raw.updated_at || new Date().toISOString(),
+    created_at: raw.created_at || raw.discovered_at || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.last_seen_at || new Date().toISOString(),
+  };
+}
+
 function normalizeAgent(raw: any) {
   return {
     id: raw.id,
@@ -184,6 +226,30 @@ function normalizeAgent(raw: any) {
     response_rate: Number(raw.response_rate || 0),
     status: raw.status || 'active',
     joined_date: raw.joined_date || new Date().toISOString(),
+    logo_url: raw.logo_url || raw.company_logo_url || raw.logo || '',
+    cover_url: raw.cover_url || raw.company_cover_url || '',
+    agency_type: raw.agency_type || 'Independent agent',
+    public_email: raw.public_email || raw.email || '',
+    internal_email: raw.internal_email || raw.billing_email || raw.email || '',
+    website: raw.website || raw.website_url || '',
+    office_address: raw.office_address || raw.address || '',
+    company_registration_no:
+      raw.company_registration_no ||
+      raw.business_registration_no ||
+      raw.business_registration_number ||
+      raw.br_number ||
+      '',
+    license_no: raw.license_no || raw.realtor_license_no || raw.agent_license_no || '',
+    registration_verified: Boolean(raw.registration_verified || raw.company_registration_verified),
+    social_links: raw.social_links || {},
+    languages: Array.isArray(raw.languages) ? raw.languages : [],
+    team_size: Number(raw.team_size || raw.team_members_count || 0),
+    years_experience: Number(raw.years_experience || raw.experience_years || 0),
+    business_hours: raw.business_hours || '',
+    agency_plan: raw.agency_plan || raw.subscription_plan || raw.plan || 'starter',
+    billing_status: raw.billing_status || raw.subscription_status || 'free',
+    account_manager: raw.account_manager || '',
+    internal_notes: raw.internal_notes || '',
   };
 }
 
@@ -193,12 +259,16 @@ function normalizeAdminUser(raw: any) {
     name: raw.name || 'Unknown',
     email: raw.email || '',
     phone: raw.phone || '',
-    role: raw.role || 'viewer',
+    role: raw.role || 'listing_manager',
     status: raw.status || 'active',
     last_login: raw.last_login || '',
     created_at: raw.created_at || new Date().toISOString(),
     updated_at: raw.updated_at || raw.created_at || new Date().toISOString(),
   };
+}
+
+function adminUserId(email?: string) {
+  return String(email || '').trim().toLowerCase();
 }
 
 async function getCollectionDocs(path: string) {
@@ -209,6 +279,48 @@ async function getCollectionDocs(path: string) {
     console.error(`Error loading ${path}:`, error);
     return [];
   }
+}
+
+function leadPriority(score: number) {
+  if (score >= 80) return 'hot';
+  if (score >= 55) return 'warm';
+  return 'cold';
+}
+
+function normalizeManualLeadPayload(data: any) {
+  const now = new Date().toISOString();
+  const source = (data.source || 'manual').toString().trim().toLowerCase();
+  const score = Number(data.score || 60);
+  const title = data.title || 'Manual property lead';
+  return {
+    source,
+    source_label: data.source_label || source.charAt(0).toUpperCase() + source.slice(1),
+    source_url: data.source_url || '',
+    external_id: data.external_id || '',
+    title,
+    author_name: data.author_name || '',
+    author_url: data.author_url || '',
+    snippet: data.snippet || '',
+    matched_query: data.matched_query || '',
+    property_type: data.property_type || 'unknown',
+    intent: data.intent || 'unknown',
+    area: data.area || '',
+    price_text: data.price_text || '',
+    phone: data.phone || '',
+    email: data.email || '',
+    score,
+    priority: data.priority || leadPriority(score),
+    status: data.status || 'new',
+    assigned_to: data.assigned_to || '',
+    notes: data.notes || '',
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    outreach_message: data.outreach_message || '',
+    platform_posted_at: data.platform_posted_at || '',
+    discovered_at: data.discovered_at || now,
+    last_seen_at: now,
+    created_at: now,
+    updated_at: now,
+  };
 }
 
 // ========================
@@ -274,9 +386,11 @@ function toPublicListingPayload(listing: any, status = 'Available') {
     owner_name: listing.owner_name || listing.agent_name || '',
     owner_phone: listing.owner_phone || listing.agent_phone || '',
     owner_email: listing.owner_email || '',
+    agent_id: listing.agent_id || '',
     agent_name: listing.agent_name || listing.owner_name || 'Yaal Nilam Advisor',
     agent_phone: listing.agent_phone || listing.owner_phone || '',
     agent_email: listing.agent_email || listing.owner_email || '',
+    agent_company: listing.agent_company || '',
     views: Number(listing.views || 0),
     inquiries_count: Number(listing.inquiries_count || 0),
     whatsapp_clicks: Number(listing.whatsapp_clicks || 0),
@@ -539,6 +653,84 @@ export async function deleteRequirement(id: string) {
 }
 
 // ========================
+// SOCIAL LEAD MONITOR CRM
+// ========================
+
+export async function getSocialLeads() {
+  const leads = await getCollectionDocs('social_leads');
+  return leads.map(normalizeSocialLead).sort(
+    (a, b) => new Date(b.last_seen_at || b.discovered_at).getTime() - new Date(a.last_seen_at || a.discovered_at).getTime()
+  );
+}
+
+export async function createSocialLead(data: any) {
+  try {
+    const docRef = await addDoc(collection(db, 'social_leads'), normalizeManualLeadPayload(data));
+    return docRef.id;
+  } catch (error) {
+    console.error('Error creating social lead:', error);
+    return null;
+  }
+}
+
+export async function updateSocialLead(id: string, data: any) {
+  try {
+    await updateDoc(doc(db, 'social_leads', id), {
+      ...data,
+      updated_at: new Date().toISOString(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating social lead:', error);
+    return false;
+  }
+}
+
+export async function deleteSocialLead(id: string) {
+  try {
+    await deleteDoc(doc(db, 'social_leads', id));
+    return true;
+  } catch (error) {
+    console.error('Error deleting social lead:', error);
+    return false;
+  }
+}
+
+export async function getSocialMonitorConfig() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'social_monitor'));
+    return snap.exists() ? snap.data() : null;
+  } catch (error) {
+    console.error('Error loading social monitor config:', error);
+    return null;
+  }
+}
+
+export async function saveSocialMonitorConfig(data: any) {
+  try {
+    await setDoc(
+      doc(db, 'config', 'social_monitor'),
+      {
+        ...data,
+        updated_at: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+    return true;
+  } catch (error) {
+    console.error('Error saving social monitor config:', error);
+    return false;
+  }
+}
+
+export async function getSocialMonitorRuns() {
+  const runs = await getCollectionDocs('social_monitor_runs');
+  return runs.sort(
+    (a, b) => new Date(b.started_at || b.created_at || 0).getTime() - new Date(a.started_at || a.created_at || 0).getTime()
+  );
+}
+
+// ========================
 // AGENTS CRUD
 // ========================
 
@@ -557,6 +749,176 @@ export async function updateAgent(id: string, data: any) {
   }
 }
 
+function normalizeLookup(value?: string) {
+  return (value || '').toString().replace(/[^0-9a-z]/gi, '').toLowerCase();
+}
+
+function calculateAgentTrustScore(agent: any, report: any) {
+  let score = 18;
+  if (agent.status === 'active') score += 12;
+  if (agent.verified) score += 24;
+  if (agent.nic_uploaded) score += 10;
+  score += Math.min(14, Math.round((Number(agent.response_rate || 0) / 100) * 14));
+  score += Math.min(12, Number(report.published_listings || 0) * 3);
+  score += Math.min(8, Math.floor(Number(report.inquiries || 0) / 2));
+  score += Math.min(7, Math.floor(Number(report.whatsapp_clicks || 0) / 4));
+  score += Math.min(5, Math.floor(Number(report.listing_views || 0) / 50));
+  if (agent.status === 'pending') score = Math.min(score, 55);
+  if (agent.status === 'suspended') score = Math.min(score, 35);
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function emptyAgentReport(agent: any) {
+  return {
+    id: agent.id,
+    name: agent.name || 'Unknown',
+    company: agent.company || 'Independent',
+    phone: agent.phone || agent.whatsapp || '',
+    email: agent.email || '',
+    status: agent.status || 'active',
+    verified: Boolean(agent.verified),
+    response_rate: Number(agent.response_rate || 0),
+    service_areas: Array.isArray(agent.service_areas) ? agent.service_areas : [],
+    specializations: Array.isArray(agent.specializations) ? agent.specializations : [],
+    listing_count: 0,
+    published_listings: 0,
+    pending_listings: 0,
+    listing_views: 0,
+    whatsapp_clicks: 0,
+    inquiries: Number(agent.total_inquiries || 0),
+    profile_views: 0,
+    traffic_score: 0,
+    trust_score: 0,
+    rank: 0,
+    public_profile_path: `/agents/${agent.id}`,
+  };
+}
+
+export async function getAgentPerformanceReport() {
+  const [agents, listings, inquiries, analyticsEvents] = await Promise.all([
+    getAgents(),
+    getListings(),
+    getInquiries(),
+    getCollectionDocs('analytics_events'),
+  ]);
+
+  const reports = new Map<string, any>();
+  const lookup = new Map<string, string>();
+
+  function remember(agent: any) {
+    if (!agent?.id) return;
+    const normalized = normalizeAgent(agent);
+    if (!reports.has(normalized.id)) reports.set(normalized.id, emptyAgentReport(normalized));
+    [
+      normalized.id,
+      normalized.phone,
+      normalized.whatsapp,
+      normalized.email,
+      normalized.name,
+    ].forEach((value) => {
+      const key = normalizeLookup(value);
+      if (key) lookup.set(key, normalized.id);
+    });
+  }
+
+  agents.forEach(remember);
+
+  function syntheticAgentFromListing(listing: any) {
+    const id =
+      listing.agent_id ||
+      normalizeLookup(listing.agent_phone) ||
+      normalizeLookup(listing.agent_name) ||
+      `agent-${listing.id}`;
+    return normalizeAgent({
+      id,
+      name: listing.agent_name || 'Listing contributor',
+      company: listing.agent_company || 'Independent',
+      phone: listing.agent_phone || '',
+      email: listing.agent_email || '',
+      verified: Boolean(listing.verified),
+      nic_uploaded: Boolean(listing.verified),
+      active_listings: 0,
+      total_inquiries: 0,
+      response_rate: listing.agent_response_rate || 0,
+      status: 'active',
+      service_areas: listing.area ? [listing.area] : [],
+      specializations: listing.property_type ? [listing.property_type] : [],
+    });
+  }
+
+  function resolveAgentId(source: any) {
+    const candidates = [
+      source.agent_id,
+      source.assigned_to,
+      source.agent_phone,
+      source.phone,
+      source.agent_email,
+      source.email,
+      source.agent_name,
+    ].map(normalizeLookup);
+    return candidates.map((key) => lookup.get(key) || key).find((key) => reports.has(key)) || '';
+  }
+
+  const listingToAgent = new Map<string, string>();
+
+  listings.forEach((listing) => {
+    let agentId = resolveAgentId(listing);
+    if (!agentId) {
+      const synthetic = syntheticAgentFromListing(listing);
+      remember(synthetic);
+      agentId = synthetic.id;
+    }
+
+    const report = reports.get(agentId);
+    if (!report) return;
+    listingToAgent.set(listing.id, agentId);
+    report.listing_count += 1;
+    if (listing.status === 'published') report.published_listings += 1;
+    if (listing.status === 'pending') report.pending_listings += 1;
+    report.listing_views += Number(listing.views || 0);
+    report.whatsapp_clicks += Number(listing.whatsapp_clicks || 0);
+    report.inquiries += Number(listing.inquiries_count || 0);
+
+    if (listing.area && !report.service_areas.includes(listing.area)) report.service_areas.push(listing.area);
+    if (listing.property_type && !report.specializations.includes(listing.property_type)) {
+      report.specializations.push(listing.property_type);
+    }
+  });
+
+  inquiries.forEach((inquiry) => {
+    const agentId = listingToAgent.get(inquiry.listing_id) || resolveAgentId(inquiry);
+    const report = agentId ? reports.get(agentId) : null;
+    if (report) report.inquiries += 1;
+  });
+
+  analyticsEvents.forEach((event) => {
+    const agentId = event.agent_id || listingToAgent.get(event.listing_id) || resolveAgentId(event);
+    const report = agentId ? reports.get(agentId) : null;
+    if (!report) return;
+    if (event.event_name === 'listing_view') report.listing_views += 1;
+    if (event.event_name === 'whatsapp_click') report.whatsapp_clicks += 1;
+    if (event.event_name === 'agent_profile_view') report.profile_views += 1;
+  });
+
+  return Array.from(reports.values())
+    .map((report) => {
+      const agent = agents.find((item) => item.id === report.id) || report;
+      const trafficScore =
+        report.listing_views +
+        report.profile_views * 3 +
+        report.whatsapp_clicks * 5 +
+        report.inquiries * 7 +
+        report.published_listings * 10;
+      return {
+        ...report,
+        traffic_score: trafficScore,
+        trust_score: calculateAgentTrustScore(agent, report),
+      };
+    })
+    .sort((a, b) => b.traffic_score + b.trust_score - (a.traffic_score + a.trust_score))
+    .map((report, index) => ({ ...report, rank: index + 1 }));
+}
+
 // ========================
 // ADMIN USERS CRUD
 // ========================
@@ -569,17 +931,19 @@ export async function getAdminUsers() {
 export async function createAdminUser(data: any) {
   try {
     const now = new Date().toISOString();
-    const docRef = await addDoc(collection(db, 'admin_users'), {
+    const id = adminUserId(data.email);
+    if (!id) return null;
+    await setDoc(doc(db, 'admin_users', id), {
       name: data.name || '',
-      email: data.email || '',
+      email: id,
       phone: data.phone || '',
-      role: data.role || 'viewer',
+      role: data.role || 'listing_manager',
       status: data.status || 'active',
       last_login: data.last_login || '',
       created_at: now,
       updated_at: now,
     });
-    return docRef.id;
+    return id;
   } catch (error) {
     console.error('Error creating admin user:', error);
     return null;
@@ -588,7 +952,19 @@ export async function createAdminUser(data: any) {
 
 export async function updateAdminUser(id: string, data: any) {
   try {
-    await updateDoc(doc(db, 'admin_users', id), { ...data, updated_at: new Date().toISOString() });
+    const nextId = adminUserId(data.email) || id;
+    const payload = {
+      ...data,
+      email: nextId,
+      role: data.role || 'listing_manager',
+      updated_at: new Date().toISOString(),
+    };
+    if (nextId !== id) {
+      await setDoc(doc(db, 'admin_users', nextId), payload, { merge: true });
+      await deleteDoc(doc(db, 'admin_users', id));
+      return true;
+    }
+    await updateDoc(doc(db, 'admin_users', id), payload);
     return true;
   } catch (error) {
     console.error('Error updating admin user:', error);
@@ -787,11 +1163,99 @@ export async function createAuditLog(entry: any) {
   try {
     const docRef = await addDoc(collection(db, 'audit_logs'), {
       ...entry,
+      created_at: new Date().toISOString(),
       timestamp: new Date().toISOString(),
     });
     return docRef.id;
   } catch (error) {
     console.error('Error creating audit log:', error);
     return null;
+  }
+}
+
+export async function getAuditLogs() {
+  try {
+    const q = query(collection(db, 'audit_logs'), orderBy('created_at', 'desc'), limit(200));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (error) {
+    console.error('getAuditLogs error', error);
+    throw error;
+  }
+}
+
+// ========================
+// ACTIVITY FEED
+// ========================
+
+function safeDate(val: any): number {
+  if (!val) return 0;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
+export async function getActivityFeed() {
+  try {
+    const [inquiries, submissions, alerts, viewings] = await Promise.all([
+      getCollectionDocs('inquiries'),
+      getCollectionDocs('listing_submissions'),
+      getCollectionDocs('property_alerts'),
+      getCollectionDocs('viewing_requests'),
+    ]);
+
+    const feedItems: any[] = [];
+
+    inquiries
+      .filter((i) => i.status === 'new')
+      .forEach((i) => {
+        feedItems.push({
+          id: `inq-${i.id}`,
+          type: 'inquiry',
+          title: 'New Inquiry',
+          message: `${i.customer_name || 'Customer'} inquired about ${i.listing_title || 'a property'}`,
+          created_at: i.created_at || new Date().toISOString(),
+          href: '/inquiries',
+        });
+      });
+
+    submissions
+      .filter((s) => s.status === 'new' || s.status === 'pending')
+      .forEach((s) => {
+        feedItems.push({
+          id: `sub-${s.id}`,
+          type: 'listing_submission',
+          title: 'New Listing Submission',
+          message: `"${s.title || 'Untitled'}" submitted for approval`,
+          created_at: s.created_at || new Date().toISOString(),
+          href: '/listings',
+        });
+      });
+
+    alerts.slice(0, 20).forEach((a) => {
+      feedItems.push({
+        id: `alert-${a.id}`,
+        type: 'property_alert',
+        title: 'Property Alert Registered',
+        message: `${a.customer_name || a.name || 'Someone'} set up a property alert`,
+        created_at: a.created_at || new Date().toISOString(),
+        href: '/alerts',
+      });
+    });
+
+    viewings.forEach((v) => {
+      feedItems.push({
+        id: `view-${v.id}`,
+        type: 'viewing_request',
+        title: 'Viewing Request',
+        message: `${v.customer_name || 'Customer'} requested a viewing for ${v.listing_title || 'a property'}`,
+        created_at: v.created_at || new Date().toISOString(),
+        href: '/inquiries',
+      });
+    });
+
+    return feedItems.sort((a, b) => safeDate(b.created_at) - safeDate(a.created_at)).slice(0, 50);
+  } catch (error) {
+    console.error('getActivityFeed error', error);
+    return [];
   }
 }

@@ -10,7 +10,7 @@ interface User {
   id: string;
   name: string;
   phone: string;
-  email?: string;
+  email: string;
   user_type: "buyer" | "seller" | "agent" | "admin";
 }
 

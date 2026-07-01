@@ -99,10 +99,19 @@ module.exports = {
       spacing: {
         "18": "4.5rem",
         "22": "5.5rem",
+        "4.5": "1.125rem",
+      },
+      minHeight: {
+        "touch": "44px",
+        "touch-lg": "48px",
+      },
+      minWidth: {
+        "touch": "44px",
       },
       animation: {
-        "fade-in": "fadeIn 0.5s ease-out",
-        "slide-up": "slideUp 0.5s ease-out",
+        "fade-in": "fadeIn 0.3s ease-out",
+        "slide-up": "slideUp 0.4s ease-out",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
       keyframes: {
         fadeIn: {
@@ -113,6 +122,14 @@ module.exports = {
           "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+      },
+      // Constrain prose for readability (45-90 chars, ideal 66)
+      maxWidth: {
+        "prose": "72ch",
+        "prose-sm": "55ch",
+      },
+      screens: {
+        "touch": { raw: "(hover: none)" },
       },
     },
   },

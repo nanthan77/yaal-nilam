@@ -40,6 +40,7 @@ const EXCLUDED = [
   /^\/login\/?$/,
   /^\/register\/?$/,
   /^\/add-listing\/?$/,
+  /^\/properties\/view\/?$/,
 ];
 
 function getPriority(path) {

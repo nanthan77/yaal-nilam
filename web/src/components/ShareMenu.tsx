@@ -9,12 +9,16 @@ const SITE_ORIGIN = "https://yaal-nilam.web.app";
 export default function ShareMenu({
   url,
   title,
+  ariaLabel = "Share this property",
+  buttonLabel = "",
   buttonClassName = "",
   iconClassName = "w-4 h-4",
   openUp = true,
 }: {
   url: string;
   title: string;
+  ariaLabel?: string;
+  buttonLabel?: string;
   buttonClassName?: string;
   iconClassName?: string;
   openUp?: boolean;
@@ -74,10 +78,11 @@ export default function ShareMenu({
 
   return (
     <div ref={ref} className="relative" onClick={(e) => e.stopPropagation()}>
-      <button type="button" onClick={handleClick} aria-label="Share this property" className={buttonClassName}>
+      <button type="button" onClick={handleClick} aria-label={ariaLabel} className={buttonClassName}>
         <svg className={iconClassName} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.7 10.7a3 3 0 100 2.6m0-2.6l6.6-3.9m-6.6 6.5l6.6 3.9m0 0a3 3 0 105.2 1.7 3 3 0 00-5.2-1.7zm0-10.4a3 3 0 105.2-1.7 3 3 0 00-5.2 1.7z" />
         </svg>
+        {buttonLabel ? <span>{buttonLabel}</span> : null}
       </button>
 
       {open && (

@@ -18,35 +18,21 @@ import { useStore } from "@/lib/store";
  *   POST /api/tts/speak      — Text → ElevenLabs audio (Tamil/English)
  *   POST /api/tts/stream     — Streaming TTS for low-latency playback
  *
- * Mock mode: Works fully without API keys — uses predefined responses
- * and browser SpeechSynthesis as TTS fallback.
+ * The component is rendered ONLY when NEXT_PUBLIC_AI_SERVICE_URL is configured.
+ * If the configured service is unreachable, a brief bilingual
+ * "service unavailable" message is shown/spoken — never fabricated results.
  */
 
 type VoiceState = "idle" | "listening" | "processing" | "speaking" | "error";
 type Variant = "floating" | "hero" | "inline";
 
-// Mock responses for demo mode (no API keys needed)
-const MOCK_RESPONSES = {
-  en: [
-    "I found 12 properties matching your search in Nallur. The prices range from Rs. 18 lakhs to Rs. 4.5 crore. Would you like me to narrow it down?",
-    "There are 5 houses for rent in Kopay area, starting from Rs. 45,000 per month. Shall I send the details to your WhatsApp?",
-    "I see 8 land plots available in Thirunelvely. The most popular is a 20-perch plot with 40ft road frontage at Rs. 1.8 crore.",
-    "Based on your requirements, I'd recommend looking at properties in Chunnakam and Kokuvil areas. Both have good options within your budget.",
-  ],
-  ta: [
-    "நல்லூரில் உங்கள் தேடலுக்கு பொருந்தும் 12 சொத்துக்கள் உள்ளன. விலைகள் ரூ. 18 லட்சம் முதல் ரூ. 4.5 கோடி வரை செல்கின்றன. இன்னும் குறுக்கித் தேடட்டுமா?",
-    "கோப்பாய் பகுதியில் மாதம் ரூ. 45,000 முதல் 5 வாடகை வீடுகள் கிடைக்கின்றன. விவரங்களை WhatsApp மூலம் அனுப்பவா?",
-    "திருநெல்வேலியில் 8 காணிகள் தற்போது உள்ளன. 40 அடி சாலை முகப்புடன் 20 பேர்ச் காணி ரூ. 1.8 கோடியில் அதிக ஆர்வம் பெறுகிறது.",
-    "உங்கள் தேவைகளைப் பார்க்கும்போது, சுன்னாகமும் கொக்குவிலும் நல்ல தேர்வுகள். உங்கள் பட்ஜெட்டுக்குள் பொருத்தமான சொத்துக்கள் அங்கே அதிகம் உள்ளன.",
-  ],
-};
-
-const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:8000";
+const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || "";
 
 interface VoiceSearchProps {
   variant?: Variant;
 }
 
+// Component is hidden when the AI service URL is not configured.
 export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) {
   const { locale } = useStore();
   const l = locale;
@@ -113,12 +99,14 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
     }
   }, []);
 
+  // Hidden when the AI service URL is not configured (after all hooks to keep hook order stable).
+  if (!AI_SERVICE_URL) return null;
+
   // ── Process recorded audio ─────────────────────────
   const processAudio = async (audioBlob: Blob) => {
     setState("processing");
 
     try {
-      // Try real backend first
       const formData = new FormData();
       formData.append("audio", audioBlob, "recording.webm");
       formData.append("language", l);
@@ -136,15 +124,18 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
         return;
       }
     } catch {
-      // Backend not available — use mock
+      // Service unreachable — show bilingual unavailable message
     }
 
-    // Mock fallback
-    const mockList = MOCK_RESPONSES[l] || MOCK_RESPONSES.en;
-    const mockResponse = mockList[Math.floor(Math.random() * mockList.length)];
-    setTranscript(l === "ta" ? "(குரல் பதிவு பெறப்பட்டது)" : "(Voice recorded)");
-    setResponse(mockResponse);
-    await speakResponse(mockResponse, l);
+    // Service unavailable — bilingual message, no fake results
+    const unavailableMsg =
+      l === "ta"
+        ? "மன்னிக்கவும், குரல் தேடல் சேவை தற்போது கிடைக்கவில்லை. (Voice search service is currently unavailable.)"
+        : "Voice search service is currently unavailable. Sorry for the inconvenience. (குரல் தேடல் சேவை தற்போது கிடைக்கவில்லை.)";
+    setTranscript("");
+    setResponse(unavailableMsg);
+    setState("error");
+    setErrorMsg(unavailableMsg);
   };
 
   // ── Text-to-Speech ─────────────────────────────────

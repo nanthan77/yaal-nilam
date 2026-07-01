@@ -31,10 +31,10 @@ export default function WhatsAppButton() {
   const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
       {/* Chat bubble */}
       {showBubble && (
-        <div className="bg-white rounded-2xl rounded-br-sm shadow-lg px-4 py-3 max-w-[220px] animate-fade-in border border-gray-100">
+        <div className="relative hidden max-w-[220px] animate-fade-in rounded-2xl rounded-br-sm border border-gray-100 bg-white px-4 py-3 shadow-lg sm:block">
           <p className="text-sm text-gray-800 font-medium">{bubbleTitle}</p>
           <p className="text-xs text-gray-500 mt-0.5">{bubbleBody}</p>
           <button

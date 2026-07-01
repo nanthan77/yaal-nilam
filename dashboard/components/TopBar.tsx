@@ -8,17 +8,30 @@ import {
   Globe,
   LogOut,
   Settings as SettingsIcon,
-  User as UserIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import Link from 'next/link';
 
 export function TopBar() {
   const { toggleSidebar, currentUser, locale, setLocale, sidebarOpen } = useAdminStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const handleLogout = async () => {
     localStorage.removeItem('admin_auth');
@@ -28,6 +41,18 @@ export function TopBar() {
     setShowUserMenu(false);
     router.push('/login');
   };
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      router.push(`/listings?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
+  const userName = currentUser?.name || '—';
+  const userRole = currentUser?.role || '—';
+  const userEmail = currentUser?.email || '';
+  const initials = userName !== '—' ? userName[0].toUpperCase() : '?';
 
   return (
     <header
@@ -46,11 +71,14 @@ export function TopBar() {
             <Menu className="w-5 h-5 text-charcoal-700" />
           </button>
           <div className="hidden md:flex items-center gap-2 flex-1 max-w-sm">
-            <Search className="w-4 h-4 text-charcoal-400" />
+            <Search className="w-4 h-4 text-charcoal-400 flex-shrink-0" />
             <input
               type="text"
-              placeholder="Search listings, inquiries, agents..."
-              className="input-field py-1.5 text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              placeholder="Search listings… (Enter)"
+              className="input-field py-1.5 text-sm w-full focus:outline-none"
             />
           </div>
         </div>
@@ -69,13 +97,13 @@ export function TopBar() {
           </a>
 
           {/* Notification Bell */}
-          <button
+          <Link
+            href="/notifications"
             className="relative p-2 hover:bg-sand-100 rounded-lg transition-colors"
             aria-label="Notifications"
           >
             <Bell className="w-5 h-5 text-charcoal-700" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
-          </button>
+          </Link>
 
           {/* Language Toggle */}
           <div className="flex items-center bg-sand-100 rounded-lg p-0.5">
@@ -100,8 +128,9 @@ export function TopBar() {
               தமிழ்
             </button>
           </div>
+
           {/* User Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="p-2 hover:bg-sand-100 rounded-lg transition-colors flex items-center gap-2"
@@ -110,34 +139,29 @@ export function TopBar() {
               aria-expanded={showUserMenu}
             >
               <div className="w-8 h-8 bg-navy-200 rounded-full flex items-center justify-center text-navy-700 font-bold text-sm">
-                {currentUser.name.charAt(0)}
+                {initials}
               </div>
               <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-semibold text-charcoal-900">
-                  {currentUser.name}
-                </span>
-                <span className="text-xs text-charcoal-500">
-                  {currentUser.role === 'super_admin' ? 'Super Admin' : currentUser.role}
-                </span>
+                <span className="text-xs font-semibold text-charcoal-900">{userName}</span>
+                <span className="text-xs text-charcoal-500 capitalize">{userRole.replace(/_/g, ' ')}</span>
               </div>
             </button>
 
             {showUserMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-card-elevated border border-navy-100 py-1 z-50">
                 <div className="px-4 py-2 border-b border-sand-200">
-                  <p className="text-sm font-medium text-charcoal-900">{currentUser.name}</p>
-                  <p className="text-xs text-charcoal-500">{currentUser.email}</p>
+                  <p className="text-sm font-medium text-charcoal-900">{userName}</p>
+                  <p className="text-xs text-charcoal-500 truncate">{userEmail}</p>
                 </div>
 
-                <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-charcoal-700 hover:bg-sand-50 transition-colors">
-                  <UserIcon className="w-4 h-4" />
-                  Profile
-                </button>
-
-                <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-charcoal-700 hover:bg-sand-50 transition-colors">
+                <Link
+                  href="/settings"
+                  onClick={() => setShowUserMenu(false)}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-charcoal-700 hover:bg-sand-50 transition-colors"
+                >
                   <SettingsIcon className="w-4 h-4" />
                   Settings
-                </button>
+                </Link>
 
                 <div className="border-t border-sand-200 my-1"></div>
 

@@ -3,6 +3,7 @@ import * as admin from "firebase-admin";
 import cors = require("cors");
 import { whatsappWebhook, whatsappVerify } from "./whatsapp";
 import { sendWhatsAppMessage } from "./whatsapp-send";
+import { runSocialLeadMonitorJob } from "./social-monitor";
 
 admin.initializeApp();
 
@@ -32,10 +33,53 @@ export const whatsappWebhookHandler = functions
     });
   });
 
+// Admin gate for callable functions. Mirrors isAdmin() in firestore.rules —
+// keep the role list and owner-email allowlist in sync with that file:
+// admin custom claim, OR a staff role claim, OR the verified owner email
+// bootstrap (Google verifies the email; same allowlist as the rules).
+const ADMIN_ROLES = [
+  "super_admin",
+  "admin",
+  "listing_manager",
+  "lead_manager",
+  "content_manager",
+];
+const OWNER_ADMIN_EMAILS = ["nanthan77@gmail.com"];
+
+async function isAdminToken(token: admin.auth.DecodedIdToken): Promise<boolean> {
+  if (token.admin === true) return true;
+  if (typeof token.role === "string" && ADMIN_ROLES.includes(token.role)) {
+    return true;
+  }
+  if (
+    token.email_verified === true &&
+    typeof token.email === "string" &&
+    OWNER_ADMIN_EMAILS.includes(token.email)
+  ) {
+    return true;
+  }
+  if (typeof token.email === "string") {
+    const snap = await admin
+      .firestore()
+      .collection("admin_users")
+      .doc(token.email.toLowerCase())
+      .get();
+    const record = snap.data();
+    if (
+      record?.status === "active" &&
+      typeof record.role === "string" &&
+      ADMIN_ROLES.includes(record.role)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Send WhatsApp message - called from admin dashboard
 export const sendWhatsApp = functions.https.onCall(async (data, context) => {
-  // Verify admin auth
-  if (!context.auth || !context.auth.token.admin) {
+  // Verify admin auth (same admins firestore.rules isAdmin() accepts)
+  if (!context.auth || !(await isAdminToken(context.auth.token))) {
     throw new functions.https.HttpsError(
       "permission-denied",
       "Only admins can send WhatsApp messages"
@@ -43,6 +87,21 @@ export const sendWhatsApp = functions.https.onCall(async (data, context) => {
   }
   return sendWhatsAppMessage(data);
 });
+
+// Run source-specific social lead monitors and save discovered property posts
+// into `social_leads`. Triggered manually from the admin dashboard; scheduling
+// should be enabled only after choosing approved API/search providers.
+export const runSocialLeadMonitor = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 180 })
+  .https.onCall(async (_data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run the social lead monitor"
+      );
+    }
+    return runSocialLeadMonitorJob();
+  });
 
 // Auto-create inquiry when WhatsApp message mentions a listing
 export const onNewWhatsAppMessage = functions.firestore

@@ -100,6 +100,31 @@ export interface NormalizedAgent {
   joined_date: string;
   recent_activity: string;
   testimonial: string;
+  logo_url: string;
+  cover_url: string;
+  agency_type: string;
+  public_email: string;
+  internal_email: string;
+  website: string;
+  office_address: string;
+  company_registration_no: string;
+  license_no: string;
+  registration_verified: boolean;
+  social_links: any;
+  languages: string[];
+  team_size: number;
+  years_experience: number;
+  business_hours: string;
+  agency_plan: string;
+  billing_status: string;
+  account_manager: string;
+  internal_notes: string;
+}
+
+export interface AgentTrustInput extends Partial<NormalizedAgent> {
+  listing_views?: number;
+  whatsapp_clicks?: number;
+  inquiries_count?: number;
 }
 
 const FALLBACK_PROPERTY_IMAGE = "/property-placeholder.svg";
@@ -285,12 +310,7 @@ export function normalizeListing(raw: any): NormalizedListing {
     remote_purchase_support: raw?.remote_purchase_support !== false,
     document_checklist: Array.isArray(raw?.document_checklist) && raw.document_checklist.length > 0
       ? raw.document_checklist
-      : [
-          "Title deed reviewed",
-          "Survey plan available",
-          "Owner / agent identity confirmed",
-          "Viewing can be arranged remotely",
-        ],
+      : [],
     title_history_status: raw?.title_history_status || (raw?.documents_verified ? "verified" : "pending"),
   };
 }
@@ -332,7 +352,50 @@ export function normalizeAgent(raw: any): NormalizedAgent {
     joined_date: normalizeDate(raw?.joined_date),
     recent_activity: raw?.recent_activity || "Active in the last 7 days",
     testimonial: raw?.testimonial || "Responsive, locally knowledgeable, and strong with serious buyer follow-up.",
+    logo_url: raw?.logo_url || raw?.company_logo_url || raw?.logo || "",
+    cover_url: raw?.cover_url || raw?.company_cover_url || "",
+    agency_type: raw?.agency_type || "Independent agent",
+    public_email: raw?.public_email || raw?.email || "",
+    internal_email: raw?.internal_email || raw?.billing_email || raw?.email || "",
+    website: raw?.website || raw?.website_url || "",
+    office_address: raw?.office_address || raw?.address || "",
+    company_registration_no:
+      raw?.company_registration_no ||
+      raw?.business_registration_no ||
+      raw?.business_registration_number ||
+      raw?.br_number ||
+      "",
+    license_no: raw?.license_no || raw?.realtor_license_no || raw?.agent_license_no || "",
+    registration_verified: Boolean(raw?.registration_verified || raw?.company_registration_verified),
+    social_links: raw?.social_links || {},
+    languages: Array.isArray(raw?.languages) ? raw.languages : [],
+    team_size: toNumber(raw?.team_size || raw?.team_members_count),
+    years_experience: toNumber(raw?.years_experience || raw?.experience_years),
+    business_hours: raw?.business_hours || "",
+    agency_plan: raw?.agency_plan || raw?.subscription_plan || raw?.plan || "starter",
+    billing_status: raw?.billing_status || raw?.subscription_status || "free",
+    account_manager: raw?.account_manager || "",
+    internal_notes: raw?.internal_notes || "",
   };
+}
+
+export function calculateAgentTrustScore(agent: AgentTrustInput) {
+  let score = 18;
+
+  if (agent.status === "active") score += 12;
+  if (agent.verified) score += 24;
+  if (agent.nic_uploaded) score += 10;
+
+  score += Math.min(14, Math.round((Number(agent.response_rate || 0) / 100) * 14));
+  score += Math.min(12, Number(agent.active_listings || 0) * 3);
+  score += Math.min(8, Math.floor(Number(agent.total_inquiries || agent.inquiries_count || 0) / 2));
+  score += Math.min(7, Math.floor(Number(agent.whatsapp_clicks || 0) / 4));
+  score += Math.min(5, Math.floor(Number(agent.listing_views || 0) / 50));
+
+  if (agent.status === "pending") score = Math.min(score, 55);
+  if (agent.status === "suspended") score = Math.min(score, 35);
+
+  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 export function filterListings(listings: NormalizedListing[], filters: ListingFilters = {}) {

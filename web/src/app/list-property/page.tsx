@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { Check, ChevronRight, MessageCircle, UploadCloud, User, Phone, Mail, Home, MapPin, DollarSign, Bed, Bath, Car, Layers, Ruler, FileText, Tag } from 'lucide-react';
+import { Check, ChevronRight, MessageCircle, UploadCloud, User, Phone, Mail, Home, MapPin, DollarSign, Bed, Bath, Car, Layers, Ruler, FileText, Tag, Sparkles } from 'lucide-react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import { fileToWebp } from '@/lib/imageToWebp';
@@ -15,7 +15,7 @@ const areas = [
   { value: 'jaffna', en: 'Jaffna', ta: 'யாழ்ப்பாணம்' },
   { value: 'nallur', en: 'Nallur', ta: 'நல்லூர்' },
   { value: 'chunnakam', en: 'Chunnakam', ta: 'சுன்னாகம்' },
-  { value: 'kokuvil', en: 'Kokuvil', ta: 'கொக்குவில்' },
+  { value: 'kokkuvil', en: 'Kokuvil', ta: 'கொக்குவில்' },
   { value: 'kopay', en: 'Kopay', ta: 'கோப்பாய்' },
   { value: 'point-pedro', en: 'Point Pedro', ta: 'பருத்தித்துறை' },
   { value: 'karainagar', en: 'Karainagar', ta: 'காரைநகர்' },
@@ -40,7 +40,7 @@ const intents = [
 const amenities = ['Parking', 'Garden', 'Water supply', 'Road frontage', 'Balcony', 'Generator'];
 
 export default function ListPropertyPage() {
-  const { locale } = useStore();
+  const { locale, user } = useStore();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -107,6 +107,10 @@ export default function ListPropertyPage() {
       home: 'Home',
       breadcrumb: 'List Property',
       quickAssist: 'Prefer to send photos on WhatsApp? That works too.',
+      aiDraft: 'Draft title + description',
+      aiDraftHint: 'Cleaner listing copy helps admins review and publish faster.',
+      agentProfileHint: 'After admin verification, your approved listings will also appear on your agent profile URL.',
+      agentProfile: 'View agent profile',
       requiredStepOne: 'Please fill owner name, phone, property type, intent, and area before continuing.',
       submitError: "Sorry, we couldn't submit your listing. Please try again, or send the details on WhatsApp at +94 70 484 6555.",
     },
@@ -146,6 +150,10 @@ export default function ListPropertyPage() {
       home: 'முகப்பு',
       breadcrumb: 'சொத்தை பட்டியலிடல்',
       quickAssist: 'புகைப்படங்களை WhatsApp மூலம் அனுப்ப விரும்புகிறீர்களா? அதுவும் சரி.',
+      aiDraft: 'Title + description உருவாக்கவும்',
+      aiDraftHint: 'தெளிவான listing copy admin review மற்றும் publish வேகமாக உதவும்.',
+      agentProfileHint: 'Admin verification பிறகு, உங்கள் approved listings உங்கள் agent profile URL-லிலும் காணப்படும்.',
+      agentProfile: 'முகவர் சுயவிவரம்',
       requiredStepOne: 'தொடர முன் பெயர், தொலைபேசி, சொத்து வகை, நோக்கம், பகுதி ஆகியவற்றை நிரப்புங்கள்.',
       submitError: 'மன்னிக்கவும், உங்கள் listing-ஐ அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 70 484 6555 இல் WhatsApp மூலம் அனுப்புங்கள்.',
     },
@@ -177,6 +185,36 @@ export default function ListPropertyPage() {
       amenities: prev.amenities.includes(value)
         ? prev.amenities.filter((item) => item !== value)
         : [...prev.amenities, value],
+    }));
+  }
+
+  function labelFor(options: { value: string; en: string; ta: string }[], value: string) {
+    const found = options.find((item) => item.value === value);
+    if (!found) return value;
+    return locale === 'ta' ? found.ta : found.en;
+  }
+
+  function draftListingContent() {
+    const area = labelFor(areas, formData.area) || 'Jaffna';
+    const propertyType = labelFor(propertyTypes, formData.propertyType) || 'Property';
+    const intent = labelFor(intents, formData.intent) || 'For Sale';
+    const details = [
+      formData.landSize ? `${formData.landSize} perches` : '',
+      formData.bedrooms ? `${formData.bedrooms} bedrooms` : '',
+      formData.bathrooms ? `${formData.bathrooms} bathrooms` : '',
+      formData.roadFrontage ? `${formData.roadFrontage} ft road frontage` : '',
+      formData.furnishing ? formData.furnishing.replace(/-/g, ' ') : '',
+      formData.amenities.length ? formData.amenities.join(', ') : '',
+    ].filter(Boolean);
+
+    setFormData((prev) => ({
+      ...prev,
+      title: prev.title || `${area} ${propertyType} ${intent}`.trim(),
+      description:
+        prev.description ||
+        `${propertyType} ${intent.toLowerCase()} in ${area}${prev.address ? ` near ${prev.address}` : ''}. ${
+          details.length ? `Key details include ${details.join(', ')}. ` : ''
+        }Contact ${prev.ownerName || 'the owner'} for viewing, documents, and price negotiation.`,
     }));
   }
 
@@ -229,6 +267,10 @@ export default function ListPropertyPage() {
       const result = await submitListing({
         ...formData,
         photos: photoUrls,
+        agentId: user?.user_type === 'agent' ? user.id : '',
+        agentName: user?.user_type === 'agent' ? user.name : formData.ownerName,
+        agentPhone: user?.user_type === 'agent' ? user.phone || formData.phone : formData.phone,
+        agentEmail: user?.user_type === 'agent' ? user.email || formData.email : formData.email,
       });
 
       if (result) {
@@ -272,6 +314,14 @@ export default function ListPropertyPage() {
                 <div>
                   <h2 className="text-2xl font-bold text-charcoal-900 mb-3">{copy.successTitle}</h2>
                   <p className="text-charcoal-700 mb-5">{copy.successBody}</p>
+                  {user?.user_type === 'agent' && (
+                    <div className="mb-5 rounded-2xl border border-sand-200 bg-sand-50 px-4 py-3">
+                      <p className="text-sm text-charcoal-700">{copy.agentProfileHint}</p>
+                      <Link href={`/agents/${user.id}`} className="mt-2 inline-flex text-sm font-bold text-teal-700 hover:text-teal-900">
+                        {copy.agentProfile}
+                      </Link>
+                    </div>
+                  )}
                   {formData.whatsappOptIn && (
                     <a
                       href={whatsappLink}
@@ -368,6 +418,21 @@ export default function ListPropertyPage() {
                   </div>
                 ) : (
                   <div className="space-y-6 animate-fade-in">
+                    <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-teal-900">{copy.aiDraft}</p>
+                        <p className="text-xs text-teal-700 mt-1">{copy.aiDraftHint}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={draftListingContent}
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        {copy.aiDraft}
+                      </button>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label htmlFor="title" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.propertyTitle}</label>

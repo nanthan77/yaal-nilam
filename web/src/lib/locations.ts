@@ -1439,7 +1439,8 @@ export const ALL_LOCATIONS: Location[] = [
 // ─── Utility Functions ───────────────────────────────────────────────────
 
 export function getLocationBySlug(slug: string): Location | undefined {
-  return ALL_LOCATIONS.find((l) => l.slug === slug);
+  const normSlug = slug === 'kokuvil' ? 'kokkuvil' : slug;
+  return ALL_LOCATIONS.find((l) => l.slug === normSlug);
 }
 
 export function getLocationsByParent(parentSlug: string): Location[] {

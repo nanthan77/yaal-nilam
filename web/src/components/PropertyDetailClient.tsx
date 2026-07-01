@@ -262,12 +262,12 @@ export default function PropertyDetailClient() {
             <span>{property.listing_code}</span>
           </div>
 
-          <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-8">
-            <div>
+          <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-8 w-full min-w-0">
+            <div className="w-full min-w-0">
               <PropertyGallery images={gallery} videoUrl={property.video_tour_url} title={propertyTitle} />
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md p-6 lg:p-7 h-fit flex flex-col justify-between shadow-2xl">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md p-6 lg:p-7 h-fit flex flex-col justify-between shadow-2xl w-full min-w-0">
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
                   {property.featured && <span className="bg-[#D4A853] text-[#0F2E25] px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Featured</span>}
@@ -299,20 +299,30 @@ export default function PropertyDetailClient() {
               </div>
 
               <div>
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
-                    <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.responseRate}</p>
-                    <p className="text-lg font-bold text-white">{property.agent_response_rate || 84}%</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <div className={`gap-3 mb-6 ${property.agent_response_rate > 0 ? "grid grid-cols-2" : "flex"}`}>
+                  {property.agent_response_rate > 0 && (
+                    <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                      <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.responseRate}</p>
+                      <p className="text-lg font-bold text-white">{property.agent_response_rate}%</p>
+                    </div>
+                  )}
+                  <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3 flex-1">
                     <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.remoteSupport}</p>
                     <p className="text-xs font-semibold text-white truncate">{copy.remoteSupportValue}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <button type="button" onClick={handleSave} className="rounded-2xl bg-white text-charcoal-950 px-4 py-3.5 font-bold hover:bg-sand-100 transition duration-200 text-sm">
-                    {saved ? copy.saved : copy.save}
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className={`rounded-2xl px-4 py-3.5 font-bold transition duration-200 text-sm ${
+                      saved
+                        ? "bg-[#D4A853] text-[#0F2E25] shadow-lg shadow-[#D4A853]/25"
+                        : "bg-white text-charcoal-950 hover:bg-sand-100"
+                    }`}
+                  >
+                    {saved ? `✓ ${copy.saved}` : copy.save}
                   </button>
                   <button type="button" onClick={handleShare} className="rounded-2xl bg-white/10 text-white border border-white/10 px-4 py-3.5 font-bold hover:bg-white/20 transition duration-200 text-sm">
                     {copy.share}
@@ -338,10 +348,10 @@ export default function PropertyDetailClient() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid lg:grid-cols-[1.3fr_0.8fr] gap-8">
-          <div className="space-y-8">
-            <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="max-w-7xl mx-auto px-4 py-10 w-full min-w-0">
+        <div className="grid lg:grid-cols-[1.3fr_0.8fr] gap-8 w-full min-w-0">
+          <div className="space-y-8 w-full min-w-0">
+            <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               <div className="bg-charcoal-50 p-4 rounded-2xl">
                 <p className="text-charcoal-600 text-sm font-semibold mb-2">{copy.bedrooms}</p>
                 <p className="text-2xl font-bold text-charcoal-900">{property.bedrooms || "-"}</p>
@@ -371,17 +381,19 @@ export default function PropertyDetailClient() {
               <p className="text-charcoal-700 leading-relaxed text-lg">{propertyDescription}</p>
             </section>
 
-            <section className="bg-teal-50 border border-teal-100 rounded-3xl p-6">
-              <h2 className="text-2xl font-bold text-teal-900 mb-3">{copy.highlights}</h2>
-              <div className="grid md:grid-cols-2 gap-3 text-charcoal-700">
-                {(property.amenities?.length > 0 ? property.amenities : property.document_checklist).map((item: string) => (
-                  <div key={item} className="flex items-center gap-2 rounded-2xl bg-white px-4 py-3 border border-teal-100">
-                    <span className="w-2 h-2 rounded-full bg-teal-600" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {property.amenities?.length > 0 && (
+              <section className="bg-teal-50 border border-teal-100 rounded-3xl p-6">
+                <h2 className="text-2xl font-bold text-teal-900 mb-3">{copy.highlights}</h2>
+                <div className="grid md:grid-cols-2 gap-3 text-charcoal-700">
+                  {property.amenities.map((item: string) => (
+                    <div key={item} className="flex items-center gap-2 rounded-2xl bg-white px-4 py-3 border border-teal-100">
+                      <span className="w-2 h-2 rounded-full bg-teal-600" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <section className="rounded-3xl border border-sand-200 p-6">
               <h3 className="text-xl font-bold text-charcoal-900 mb-3">{copy.floorPlan}</h3>
@@ -413,7 +425,7 @@ export default function PropertyDetailClient() {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 w-full min-w-0">
             <section className="rounded-3xl border border-sand-200 p-6 bg-white">
               <h2 className="text-2xl font-bold text-charcoal-900 mb-3">{copy.trustTitle}</h2>
               <p className="text-charcoal-700 mb-5">{copy.trustBody}</p>
@@ -430,99 +442,19 @@ export default function PropertyDetailClient() {
                   <p className="text-xs uppercase tracking-wide text-charcoal-500">{copy.titleHistory}</p>
                   <p className="font-semibold text-charcoal-900">{property.title_history_status === "verified" ? copy.titleHistoryValue : property.title_history_status}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-charcoal-600 mb-2">{copy.documents}</p>
-                  <ul className="space-y-2 text-sm text-charcoal-700">
-                    {property.document_checklist.map((item: string) => (
-                      <li key={item} className="flex items-start gap-2">
-                        <span className="mt-2 w-2 h-2 rounded-full bg-teal-600" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-3xl border border-sand-300 p-6 bg-white shadow-sm animate-fade-in">
-              <h2 className="text-xl font-bold text-charcoal-900 mb-2 flex items-center gap-2">
-                <span className="w-2 h-5 bg-[#D4A853] rounded-full inline-block" />
-                {copy.partnersTitle}
-              </h2>
-              <p className="text-charcoal-500 text-xs mb-5 leading-relaxed">{copy.partnersDesc}</p>
-              
-              <div className="space-y-4">
-                {/* Notary */}
-                <div className="p-4 rounded-2xl border border-sand-200 bg-[#FAF7F3] hover:border-[#2D7A5F]/30 transition duration-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="bg-[#D4A853]/10 text-[#0f2e25] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
-                        {copy.partnerLawyer}
-                      </span>
-                      <h4 className="text-sm font-bold text-charcoal-900 mt-1">S. Thirukumaran, NP</h4>
-                    </div>
+                {property.document_checklist?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-charcoal-600 mb-2">{copy.documents}</p>
+                    <ul className="space-y-2 text-sm text-charcoal-700">
+                      {property.document_checklist.map((item: string) => (
+                        <li key={item} className="flex items-start gap-2">
+                          <span className="mt-2 w-2 h-2 rounded-full bg-teal-600" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <p className="text-[11px] text-charcoal-600 leading-relaxed mb-3">
-                    Specialist in Northern Province deed registry search, pathmap legal clearance, and diaspora titles.
-                  </p>
-                  <a
-                    href="https://wa.me/94704846555?text=Hi%20Thirukumaran,%20I%20am%20interested%20in%20verifying%20the%20deed%20for%20property%20listing%20on%20Yaal%20Nilam"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    {copy.chatWhatsapp} →
-                  </a>
-                </div>
-
-                {/* Surveyor */}
-                <div className="p-4 rounded-2xl border border-sand-200 bg-[#FAF7F3] hover:border-[#2D7A5F]/30 transition duration-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="bg-[#D4A853]/10 text-[#0f2e25] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
-                        {copy.partnerSurveyor}
-                      </span>
-                      <h4 className="text-sm font-bold text-charcoal-900 mt-1">K. Baskaran, L.S.</h4>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-charcoal-600 leading-relaxed mb-3">
-                    Certified land boundary plotting, GPS mapping, partition survey plans in Jaffna and Vavuniya.
-                  </p>
-                  <a
-                    href="https://wa.me/94704846555?text=Hi%20Baskaran,%20I%20need%20a%20survey%20boundary%20check%20for%20a%20property%20on%20Yaal%20Nilam"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    {copy.chatWhatsapp} →
-                  </a>
-                </div>
-
-                {/* Builder */}
-                <div className="p-4 rounded-2xl border border-sand-200 bg-[#FAF7F3] hover:border-[#2D7A5F]/30 transition duration-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="bg-[#D4A853]/10 text-[#0f2e25] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
-                        {copy.partnerArchitect}
-                      </span>
-                      <h4 className="text-sm font-bold text-charcoal-900 mt-1">NorthBuild Construction</h4>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-charcoal-600 leading-relaxed mb-3">
-                    Modern custom house design, estimating, structural planning, and contract builds for overseas families.
-                  </p>
-                  <a
-                    href="https://wa.me/94704846555?text=Hi%20NorthBuild,%20I%20want%20to%20consult%20about%20a%20new%20home%20design/estimate%20via%20Yaal%20Nilam"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2D7A5F] hover:text-[#1B4D3E]"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    {copy.chatWhatsapp} →
-                  </a>
-                </div>
+                )}
               </div>
             </section>
 
@@ -533,6 +465,9 @@ export default function PropertyDetailClient() {
               <form onSubmit={handleViewingSubmit} className="space-y-4">
                 <div>
                   <input
+                    id="viewing-name"
+                    name="name"
+                    aria-label={copy.yourName}
                     type="text"
                     value={viewingForm.name}
                     onChange={(e) => setViewingForm((prev) => ({ ...prev, name: e.target.value }))}
@@ -543,6 +478,9 @@ export default function PropertyDetailClient() {
                 </div>
                 <div>
                   <input
+                    id="viewing-phone"
+                    name="phone"
+                    aria-label={copy.phone}
                     type="tel"
                     value={viewingForm.phone}
                     onChange={(e) => setViewingForm((prev) => ({ ...prev, phone: e.target.value }))}
@@ -553,6 +491,9 @@ export default function PropertyDetailClient() {
                 </div>
                 <div>
                   <input
+                    id="viewing-email"
+                    name="email"
+                    aria-label={copy.email}
                     type="email"
                     value={viewingForm.email}
                     onChange={(e) => setViewingForm((prev) => ({ ...prev, email: e.target.value }))}
@@ -562,6 +503,9 @@ export default function PropertyDetailClient() {
                 </div>
                 <div>
                   <input
+                    id="viewing-date"
+                    name="preferred_date"
+                    aria-label={copy.date}
                     type="date"
                     value={viewingForm.preferred_date}
                     onChange={(e) => setViewingForm((prev) => ({ ...prev, preferred_date: e.target.value }))}
@@ -571,6 +515,9 @@ export default function PropertyDetailClient() {
                 </div>
                 <div>
                   <textarea
+                    id="viewing-notes"
+                    name="notes"
+                    aria-label={copy.notes}
                     value={viewingForm.notes}
                     onChange={(e) => setViewingForm((prev) => ({ ...prev, notes: e.target.value }))}
                     placeholder={copy.notes}

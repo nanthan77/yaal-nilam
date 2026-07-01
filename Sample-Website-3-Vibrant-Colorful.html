@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thaalam.fm - Feel the Beat of Tamil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #7c3aed;
+            --primary-blue: #3b82f6;
+            --accent-orange: #ff6b35;
+            --accent-pink: #ec4899;
+            --accent-cyan: #06b6d4;
+            --dark-bg: #0f172a;
+            --light-text: #f1f5f9;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark-bg);
+            color: var(--light-text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.5), 0 0 40px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.8), 0 0 80px rgba(236, 72, 153, 0.5); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* ===== HEADER & NAVIGATION ===== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed, #3b82f6, #ec4899, #ff6b35);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+            letter-spacing: -1px;
+        }
+
+        .logo-tamil {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 0.9rem;
+            display: block;
+            margin-top: -5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--accent-pink));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-pink);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            min-height: 100vh;
+            padding-top: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0033 0%, #0a1e4e 25%, #2d1b4e 50%, #4d1f3f 75%, #3d1a2d 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            z-index: 0;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4, #ec4899, #ff6b35);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 5s ease infinite;
+            letter-spacing: -2px;
+        }
+
+        .hero-title-tamil {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .hero-tagline {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .hero-tagline-tamil {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .play-button-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 2rem auto;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: glow 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .play-button::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            opacity: 0.3;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .play-icon {
+            position: relative;
+            z-index: 2;
+            width: 0;
+            height: 0;
+            border-left: 30px solid white;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            margin-left: 8px;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+        }
+
+        .hero-cta {
+            font-size: 0.95rem;
+            margin-top: 3rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        /* ===== FEATURES SECTION ===== */
+        .features {
+            padding: 5rem 2rem;
+            background: var(--dark-bg);
+            position: relative;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            animation: slideInUp 0.6s ease-out;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent-pink);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.2);
+        }
+
+        .feature-card:hover::before {
+            top: 0;
+            right: 0;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--light-text);
+        }
+
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ===== SHOWS SECTION ===== */
+        .shows {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title-tamil {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+        }
+
+        .schedule-tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--light-text);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        .tab-button:hover {
+            border-color: var(--accent-pink);
+            color: var(--accent-pink);
+        }
+
+        .shows-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .show-card {
+            background: linear-gradient(135deg, #2d3e50, #1e293b);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .show-header {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            padding: 2rem;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .show-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+        }
+
+        .show-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .show-content {
+            padding: 1.5rem;
+        }
+
+        .show-host {
+            color: var(--accent-cyan);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .show-time {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .show-description {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .show-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(236, 72, 153, 0.2);
+            border-color: var(--accent-pink);
+        }
+
+        /* ===== TOP CHARTS SECTION ===== */
+        .charts {
+            padding: 5rem 2rem;
+            background: var(--dark-bg);
+        }
+
+        .charts-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .song-card {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            animation: slideInUp 0.6s ease-out;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .song-rank {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .song-info h4 {
+            margin-bottom: 0.3rem;
+            color: var(--light-text);
+            font-size: 1.1rem;
+        }
+
+        .song-artist {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .song-plays {
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .song-card:hover {
+            transform: translateX(10px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+        }
+
+        /* ===== COMMUNITY SECTION ===== */
+        .community {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.1));
+            text-align: center;
+        }
+
+        .community-content {
+            max-width: 700px;
+            margin: 0 auto;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .community-stat {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .community-text {
+            font-size: 1.2rem;
+            margin: 1.5rem 0;
+            color: #cbd5e1;
+        }
+
+        .community-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            border: 2px solid var(--primary-purple);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-purple);
+            transform: translateY(-3px);
+        }
+
+        /* ===== CHAT WIDGET ===== */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-width: 100%;
+            z-index: 900;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .chat-box {
+            background: linear-gradient(135deg, var(--card-bg), rgba(30, 41, 59, 0.95));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .chat-box.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            padding: 1.5rem;
+            color: white;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .chat-messages {
+            padding: 1.5rem;
+            height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-message {
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            max-width: 80%;
+        }
+
+        .chat-message.incoming {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--light-text);
+            align-self: flex-start;
+        }
+
+        .chat-message.outgoing {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: var(--light-text);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .chat-input::placeholder {
+            color: #64748b;
+        }
+
+        .chat-send {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .chat-send:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-toggle {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* ===== PHONE MOCKUP ===== */
+        .phone-mockup-section {
+            padding: 5rem 2rem;
+            background: var(--dark-bg);
+        }
+
+        .mockup-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            position: relative;
+            width: 280px;
+            height: 560px;
+            margin: 0 auto;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .phone-frame {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 50px;
+            border: 8px solid #1a1a1a;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3), 0 0 40px rgba(236, 72, 153, 0.2);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink), var(--accent-orange));
+            background-size: 400% 400%;
+            animation: gradientShift 6s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            text-align: center;
+            color: white;
+        }
+
+        .phone-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 25px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-content {
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .mockup-text h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .mockup-text p {
+            color: #cbd5e1;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* ===== SOCIAL SECTION ===== */
+        .social-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.1));
+            text-align: center;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .social-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.5rem;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.3);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 3rem 2rem;
+            background: rgba(15, 23, 42, 0.98);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: #cbd5e1;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-credit {
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+        }
+
+        .footer-credit a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-credit a:hover {
+            color: var(--accent-pink);
+        }
+
+        /* ===== SCROLL ANIMATIONS ===== */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .scroll-reveal.active {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-title-tamil {
+                font-size: 1.3rem;
+            }
+
+            .hero-tagline {
+                font-size: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .mockup-container {
+                grid-template-columns: 1fr;
+            }
+
+            .phone-mockup {
+                width: 220px;
+                height: 440px;
+            }
+
+            .community-stat {
+                font-size: 2.2rem;
+            }
+
+            .chat-widget {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+
+            .chat-messages {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 0.8rem 1rem;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-tagline {
+                font-size: 0.9rem;
+            }
+
+            .play-button-container {
+                width: 100px;
+                height: 100px;
+            }
+
+            .play-icon {
+                border-left: 20px solid white;
+                border-top: 15px solid transparent;
+                border-bottom: 15px solid transparent;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .shows-grid,
+            .charts-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .community-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <nav>
+            <div class="logo">
+                Thaalam.fm
+                <div class="logo-tamil">தாளம்.fm</div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#shows">Shows</a></li>
+                <li><a href="#charts">Charts</a></li>
+                <li><a href="#community">Community</a></li>
+                <li><a href="#download">Download</a></li>
+            </ul>
+            <button class="cta-button">Listen Live</button>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">THAALAM.FM</h1>
+            <div class="hero-title-tamil">தாளம்.fm</div>
+            <p class="hero-tagline">Feel the Beat of Tamil</p>
+            <p class="hero-tagline-tamil">தமிழின் இசை அலை</p>
+
+            <div class="play-button-container">
+                <div class="play-button" onclick="toggleChat()">
+                    <div class="play-icon"></div>
+                </div>
+            </div>
+
+            <p class="hero-cta">Tap to play • Available 24/7</p>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card scroll-reveal">
+                <span class="feature-icon">🎵</span>
+                <h3>Tamil Hits</h3>
+                <p>Curated playlist of the latest Tamil music from your favorite artists</p>
+            </div>
+            <div class="feature-card scroll-reveal">
+                <span class="feature-icon">📻</span>
+                <h3>Live Shows</h3>
+                <p>Interactive radio shows hosted by talented DJs every day</p>
+            </div>
+            <div class="feature-card scroll-reveal">
+                <span class="feature-icon">🎙️</span>
+                <h3>Podcasts</h3>
+                <p>Exclusive interviews, stories, and cultural discussions</p>
+            </div>
+            <div class="feature-card scroll-reveal">
+                <span class="feature-icon">👥</span>
+                <h3>Community</h3>
+                <p>Connect with 15,000+ Tamil music lovers worldwide</p>
+            </div>
+            <div class="feature-card scroll-reveal">
+                <span class="feature-icon">📱</span>
+                <h3>Everywhere</h3>
+                <p>Listen on any device with our responsive app</p>
+            </div>
+            <div class="feature-card scroll-reveal">
+                <span class="feature-icon">🔥</span>
+                <h3>Trending</h3>
+                <p>Stay updated with what's hot in Tamil music</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SHOWS SECTION -->
+    <section class="shows" id="shows">
+        <h2 class="section-title">
+            Our Shows
+            <div class="section-title-tamil">நாம் நிகழ்ச்சிகள்</div>
+        </h2>
+
+        <div class="schedule-tabs">
+            <button class="tab-button active" onclick="filterShows('monday')">Monday</button>
+            <button class="tab-button" onclick="filterShows('tuesday')">Tuesday</button>
+            <button class="tab-button" onclick="filterShows('wednesday')">Wednesday</button>
+            <button class="tab-button" onclick="filterShows('thursday')">Thursday</button>
+            <button class="tab-button" onclick="filterShows('friday')">Friday</button>
+        </div>
+
+        <div class="shows-grid">
+            <div class="show-card scroll-reveal" data-day="monday">
+                <div class="show-header">
+                    <span class="show-icon">🌅</span>
+                    <div class="show-name">Morning Raaga</div>
+                </div>
+                <div class="show-content">
+                    <div class="show-host">Hosted by DJ Arjun</div>
+                    <div class="show-time">6:00 AM - 9:00 AM</div>
+                    <div class="show-description">Start your day with classic Tamil melodies and energizing hits</div>
+                </div>
+            </div>
+
+            <div class="show-card scroll-reveal" data-day="monday">
+                <div class="show-header">
+                    <span class="show-icon">💼</span>
+                    <div class="show-name">Midday Mix</div>
+                </div>
+                <div class="show-content">
+                    <div class="show-host">Hosted by DJ Maya</div>
+                    <div class="show-time">12:00 PM - 3:00 PM</div>
+                    <div class="show-description">Contemporary Tamil tunes to keep you company throughout the day</div>
+                </div>
+            </div>
+
+            <div class="show-card scroll-reveal" data-day="monday">
+                <div class="show-header">
+                    <span class="show-icon">🌙</span>
+                    <div class="show-name">Night Vibes</div>
+                </div>
+                <div class="show-content">
+                    <div class="show-host">Hosted by DJ Vikram</div>
+                    <div class="show-time">9:00 PM - 12:00 AM</div>
+                    <div class="show-description">Relax with smooth Tamil classics and soothing instrumental tracks</div>
+                </div>
+            </div>
+
+            <div class="show-card scroll-reveal" data-day="tuesday">
+                <div class="show-header">
+                    <span class="show-icon">🎬</span>
+                    <div class="show-name">Cinema Sundays</div>
+                </div>
+                <div class="show-content">
+                    <div class="show-host">Hosted by DJ Priya</div>
+                    <div class="show-time">7:00 PM - 10:00 PM</div>
+                    <div class="show-description">The best Tamil movie soundtracks and BGM from all eras</div>
+                </div>
+            </div>
+
+            <div class="show-card scroll-reveal" data-day="tuesday">
+                <div class="show-header">
+                    <span class="show-icon">💫</span>
+                    <div class="show-name">Indie Spotlight</div>
+                </div>
+                <div class="show-content">
+                    <div class="show-host">Hosted by DJ Kavi</div>
+                    <div class="show-time">3:00 PM - 6:00 PM</div>
+                    <div class="show-description">Discover emerging Tamil indie artists and fresh sounds</div>
+                </div>
+            </div>
+
+            <div class="show-card scroll-reveal" data-day="wednesday">
+                <div class="show-header">
+                    <span class="show-icon">🎤</span>
+                    <div class="show-name">Throwback Hits</div>
+                </div>
+                <div class="show-content">
+                    <div class="show-host">Hosted by DJ Ravi</div>
+                    <div class="show-time">5:00 PM - 8:00 PM</div>
+                    <div class="show-description">Nostalgic Tamil classics that defined generations</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOP CHARTS SECTION -->
+    <section class="charts" id="charts">
+        <div class="charts-container">
+            <h2 class="section-title">
+                Top Charts
+                <div class="section-title-tamil">முதல் பட்டியல்</div>
+            </h2>
+
+            <div class="charts-grid">
+                <div class="song-card scroll-reveal">
+                    <div class="song-rank">#1</div>
+                    <div class="song-info">
+                        <h4>Kannale Kannale</h4>
+                        <div class="song-artist">Anirudh Ravichander</div>
+                        <div class="song-plays">2.5M plays</div>
+                    </div>
+                </div>
+
+                <div class="song-card scroll-reveal">
+                    <div class="song-rank">#2</div>
+                    <div class="song-info">
+                        <h4>Enaku Pulla Unnai</h4>
+                        <div class="song-artist">Dhanush</div>
+                        <div class="song-plays">2.1M plays</div>
+                    </div>
+                </div>
+
+                <div class="song-card scroll-reveal">
+                    <div class="song-rank">#3</div>
+                    <div class="song-info">
+                        <h4>Ye Maaya Chesave</h4>
+                        <div class="song-artist">A.R. Rahman</div>
+                        <div class="song-plays">1.9M plays</div>
+                    </div>
+                </div>
+
+                <div class="song-card scroll-reveal">
+                    <div class="song-rank">#4</div>
+                    <div class="song-info">
+                        <h4>Aanandha Yaathra</h4>
+                        <div class="song-artist">Yuvan Shankar Raja</div>
+                        <div class="song-plays">1.7M plays</div>
+                    </div>
+                </div>
+
+                <div class="song-card scroll-reveal">
+                    <div class="song-rank">#5</div>
+                    <div class="song-info">
+                        <h4>Vaa Vaa Azhagiya</h4>
+                        <div class="song-artist">Vijay Antony</div>
+                        <div class="song-plays">1.5M plays</div>
+                    </div>
+                </div>
+
+                <div class="song-card scroll-reveal">
+                    <div class="song-rank">#6</div>
+                    <div class="song-info">
+                        <h4>Theera Theera</h4>
+                        <div class="song-artist">Harris Jayaraj</div>
+                        <div class="song-plays">1.4M plays</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PHONE MOCKUP & APP SECTION -->
+    <section class="phone-mockup-section" id="download">
+        <h2 class="section-title">
+            Download the App
+            <div class="section-title-tamil">செயலி பதிவிறக்க</div>
+        </h2>
+
+        <div class="mockup-container">
+            <div class="phone-mockup">
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="phone-content">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">♪</div>
+                            <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Thaalam.fm</div>
+                            <div style="font-size: 0.7rem; opacity: 0.8;">Tamil Radio</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mockup-text">
+                <h2>Available on All Platforms</h2>
+                <p>Listen to Thaalam.fm anywhere, anytime. Download our app for iOS and Android and enjoy seamless streaming of your favorite Tamil music.</p>
+
+                <div class="community-buttons">
+                    <button class="btn-primary">📱 iOS App</button>
+                    <button class="btn-primary">🤖 Android App</button>
+                </div>
+
+                <p style="margin-top: 2rem; font-size: 0.9rem; color: #64748b;">Web player available on all browsers</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMMUNITY SECTION -->
+    <section class="community" id="community">
+        <div class="community-content">
+            <h2 class="section-title">Join Our Community</h2>
+            <div class="community-stat">15,000+</div>
+            <p class="community-text">Tamil music lovers are already enjoying Thaalam.fm</p>
+            <p class="community-text">Join thousands of listeners discovering the best in Tamil music, connecting with artists, and being part of a vibrant cultural movement.</p>
+
+            <div class="community-buttons">
+                <button class="btn-primary">Sign Up Now</button>
+                <button class="btn-secondary">Learn More</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOCIAL SECTION -->
+    <section class="social-section">
+        <h2 class="section-title">Follow Us</h2>
+        <p style="color: #cbd5e1; margin-bottom: 1.5rem;">Connect with us on social media for exclusive content and updates</p>
+        <div class="social-icons">
+            <div class="social-icon">f</div>
+            <div class="social-icon">𝕏</div>
+            <div class="social-icon">📷</div>
+            <div class="social-icon">▶️</div>
+            <div class="social-icon">🎵</div>
+            <div class="social-icon">🎧</div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Thaalam.fm - Feel the Beat of Tamil | All Rights Reserved</p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;">
+                <span style="margin: 0 1rem;">Privacy Policy</span>
+                <span style="margin: 0 1rem;">Terms of Service</span>
+                <span style="margin: 0 1rem;">Contact Us</span>
+            </p>
+            <div class="footer-credit">
+                Built with love by <a href="https://safenetcreations.com" target="_blank">SafeNetCreations.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CHAT WIDGET -->
+    <div class="chat-widget">
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <span>Thaalam Support</span>
+                <button class="chat-close" onclick="toggleChat()">✕</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message incoming">
+                    👋 Welcome to Thaalam.fm! How can we help you today?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" placeholder="Type your message..." id="chatInput">
+                <button class="chat-send" onclick="sendMessage()">→</button>
+            </div>
+        </div>
+        <button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬</button>
+    </div>
+
+    <script>
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-reveal').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Tab filtering for shows
+        function filterShows(day) {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.show-card').forEach(card => {
+                card.style.display = card.dataset.day === day ? 'block' : 'none';
+            });
+
+            // Add animation
+            document.querySelectorAll('.show-card').forEach(card => {
+                if (card.dataset.day === day) {
+                    card.style.animation = 'none';
+                    setTimeout(() => {
+                        card.style.animation = 'slideInUp 0.6s ease-out';
+                    }, 10);
+                }
+            });
+        }
+
+        // Chat widget functionality
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.classList.toggle('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+
+            if (input.value.trim()) {
+                const userMessage = document.createElement('div');
+                userMessage.className = 'chat-message outgoing';
+                userMessage.textContent = input.value;
+                messages.appendChild(userMessage);
+
+                setTimeout(() => {
+                    const botMessage = document.createElement('div');
+                    botMessage.className = 'chat-message incoming';
+                    botMessage.textContent = '🎵 Thanks for reaching out! Our team will respond shortly.';
+                    messages.appendChild(botMessage);
+                    messages.scrollTop = messages.scrollHeight;
+                }, 500);
+
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        // Allow Enter key to send messages
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                const href = anchor.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Play button click handler
+        document.querySelector('.play-button').addEventListener('click', function() {
+            alert('🎵 Now playing Thaalam.fm Live!\n\nWelcome to your Tamil music destination!');
+        });
+
+        // Show first tab's content on load
+        window.addEventListener('load', () => {
+            filterShows('monday');
+        });
+    </script>
+</body>
+</html>

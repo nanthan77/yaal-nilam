@@ -14,6 +14,8 @@ import FAQSection from "./pseo/FAQSection";
 import NearbyLandmarks from "./pseo/NearbyLandmarks";
 import InternalLinks from "./pseo/InternalLinks";
 import AreaGuideContent from "./pseo/AreaGuideContent";
+import AreaMap from "./pseo/AreaMap";
+import { getAreaHeritage } from "@/lib/area-heritage";
 import { generateLocationFAQs } from "@/lib/faq-data";
 
 export default function AreaPageClient() {
@@ -82,6 +84,7 @@ export default function AreaPageClient() {
   }, [slug]);
 
   const locationData = useMemo(() => getLocationBySlug(slug), [slug]);
+  const heritage = useMemo(() => getAreaHeritage(slug), [slug]);
   const places = useMemo(() => getPlacesForLocation(slug), [slug]);
   const faqs = useMemo(() => (locationData ? generateLocationFAQs(locationData) : []), [locationData]);
   const insights = buildAreaInsights(slug, areaProperties);
@@ -146,37 +149,109 @@ export default function AreaPageClient() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6 mb-10">
-          <section className="rounded-3xl border border-sand-200 p-6">
-            <h2 className="text-2xl font-bold text-charcoal-900 mb-3">{copy.buyerNotes}</h2>
-            <p className="text-charcoal-700 mb-4">{locale === "ta" ? locationData?.whyLiveHere?.ta : locationData?.whyLiveHere?.en}</p>
-            <p className="text-charcoal-700 mb-4">{locale === "ta" ? locationData?.transportAccess?.ta : locationData?.transportAccess?.en}</p>
-            {locationData?.priceRange && (
-              <div className="inline-flex items-center gap-2 rounded-full bg-sand-100 px-4 py-2 text-sm font-semibold text-charcoal-800">
-                {copy.priceBand}: {formatCompactPrice(locationData.priceRange.min, locale)} - {formatCompactPrice(locationData.priceRange.max, locale)}
-              </div>
-            )}
-          </section>
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 mb-12">
+          {/* Left Column: History & Buyer Notes */}
+          <div className="space-y-6">
+            <section className="rounded-3xl border border-sand-200 p-8 bg-[#FAF7F3]">
+              <span className="bg-[#D4A853]/10 text-[#0F2E25] text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full mb-3.5 inline-block">
+                📜 {locale === "ta" ? "வரலாறு மற்றும் கலாசாரம்" : "History & Heritage"}
+              </span>
+              <h2 className="text-2xl font-black text-charcoal-900 mb-4">
+                {locale === "ta" ? `${displayAreaName} பகுதி வரலாறு` : `Cultural History of ${displayAreaName}`}
+              </h2>
+              <p className="text-charcoal-700 leading-relaxed font-medium text-base mb-4">
+                {locale === "ta" ? heritage.history.ta : heritage.history.en}
+              </p>
+            </section>
 
-          <section className="rounded-3xl border border-sand-200 p-6 bg-teal-950 text-white">
-            <h2 className="text-2xl font-bold mb-3">{copy.remoteTitle}</h2>
-            <p className="text-teal-100 mb-4">{copy.remoteBody}</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-white/10 border border-white/10 px-3 py-1.5 text-sm">WhatsApp shortlists</span>
-              <span className="rounded-full bg-white/10 border border-white/10 px-3 py-1.5 text-sm">Lawyer handoff</span>
-              <span className="rounded-full bg-white/10 border border-white/10 px-3 py-1.5 text-sm">Video walkthroughs</span>
-            </div>
-          </section>
+            <section className="rounded-3xl border border-sand-200 p-8">
+              <h2 className="text-2xl font-black text-charcoal-900 mb-4">{copy.buyerNotes}</h2>
+              <p className="text-charcoal-700 leading-relaxed mb-4">{locale === "ta" ? locationData?.whyLiveHere?.ta : locationData?.whyLiveHere?.en}</p>
+              <p className="text-charcoal-700 leading-relaxed mb-4">{locale === "ta" ? locationData?.transportAccess?.ta : locationData?.transportAccess?.en}</p>
+              {locationData?.priceRange && (
+                <div className="inline-flex items-center gap-2.5 rounded-full bg-sand-100 px-5 py-2.5 text-sm font-black text-[#0F2E25] border border-sand-250">
+                  {copy.priceBand}: {formatCompactPrice(locationData.priceRange.min, locale)} - {formatCompactPrice(locationData.priceRange.max, locale)}
+                </div>
+              )}
+            </section>
+          </div>
+
+          {/* Right Column: Dynamic Leaflet Map & Remote Support */}
+          <div className="space-y-6">
+            {locationData && (
+              <section className="rounded-3xl border border-sand-200 p-4 bg-white shadow-sm">
+                <div className="p-3">
+                  <h3 className="text-lg font-black text-charcoal-950 mb-1">
+                    {locale === "ta" ? "வரைபட இருப்பிடம்" : "Interactive Map Location"}
+                  </h3>
+                  <p className="text-xs text-charcoal-500 font-medium mb-3">
+                    {locale === "ta" ? "குடாநாட்டின் உள்ளூர் இட அமைப்பை ஆராயுங்கள்" : "Explore division coordinates & regional scale"}
+                  </p>
+                </div>
+                <AreaMap location={locationData} />
+              </section>
+            )}
+
+            <section className="rounded-3xl border border-sand-200 p-8 bg-[#0F2E25] text-white relative overflow-hidden shadow-md">
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute bottom-[-20%] right-[-10%] w-72 h-72 rounded-full bg-[#D4A853] blur-3xl" />
+              </div>
+              <div className="relative z-10">
+                <h2 className="text-2xl font-black mb-3.5">{copy.remoteTitle}</h2>
+                <p className="text-teal-100/90 leading-relaxed mb-5">{copy.remoteBody}</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-sand-100 hover:bg-white/15 transition-colors">WhatsApp Shortlists</span>
+                  <span className="rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-sand-100 hover:bg-white/15 transition-colors">Lawyer Handoff</span>
+                  <span className="rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-sand-100 hover:bg-white/15 transition-colors">Video Tours</span>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
 
-        {places.length > 0 && (
-          <section className="mb-10 rounded-3xl border border-sand-200 p-6 bg-white">
-            <h2 className="text-2xl font-bold text-charcoal-900 mb-4">{copy.landmarks}</h2>
-            <div className="flex flex-wrap gap-2">
-              {places.slice(0, 8).map((place) => (
-                <span key={place.name} className="rounded-full bg-sand-100 px-4 py-2 text-sm text-charcoal-700">
-                  {locale === "ta" ? place.name_ta : place.name}
-                </span>
+        {/* Landmark Attractions Gallery */}
+        {heritage.attractions && heritage.attractions.length > 0 && (
+          <section className="mb-12 border-t border-sand-200 pt-10">
+            <div className="mb-8">
+              <span className="bg-[#D4A853]/10 text-[#0F2E25] text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full mb-3 inline-block">
+                🗺️ {locale === "ta" ? "சுற்றுலா மற்றும் வழிபாட்டு தலங்கள்" : "Sightseeing & Landmarks"}
+              </span>
+              <h2 className="text-3xl font-black text-charcoal-900">
+                {locale === "ta" ? `${displayAreaName} பகுதியில் உள்ள முக்கிய இடங்கள்` : `Points of Interest in ${displayAreaName}`}
+              </h2>
+              <p className="text-charcoal-500 font-semibold mt-1">
+                {locale === "ta" ? "வருகை தந்து பார்க்க வேண்டிய முக்கியமான மற்றும் வரலாற்று சிறப்புமிக்க இடங்கள்" : "Explore top-rated tourist attractions, sacred temples, beaches, and structural marvels worth visiting."}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {heritage.attractions.map((place) => (
+                <div key={place.name} className="group rounded-3xl border border-sand-200 overflow-hidden bg-white hover:shadow-lg transition-all duration-300 flex flex-col">
+                  <div className="h-56 relative overflow-hidden bg-sand-100">
+                    <img
+                      src={place.image}
+                      alt={place.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <span className="absolute top-4 left-4 bg-white/95 text-[#0F2E25] backdrop-blur-sm text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+                      {place.category}
+                    </span>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold text-charcoal-900 group-hover:text-teal-700 transition-colors mb-2">
+                        {locale === "ta" ? place.name_ta : place.name}
+                      </h3>
+                      {locale === "ta" && place.name_ta !== place.name && (
+                        <p className="text-xs text-charcoal-400 font-bold mb-3">{place.name}</p>
+                      )}
+                      <p className="text-sm text-charcoal-600 leading-relaxed">
+                        {locale === "ta" ? place.description.ta : place.description.en}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </section>

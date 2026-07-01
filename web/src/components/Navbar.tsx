@@ -141,7 +141,7 @@ export function Navbar() {
         )}
 
         <div className="md:hidden border-t border-sand-200 bg-sand-50">
-          <div className="flex gap-2 overflow-x-auto px-4 py-3">
+          <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
             {NAV_LINKS.slice(1, 4).map(link => (
               <Link
                 key={link.href}

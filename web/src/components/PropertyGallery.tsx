@@ -72,7 +72,7 @@ export default function PropertyGallery({
           </div>
 
           {pics.length > 1 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
               {pics.map((image, i) => (
                 <button
                   key={`${image}-${i}`}

@@ -66,6 +66,7 @@ export default function ForAgentsPage() {
       : "Reach local and diaspora buyers with WhatsApp-first leads. Registration is free.",
     register: ta ? "முகவராகப் பதிவு செய்க" : "Register as an agent",
     post: ta ? "சொத்தைப் பதிவிடு" : "Post a property",
+    premium: ta ? "Premium agency plans" : "Premium agency plans",
     why: ta ? "ஏன் யாழ் நிலம்?" : "Why list with Yaal Nilam",
     how: ta ? "எப்படி பயன்படுத்துவது — வீடியோ வழிகாட்டி" : "How to use the system — video guide",
     howSub: ta ? "பதிவு செய்த பிறகு, இந்த எளிய படிகளைப் பின்பற்றுங்கள்." : "After you register, follow these simple steps.",
@@ -78,12 +79,14 @@ export default function ForAgentsPage() {
     ? [
         { t: "உள்ளூர் + புலம்பெயர்", d: "யாழ்ப்பாணம் மற்றும் வெளிநாடு வாழ் வாங்குபவர்களை சென்றடையுங்கள்." },
         { t: "WhatsApp வாடிக்கையாளர்கள்", d: "ஒவ்வொரு பட்டியலிலும் நேரடி WhatsApp தொடர்பு." },
+        { t: "உங்கள் profile URL", d: "Facebook, WhatsApp, YouTube-ல் பகிர ஒரு agent profile link." },
         { t: "வீடியோ சுற்றுப்பயணம்", d: "YouTube வீடியோ முதலில் காட்டப்படும் — அதிக கவனம்." },
         { t: "சரிபார்க்கப்பட்ட நம்பகம்", d: "சரிபார்க்கப்பட்ட பட்ஜ் வாங்குபவர் நம்பிக்கையை அதிகரிக்கும்." },
       ]
     : [
         { t: "Local + diaspora reach", d: "Get in front of Jaffna and overseas Tamil buyers." },
         { t: "WhatsApp leads", d: "Direct WhatsApp contact on every listing — no middle layer." },
+        { t: "Your own profile URL", d: "One agent link to share on Facebook, WhatsApp, YouTube, and agency pages." },
         { t: "Video tours", d: "Your YouTube tour shows first — more attention, faster decisions." },
         { t: "Verified trust", d: "Verified badges and clear documents build buyer confidence." },
       ];
@@ -102,6 +105,9 @@ export default function ForAgentsPage() {
             </Link>
             <Link href="/list-property" className="bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold py-3.5 px-7 rounded-xl transition-colors">
               {L.post}
+            </Link>
+            <Link href="/for-agents/premium" className="bg-white text-[#0F2E25] hover:bg-sand-100 border border-white/15 font-bold py-3.5 px-7 rounded-xl transition-colors">
+              {L.premium}
             </Link>
           </div>
         </div>
@@ -193,6 +199,9 @@ export default function ForAgentsPage() {
             </Link>
             <Link href="/list-property" className="bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold py-3.5 px-7 rounded-xl transition-colors">
               {L.post}
+            </Link>
+            <Link href="/for-agents/premium" className="bg-white text-[#0F2E25] hover:bg-sand-100 border border-white/15 font-bold py-3.5 px-7 rounded-xl transition-colors">
+              {L.premium}
             </Link>
           </div>
         </div>
