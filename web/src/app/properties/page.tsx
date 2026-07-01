@@ -142,20 +142,23 @@ export default function PropertiesPage() {
     };
   }, []);
 
-  const filters = {
-    q: searchQuery,
-    intent,
-    type: selectedType,
-    area: selectedArea,
-    minPrice: Number(minPrice || 0),
-    maxPrice: Number(maxPrice || 0),
-    bedrooms: Number(bedrooms || 0),
-    landSize: Number(landSize || 0),
-    verified: verifiedOnly,
-    sort: sortBy,
-  };
+  const filters = useMemo(
+    () => ({
+      q: searchQuery,
+      intent,
+      type: selectedType,
+      area: selectedArea,
+      minPrice: Number(minPrice || 0),
+      maxPrice: Number(maxPrice || 0),
+      bedrooms: Number(bedrooms || 0),
+      landSize: Number(landSize || 0),
+      verified: verifiedOnly,
+      sort: sortBy,
+    }),
+    [searchQuery, intent, selectedType, selectedArea, minPrice, maxPrice, bedrooms, landSize, verifiedOnly, sortBy]
+  );
 
-  const filteredAndSortedProperties = useMemo(() => filterListings(allProperties, filters), [allProperties, searchQuery, intent, selectedType, selectedArea, minPrice, maxPrice, bedrooms, landSize, verifiedOnly, sortBy]);
+  const filteredAndSortedProperties = useMemo(() => filterListings(allProperties, filters), [allProperties, filters]);
 
   const queryString = new URLSearchParams(
     Object.entries({

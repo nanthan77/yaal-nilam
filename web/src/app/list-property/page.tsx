@@ -194,6 +194,15 @@ export default function ListPropertyPage() {
     return locale === 'ta' ? found.ta : found.en;
   }
 
+  function uploadObjectName(file: File, index: number) {
+    const base = (file.name || 'photo').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 48) || 'photo';
+    const random =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+    return `listing-submissions/${random}-${index}-${base}.webp`;
+  }
+
   function draftListingContent() {
     const area = labelFor(areas, formData.area) || 'Jaffna';
     const propertyType = labelFor(propertyTypes, formData.propertyType) || 'Property';
@@ -243,8 +252,7 @@ export default function ListPropertyPage() {
     const uploads = files.map(async (file, i) => {
       // Convert to optimized WebP in the browser before upload — keeps listings fast.
       const webp = await fileToWebp(file);
-      const base = (file.name || 'photo').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '');
-      const fileRef = ref(storage, `listing-submissions/${Date.now()}-${i}-${base}.webp`);
+      const fileRef = ref(storage, uploadObjectName(file, i));
       await uploadBytes(fileRef, webp, { contentType: 'image/webp' });
       return getDownloadURL(fileRef);
     });

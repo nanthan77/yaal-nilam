@@ -57,6 +57,99 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
     };
   }, []);
 
+  // ── Browser SpeechSynthesis fallback ───────────────
+  const fallbackSpeech = useCallback((text: string, lang: string) => {
+    if ("speechSynthesis" in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang === "ta" ? "ta-IN" : "en-US";
+      utterance.rate = 0.9;
+      utterance.onend = () => setState("idle");
+      utterance.onerror = () => setState("idle");
+      window.speechSynthesis.speak(utterance);
+    } else {
+      setState("idle");
+    }
+  }, []);
+
+  // ── Text-to-Speech ─────────────────────────────────
+  const speakResponse = useCallback(
+    async (text: string, lang: string) => {
+      setState("speaking");
+
+      try {
+        // Try ElevenLabs TTS backend
+        const res = await fetch(`${AI_SERVICE_URL}/api/tts/speak`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, language: lang }),
+        });
+
+        if (res.ok) {
+          const audioBlob = await res.blob();
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          audioRef.current = audio;
+
+          audio.onended = () => {
+            setState("idle");
+            URL.revokeObjectURL(audioUrl);
+          };
+          audio.onerror = () => {
+            fallbackSpeech(text, lang);
+          };
+
+          await audio.play();
+          return;
+        }
+      } catch {
+        // ElevenLabs not available
+      }
+
+      // Fallback: browser SpeechSynthesis
+      fallbackSpeech(text, lang);
+    },
+    [fallbackSpeech],
+  );
+
+  // ── Process recorded audio ─────────────────────────
+  const processAudio = useCallback(
+    async (audioBlob: Blob) => {
+      setState("processing");
+
+      try {
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.webm");
+        formData.append("language", l);
+
+        const res = await fetch(`${AI_SERVICE_URL}/api/process-voice`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setTranscript(data.transcript || "");
+          setResponse(data.response || "");
+          await speakResponse(data.response || "", l);
+          return;
+        }
+      } catch {
+        // Service unreachable — show bilingual unavailable message
+      }
+
+      // Service unavailable — bilingual message, no fake results
+      const unavailableMsg =
+        l === "ta"
+          ? "மன்னிக்கவும், குரல் தேடல் சேவை தற்போது கிடைக்கவில்லை. (Voice search service is currently unavailable.)"
+          : "Voice search service is currently unavailable. Sorry for the inconvenience. (குரல் தேடல் சேவை தற்போது கிடைக்கவில்லை.)";
+      setTranscript("");
+      setResponse(unavailableMsg);
+      setState("error");
+      setErrorMsg(unavailableMsg);
+    },
+    [l, speakResponse],
+  );
+
   // ── Start recording ────────────────────────────────
   const startListening = useCallback(async () => {
     try {
@@ -89,7 +182,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
       setErrorMsg(l === "ta" ? "மைக்ரோஃபோன் அணுகல் அனுமதி இல்லை" : "Microphone access denied");
       setState("error");
     }
-  }, [l]);
+  }, [l, processAudio]);
 
   // ── Stop recording ─────────────────────────────────
   const stopListening = useCallback(() => {
@@ -101,93 +194,6 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
 
   // Hidden when the AI service URL is not configured (after all hooks to keep hook order stable).
   if (!AI_SERVICE_URL) return null;
-
-  // ── Process recorded audio ─────────────────────────
-  const processAudio = async (audioBlob: Blob) => {
-    setState("processing");
-
-    try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.webm");
-      formData.append("language", l);
-
-      const res = await fetch(`${AI_SERVICE_URL}/api/process-voice`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setTranscript(data.transcript || "");
-        setResponse(data.response || "");
-        await speakResponse(data.response || "", l);
-        return;
-      }
-    } catch {
-      // Service unreachable — show bilingual unavailable message
-    }
-
-    // Service unavailable — bilingual message, no fake results
-    const unavailableMsg =
-      l === "ta"
-        ? "மன்னிக்கவும், குரல் தேடல் சேவை தற்போது கிடைக்கவில்லை. (Voice search service is currently unavailable.)"
-        : "Voice search service is currently unavailable. Sorry for the inconvenience. (குரல் தேடல் சேவை தற்போது கிடைக்கவில்லை.)";
-    setTranscript("");
-    setResponse(unavailableMsg);
-    setState("error");
-    setErrorMsg(unavailableMsg);
-  };
-
-  // ── Text-to-Speech ─────────────────────────────────
-  const speakResponse = async (text: string, lang: string) => {
-    setState("speaking");
-
-    try {
-      // Try ElevenLabs TTS backend
-      const res = await fetch(`${AI_SERVICE_URL}/api/tts/speak`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language: lang }),
-      });
-
-      if (res.ok) {
-        const audioBlob = await res.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-
-        audio.onended = () => {
-          setState("idle");
-          URL.revokeObjectURL(audioUrl);
-        };
-        audio.onerror = () => {
-          fallbackSpeech(text, lang);
-        };
-
-        await audio.play();
-        return;
-      }
-    } catch {
-      // ElevenLabs not available
-    }
-
-    // Fallback: browser SpeechSynthesis
-    fallbackSpeech(text, lang);
-  };
-
-  // ── Browser SpeechSynthesis fallback ───────────────
-  const fallbackSpeech = (text: string, lang: string) => {
-    if ("speechSynthesis" in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang === "ta" ? "ta-IN" : "en-US";
-      utterance.rate = 0.9;
-      utterance.onend = () => setState("idle");
-      utterance.onerror = () => setState("idle");
-      window.speechSynthesis.speak(utterance);
-    } else {
-      setState("idle");
-    }
-  };
 
   // ── Stop speaking ──────────────────────────────────
   const stopSpeaking = () => {
