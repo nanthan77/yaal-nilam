@@ -48,8 +48,8 @@ export default function BuyTypePage({ params }: { params: { type: string } }) {
 
   const faqs = generateTier2FAQs(intent, type);
   const breadcrumbs = generateBreadcrumbJsonLd([
-    { name: 'Home', url: 'https://yaal-nilam.web.app/' },
-    { name: 'Buy', url: 'https://yaal-nilam.web.app/buy/' },
+    { name: 'Home', url: 'https://yaalnilam.com/' },
+    { name: 'Buy', url: 'https://yaalnilam.com/buy/' },
     { name: type.plural.en, url: buildCanonicalUrl('buy', params.type) },
   ]);
   const agent = generateRealEstateListingJsonLd(undefined, type, intent);

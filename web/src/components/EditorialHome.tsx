@@ -2,19 +2,21 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Building2, ChevronRight, Home, MapPin, MessageCircle, Search, ShieldCheck, TreePine } from 'lucide-react';
 import PropertyCard from '@/components/PropertyCard';
 import VoiceSearch from '@/components/VoiceSearch';
-import { AREAS, PROPERTIES, PROPERTY_TYPES } from '@/lib/data';
-import { getAreas, getProperties } from '@/lib/firestore';
+import { PROPERTY_TYPES } from '@/lib/data';
+import { DEFAULT_AREA_CATALOG, DEFAULT_PROPERTY_CATALOG, getAreas, getProperties } from '@/lib/firestore';
 import { useStore } from '@/lib/store';
 import { localize } from '@/lib/translations';
 
 export default function EditorialHome() {
   const { locale } = useStore();
-  const [properties, setProperties] = useState<any[]>(PROPERTIES);
-  const [areas, setAreas] = useState<any[]>(AREAS);
+  const router = useRouter();
+  const [properties, setProperties] = useState<any[]>(DEFAULT_PROPERTY_CATALOG);
+  const [areas, setAreas] = useState<any[]>(DEFAULT_AREA_CATALOG);
   const [loading, setLoading] = useState(true);
   const [intent, setIntent] = useState('sell');
   const [area, setArea] = useState('');
@@ -23,11 +25,12 @@ export default function EditorialHome() {
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([getProperties(), getAreas()])
-      .then(([listings, areaList]) => {
+    getProperties()
+      .then(async (listings) => {
+        const areaList = await getAreas(listings);
         if (!mounted) return;
-        if (listings.length) setProperties(listings);
-        if (areaList.length) setAreas(areaList);
+        setProperties(listings);
+        setAreas(areaList);
       })
       .catch((error) => console.error('Could not load listings:', error))
       .finally(() => { if (mounted) setLoading(false); });
@@ -106,7 +109,8 @@ export default function EditorialHome() {
   const searchHref = '/properties?' + searchParams.toString();
   const featured = properties.filter((property) => property.featured);
   const displayed = (featured.length ? featured : properties).slice(0, 6);
-  const shownAreas = areas.filter((item) => item.featured !== false).slice(0, 4);
+  const featuredAreas = areas.filter((item) => item.featured);
+  const shownAreas = (featuredAreas.length ? featuredAreas : areas).slice(0, 4);
   const intents = [
     { value: 'sell', label: copy.buy, icon: Home },
     { value: 'rent', label: copy.rent, icon: Building2 },
@@ -122,14 +126,15 @@ export default function EditorialHome() {
     <div className="yn-home min-h-screen">
       <section className="yn-home-hero">
         <div className="mx-auto grid max-w-[1400px] items-center gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_0.95fr] lg:gap-14 lg:py-20">
-          <div className="relative z-10">
+          <div className="relative z-10 min-w-0">
             <p className="yn-eyebrow">{copy.eyebrow}</p>
-            <h1 className="mt-5 max-w-[680px] text-[clamp(2.65rem,5.2vw,5rem)] font-bold leading-[1.09] tracking-[-0.045em] text-[#0d3935]">
-              {copy.title} <span className="text-[#b98736]">{copy.titleAccent}</span>
+            <h1 className="mt-5 max-w-[680px] break-words text-[clamp(2.65rem,5.2vw,5rem)] font-bold leading-[1.09] tracking-[-0.045em] text-[#0d3935]">
+              {copy.title} <span className="text-[#9b6d23]">{copy.titleAccent}</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-[#596b64] sm:text-lg">{copy.intro}</p>
 
-            <div className="mt-8 rounded-[22px] border border-[#e0e7df] bg-white p-4 shadow-[0_24px_70px_rgba(11,40,33,0.11)] sm:p-5">
+            <form action="/properties/" method="get" role="search" onSubmit={(event) => { event.preventDefault(); router.push(searchHref); }} className="mt-8 rounded-[22px] border border-[#e0e7df] bg-white p-4 shadow-[0_24px_70px_rgba(11,40,33,0.11)] sm:p-5">
+              <input type="hidden" name="intent" value={intent} />
               <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label={locale === 'ta' ? 'தேடல் வகை' : 'Search purpose'}>
                 {intents.map((item) => {
                   const Icon = item.icon;
@@ -142,7 +147,7 @@ export default function EditorialHome() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#63746b]">
                   {copy.area}
-                  <select aria-label={copy.area} value={area} onChange={(event) => setArea(event.target.value)}
+                  <select name="area" aria-label={copy.area} value={area} onChange={(event) => setArea(event.target.value)}
                     className="mt-2 w-full rounded-xl border border-[#dce5dc] bg-[#f9faf7] px-4 py-3.5 text-sm font-semibold text-[#193d37] outline-none focus:border-[#0d3935] focus:ring-2 focus:ring-[#0d3935]/15">
                     <option value="">{copy.allAreas}</option>
                     {areas.map((item) => <option key={item.slug} value={item.slug}>{locale === 'ta' ? item.name_ta || item.name : item.name}</option>)}
@@ -150,35 +155,34 @@ export default function EditorialHome() {
                 </label>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#63746b]">
                   {copy.type}
-                  <select aria-label={copy.type} value={type} onChange={(event) => setType(event.target.value)}
+                  <select name="type" aria-label={copy.type} value={type} onChange={(event) => setType(event.target.value)}
                     className="mt-2 w-full rounded-xl border border-[#dce5dc] bg-[#f9faf7] px-4 py-3.5 text-sm font-semibold text-[#193d37] outline-none focus:border-[#0d3935] focus:ring-2 focus:ring-[#0d3935]/15">
                     <option value="">{copy.allTypes}</option>
-                    {PROPERTY_TYPES.map((item) => <option key={item} value={item}>{typeNames[item] || item}</option>)}
+                    {PROPERTY_TYPES.map((item) => <option key={item} value={item.toLowerCase()}>{typeNames[item] || item}</option>)}
                   </select>
                 </label>
               </div>
               <label htmlFor="yn-search-keyword" className="mt-4 block text-xs font-bold uppercase tracking-wider text-[#63746b]">{copy.keyword}</label>
               <div className="mt-2 flex items-center gap-3 rounded-xl border border-[#dce5dc] bg-[#f9faf7] px-4 focus-within:border-[#0d3935] focus-within:ring-2 focus-within:ring-[#0d3935]/15">
                 <Search className="h-5 w-5 shrink-0 text-[#687a70]" />
-                <input id="yn-search-keyword" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.keywordPlaceholder}
-                  className="min-w-0 flex-1 bg-transparent py-3.5 text-sm text-[#193d37] outline-none placeholder:text-[#8c9a91]"
-                  onKeyDown={(event) => { if (event.key === 'Enter') window.location.assign(searchHref); }} />
+                <input id="yn-search-keyword" name="q" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.keywordPlaceholder}
+                  className="min-w-0 flex-1 bg-transparent py-3.5 text-sm text-[#193d37] outline-none placeholder:text-[#68796e]" />
                 <VoiceSearch variant="inline" />
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-4">
-                <Link href={searchHref} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#0d3935] px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#18574d] sm:flex-none">
+                <button type="submit" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#0d3935] px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#18574d] sm:flex-none">
                   {copy.search}<ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
                 <Link href="/properties" className="text-sm font-bold text-[#0d3935] underline-offset-4 hover:underline">{copy.browse}</Link>
               </div>
-            </div>
+            </form>
           </div>
 
           <div className="relative min-h-[360px] overflow-hidden rounded-[24px] bg-[#dfe9dc] sm:min-h-[500px] lg:min-h-[650px]">
             <Image src="/design/jaffna-house-illustration.webp" alt={locale === 'ta' ? 'யாழ்ப்பாண பாணி வீட்டின் விளக்கப்படம்; விற்பனைப் பட்டியல் அல்ல' : 'Illustration of a Jaffna style house, not a property listing'} fill priority sizes="(max-width: 1024px) 100vw, 48vw" className="object-cover" />
             <div className="absolute left-4 top-4 rounded-full bg-[#152f2b]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-sm">{copy.visualLabel}</div>
             <div className="absolute inset-x-4 bottom-4 max-w-sm rounded-2xl border border-white/60 bg-white/95 p-5 shadow-xl backdrop-blur-sm sm:inset-x-auto sm:bottom-8 sm:left-8">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ad7d30]">Yaal Nilam</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#806026]">Yaal Nilam</p>
               <p className="mt-2 text-lg font-bold leading-snug text-[#0d3935]">{copy.visualTitle}</p>
               <p className="mt-1 text-xs text-[#64746c]">{copy.visualSubtitle}</p>
             </div>
@@ -220,13 +224,13 @@ export default function EditorialHome() {
             <h3 className="mt-7 text-xl font-bold text-[#0d3935]">{step.title}</h3><p className="mt-3 text-sm leading-7 text-[#62736a]">{step.body}</p>
           </div>; })}
         </div>
-        <p className="mt-6 text-sm leading-6 text-[#6e7e74]">{copy.disclaimer}</p>
+        <p className="mt-6 text-sm leading-6 text-[#596b60]">{copy.disclaimer}</p>
       </section>
 
       <section className="bg-[#0d3935] px-5 py-16 text-white sm:px-8">
-        <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-2 lg:gap-20">
-          <div><p className="yn-eyebrow text-[#d2a75d]">{copy.alertEyebrow}</p><h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{copy.alertTitle}</h2><p className="mt-3 max-w-lg text-white/70">{copy.alertBody}</p><Link href="/alerts" className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#0d3935] hover:bg-[#f2efe5]">{copy.alertAction}<ArrowRight className="h-4 w-4" /></Link></div>
-          <div className="border-t border-white/20 pt-9 lg:border-l lg:border-t-0 lg:pl-14 lg:pt-0"><p className="yn-eyebrow text-[#d2a75d]">{copy.listEyebrow}</p><h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{copy.listTitle}</h2><p className="mt-3 max-w-lg text-white/70">{copy.listBody}</p><Link href="/add-listing" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#c99746] px-6 py-3 text-sm font-bold text-[#0d3935] hover:bg-[#e1b76f]">{copy.listAction}<ArrowRight className="h-4 w-4" /></Link></div>
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-20">
+          <div><p className="yn-eyebrow text-[#d2a75d]">{copy.alertEyebrow}</p><h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{copy.alertTitle}</h2><p className="mt-3 max-w-lg text-white/70">{copy.alertBody}</p><Link href="/alerts" className="mt-7 inline-flex max-w-full items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#0d3935] hover:bg-[#f2efe5]">{copy.alertAction}<ArrowRight className="h-4 w-4" /></Link></div>
+          <div className="border-t border-white/20 pt-9 lg:border-l lg:border-t-0 lg:pl-14 lg:pt-0"><p className="yn-eyebrow text-[#d2a75d]">{copy.listEyebrow}</p><h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{copy.listTitle}</h2><p className="mt-3 max-w-lg text-white/70">{copy.listBody}</p><Link href="/add-listing" className="mt-7 inline-flex max-w-full items-center gap-2 rounded-full bg-[#c99746] px-6 py-3 text-sm font-bold text-[#0d3935] hover:bg-[#e1b76f]">{copy.listAction}<ArrowRight className="h-4 w-4" /></Link></div>
         </div>
       </section>
     </div>

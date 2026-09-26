@@ -10,7 +10,9 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { AREAS as MOCK_AREAS, PROPERTIES as MOCK_PROPERTIES } from "./data";
+import { AREAS as MOCK_AREAS } from "./data";
+import { DEVELOPMENT_PROPERTY_FIXTURES } from "./development-fixtures";
+import { PUBLIC_LISTING_STATUSES } from "./public-listings";
 import {
   buildSavedSearchLabel,
   filterListings,
@@ -21,10 +23,10 @@ import {
 } from "./marketplace";
 import { ALL_LOCATIONS } from "./locations";
 
-const FALLBACK_LISTINGS = MOCK_PROPERTIES.map((listing) => normalizeListing(listing));
+const FALLBACK_LISTINGS = DEVELOPMENT_PROPERTY_FIXTURES;
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
-const PUBLIC_LISTING_STATUSES = ["available", "approved", "published", "active", "Available", "Published"];
-const FIRESTORE_READ_TIMEOUT_MS = 2200;
+// Allow cold mobile/network connections to establish before showing an empty result.
+const FIRESTORE_READ_TIMEOUT_MS = 8000;
 let savedPropertyCache: string[] | null = null;
 let propertyCatalogCache = FALLBACK_LISTINGS;
 let areaCatalogCache: any[] | null = null;
@@ -43,7 +45,7 @@ async function withFirestoreTimeout<T>(promise: Promise<T>, label: string, fallb
   if (timer) clearTimeout(timer);
 
   if (result.status === "timeout") {
-    console.warn(`Firestore request timed out for ${label}; using fallback data.`);
+    console.warn(`Firestore request timed out for ${label}; returning the last confirmed catalog or an empty result.`);
     return fallback;
   }
 
@@ -122,7 +124,7 @@ function buildAreaCatalog(rawAreas: any[], listings: any[]) {
   ];
 
   return uniqueBy(areaPool, (area) => area.slug || area.name).map((area) =>
-    normalizeArea(area, listingCounts[area.slug] || 0)
+    normalizeArea({ ...area, properties_count: listingCounts[area.slug] || 0, listings_count: 0 }, listingCounts[area.slug] || 0)
   );
 }
 
@@ -187,10 +189,9 @@ export async function getProperties(filters = {}) {
       .map((item) => normalizeListing({ id: item.id, ...item.data() }))
       .filter((listing) => listing.status !== "archived");
 
-    const catalog = listings.length > 0 ? listings : propertyCatalogCache;
-    if (listings.length > 0) {
-      propertyCatalogCache = listings;
-    }
+    const catalog = listings.length > 0 ? listings : FALLBACK_LISTINGS;
+    // A successful empty query must clear previously available listings.
+    propertyCatalogCache = listings.length > 0 ? listings : FALLBACK_LISTINGS;
     return filterListings(catalog, filters);
   } catch (error) {
     console.error("Error fetching properties:", error);
@@ -206,13 +207,16 @@ export async function getFeaturedProperties() {
 export async function getPropertyById(id: string) {
   try {
     const docSnap = await safeDoc("listings", id);
-    if (docSnap?.exists()) {
-      return normalizeListing({ id: docSnap.id, ...docSnap.data() });
+    if (docSnap) {
+      if (!docSnap.exists()) return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
+      const raw = docSnap.data();
+      if (!PUBLIC_LISTING_STATUSES.includes(raw.status)) return null;
+      return normalizeListing({ ...raw, id: docSnap.id });
     }
-    return propertyCatalogCache.find((listing) => listing.id === id) || null;
+    return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
   } catch (error) {
     console.error("Error fetching property:", error);
-    return propertyCatalogCache.find((listing) => listing.id === id) || null;
+    return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
   }
 }
 
@@ -471,8 +475,12 @@ export async function trackAgentProfileView(agent: any, source = "agent_profile"
 export async function getSavedPropertyIds() {
   if (savedPropertyCache) return savedPropertyCache;
   if (typeof window !== "undefined") {
-    const local = JSON.parse(window.localStorage.getItem("yaal-nilam-saved-properties") || "[]");
-    savedPropertyCache = Array.isArray(local) ? local : [];
+    try {
+      const local = JSON.parse(window.localStorage.getItem("yaal-nilam-saved-properties") || "[]");
+      savedPropertyCache = Array.isArray(local) ? local.filter((id) => typeof id === "string" && id && id !== "undefined") : [];
+    } catch {
+      savedPropertyCache = [];
+    }
     return savedPropertyCache;
   }
   savedPropertyCache = [];
@@ -487,7 +495,7 @@ export async function toggleSavedProperty(listing: any) {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(savedPropertyCache));
       }
-      await trackAnalyticsEvent("unsave_property", {
+      void trackAnalyticsEvent("unsave_property", {
         listing_id: listing.id,
         listing_code: listing.listing_code,
       });
@@ -498,7 +506,7 @@ export async function toggleSavedProperty(listing: any) {
     if (typeof window !== "undefined") {
       window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(savedPropertyCache));
     }
-    await trackAnalyticsEvent("save_property", {
+    void trackAnalyticsEvent("save_property", {
       listing_id: listing.id,
       listing_code: listing.listing_code,
       area_slug: listing.area_slug,

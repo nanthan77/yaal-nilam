@@ -4,14 +4,13 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { MapPin } from 'lucide-react';
-import { AREAS as MOCK_AREAS } from '@/lib/data';
-import { getAreas } from '@/lib/firestore';
+import { DEFAULT_AREA_CATALOG, getAreas } from '@/lib/firestore';
 import { useStore } from '@/lib/store';
 import { localize } from '@/lib/translations';
 
 export default function AreasPage() {
   const { locale } = useStore();
-  const [areas, setAreas] = useState(MOCK_AREAS);
+  const [areas, setAreas] = useState(DEFAULT_AREA_CATALOG);
   const [loading, setLoading] = useState(true);
 
   const copy = localize(locale, {
@@ -33,7 +32,7 @@ export default function AreasPage() {
     async function loadData() {
       try {
         const firestoreAreas = await getAreas();
-        if (firestoreAreas.length > 0) setAreas(firestoreAreas);
+        setAreas(firestoreAreas);
       } catch (err) {
         console.error('Firestore load error:', err);
       } finally {

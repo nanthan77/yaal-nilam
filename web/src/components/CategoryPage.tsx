@@ -7,11 +7,10 @@ import VoiceSearch from "@/components/VoiceSearch";
 import { useStore } from "@/lib/store";
 import { getProperties } from "@/lib/firestore";
 import { filterListings } from "@/lib/marketplace";
-import { PROPERTIES as MOCK_PROPERTIES } from "@/lib/data";
-import { normalizeListing } from "@/lib/marketplace";
+import { DEVELOPMENT_PROPERTY_FIXTURES } from "@/lib/development-fixtures";
 import { localize, type Locale } from "@/lib/translations";
 
-const MOCK_FALLBACK = MOCK_PROPERTIES.map((p) => normalizeListing(p));
+const MOCK_FALLBACK = DEVELOPMENT_PROPERTY_FIXTURES;
 
 const areaOptions = [
   { en: "Nallur", ta: "நல்லூர்", slug: "nallur" },
@@ -194,7 +193,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
       } catch {
         if (!mounted) return;
         setAllListings(MOCK_FALLBACK);
-        setUsingFallback(true);
+        setUsingFallback(MOCK_FALLBACK.length > 0);
       } finally {
         if (mounted) setLoading(false);
       }

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build && node scripts/generate-sitemap.mjs",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:fixtures": "NEXT_PUBLIC_ENABLE_PROPERTY_FIXTURES=true next dev",
+    "test:data": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.21",

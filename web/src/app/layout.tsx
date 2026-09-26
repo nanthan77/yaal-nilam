@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Noto_Sans_Tamil } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -16,15 +16,16 @@ import FirebaseProvider from '@/components/FirebaseProvider';
 import LocaleEffects from '@/components/LocaleEffects';
 import StoreInitializer from '@/components/StoreInitializer';
 
-const inter = Inter({
-  subsets: ['latin'],
+const inter = localFont({
+  src: './fonts/inter-latin-variable.woff2',
+  weight: '100 900',
   variable: '--font-inter',
   display: 'swap',
 });
 
-const notoSansTamil = Noto_Sans_Tamil({
-  subsets: ['tamil'],
-  weight: ['400', '500', '600', '700', '800'],
+const notoSansTamil = localFont({
+  src: './fonts/noto-sans-tamil-variable.woff2',
+  weight: '100 900',
   variable: '--font-tamil',
   display: 'swap',
 });
@@ -137,4 +138,3 @@ export default function RootLayout({
     </html>
   );
 }
-

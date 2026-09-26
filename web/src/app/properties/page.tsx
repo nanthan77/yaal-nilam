@@ -32,7 +32,7 @@ export default function PropertiesPage() {
   const [sortBy, setSortBy] = useState("relevance");
   const [allProperties, setAllProperties] = useState<any[]>(DEFAULT_PROPERTY_CATALOG);
   const [areas, setAreas] = useState<any[]>(DEFAULT_AREA_CATALOG);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [savingSearch, setSavingSearch] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -40,7 +40,7 @@ export default function PropertiesPage() {
   const copy = localize(locale, {
     en: {
       title: "Find the right property in Jaffna",
-      subtitle: "Search verified houses, land, villas, apartments, and commercial space with deeper filters built for serious buyers and renters.",
+      subtitle: "Explore houses, land, villas, apartments, and commercial spaces by location, price, and the details that matter to you.",
       searchPlaceholder: "Search by area, listing code, landmark, or property title...",
       searchResults: "results",
       noResultsTitle: "No exact matches found",
@@ -53,17 +53,17 @@ export default function PropertiesPage() {
       priceMax: "Max price",
       bedrooms: "Bedrooms",
       landSize: "Land size (perches)",
-      verifiedOnly: "Verified only",
+      verifiedOnly: "Platform reviewed only",
       sortBy: "Sort",
       saveSearch: "Save search",
       saving: "Saving...",
       saved: "Search saved",
       mapView: "Map view",
-      trustTitle: "Why this search works better",
-      trustBody: "We blend verified listings, local area context, and WhatsApp-ready follow-up so you can move faster with more confidence.",
+      trustTitle: "Explore the details before you decide",
+      trustBody: "Platform review concerns listing information. It does not certify ownership, deeds, or legal title. Check title and survey details independently before committing.",
       badgeOne: "Tamil + English support",
       badgeTwo: "Diaspora-friendly follow-up",
-      badgeThree: "Live Jaffna inventory",
+      badgeThree: "Jaffna property search",
       forSale: "For Sale",
       forRent: "For Rent",
       shortStay: "Short Stay",
@@ -84,17 +84,17 @@ export default function PropertiesPage() {
       priceMax: "அதிகபட்ச விலை",
       bedrooms: "படுக்கையறைகள்",
       landSize: "காணி அளவு (பேர்ச்)",
-      verifiedOnly: "சரிபார்க்கப்பட்டவை மட்டும்",
+      verifiedOnly: "தளம் மதிப்பாய்வு செய்தவை மட்டும்",
       sortBy: "வரிசைப்படுத்தல்",
       saveSearch: "தேடலை சேமிக்கவும்",
       saving: "சேமிக்கப்படுகிறது...",
       saved: "தேடல் சேமிக்கப்பட்டது",
       mapView: "வரைபடக் காட்சி",
-      trustTitle: "ஏன் இந்த தேடல் சிறந்தது",
-      trustBody: "சரிபார்க்கப்பட்ட listings, உள்ளூர் பகுதி விளக்கங்கள், மற்றும் WhatsApp follow-up ஆகியவற்றை இணைத்து, நம்பிக்கையுடன் வேகமாக முடிவு எடுக்க உதவுகிறோம்.",
+      trustTitle: "முடிவு எடுக்கும் முன் விவரங்களைப் பாருங்கள்",
+      trustBody: "தள மதிப்பாய்வு பட்டியலின் தகவல்களைப் பற்றியது. இது உரிமை, உறுதி அல்லது சட்ட உரிமையைச் சான்றளிக்காது. முடிவு எடுக்கும் முன் உறுதி மற்றும் நில அளவைத் தகவல்களை தனியாகச் சரிபார்க்கவும்.",
       badgeOne: "தமிழ் + English ஆதரவு",
       badgeTwo: "வெளிநாட்டு வாங்குபவர் உதவி",
-      badgeThree: "நேரடி யாழ் inventory",
+      badgeThree: "யாழ்ப்பாணச் சொத்துத் தேடல்",
       forSale: "விற்பனைக்கு",
       forRent: "வாடகைக்கு",
       shortStay: "குறுகிய தங்கல்",
@@ -203,7 +203,7 @@ export default function PropertiesPage() {
       <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-teal-700 text-white py-14 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="max-w-3xl">
-            <p className="uppercase tracking-[0.25em] text-warm-300 text-xs font-semibold mb-3">Search better</p>
+            <p className="uppercase tracking-[0.25em] text-warm-300 text-xs font-semibold mb-3">{locale === 'ta' ? 'உங்கள் சொத்தைத் தேடுங்கள்' : 'Find your property'}</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{copy.title}</h1>
             <p className="text-teal-100 text-lg">{copy.subtitle}</p>
           </div>
@@ -218,7 +218,7 @@ export default function PropertiesPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-charcoal-900">{copy.title}</h2>
-              <p className="text-sm text-charcoal-500">{filteredAndSortedProperties.length} {copy.searchResults}</p>
+              <p role="status" className="text-sm text-charcoal-500">{filteredAndSortedProperties.length} {copy.searchResults}</p>
             </div>
           </div>
 
@@ -244,6 +244,7 @@ export default function PropertiesPage() {
               <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
                 className={`flex-1 flex items-center justify-center gap-2 rounded-2xl border font-bold py-3 text-sm transition-all duration-200 ${
                   showFilters
                     ? "bg-teal-700 text-white border-teal-700 shadow-inner"
@@ -261,8 +262,8 @@ export default function PropertiesPage() {
             </div>
 
             <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.intent}</label>
-              <select value={intent} onChange={(e) => setIntent(e.target.value)} className="select-field w-full">
+              <label htmlFor="filter-intent" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.intent}</label>
+              <select id="filter-intent" value={intent} onChange={(e) => setIntent(e.target.value)} className="select-field w-full">
                 <option value="">{copy.intent}</option>
                 <option value="sell">{copy.forSale}</option>
                 <option value="rent">{copy.forRent}</option>
@@ -271,8 +272,8 @@ export default function PropertiesPage() {
             </div>
 
             <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.propertyType}</label>
-              <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="select-field w-full">
+              <label htmlFor="filter-selectedType" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.propertyType}</label>
+              <select id="filter-selectedType" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="select-field w-full">
                 <option value="">{copy.allTypes}</option>
                 {["house", "apartment", "villa", "land", "commercial"].map((type) => (
                   <option key={type} value={type}>{getPropertyTypeLabel(type, locale)}</option>
@@ -281,8 +282,8 @@ export default function PropertiesPage() {
             </div>
 
             <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.allAreas}</label>
-              <select value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="select-field w-full">
+              <label htmlFor="filter-selectedArea" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.allAreas}</label>
+              <select id="filter-selectedArea" value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="select-field w-full">
                 <option value="">{copy.allAreas}</option>
                 {areas.map((area) => (
                   <option key={area.slug} value={area.slug}>{locale === "ta" ? area.name_ta : area.name}</option>
@@ -291,31 +292,31 @@ export default function PropertiesPage() {
             </div>
 
             <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMin}</label>
-              <input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
+              <label htmlFor="filter-minPrice" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMin}</label>
+              <input id="filter-minPrice" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
             </div>
 
             <div className={`md:col-span-2 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMax}</label>
-              <input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
+              <label htmlFor="filter-maxPrice" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.priceMax}</label>
+              <input id="filter-maxPrice" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" className="input-field w-full" placeholder="0" />
             </div>
 
             <div className={`md:col-span-1 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.bedrooms}</label>
-              <input value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} type="number" min="0" className="input-field w-full" />
+              <label htmlFor="filter-bedrooms" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.bedrooms}</label>
+              <input id="filter-bedrooms" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} type="number" min="0" className="input-field w-full" />
             </div>
 
             <div className={`md:col-span-1 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.landSize}</label>
-              <input value={landSize} onChange={(e) => setLandSize(e.target.value)} type="number" min="0" className="input-field w-full" />
+              <label htmlFor="filter-landSize" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.landSize}</label>
+              <input id="filter-landSize" value={landSize} onChange={(e) => setLandSize(e.target.value)} type="number" min="0" className="input-field w-full" />
             </div>
 
             <div className={`md:col-span-3 ${showFilters ? "block" : "hidden"} md:block`}>
-              <label className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2 flex items-center gap-1.5">
+              <label htmlFor="filter-sort" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2 flex items-center gap-1.5">
                 <ArrowUpDown className="w-3.5 h-3.5 text-teal-700" />
                 {copy.sortBy}
               </label>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="select-field w-full">
+              <select id="filter-sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="select-field w-full">
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {locale === "ta" ? option.labelTa : option.labelEn}
@@ -379,20 +380,20 @@ export default function PropertiesPage() {
 
           <div className="bg-white rounded-3xl border border-sand-200 p-6 flex flex-col justify-between">
             <div>
-              <p className="text-sm uppercase tracking-wide text-charcoal-500 mb-2">Search summary</p>
+              <p className="text-sm uppercase tracking-wide text-charcoal-500 mb-2">{locale === 'ta' ? 'தேடல் சுருக்கம்' : 'Search summary'}</p>
               <h3 className="text-2xl font-bold text-charcoal-900 mb-3">{filteredAndSortedProperties.length} {copy.searchResults}</h3>
               <p className="text-charcoal-600">
-                {selectedArea ? `Area: ${selectedArea}. ` : ""}
-                {selectedType ? `Type: ${getPropertyTypeLabel(selectedType, locale)}. ` : ""}
-                {intent ? `Intent: ${intent}. ` : ""}
-                {verifiedOnly ? "Verified only. " : ""}
-                {searchQuery ? `Keyword: "${searchQuery}".` : "Browse the latest live listings across Jaffna."}
+                {selectedArea ? `${copy.allAreas}: ${areas.find((area) => area.slug === selectedArea)?.[locale === "ta" ? "name_ta" : "name"] || selectedArea}. ` : ""}
+                {selectedType ? `${copy.propertyType}: ${getPropertyTypeLabel(selectedType, locale)}. ` : ""}
+                {intent ? `${copy.intent}: ${intent === "rent" ? copy.forRent : intent === "short_rent" ? copy.shortStay : copy.forSale}. ` : ""}
+                {verifiedOnly ? `${copy.verifiedOnly}. ` : ""}
+                {searchQuery ? `“${searchQuery}”` : (locale === "ta" ? "யாழ்ப்பாணம் முழுவதும் உள்ள சொத்துகளைப் பாருங்கள்." : "Browse properties across Jaffna.")}
               </p>
             </div>
             <div className="mt-5 flex flex-wrap gap-2 text-sm text-charcoal-600">
-              <span className="px-3 py-1.5 rounded-full bg-sand-100">Live Firestore listings</span>
-              <span className="px-3 py-1.5 rounded-full bg-sand-100">Property codes</span>
-              <span className="px-3 py-1.5 rounded-full bg-sand-100">WhatsApp-ready</span>
+              <span className="px-3 py-1.5 rounded-full bg-sand-100">{locale === 'ta' ? 'சொத்துப் பட்டியல்கள்' : 'Property listings'}</span>
+              <span className="px-3 py-1.5 rounded-full bg-sand-100">{locale === 'ta' ? 'சொத்துக் குறியீடுகள்' : 'Property codes'}</span>
+              <span className="px-3 py-1.5 rounded-full bg-sand-100">{locale === 'ta' ? 'WhatsApp விசாரணைகள்' : 'WhatsApp inquiries'}</span>
             </div>
           </div>
         </div>

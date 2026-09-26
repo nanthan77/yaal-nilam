@@ -10,15 +10,15 @@ import NearbyLandmarks from './NearbyLandmarks';
 import InternalLinks from './InternalLinks';
 import AreaGuideContent from './AreaGuideContent';
 import { useStore } from '@/lib/store';
-import { PROPERTIES as MOCK_PROPERTIES } from '@/lib/data';
+import { DEVELOPMENT_PROPERTY_FIXTURES } from '@/lib/development-fixtures';
 import { getProperties } from '@/lib/firestore';
-import { filterListings, normalizeListing } from '@/lib/marketplace';
+import { filterListings } from '@/lib/marketplace';
 import { getLocationBySlug, getPlacesForLocation } from '@/lib/locations';
 import { getPropertyType, getIntent, generatePageTitle, generatePageTitleTa } from '@/lib/seo-config';
 import { generateTier3FAQs, generateTier2FAQs } from '@/lib/faq-data';
 import { formatCompactPrice, localize } from '@/lib/translations';
 
-const MOCK_FALLBACK = MOCK_PROPERTIES.map((p) => normalizeListing(p));
+const MOCK_FALLBACK = DEVELOPMENT_PROPERTY_FIXTURES;
 
 interface PSEOListingPageProps {
   intentSlug: string;
@@ -49,7 +49,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
       } catch {
         if (!mounted) return;
         setAllListings(MOCK_FALLBACK);
-        setUsingFallback(true);
+        setUsingFallback(MOCK_FALLBACK.length > 0);
       } finally {
         if (mounted) setLoadingListings(false);
       }

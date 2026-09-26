@@ -181,7 +181,7 @@ export default function MapPage() {
                 [1, 2, 3].map((item) => <div key={item} className="h-28 rounded-2xl bg-sand-100 animate-pulse" />)
               ) : filtered.length > 0 ? (
                 filtered.map((property) => (
-                  <Link key={property.id} href={`/properties/${property.id}`} className="block rounded-2xl border border-sand-200 hover:border-teal-300 hover:shadow-sm transition overflow-hidden">
+                  <a key={property.id} href={`/properties/${encodeURIComponent(property.id)}/`} className="block rounded-2xl border border-sand-200 hover:border-teal-300 hover:shadow-sm transition overflow-hidden">
                     <div className="grid grid-cols-[88px_1fr]">
                       <img src={resolvePropertyImage(property)} alt={property.title} className="w-full h-full object-cover min-h-[88px]" loading="lazy" />
                       <div className="p-3">
@@ -193,7 +193,7 @@ export default function MapPage() {
                         <p className="text-sm font-semibold text-teal-700 mt-2">{formatCompactPrice(property.price, locale)}</p>
                       </div>
                     </div>
-                  </Link>
+                  </a>
                 ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-sand-300 px-4 py-10 text-center text-charcoal-500">
@@ -236,9 +236,9 @@ export default function MapPage() {
                           <p className="font-semibold text-charcoal-900">{property.title}</p>
                           <p className="text-sm text-charcoal-500 mb-2">{property.area_name}</p>
                           <p className="font-bold text-teal-700 mb-2">{formatCompactPrice(property.price, locale)}</p>
-                          <Link href={`/properties/${property.id}`} className="text-sm font-semibold text-teal-700 underline">
+                          <a href={`/properties/${encodeURIComponent(property.id)}/`} className="text-sm font-semibold text-teal-700 underline">
                             View details
-                          </Link>
+                          </a>
                         </div>
                       </Popup>
                     </CircleMarker>

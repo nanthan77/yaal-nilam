@@ -3,7 +3,7 @@
 import { ALL_LOCATIONS, getPlacesForLocation } from './locations';
 import type { Location } from './locations';
 
-const BASE_URL = 'https://yaal-nilam.web.app';
+const BASE_URL = 'https://yaalnilam.com';
 
 // ─── Property Type Config ────────────────────────────────────────────────
 

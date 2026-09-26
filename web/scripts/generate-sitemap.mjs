@@ -12,7 +12,7 @@ import { join, relative, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const BASE_URL = 'https://yaal-nilam.web.app';
+const BASE_URL = 'https://yaalnilam.com';
 const OUT_DIR = join(__dirname, '..', 'out');
 const PUBLIC_DIR = join(__dirname, '..', 'public');
 
@@ -41,6 +41,8 @@ const EXCLUDED = [
   /^\/register\/?$/,
   /^\/add-listing\/?$/,
   /^\/properties\/view\/?$/,
+  /^\/agents\/view\/?$/,
+  /^\/(properties|agents)\/__fallback\/?$/,
 ];
 
 function getPriority(path) {

@@ -45,8 +45,8 @@ export default function AreaPage({ params }: { params: { slug: string } }) {
 
   const faqs = generateLocationFAQs(location);
   const breadcrumbs = generateBreadcrumbJsonLd([
-    { name: 'Home', url: 'https://yaal-nilam.web.app/' },
-    { name: 'Areas', url: 'https://yaal-nilam.web.app/areas/' },
+    { name: 'Home', url: 'https://yaalnilam.com/' },
+    { name: 'Areas', url: 'https://yaalnilam.com/areas/' },
     { name: location.name, url: buildCanonicalUrl(undefined, undefined, params.slug) },
   ]);
   const agent = generateRealEstateListingJsonLd(location);

@@ -9,7 +9,7 @@ import {
   formatPriceShort,
 } from '@/lib/seo-config';
 
-const BASE_URL = 'https://yaal-nilam.web.app';
+const BASE_URL = 'https://yaalnilam.com';
 
 export function generateStaticParams() {
   return ALL_LOCATIONS.map((l) => ({ location: l.slug }));

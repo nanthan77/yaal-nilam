@@ -31,13 +31,15 @@ export default function WhatsAppButton() {
   const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+    <div className="yn-global-whatsapp fixed bottom-4 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
       {/* Chat bubble */}
       {showBubble && (
         <div className="relative hidden max-w-[220px] animate-fade-in rounded-2xl rounded-br-sm border border-gray-100 bg-white px-4 py-3 shadow-lg sm:block">
           <p className="text-sm text-gray-800 font-medium">{bubbleTitle}</p>
           <p className="text-xs text-gray-500 mt-0.5">{bubbleBody}</p>
           <button
+            type="button"
+            aria-label={locale === "ta" ? "உதவிக் குறிப்பை மூடு" : "Dismiss chat hint"}
             onClick={() => setShowBubble(false)}
             className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 rounded-full w-5 h-5 flex items-center justify-center text-xs text-gray-600"
           >
@@ -58,14 +60,14 @@ export default function WhatsAppButton() {
       >
         {/* Tooltip */}
         {showTooltip && (
-          <div className="absolute bottom-full right-0 mb-2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+          <div className="absolute bottom-full right-0 mb-2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 w-max max-w-[calc(100vw-2rem)] whitespace-normal shadow-lg">
             {tooltipText}
             <div className="absolute top-full right-4 border-4 border-transparent border-t-gray-900"></div>
           </div>
         )}
 
         {/* Pulse ring */}
-        <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-30"></span>
+        <span className="absolute inset-0 rounded-full bg-green-400 sm:animate-ping opacity-30"></span>
 
         {/* Button */}
         <div className="relative w-14 h-14 md:w-16 md:h-16 bg-green-500 hover:bg-green-600 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110">

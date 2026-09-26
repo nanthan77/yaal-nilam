@@ -30,7 +30,9 @@ test.describe('Smoke Tests', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Firestore keeps a transport connection open after the UI is ready.
+    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.locator('#featured .animate-pulse')).toHaveCount(0, { timeout: 15000 });
 
     expect(errors).toEqual([]);
   });

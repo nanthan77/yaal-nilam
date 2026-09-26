@@ -4,6 +4,12 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #94702b;
+  outline-offset: 3px;
 }
 
 ::-webkit-scrollbar {
@@ -331,6 +337,16 @@ textarea.input-field {
 .yn-home-hero {
   background: linear-gradient(145deg, #fbfbf7 0%, #f0f3e9 100%);
 }
+html[lang^="ta"] .yn-home-hero h1 {
+  font-size: clamp(2rem, 3.6vw, 3.5rem);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+@media (max-width: 639px) {
+  html[lang^="ta"] .yn-home-hero h1 {
+    font-size: clamp(1.65rem, 7.6vw, 2.5rem);
+  }
+}
 .yn-home > section:last-child .yn-eyebrow {
   color: #d2a75d;
 }
@@ -338,7 +354,7 @@ textarea.input-field {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  color: #a7772e;
+  color: #8a6227;
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -374,5 +390,30 @@ textarea.input-field {
   box-shadow: 0 22px 45px rgba(15, 50, 42, .13);
 }
 @media (prefers-reduced-motion: reduce) {
-  .yn-area-card, .yn-listing-card { transition: none; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Keep fixed tools clear of the property inquiry actions and compare tray. */
+@media (max-width: 1023px) {
+  body:has(.yn-detail) .yn-global-whatsapp,
+  body:has(.yn-detail) .yn-global-voice { display: none; }
+  body:has(.yn-detail) .yn-compare-bar { bottom: calc(6.5rem + env(safe-area-inset-bottom)); }
+  body:has(.yn-detail) footer { padding-bottom: 6rem; }
+}
+@media (max-width: 639px) {
+  body:has(.yn-compare-bar) .yn-global-whatsapp { bottom: 6rem; }
+  body:has(.yn-compare-bar) .yn-global-voice { bottom: 11rem; }
+}
+
+@media (max-width: 639px) {
+  html[lang^="ta"] .yn-home h2 {
+    font-size: clamp(1.45rem, 6vw, 1.85rem);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
 }

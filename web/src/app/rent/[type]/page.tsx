@@ -48,8 +48,8 @@ export default function RentTypePage({ params }: { params: { type: string } }) {
 
   const faqs = generateTier2FAQs(intent, type);
   const breadcrumbs = generateBreadcrumbJsonLd([
-    { name: 'Home', url: 'https://yaal-nilam.web.app/' },
-    { name: 'Rent', url: 'https://yaal-nilam.web.app/rent/' },
+    { name: 'Home', url: 'https://yaalnilam.com/' },
+    { name: 'Rent', url: 'https://yaalnilam.com/rent/' },
     { name: type.plural.en, url: buildCanonicalUrl('rent', params.type) },
   ]);
   const agent = generateRealEstateListingJsonLd(undefined, type, intent);

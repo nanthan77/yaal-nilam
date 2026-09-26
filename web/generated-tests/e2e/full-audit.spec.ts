@@ -18,6 +18,13 @@ const ROUTES = [
   '/areas/point-pedro/',
 ];
 
+
+async function openEnglishHome(page: Page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Switch to English' }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
+}
+
 // ── DRIVER: Functional flows ─────────────────────────────────────────────
 
 test.describe('Driver — Navigation & Core Functions', () => {
@@ -29,60 +36,81 @@ test.describe('Driver — Navigation & Core Functions', () => {
     });
   }
 
-  test('homepage hero CTAs present', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('button', { name: /^Buy$/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Rent$/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Short Stay/i })).toBeVisible();
+  test('homepage intent controls and illustration are present', async ({ page }) => {
+    await openEnglishHome(page);
+    for (const intent of ['Buy', 'Rent', 'Short stay']) {
+      await expect(page.getByRole('button', { name: intent, exact: true })).toBeVisible();
+    }
+    await expect(page.getByText('Illustrative image', { exact: true })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Illustration of a Jaffna style house, not a property listing' })).toBeVisible();
   });
 
-  test('search bar + voice mic button', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const search = page.getByRole('searchbox');
-    await expect(search).toBeVisible();
-    await search.fill('Nallur');
-    await expect(page.getByRole('button', { name: /Search by voice/i })).toBeVisible();
-  });
-
-  test('property type filter pills clickable', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    for (const type of ['House', 'Apartment', 'Villa', 'Land', 'Commercial']) {
-      await expect(page.getByRole('button', { name: type, exact: true })).toBeVisible();
+  test('homepage search fields have accessible labels and property types', async ({ page }) => {
+    await openEnglishHome(page);
+    await expect(page.getByRole('searchbox', { name: 'Search by keyword' })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Where?' })).toBeVisible();
+    const propertyType = page.getByRole('combobox', { name: 'What kind?' });
+    for (const type of ['house', 'apartment', 'villa', 'land', 'commercial']) {
+      await propertyType.selectOption(type);
+      await expect(propertyType).toHaveValue(type);
     }
   });
 
-  test('featured property cards link to detail pages', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const detailLinks = page.locator('a[href^="/properties/"][href$="/"]');
-    const count = await detailLinks.count();
-    expect(count).toBeGreaterThan(0);
+  for (const [label, intent] of [['Buy', 'sell'], ['Rent', 'rent'], ['Short stay', 'short_rent']]) {
+    for (const submission of ['Enter', 'button']) {
+      test(`homepage ${label} search via ${submission} preserves filters`, async ({ page }) => {
+        await openEnglishHome(page);
+        await page.getByRole('button', { name: label, exact: true }).click();
+        await page.getByRole('combobox', { name: 'Where?' }).selectOption('nallur');
+        await page.getByRole('combobox', { name: 'What kind?' }).selectOption('house');
+        const keyword = page.getByRole('searchbox', { name: 'Search by keyword' });
+        await keyword.fill('  Nallur & temple  ');
+        if (submission === 'Enter') await keyword.press('Enter');
+        else await page.getByRole('button', { name: 'Find properties', exact: true }).click();
+        await expect(page).toHaveURL(/\/properties\/?\?/);
+        const params = new URL(page.url()).searchParams;
+        expect(Object.fromEntries(params)).toEqual({ intent, area: 'nallur', type: 'house', q: 'Nallur & temple' });
+        await expect(page.locator('#filter-intent')).toHaveValue(intent);
+        await expect(page.locator('#filter-selectedArea')).toHaveValue('nallur');
+        await expect(page.locator('#filter-selectedType')).toHaveValue('house');
+        await expect(page.locator('#property-search')).toHaveValue('Nallur & temple');
+      });
+    }
+  }
+
+  test('featured section shows real links or an honest empty state', async ({ page }) => {
+    await openEnglishHome(page);
+    const featured = page.locator('#featured');
+    await expect.poll(async () => (await featured.locator('.yn-listing-card').count()) > 0 || await featured.getByText('No properties are available right now.', { exact: false }).isVisible(), { timeout: 15000 }).toBeTruthy();
+    for (const link of await featured.locator('.yn-listing-card h3 a').all()) {
+      await expect(link).toHaveAttribute('href', /^\/properties\/[^/]+\/$/);
+    }
+    await expect(featured).not.toContainText('[DEVELOPMENT SAMPLE]');
   });
 
-  test('WhatsApp links use correct number 94704846555', async ({ page }) => {
+  test('homepage WhatsApp links use valid international numbers', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const wa = page.locator('a[href*="wa.me/"]');
-    const n = await wa.count();
-    expect(n).toBeGreaterThan(0);
-    for (let i = 0; i < Math.min(n, 10); i++) {
-      const href = await wa.nth(i).getAttribute('href');
-      expect(href).toContain('wa.me/94704846555');
+    const links = page.locator('a[href*="wa.me/"]');
+    expect(await links.count()).toBeGreaterThan(0);
+    for (const link of await links.all()) {
+      await expect(link).toHaveAttribute('href', /^https:\/\/wa\.me\/[1-9]\d{7,14}(?:\?|$)/);
     }
   });
 
-  test('mortgage calculator computes payment', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const payment = page.locator('text=/Rs\\.\\s*[\\d,]+/').first();
-    await expect(payment).toBeVisible();
-  });
-
-  test('area cards navigate', async ({ page, isMobile }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+  test('area cards navigate and mobile menu supports Escape', async ({ page, isMobile }) => {
+    await openEnglishHome(page);
     if (isMobile) {
-      await page.getByRole('button', { name: /Toggle menu/i }).click();
+      const menu = page.getByRole('button', { name: 'Open menu', exact: true });
+      await menu.click();
+      await expect(page.locator('#mobile-navigation')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.locator('#mobile-navigation')).toBeHidden();
+      await expect(menu).toBeFocused();
     }
-    // Count ANY visible /areas link (desktop nav, mobile drawer, or area cards below)
-    const areaLinks = page.locator('a[href^="/areas"]:visible');
-    expect(await areaLinks.count()).toBeGreaterThan(0);
+    const areaLinks = page.locator('.yn-area-card');
+    await expect(areaLinks.first()).toBeVisible();
+    await areaLinks.first().click();
+    await expect(page).toHaveURL(/\/areas\/[^/?]+\/?(?:\?|$)/);
   });
 
   test('footer social links use HTTPS', async ({ page }) => {
@@ -95,9 +123,17 @@ test.describe('Driver — Navigation & Core Functions', () => {
     }
   });
 
-  test('language toggle button present', async ({ page }) => {
+  test('Tamil is default and English preference persists after reload', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('button', { name: /Toggle language/i }).first()).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ta-LK');
+    await expect(page.getByRole('button', { name: 'சொத்துகளைத் தேடுங்கள்', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Switch to English' }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
+    await expect(page.getByRole('button', { name: 'Find properties', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'தமிழுக்கு மாற்றவும்' }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ta-LK');
   });
 
   test('add-listing form has required fields', async ({ page }) => {

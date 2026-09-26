@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://yaal-nilam.web.app/sitemap-core.xml</loc>
-    <lastmod>2026-07-01</lastmod>
+    <loc>https://yaalnilam.com/sitemap-core.xml</loc>
+    <lastmod>2026-09-26</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://yaal-nilam.web.app/sitemap-listings.xml</loc>
-    <lastmod>2026-07-01</lastmod>
+    <loc>https://yaalnilam.com/sitemap-listings.xml</loc>
+    <lastmod>2026-09-26</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://yaal-nilam.web.app/sitemap-locations.xml</loc>
-    <lastmod>2026-07-01</lastmod>
+    <loc>https://yaalnilam.com/sitemap-locations.xml</loc>
+    <lastmod>2026-09-26</lastmod>
   </sitemap>
 </sitemapindex>

@@ -1,8 +1,8 @@
-// @ts-nocheck
 'use client';
 
 import Link from 'next/link';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { Menu, X, Globe, Plus } from 'lucide-react';
 import { useStore } from '@/lib/store';
 
@@ -26,6 +26,24 @@ const NAV_LINKS: NavLink[] = [
 export function Navbar() {
   const { locale, setLocale } = useStore();
   const [isOpen, setIsOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [isOpen]);
 
   const toggleMenu = useCallback(() => {
     setIsOpen(prev => !prev);
@@ -45,17 +63,17 @@ export function Navbar() {
   const languageButtonLabel = locale === 'en' ? 'தமிழ்' : 'EN';
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-[#e0e7df] bg-white/95 backdrop-blur-md">
+    <nav aria-label={locale === 'ta' ? 'முதன்மை வழிசெலுத்தல்' : 'Main navigation'} className="sticky top-0 z-50 w-full border-b border-[#e0e7df] bg-white/95 backdrop-blur-md">
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-        <div className="flex h-20 items-center justify-between gap-4">
+        <div className="flex h-20 items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group" aria-label="Yaal Nilam — home">
-            <img src="/logo-mark.png" alt="" aria-hidden="true" className="h-10 w-auto shrink-0" />
+          <Link href="/" className="group flex min-w-0 items-center gap-2.5" aria-label={locale === 'ta' ? 'யாழ் நிலம் — முகப்பு' : 'Yaal Nilam — home'}>
+            <img src="/logo-mark.png" alt="" aria-hidden="true" className="h-8 w-auto shrink-0 sm:h-10" />
             <span className="flex flex-col items-start leading-none">
-              <span className="text-xl font-black tracking-tight text-[#0d3935] group-hover:text-[#1a6657]">
+              <span className="whitespace-nowrap text-base font-black tracking-tight sm:text-xl text-[#0d3935] group-hover:text-[#1a6657]">
                 {navbarTitle}
               </span>
-              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8e795a]">
+              <span className="mt-0.5 hidden text-[10px] sm:block font-bold uppercase tracking-wider text-[#806026]">
                 {navbarSubtitle}
               </span>
             </span>
@@ -67,6 +85,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={pathname === link.href || (link.href !== '/' && pathname?.startsWith(link.href + '/')) ? 'page' : undefined}
                 className="rounded-full px-3 py-2 text-sm font-semibold text-[#496056] transition-colors hover:bg-[#edf3ec] hover:text-[#0d3935]"
               >
                 {getLabel(link)}
@@ -75,15 +94,17 @@ export function Navbar() {
           </div>
 
           {/* Right Section - Language Toggle & Add Listing */}
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex shrink-0 items-center gap-2 md:gap-4">
             {/* Language Toggle */}
             <button
+              type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 rounded-full border border-[#dce5db] px-3 py-2.5 transition-colors hover:bg-[#f2f6ef]"
+              lang={locale === 'ta' ? 'en' : 'ta'}
+              className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-full border border-[#dce5db] px-2.5 py-2.5 sm:px-3 transition-colors hover:bg-[#f2f6ef]"
               aria-label={locale === 'ta' ? 'Switch to English' : 'தமிழுக்கு மாற்றவும்'}
             >
-              <Globe className="w-4 h-4 text-teal-700" />
-              <span className="text-xs font-bold text-teal-700 hidden sm:inline">
+              <Globe className="hidden h-4 w-4 text-teal-700 sm:block" aria-hidden="true" />
+              <span className="text-xs font-bold text-teal-700">
                 {languageButtonLabel}
               </span>
             </button>
@@ -99,10 +120,13 @@ export function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
+              ref={menuButtonRef}
+              type="button"
               onClick={toggleMenu}
-              className="rounded-xl p-2 transition-colors hover:bg-[#f2f6ef] xl:hidden"
-              aria-label="Toggle menu"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-xl p-2 transition-colors hover:bg-[#f2f6ef] xl:hidden"
+              aria-label={locale === 'ta' ? (isOpen ? 'பட்டியலை மூடவும்' : 'பட்டியலைத் திறக்கவும்') : (isOpen ? 'Close menu' : 'Open menu')}
               aria-expanded={isOpen}
+              aria-controls="mobile-navigation"
             >
               {isOpen ? (
                 <X className="w-6 h-6 text-teal-700" />
@@ -114,13 +138,13 @@ export function Navbar() {
         </div>
 
         {/* Mobile Navigation Menu */}
-        {isOpen && (
-          <div className="border-t border-[#e0e7df] bg-white xl:hidden">
+          <div hidden={!isOpen} id="mobile-navigation" className="max-h-[calc(100dvh-5rem)] overflow-y-auto border-t border-[#e0e7df] bg-white xl:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {NAV_LINKS.map(link => (
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-current={pathname === link.href || (link.href !== '/' && pathname?.startsWith(link.href + '/')) ? 'page' : undefined}
                   className="block px-4 py-2 text-base font-medium text-teal-600 hover:text-teal-500 hover:bg-teal-50 rounded-md transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
@@ -138,7 +162,6 @@ export function Navbar() {
               </Link>
             </div>
           </div>
-        )}
 
       </div>
     </nav>

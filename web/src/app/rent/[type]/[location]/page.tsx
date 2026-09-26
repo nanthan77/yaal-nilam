@@ -57,8 +57,8 @@ export default function RentTypeLocationPage({ params }: { params: { type: strin
 
   const faqs = generateTier3FAQs(intent, type, location);
   const breadcrumbs = generateBreadcrumbJsonLd([
-    { name: 'Home', url: 'https://yaal-nilam.web.app/' },
-    { name: 'Rent', url: 'https://yaal-nilam.web.app/rent/' },
+    { name: 'Home', url: 'https://yaalnilam.com/' },
+    { name: 'Rent', url: 'https://yaalnilam.com/rent/' },
     { name: type.plural.en, url: buildCanonicalUrl('rent', params.type) },
     { name: location.name, url: buildCanonicalUrl('rent', params.type, params.location) },
   ]);

@@ -634,9 +634,9 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between gap-2 lg:justify-start">
                           <span className="text-sm font-bold text-charcoal-700">{status.action}</span>
                           {listing.status === 'available' ? (
-                            <Link href={`/properties/${listing.id}`} className="rounded-xl border border-sand-200 p-2 text-charcoal-600 hover:bg-sand-50" aria-label="Open listing">
+                            <a href={`/properties/${encodeURIComponent(listing.id)}/`} className="rounded-xl border border-sand-200 p-2 text-charcoal-600 hover:bg-sand-50" aria-label="Open listing">
                               <ExternalLink className="w-4 h-4" />
-                            </Link>
+                            </a>
                           ) : (
                             <Link href="/list-property" className="rounded-xl border border-sand-200 p-2 text-charcoal-600 hover:bg-sand-50" aria-label="Edit listing details">
                               <FileText className="w-4 h-4" />

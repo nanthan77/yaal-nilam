@@ -204,7 +204,7 @@ function buildCoordinates(raw: any, areaSlug: string, id: string) {
   };
 }
 
-function buildMediaUrls(raw: any, areaSlug: string) {
+function buildMediaUrls(raw: any) {
   const directUrls = [
     ...(Array.isArray(raw?.media_urls) ? raw.media_urls : []),
     ...(Array.isArray(raw?.images) ? raw.images : []),
@@ -220,8 +220,8 @@ function buildMediaUrls(raw: any, areaSlug: string) {
   const uniqueUrls = Array.from(new Set(directUrls));
   if (uniqueUrls.length > 0) return uniqueUrls;
 
-  const location = buildLocationFallback(areaSlug);
-  return [location?.image || FALLBACK_PROPERTY_IMAGE];
+  // An area photograph is not a photograph of the property.
+  return [];
 }
 
 export function resolvePropertyImage(listing: Pick<NormalizedListing, "media_urls">) {
@@ -230,9 +230,9 @@ export function resolvePropertyImage(listing: Pick<NormalizedListing, "media_url
 
 function buildVerificationBadges(raw: any) {
   const badges = new Set<string>(Array.isArray(raw?.verification_badges) ? raw.verification_badges : []);
-  if (raw?.verified) badges.add("Verified listing");
+  if (raw?.verified) badges.add("Listing details reviewed");
   if (raw?.nic_uploaded) badges.add("Agent identity checked");
-  if (raw?.documents_verified || raw?.title_history_status === "verified") badges.add("Documents reviewed");
+  if (raw?.documents_verified || raw?.title_history_status === "verified") badges.add("Document status supplied by lister");
   if (raw?.remote_purchase_support) badges.add("Diaspora support");
   return Array.from(badges);
 }
@@ -257,7 +257,7 @@ export function normalizeListing(raw: any): NormalizedListing {
   const intent = normalizeIntent(raw?.intent);
   const areaName = raw?.area_name || location?.name || raw?.area || "Jaffna";
   const areaNameTa = raw?.area_name_ta || location?.name_ta || raw?.area_ta || areaName;
-  const mediaUrls = buildMediaUrls(raw, areaSlug);
+  const mediaUrls = buildMediaUrls(raw);
   const leadMetrics = {
     views: toNumber(raw?.lead_metrics?.views ?? raw?.views),
     inquiries_count: toNumber(raw?.lead_metrics?.inquiries_count ?? raw?.inquiries_count),

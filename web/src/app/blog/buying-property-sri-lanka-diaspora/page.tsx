@@ -80,7 +80,7 @@ export default function DiasporaBlogPage() {
               "name": "Yaal Nilam"
             },
             "datePublished": "2026-06-01",
-            "mainEntityOfPage": "https://yaal-nilam.web.app/blog/buying-property-sri-lanka-diaspora",
+            "mainEntityOfPage": "https://yaalnilam.com/blog/buying-property-sri-lanka-diaspora",
             "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=500&h=300&fit=crop"
           })
         }}

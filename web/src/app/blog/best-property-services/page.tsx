@@ -80,7 +80,7 @@ export default function BestServicesBlogPage() {
               "name": "Yaal Nilam"
             },
             "datePublished": "2026-06-01",
-            "mainEntityOfPage": "https://yaal-nilam.web.app/blog/best-property-services",
+            "mainEntityOfPage": "https://yaalnilam.com/blog/best-property-services",
             "image": "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=500&h=300&fit=crop"
           })
         }}

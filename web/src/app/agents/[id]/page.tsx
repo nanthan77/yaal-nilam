@@ -1,16 +1,10 @@
 import AgentProfileClient from "@/components/AgentProfileClient";
-import { PROPERTIES } from "@/lib/data";
+import { getBuildListings } from "@/lib/build-listings";
 
-function fallbackAgentId(listing: any) {
-  if (listing.agent_id) return listing.agent_id;
-  if (!listing.agent_name) return "";
-  return listing.agent_name.toLowerCase().replace(/\s+/g, "-");
-}
-
-export function generateStaticParams() {
-  const ids = Array.from(new Set(PROPERTIES.map(fallbackAgentId).filter(Boolean)));
-  if (ids.length === 0) ids.push("sample-agent");
-  return ids.map((id) => ({ id }));
+export async function generateStaticParams() {
+  const listings = await getBuildListings();
+  const ids = Array.from(new Set(listings.map((listing) => listing.agent_id || listing.agent_name.toLowerCase().replace(/\s+/g, "-")).filter(Boolean)));
+  return (ids.length ? ids : ["__fallback"]).map((id) => ({ id }));
 }
 
 export default function AgentProfilePage({ params }: { params: { id: string } }) {
