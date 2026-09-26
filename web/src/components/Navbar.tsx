@@ -42,32 +42,32 @@ export function Navbar() {
   const navbarTitle = locale === 'en' ? 'Yaal Nilam' : 'யாழ் நிலம்';
   const navbarSubtitle = locale === 'en' ? 'Trusted Property Marketplace' : 'யாழ்ப்பாணச் சொத்து சந்தை';
   const addListingLabel = locale === 'en' ? 'Add Listing' : 'சொத்தைச் சேர்க்கவும்';
-  const languageButtonLabel = locale === 'en' ? 'EN' : 'தமிழ்';
+  const languageButtonLabel = locale === 'en' ? 'தமிழ்' : 'EN';
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-sand-200/50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="sticky top-0 z-50 w-full border-b border-[#e0e7df] bg-white/95 backdrop-blur-md">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+        <div className="flex h-20 items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group" aria-label="Yaal Nilam — home">
             <img src="/logo-mark.png" alt="" aria-hidden="true" className="h-10 w-auto shrink-0" />
             <span className="flex flex-col items-start leading-none">
-              <span className="text-xl font-black text-teal-900 tracking-tight group-hover:text-teal-700 transition-colors">
+              <span className="text-xl font-black tracking-tight text-[#0d3935] group-hover:text-[#1a6657]">
                 {navbarTitle}
               </span>
-              <span className="text-[10px] text-teal-600 font-bold uppercase tracking-wider mt-0.5">
+              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8e795a]">
                 {navbarSubtitle}
               </span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1 lg:gap-2">
-            {NAV_LINKS.map(link => (
+          <div className="hidden items-center gap-1 lg:flex xl:gap-3">
+            {NAV_LINKS.slice(0, 5).map(link => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3.5 py-2 text-sm font-bold text-teal-950 hover:text-teal-700 transition-all duration-200 rounded-xl hover:bg-sand-100/60"
+                className="rounded-full px-3 py-2 text-sm font-semibold text-[#496056] transition-colors hover:bg-[#edf3ec] hover:text-[#0d3935]"
               >
                 {getLabel(link)}
               </Link>
@@ -79,8 +79,8 @@ export function Navbar() {
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="p-2.5 rounded-xl bg-sand-100/80 hover:bg-sand-200/60 hover:scale-105 transition-all duration-200 flex items-center gap-1.5 border border-sand-200/30"
-              aria-label="Toggle language"
+              className="flex items-center gap-1.5 rounded-full border border-[#dce5db] px-3 py-2.5 transition-colors hover:bg-[#f2f6ef]"
+              aria-label={locale === 'ta' ? 'Switch to English' : 'தமிழுக்கு மாற்றவும்'}
             >
               <Globe className="w-4 h-4 text-teal-700" />
               <span className="text-xs font-bold text-teal-700 hidden sm:inline">
@@ -91,7 +91,7 @@ export function Navbar() {
             {/* Add Listing CTA - Desktop */}
             <Link
               href="/add-listing"
-              className="hidden sm:flex items-center gap-2 px-4.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-teal-950 rounded-xl font-extrabold text-sm hover:from-amber-400 hover:to-amber-500 hover:-translate-y-0.5 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="hidden items-center gap-2 rounded-full bg-[#0d3935] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#18574d] sm:flex"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>{addListingLabel}</span>
@@ -100,7 +100,7 @@ export function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMenu}
-              className="md:hidden p-2 rounded-xl hover:bg-sand-100 transition-colors duration-200"
+              className="rounded-xl p-2 transition-colors hover:bg-[#f2f6ef] lg:hidden"
               aria-label="Toggle menu"
               aria-expanded={isOpen}
             >
@@ -115,7 +115,7 @@ export function Navbar() {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden border-t border-sand-200 bg-white">
+          <div className="border-t border-[#e0e7df] bg-white lg:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {NAV_LINKS.map(link => (
                 <Link
@@ -131,7 +131,7 @@ export function Navbar() {
               {/* Mobile Add Listing Button */}
               <Link
                 href="/add-listing"
-                className="block mx-2 mt-4 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-teal-950 rounded-xl font-extrabold transition-all duration-200 text-center shadow-sm"
+                className="mx-2 mt-4 block rounded-xl bg-[#0d3935] px-4 py-3 text-center font-bold text-white"
                 onClick={() => setIsOpen(false)}
               >
                 {addListingLabel}
@@ -140,19 +140,6 @@ export function Navbar() {
           </div>
         )}
 
-        <div className="md:hidden border-t border-sand-200 bg-sand-50">
-          <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
-            {NAV_LINKS.slice(1, 4).map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="whitespace-nowrap rounded-full border border-sand-200 bg-white px-4 py-2 text-sm font-medium text-teal-700"
-              >
-                {getLabel(link)}
-              </Link>
-            ))}
-          </div>
-        </div>
       </div>
     </nav>
   );

@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyMap from "@/components/PropertyMap";
-import YouTubeEmbed from "@/components/YouTubeEmbed";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import RoiCalculator from "@/components/RoiCalculator";
 import RecentlyViewed from "@/components/RecentlyViewed";
@@ -28,7 +27,6 @@ export default function PropertyDetailClient() {
   const [relatedProperties, setRelatedProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState<"LKR" | "GBP" | "USD">("LKR");
   const [shareMessage, setShareMessage] = useState("");
   const [viewingState, setViewingState] = useState<"idle" | "submitting" | "success">("idle");
@@ -51,12 +49,12 @@ export default function PropertyDetailClient() {
       type: "Type",
       parking: "Parking",
       about: "About this property",
-      highlights: "Why buyers shortlist this listing",
-      trustTitle: "Trust and remote-buying support",
-      trustBody: "This listing is structured for diaspora and local buyers who want clearer next steps before they travel or commit.",
-      documents: "Document checklist",
+      highlights: "Features supplied with this listing",
+      trustTitle: "Listing information",
+      trustBody: "Yaal Nilam reviews listing details. This is not a legal verification of ownership or title. Check the deed and survey independently before making a commitment.",
+      documents: "Documents to check",
       location: "Location context",
-      locationBody: "This listing is backed by local area knowledge and can be followed up through WhatsApp, phone, or a formal viewing request.",
+      locationBody: "Review the area below and ask for the precise location when arranging a viewing.",
       contact: "Chat on WhatsApp",
       bookViewing: "Book a Viewing",
       viewingIntro: "Tell us when you would like to view this property. We will follow up through the contact method you provide.",
@@ -67,10 +65,10 @@ export default function PropertyDetailClient() {
       copied: "Link copied",
       priceLabel: "Price",
       responseRate: "Response rate",
-      verified: "Verification badges",
+      verified: "Details supplied with this listing",
       floorPlan: "Floor plan",
       videoTour: "Video / virtual tour",
-      availableOnRequest: "Available on request",
+      availableOnRequest: "A floor plan has not been supplied for this listing.",
       viewingSuccess: "Viewing request submitted. Our team will follow up shortly.",
       yourName: "Your name",
       phone: "Phone number",
@@ -81,9 +79,9 @@ export default function PropertyDetailClient() {
       submitting: "Submitting...",
       lkrHint: "Approximate converted values for overseas buyers",
       titleHistory: "Title history",
-      titleHistoryValue: "Preliminary review completed",
+      titleHistoryValue: "Status reported with the listing",
       remoteSupport: "Remote support",
-      remoteSupportValue: "Video walkthrough and lawyer coordination available",
+      remoteSupportValue: "Ask about viewing options",
       partnersTitle: "Local Services & Verified Partners",
       partnersDesc: "Need a trusted professional in Jaffna to verify this deed or survey plan? Contact our verified local directory partners.",
       partnerLawyer: "Legal Title & Deed Specialist",
@@ -101,12 +99,12 @@ export default function PropertyDetailClient() {
       type: "வகை",
       parking: "வாகன நிறுத்தம்",
       about: "இந்த சொத்தைப் பற்றி",
-      highlights: "ஏன் வாங்குபவர்கள் இதை shortlist செய்கிறார்கள்",
-      trustTitle: "நம்பிக்கை மற்றும் வெளிநாட்டு வாங்குபவர் உதவி",
-      trustBody: "பயணம் செய்வதற்கு முன் அல்லது முடிவு எடுப்பதற்கு முன் தெளிவான அடுத்த படிகளை பெற diaspora மற்றும் உள்ளூர் வாங்குபவர்களுக்கு ஏற்ற listing இது.",
-      documents: "ஆவணச் சரிபார்ப்பு பட்டியல்",
+      highlights: "பட்டியலில் வழங்கப்பட்ட அம்சங்கள்",
+      trustTitle: "பட்டியல் தகவல்",
+      trustBody: "யாழ் நிலம் பட்டியல் விவரங்களை மதிப்பாய்வு செய்கிறது. இது உரிமை அல்லது உறுதிக்கான சட்டச் சரிபார்ப்பு அல்ல. முடிவு எடுக்கும் முன் உறுதி மற்றும் நில அளவைத் தனியாகச் சரிபார்க்கவும்.",
+      documents: "சரிபார்க்க வேண்டிய ஆவணங்கள்",
       location: "இடவியல் விளக்கம்",
-      locationBody: "இந்த listing உள்ளூர் பகுதி அறிவுடன் வழங்கப்படுகிறது. WhatsApp, தொலைபேசி அல்லது viewing request வழியாக follow-up செய்யலாம்.",
+      locationBody: "கீழே உள்ள பகுதியைப் பார்த்து, சொத்தைப் பார்வையிட ஏற்பாடு செய்யும்போது சரியான இடத்தை கேளுங்கள்.",
       contact: "WhatsApp-ல் பேசுங்கள்",
       bookViewing: "வீட்டு பார்வையை பதிவு செய்யுங்கள்",
       viewingIntro: "இந்த சொத்தை எப்போது பார்க்க விரும்புகிறீர்கள் என்று சொல்லுங்கள். நீங்கள் கொடுத்த தொடர்பு வழியாக நாங்கள் follow-up செய்வோம்.",
@@ -117,10 +115,10 @@ export default function PropertyDetailClient() {
       copied: "Link நகலெடுக்கப்பட்டது",
       priceLabel: "விலை",
       responseRate: "பதில் விகிதம்",
-      verified: "சரிபார்ப்பு badges",
+      verified: "பட்டியலுடன் வழங்கப்பட்ட விவரங்கள்",
       floorPlan: "தள திட்டம்",
       videoTour: "Video / virtual tour",
-      availableOnRequest: "கோரிக்கையின் பேரில் கிடைக்கும்",
+      availableOnRequest: "இந்தப் பட்டியலில் தளத் திட்டம் வழங்கப்படவில்லை.",
       viewingSuccess: "Viewing request அனுப்பப்பட்டது. எங்கள் குழு விரைவில் தொடர்பு கொள்கிறது.",
       yourName: "உங்கள் பெயர்",
       phone: "தொலைபேசி எண்",
@@ -131,9 +129,9 @@ export default function PropertyDetailClient() {
       submitting: "அனுப்பப்படுகிறது...",
       lkrHint: "வெளிநாட்டு வாங்குபவர்களுக்கான தளர்வான மாற்று மதிப்புகள்",
       titleHistory: "Title history",
-      titleHistoryValue: "ஆரம்ப நிலை ஆவண பரிசோதனை முடிந்தது",
+      titleHistoryValue: "பட்டியலில் தெரிவிக்கப்பட்ட நிலை",
       remoteSupport: "Remote support",
-      remoteSupportValue: "Video walkthrough மற்றும் lawyer coordination கிடைக்கும்",
+      remoteSupportValue: "பார்வை வழிகளைப் பற்றி கேளுங்கள்",
       partnersTitle: "உள்ளூர் சேவைகள் மற்றும் சரிபார்க்கப்பட்ட கூட்டாளர்கள்",
       partnersDesc: "இந்த நில உறுதி அல்லது வரைபடத்தை சரிபார்க்க யாழ்ப்பாணத்தில் நம்பகமான வல்லுநர் தேவையா? எங்கள் கூட்டாளர்களைத் தொடர்பு கொள்ளுங்கள்.",
       partnerLawyer: "நில உறுதி மற்றும் சட்ட ஆவண நிபுணர்",
@@ -251,129 +249,77 @@ export default function PropertyDetailClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf7f3]">
-      <section className="bg-gradient-to-br from-[#0F2E25] via-[#1B4D3E] to-[#0F1419] text-white">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-white/70 mb-6">
-            <Link href="/properties" className="hover:text-white transition duration-200">{copy.backToProperties}</Link>
-            <span>/</span>
-            <span>{property.area_name}</span>
-            <span>/</span>
-            <span>{property.listing_code}</span>
-          </div>
-
-          <div className="grid lg:grid-cols-[1.45fr_0.9fr] gap-8 w-full min-w-0">
-            <div className="w-full min-w-0">
+    <div className="yn-detail min-h-screen pb-20 lg:pb-0">
+      <section className="bg-[#f7f8f3]">
+        <div className="mx-auto max-w-[1400px] px-5 pb-10 pt-7 sm:px-8 lg:pt-10">
+          <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#718076]">
+            <Link href="/properties" className="hover:text-[#0d3935]">{copy.backToProperties}</Link>
+            <span aria-hidden="true">/</span>
+            <span>{property.area_name || property.area}</span>
+            {property.listing_code && <><span aria-hidden="true">/</span><span>{property.listing_code}</span></>}
+          </nav>
+          <div className="grid items-start gap-7 lg:grid-cols-[1.38fr_0.84fr]">
+            <div className="min-w-0">
               <PropertyGallery images={gallery} videoUrl={property.video_tour_url} title={propertyTitle} />
             </div>
+            <div className="min-w-0 rounded-[24px] border border-[#dfe7dd] bg-white p-6 shadow-[0_18px_50px_rgba(11,40,33,0.07)] sm:p-8">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-[#edf3ec] px-3 py-1.5 text-xs font-bold text-[#0d3935]">{getPropertyTypeLabel(property.property_type, locale)}</span>
+                {property.featured && <span className="rounded-full bg-[#e8d4ac] px-3 py-1.5 text-xs font-bold text-[#624718]">{locale === "ta" ? "சிறப்பு" : "Featured"}</span>}
+                {property.verified && <span className="rounded-full bg-[#edf3ec] px-3 py-1.5 text-xs font-bold text-[#0d3935]">{locale === "ta" ? "பட்டியல் மதிப்பாய்வு" : "Listing reviewed"}</span>}
+              </div>
+              <h1 className="mt-5 text-3xl font-bold leading-tight tracking-[-0.035em] text-[#0d3935] sm:text-4xl">{propertyTitle}</h1>
+              <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-[#687a70]"><span aria-hidden="true">⌖</span>{property.address || property.area_name || property.area}</p>
 
-            <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md p-6 lg:p-7 h-fit flex flex-col justify-between shadow-2xl w-full min-w-0">
-              <div>
-                <div className="flex flex-wrap items-center gap-2 mb-4">
-                  {property.featured && <span className="bg-[#D4A853] text-[#0F2E25] px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Featured</span>}
-                  {property.verified && <span className="bg-teal-500/20 text-teal-100 border border-teal-400/30 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Verified</span>}
-                  <span className="bg-white/10 text-white px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{getPropertyTypeLabel(property.property_type, locale)}</span>
-                </div>
-
-                <h1 className="text-3xl md:text-4xl font-extrabold leading-tight mb-3 text-white">{propertyTitle}</h1>
-                <p className="text-white/70 text-sm mb-6">{property.address}</p>
-
-                <div className="flex flex-wrap items-center gap-2 mb-6">
-                  {DISPLAY_CURRENCIES.map((currency) => (
-                    <button
-                      key={currency}
-                      type="button"
-                      onClick={() => setDisplayCurrency(currency)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider transition duration-200 ${displayCurrency === currency ? "bg-[#D4A853] text-[#0F2E25] shadow-lg shadow-[#D4A853]/25" : "bg-white/10 text-white hover:bg-white/20"}`}
-                    >
-                      {currency}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <p className="text-xs uppercase tracking-wider text-white/50 mb-1">{copy.priceLabel}</p>
-                  <p className="text-4xl font-black text-white">{formatConvertedPrice(property.price, displayCurrency)}</p>
-                  <p className="text-xs text-white/50 mt-2 font-medium">{copy.lkrHint} • {formatCompactPrice(property.price, locale)}</p>
+              <div className="mt-7 border-t border-[#e5ebe3] pt-6">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#8d7951]">{copy.priceLabel}</p>
+                <p className="mt-1 break-words text-3xl font-extrabold tracking-[-0.04em] text-[#0d3935] sm:text-4xl">{formatConvertedPrice(property.price, displayCurrency)}</p>
+                {displayCurrency !== "LKR" && <p className="mt-1 text-xs text-[#718076]">{copy.lkrHint} • {formatCompactPrice(property.price, locale)}</p>}
+                <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={locale === "ta" ? "நாணயம்" : "Currency"}>
+                  {DISPLAY_CURRENCIES.map((currency) => <button key={currency} type="button" onClick={() => setDisplayCurrency(currency)}
+                    aria-pressed={displayCurrency === currency}
+                    className={"rounded-full px-4 py-2 text-xs font-bold transition-colors " + (displayCurrency === currency ? "bg-[#0d3935] text-white" : "bg-[#f0f4ee] text-[#436056] hover:bg-[#e2ebe0]")}>
+                    {currency}
+                  </button>)}
                 </div>
               </div>
 
-              <div>
-                <div className={`gap-3 mb-6 ${property.agent_response_rate > 0 ? "grid grid-cols-2" : "flex"}`}>
-                  {property.agent_response_rate > 0 && (
-                    <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
-                      <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.responseRate}</p>
-                      <p className="text-lg font-bold text-white">{property.agent_response_rate}%</p>
-                    </div>
-                  )}
-                  <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3 flex-1">
-                    <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">{copy.remoteSupport}</p>
-                    <p className="text-xs font-semibold text-white truncate">{copy.remoteSupportValue}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    className={`rounded-2xl px-4 py-3.5 font-bold transition duration-200 text-sm ${
-                      saved
-                        ? "bg-[#D4A853] text-[#0F2E25] shadow-lg shadow-[#D4A853]/25"
-                        : "bg-white text-charcoal-950 hover:bg-sand-100"
-                    }`}
-                  >
-                    {saved ? `✓ ${copy.saved}` : copy.save}
-                  </button>
-                  <button type="button" onClick={handleShare} className="rounded-2xl bg-white/10 text-white border border-white/10 px-4 py-3.5 font-bold hover:bg-white/20 transition duration-200 text-sm">
-                    {copy.share}
-                  </button>
-                </div>
-
-                {shareMessage && <p className="text-sm text-teal-200 mt-2 mb-2 font-medium">{shareMessage}</p>}
-
-                <div className="mt-2">
-                  <a
-                    href={primaryWhatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppLead(property, "property_detail")}
-                    className="w-full inline-flex items-center justify-center bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-4 px-6 rounded-2xl transition duration-300 text-base shadow-lg shadow-[#25D366]/20 hover:shadow-[#25D366]/40 hover:-translate-y-0.5"
-                  >
-                    {copy.contact}
-                  </a>
-                </div>
+              <div className="mt-6 flex flex-wrap gap-2 text-sm font-medium text-[#496057]">
+                {property.land_size_perches > 0 && <span className="rounded-full bg-[#f3f6f1] px-3 py-2">{property.land_size_perches} {locale === "ta" ? "பேர்ச்" : "perches"}</span>}
+                {property.bedrooms > 0 && <span className="rounded-full bg-[#f3f6f1] px-3 py-2">{property.bedrooms} {copy.bedrooms}</span>}
+                {property.bathrooms > 0 && <span className="rounded-full bg-[#f3f6f1] px-3 py-2">{property.bathrooms} {copy.bathrooms}</span>}
+                {property.sqft > 0 && <span className="rounded-full bg-[#f3f6f1] px-3 py-2">{Number(property.sqft).toLocaleString()} sqft</span>}
               </div>
+              <p className="mt-6 text-xs leading-5 text-[#728177]">{copy.trustBody}</p>
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <button type="button" onClick={handleSave} aria-pressed={saved}
+                  className={"rounded-xl border px-4 py-3 text-sm font-bold transition-colors " + (saved ? "border-[#c99746] bg-[#f3e8d1] text-[#0d3935]" : "border-[#dfe7dd] bg-white text-[#0d3935] hover:bg-[#f4f7f1]")}>
+                  {saved ? "✓ " + copy.saved : copy.save}
+                </button>
+                <button type="button" onClick={handleShare}
+                  className="rounded-xl border border-[#dfe7dd] bg-white px-4 py-3 text-sm font-bold text-[#0d3935] hover:bg-[#f4f7f1]">{copy.share}</button>
+              </div>
+              {shareMessage && <p role="status" className="mt-3 text-sm text-[#0d3935]">{shareMessage}</p>}
+              <a href={primaryWhatsappUrl} target="_blank" rel="noopener noreferrer" onClick={() => { void trackWhatsAppLead(property, "property_detail"); }}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#0d3935] px-5 py-4 text-sm font-bold text-white transition-colors hover:bg-[#18574d]">
+                {copy.contact}
+              </a>
+              <a href="#viewing-request" className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-[#c99746] px-5 py-3.5 text-sm font-bold text-[#0d3935] hover:bg-[#fbf6eb]">{copy.bookViewing}</a>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-10 w-full min-w-0">
-        <div className="grid lg:grid-cols-[1.3fr_0.8fr] gap-8 w-full min-w-0">
+      <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 lg:py-16">
+        <div className="grid gap-9 lg:grid-cols-[1.32fr_0.82fr]">
           <div className="space-y-8 w-full min-w-0">
-            <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              <div className="bg-charcoal-50 p-4 rounded-2xl">
-                <p className="text-charcoal-600 text-sm font-semibold mb-2">{copy.bedrooms}</p>
-                <p className="text-2xl font-bold text-charcoal-900">{property.bedrooms || "-"}</p>
-              </div>
-              <div className="bg-charcoal-50 p-4 rounded-2xl">
-                <p className="text-charcoal-600 text-sm font-semibold mb-2">{copy.bathrooms}</p>
-                <p className="text-2xl font-bold text-charcoal-900">{property.bathrooms || "-"}</p>
-              </div>
-              <div className="bg-charcoal-50 p-4 rounded-2xl">
-                <p className="text-charcoal-600 text-sm font-semibold mb-2">{copy.area}</p>
-                <p className="text-2xl font-bold text-charcoal-900">
-                  {property.sqft ? `${property.sqft} sqft` : property.land_size_perches ? `${property.land_size_perches} P` : "-"}
-                </p>
-              </div>
-              <div className="bg-charcoal-50 p-4 rounded-2xl">
-                <p className="text-charcoal-600 text-sm font-semibold mb-2">{copy.type}</p>
-                <p className="text-xl font-bold text-charcoal-900">{getPropertyTypeLabel(property.property_type, locale)}</p>
-              </div>
-              <div className="bg-charcoal-50 p-4 rounded-2xl">
-                <p className="text-charcoal-600 text-sm font-semibold mb-2">{copy.parking}</p>
-                <p className="text-2xl font-bold text-charcoal-900">{property.parking || "-"}</p>
-              </div>
+            <section aria-label={locale === "ta" ? "சொத்து விவரங்கள்" : "Property facts"} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {property.land_size_perches > 0 && <div className="rounded-2xl border border-[#e0e8de] bg-white p-5"><p className="text-xs font-bold text-[#728177]">{locale === "ta" ? "காணி அளவு" : "Land size"}</p><p className="mt-2 text-xl font-bold text-[#0d3935]">{property.land_size_perches} {locale === "ta" ? "பேர்ச்" : "perches"}</p></div>}
+              {property.sqft > 0 && <div className="rounded-2xl border border-[#e0e8de] bg-white p-5"><p className="text-xs font-bold text-[#728177]">{locale === "ta" ? "தளப் பரப்பளவு" : "Floor area"}</p><p className="mt-2 text-xl font-bold text-[#0d3935]">{Number(property.sqft).toLocaleString()} sqft</p></div>}
+              {property.bedrooms > 0 && <div className="rounded-2xl border border-[#e0e8de] bg-white p-5"><p className="text-xs font-bold text-[#728177]">{copy.bedrooms}</p><p className="mt-2 text-xl font-bold text-[#0d3935]">{property.bedrooms}</p></div>}
+              {property.bathrooms > 0 && <div className="rounded-2xl border border-[#e0e8de] bg-white p-5"><p className="text-xs font-bold text-[#728177]">{copy.bathrooms}</p><p className="mt-2 text-xl font-bold text-[#0d3935]">{property.bathrooms}</p></div>}
+              <div className="rounded-2xl border border-[#e0e8de] bg-white p-5"><p className="text-xs font-bold text-[#728177]">{copy.type}</p><p className="mt-2 text-xl font-bold text-[#0d3935]">{getPropertyTypeLabel(property.property_type, locale)}</p></div>
+              {property.parking > 0 && <div className="rounded-2xl border border-[#e0e8de] bg-white p-5"><p className="text-xs font-bold text-[#728177]">{copy.parking}</p><p className="mt-2 text-xl font-bold text-[#0d3935]">{property.parking}</p></div>}
             </section>
 
             <section>
@@ -426,22 +372,18 @@ export default function PropertyDetailClient() {
           </div>
 
           <div className="space-y-6 w-full min-w-0">
-            <section className="rounded-3xl border border-sand-200 p-6 bg-white">
+            <section className="rounded-3xl border border-[#dfe7dd] p-6 bg-white">
               <h2 className="text-2xl font-bold text-charcoal-900 mb-3">{copy.trustTitle}</h2>
               <p className="text-charcoal-700 mb-5">{copy.trustBody}</p>
               <div className="space-y-4">
-                <div>
+                {Array.isArray(property.verification_badges) && property.verification_badges.length > 0 && <div>
                   <p className="text-sm font-semibold text-charcoal-600 mb-2">{copy.verified}</p>
                   <div className="flex flex-wrap gap-2">
                     {property.verification_badges.map((badge: string) => (
                       <span key={badge} className="px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 border border-teal-100 text-sm">{badge}</span>
                     ))}
                   </div>
-                </div>
-                <div className="rounded-2xl bg-sand-50 px-4 py-3">
-                  <p className="text-xs uppercase tracking-wide text-charcoal-500">{copy.titleHistory}</p>
-                  <p className="font-semibold text-charcoal-900">{property.title_history_status === "verified" ? copy.titleHistoryValue : property.title_history_status}</p>
-                </div>
+                </div>}
                 {property.document_checklist?.length > 0 && (
                   <div>
                     <p className="text-sm font-semibold text-charcoal-600 mb-2">{copy.documents}</p>
@@ -458,7 +400,7 @@ export default function PropertyDetailClient() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-sand-300 p-6 bg-white shadow-sm">
+            <section id="viewing-request" className="scroll-mt-24 rounded-3xl border border-[#dfe7dd] p-6 bg-white shadow-sm">
               <h2 className="text-2xl font-bold text-charcoal-900 mb-2">{copy.bookViewing}</h2>
               <p className="text-charcoal-600 text-sm mb-5">{copy.viewingIntro}</p>
               {viewingState === "success" && <p className="mb-4 text-sm font-semibold text-green-700 bg-green-50 p-3 rounded-xl border border-green-100">{copy.viewingSuccess}</p>}
@@ -550,6 +492,11 @@ export default function PropertyDetailClient() {
       </div>
 
       <RecentlyViewed excludeId={id} limit={4} />
+      <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-3 border-t border-[#dfe7dd] bg-white/95 px-4 py-3 shadow-[0_-8px_30px_rgba(11,40,33,0.08)] backdrop-blur-sm lg:hidden">
+        <a href="#viewing-request" className="flex items-center justify-center rounded-xl border border-[#0d3935] px-3 py-3 text-center text-xs font-bold text-[#0d3935]">{copy.bookViewing}</a>
+        <a href={primaryWhatsappUrl} target="_blank" rel="noopener noreferrer" onClick={() => { void trackWhatsAppLead(property, "property_detail_mobile"); }}
+          className="flex items-center justify-center rounded-xl bg-[#0d3935] px-3 py-3 text-center text-xs font-bold text-white">{copy.contact}</a>
+      </div>
     </div>
   );
 }

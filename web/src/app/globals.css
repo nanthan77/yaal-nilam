@@ -321,3 +321,55 @@ textarea.input-field {
   -ms-overflow-style: none !important;  /* IE and Edge */
   scrollbar-width: none !important;  /* Firefox */
 }
+
+/* Yaal Nilam editorial pages */
+.yn-home,
+.yn-detail {
+  background: #f7f8f3;
+  color: #192e29;
+}
+.yn-home-hero {
+  background: linear-gradient(145deg, #fbfbf7 0%, #f0f3e9 100%);
+}
+.yn-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #a7772e;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.yn-eyebrow::before {
+  content: "";
+  width: 1.6rem;
+  height: 1px;
+  background: currentColor;
+}
+.yn-section-title {
+  margin-top: 0.8rem;
+  color: #0d3935;
+  font-size: clamp(1.9rem, 3.5vw, 3rem);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+.yn-area-card {
+  background: radial-gradient(circle at 100% 0%, rgba(225, 185, 110, .23), transparent 45%),
+              linear-gradient(145deg, #194e47, #0b302d);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.yn-area-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 35px rgba(12, 52, 45, .18);
+}
+.yn-listing-card {
+  box-shadow: 0 5px 25px rgba(15, 50, 42, .045);
+}
+.yn-listing-card:hover {
+  box-shadow: 0 22px 45px rgba(15, 50, 42, .13);
+}
+@media (prefers-reduced-motion: reduce) {
+  .yn-area-card, .yn-listing-card { transition: none; }
+}

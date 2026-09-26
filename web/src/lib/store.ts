@@ -54,8 +54,8 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      // Locale — default English, can toggle to Tamil
-      locale: "en",
+      // Tamil first for local visitors; persisted language preference still wins.
+      locale: "ta",
       setLocale: (locale) => set({ locale }),
 
       // Auth

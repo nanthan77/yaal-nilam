@@ -30,7 +30,7 @@ const notoSansTamil = Noto_Sans_Tamil({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://yaal-nilam.web.app'),
+  metadataBase: new URL('https://yaalnilam.com'),
   verification: {
     google: 'oKp5epjZ1HeTmijR-ckneDtdH1UYjMNmtk3OytW9Ba0',
   },
@@ -39,21 +39,21 @@ export const metadata: Metadata = {
     template: '%s | Yaal Nilam',
   },
   description:
-    'Discover verified properties across the Jaffna Peninsula. Buy, rent, or list homes, land, apartments, villas, and commercial properties with Tamil and English support.',
+    'Explore property listings across the Jaffna Peninsula. Buy, rent, or list homes, land, apartments, villas, and commercial properties with Tamil and English support.',
   keywords:
     'Jaffna property, Jaffna real estate, land for sale Jaffna, house for rent Jaffna, apartment Jaffna, commercial property, Northern Province Sri Lanka, Nallur property, Chunnakam land, Point Pedro house, villa Jaffna, short-term rental Jaffna, Tamil property search',
   openGraph: {
     title: 'Yaal Nilam | யாழ் நிலம் - Jaffna Property Marketplace',
-    description: 'Discover verified properties in Jaffna. Buy, rent, or list properties with WhatsApp-first support.',
+    description: 'Explore property listings in Jaffna. Buy, rent, or list properties with WhatsApp-first support.',
     type: 'website',
     siteName: 'Yaal Nilam',
-    locale: 'en_LK',
+    locale: 'ta_LK',
     images: [{ url: '/og-v2.png', width: 1200, height: 630, alt: 'Yaal Nilam — Jaffna Property Marketplace' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Yaal Nilam | Jaffna Property Marketplace',
-    description: 'Find your dream property in Jaffna. Verified listings, bilingual support.',
+    description: 'Find homes and land in Jaffna with Tamil and English support.',
     images: ['/og-v2.png'],
   },
   robots: {
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: 'https://yaal-nilam.web.app',
+    canonical: 'https://yaalnilam.com',
   },
 };
 
@@ -71,10 +71,10 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'RealEstateAgent',
-      '@id': 'https://yaal-nilam.web.app/#organization',
+      '@id': 'https://yaalnilam.com/#organization',
       name: 'Yaal Nilam',
       alternateName: 'யாழ் நிலம்',
-      url: 'https://yaal-nilam.web.app',
+      url: 'https://yaalnilam.com',
       description: 'Trusted bilingual property marketplace for the Jaffna Peninsula, Sri Lanka.',
       areaServed: {
         '@type': 'Place',
@@ -88,13 +88,13 @@ const jsonLd = {
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://yaal-nilam.web.app/#website',
-      url: 'https://yaal-nilam.web.app',
+      '@id': 'https://yaalnilam.com/#website',
+      url: 'https://yaalnilam.com',
       name: 'Yaal Nilam',
-      publisher: { '@id': 'https://yaal-nilam.web.app/#organization' },
+      publisher: { '@id': 'https://yaalnilam.com/#organization' },
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://yaal-nilam.web.app/properties?q={search_term_string}',
+        target: 'https://yaalnilam.com/properties?q={search_term_string}',
         'query-input': 'required name=search_term_string',
       },
     },
@@ -107,7 +107,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-LK" suppressHydrationWarning>
+    <html lang="ta-LK" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -137,3 +137,4 @@ export default function RootLayout({
     </html>
   );
 }
+

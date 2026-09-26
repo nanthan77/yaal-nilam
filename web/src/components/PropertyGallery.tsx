@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
 
-// Property hero media. Video FIRST when a YouTube URL is set (video-first is the
-// modern default), then the photos below as an auto-rotating carousel (up to 20)
-// with arrows, a counter, and a scrollable thumbnail strip. Falls back to just
-// the photo carousel when there's no video.
+// Real listing media, with controls that leave the selected photo in place.
 export default function PropertyGallery({
   images,
   videoUrl,
@@ -22,14 +19,7 @@ export default function PropertyGallery({
 
   useEffect(() => {
     setIdx(0);
-  }, [videoUrl, images?.length]);
-
-  // Auto-advance the photo carousel.
-  useEffect(() => {
-    if (pics.length <= 1) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % pics.length), 4500);
-    return () => clearInterval(t);
-  }, [pics.length]);
+  }, [videoUrl, images?.[0]]);
 
   const go = (n: number) => pics.length && setIdx(((n % pics.length) + pics.length) % pics.length);
 
@@ -39,11 +29,11 @@ export default function PropertyGallery({
 
       {pics.length > 0 && (
         <div>
-          <div className="relative rounded-[28px] overflow-hidden bg-charcoal-900 border border-white/10 shadow-xl">
+          <div className="relative overflow-hidden rounded-[24px] border border-[#dfe7dd] bg-[#e8eee7] shadow-[0_18px_50px_rgba(11,40,33,0.08)]">
             <img
               src={pics[idx]}
               alt={`${title} — photo ${idx + 1}`}
-              className="w-full h-64 sm:h-80 lg:h-[460px] object-cover"
+              className="h-72 w-full object-cover sm:h-96 lg:h-[530px]"
               decoding="async"
             />
             {pics.length > 1 && (
@@ -52,7 +42,7 @@ export default function PropertyGallery({
                   type="button"
                   onClick={() => go(idx - 1)}
                   aria-label="Previous photo"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 hover:bg-black/65 text-white flex items-center justify-center transition-colors"
+                  className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#0d3935] shadow-md transition-colors hover:bg-white"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 </button>
@@ -60,7 +50,7 @@ export default function PropertyGallery({
                   type="button"
                   onClick={() => go(idx + 1)}
                   aria-label="Next photo"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 hover:bg-black/65 text-white flex items-center justify-center transition-colors"
+                  className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#0d3935] shadow-md transition-colors hover:bg-white"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </button>
@@ -79,7 +69,7 @@ export default function PropertyGallery({
                   type="button"
                   onClick={() => setIdx(i)}
                   aria-label={`View photo ${i + 1}`}
-                  className={`flex-shrink-0 rounded-xl overflow-hidden border-2 transition ${i === idx ? "border-[#D4A853] scale-[1.02]" : "border-white/10 hover:border-white/30"}`}
+                  className={`flex-shrink-0 rounded-xl overflow-hidden border-2 transition ${i === idx ? "border-[#c99746]" : "border-[#dfe7dd] hover:border-[#0d3935]"}`}
                 >
                   <img src={image} alt="" className="w-20 h-16 object-cover" loading="lazy" decoding="async" />
                 </button>
