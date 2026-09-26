@@ -62,7 +62,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-1 lg:flex xl:gap-3">
+          <div className="hidden items-center gap-1 xl:flex xl:gap-3">
             {NAV_LINKS.slice(0, 5).map(link => (
               <Link
                 key={link.href}
@@ -100,7 +100,7 @@ export function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMenu}
-              className="rounded-xl p-2 transition-colors hover:bg-[#f2f6ef] lg:hidden"
+              className="rounded-xl p-2 transition-colors hover:bg-[#f2f6ef] xl:hidden"
               aria-label="Toggle menu"
               aria-expanded={isOpen}
             >
@@ -115,7 +115,7 @@ export function Navbar() {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="border-t border-[#e0e7df] bg-white lg:hidden">
+          <div className="border-t border-[#e0e7df] bg-white xl:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {NAV_LINKS.map(link => (
                 <Link
