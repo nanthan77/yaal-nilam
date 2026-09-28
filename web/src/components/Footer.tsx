@@ -1,10 +1,10 @@
-// @ts-nocheck
 'use client';
 
 import Link from 'next/link';
 import { useCallback } from 'react';
-import { Globe, MapPin, Phone, Mail, Award, BookOpen, Wrench, Search } from 'lucide-react';
+import { Globe, Phone, Mail, BookOpen, Wrench, Search } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { FooterAppLinks } from './FooterAppLinks';
 
 interface Column1Config {
   titleEn: string;
@@ -157,6 +157,8 @@ export function Footer() {
                 </Link>
               ))}
             </div>
+
+            <FooterAppLinks locale={locale} />
           </div>
 
           {/* Column 2: Property Search */}
