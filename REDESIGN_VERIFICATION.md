@@ -11,6 +11,46 @@ The earlier integration was committed as `e9f5b4e`; this follow-up also checks
 compatibility with the current public site and deployed Firestore contracts.
 No PR merge, deployment, production lead, or external message was performed.
 
+## Navigation follow-up
+
+The shared header now gives the existing logo more space: 50px high on phones
+and 64px from tablet width, with larger bilingual wordmarks. Icon-and-label
+route tabs show the current destination. Compact screens retain Properties,
+Areas, Short stay and More; Home and Property alerts join the row at 1024px.
+The More panel exposes all secondary destinations on desktop as well as mobile,
+including agent information, About and Contact, which were previously hidden
+on desktop. A single-column menu keeps Tamil labels readable on narrow phones.
+
+The layout was informed by the browse tabs and secondary menu in this
+[Mobbin reference](https://mobbin.com/screens/c0fd4ff1-6269-4cea-9289-bc44c726e24c).
+Yaal Nilam's own logo, palette, routes and language preference are preserved.
+No new assets or dependencies were added. The header height is shared with
+sticky property filters and section-anchor offsets.
+
+Navigation checks passed in Tamil and English at **320, 390, 640, 768, 1024,
+1279, 1280 and 1440px**. All 16 combinations had no overflow or overlapping
+tab content, with visible header controls at least 44px high. Escape restored
+focus in all 16; outside clicks, outside focus and route changes closed the
+panel. Hidden menu links stay out of the keyboard sequence.
+
+The final production homepage and real property detail were also checked in
+both languages at **390×844, 768×1024 and 1440×1000**. All 12 combinations fit
+the viewport and showed the expected current route. Ten representative routes
+and legacy aliases returned HTTP 200 with the correct active tab. Twenty-four
+section positions, six sticky-filter positions and six actual anchor clicks
+passed. The existing navigation regression now covers the More panel on both
+desktop and mobile, and waits for hydration before switching language.
+
+The production build, sitemap generation, full lint, 30 data regressions and
+production browser suite were rerun after the header changes. Output remains
+579 pages and 52 canonical sitemap URLs; all 576 exported HTML canonical tags
+point to `https://yaalnilam.com`. Existing native-image lint warnings remain.
+The final browser run exited successfully with 97 passed and one expected skip
+using the list reporter. An earlier run passed the same assertions but hung
+during runner shutdown and was interrupted before this clean rerun.
+Local development's first uncached About navigation was slow during compilation;
+the final static export passed navigation checks. No product blocker was found.
+
 ## Changes
 
 - Kept Tamil as the first-visit language and preserved stored preferences.
@@ -57,7 +97,7 @@ rules. Provider checks were read-only.
 | TypeScript (`tsc --noEmit --incremental false`) | Passed |
 | Lint | Passed; existing native-image optimization warnings remain |
 | Data, routing and sitemap regression tests | 30 passed |
-| Production browser suite | 97 passed, 1 intentional desktop skip of a mobile-only observer, 0 failures (80.74s) |
+| Production browser suite | 97 passed, 1 intentional desktop skip of a mobile-only observer, 0 failures |
 | Export and Hosting routing audit | Passed; 576 HTML canonicals, 22 detail exports from 11 records, all 52 sitemap targets returned HTTP 200; no fixtures |
 
 ### Pages and screen sizes

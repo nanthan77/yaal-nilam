@@ -43,14 +43,14 @@ export default function DiasporaHomeClient({ guide = false }: { guide?: boolean 
             {(tamil ? ['வீடு மற்றும் எல்லை ஆய்வு', 'புகைப்படம் மற்றும் வீடியோ அறிக்கைகள்', 'மதிப்பீடு → உரிமையாளர் ஒப்புதல் → வேலை ஆதாரம்', 'வாடகை மற்றும் பராமரிப்பு ஒருங்கிணைப்பு'] : ['Property and boundary inspections', 'Photo and video reports', 'Quote → owner approval → completion evidence', 'Rental and maintenance coordination']).map((label) => <p key={label} className="rounded-2xl border border-sand-300 bg-white p-5 font-semibold text-slate-700">{label}</p>)}
           </div>
         </section>
-        <section id="packages" className="scroll-mt-28" aria-labelledby="package-heading">
+        <section id="packages" className="scroll-mt-4" aria-labelledby="package-heading">
           <h2 id="package-heading" className="text-2xl font-bold text-[#0f2e25]">{tamil ? 'சொத்து நிர்வாகத் திட்டங்கள்' : 'Property management packages'}</h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">{tamil ? 'சேவையின் இடம், வருகைகளின் எண்ணிக்கை, பணிகள் மற்றும் இறுதிக் கட்டணங்களை எழுத்து ஒப்பந்தத்தில் உறுதிப்படுத்தவும்.' : 'Confirm service coverage, visit frequency, scope and final fees in a written agreement.'}</p>
           <div className="mt-9 grid gap-8 lg:grid-cols-3">{MANAGEMENT_PACKAGES.map((pkg) => <DiasporaPackageCard key={pkg.id} pkg={pkg} locale={locale} onSelect={selectPackage} />)}</div>
         </section>
       </>}
 
-      <section id="poa-guide" className="scroll-mt-28" aria-labelledby="poa-heading">
+      <section id="poa-guide" className="scroll-mt-4" aria-labelledby="poa-heading">
         <h2 id="poa-heading" className="text-2xl font-bold text-[#0f2e25]">{tamil ? 'அதிகாரப் பத்திரம்: சுயாதீன சட்ட ஆலோசனை' : 'Power of Attorney: independent legal advice'}</h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{tamil ? 'தேவைகள் உங்கள் ஆவணம், பரிவர்த்தனை மற்றும் கையெழுத்திடும் இடத்தைப் பொறுத்தது. பட்டியல் வெளியீடு அல்லது யாழ் நிலம் மதிப்பாய்வு உரிமை அல்லது பத்திரத்திற்கான சட்டச் சான்று அல்ல.' : 'Requirements depend on the document, transaction and place of signing. Publication or platform review does not certify ownership or deeds.'}</p>
         <div className="mt-6 grid gap-5 md:grid-cols-2">{POA_GUIDANCE_STEPS.map((step) => <article key={step.step} className="min-w-0 break-words rounded-2xl border border-sand-300 bg-white p-6">

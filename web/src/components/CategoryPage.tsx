@@ -272,7 +272,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
         </div>
       </section>
 
-      <section className="sticky top-16 z-30 border-b border-sand-200 bg-white py-3 shadow-sm">
+      <section className="sticky top-[var(--yn-header-height)] z-30 border-b border-sand-200 bg-white py-3 shadow-sm">
         <div className="container-wide flex flex-wrap items-center gap-3">
           {/* Area filter */}
           <select

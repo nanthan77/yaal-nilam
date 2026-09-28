@@ -1,37 +1,54 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Globe, Plus } from 'lucide-react';
+import { Home, Search, MapPin, CalendarDays, Bell, Users, Compass, Phone, Globe, Plus, ChevronDown, X, ArrowUpRight, type LucideIcon } from 'lucide-react';
 import { useStore } from '@/lib/store';
 
 interface NavLink {
   href: string;
-  labelEn: string;
-  labelTa: string;
+  en: string;
+  ta: string;
+  mobileTa?: string;
+  icon: LucideIcon;
+  desktopOnly?: boolean;
 }
 
-const NAV_LINKS: NavLink[] = [
-  { href: '/', labelEn: 'Home', labelTa: 'முகப்பு' },
-  { href: '/properties', labelEn: 'Properties', labelTa: 'சொத்துக்கள்' },
-  { href: '/areas', labelEn: 'Areas', labelTa: 'பகுதிகள்' },
-  { href: '/short-term-rental', labelEn: 'Short Stay', labelTa: 'குறுகிய தங்கல்' },
-  { href: '/alerts', labelEn: 'Alerts', labelTa: 'அறிவிப்புகள்' },
-  { href: '/for-agents', labelEn: 'For Agents', labelTa: 'முகவர்கள்' },
-  { href: '/about', labelEn: 'About', labelTa: 'பற்றி' },
-  { href: '/contact', labelEn: 'Contact', labelTa: 'தொடர்பு' },
+const PRIMARY_LINKS: NavLink[] = [
+  { href: '/', en: 'Home', ta: 'முகப்பு', icon: Home, desktopOnly: true },
+  { href: '/properties', en: 'Properties', ta: 'சொத்துகள்', mobileTa: 'தேடல்', icon: Search },
+  { href: '/areas', en: 'Areas', ta: 'பகுதிகள்', icon: MapPin },
+  { href: '/short-term-rental', en: 'Short stay', ta: 'குறுகிய தங்கல்', mobileTa: 'தங்கல்', icon: CalendarDays },
+  { href: '/alerts', en: 'Property alerts', ta: 'சொத்து அறிவிப்புகள்', icon: Bell, desktopOnly: true },
 ];
+
+const MORE_LINKS: (NavLink & { detailEn: string; detailTa: string })[] = [
+  { href: '/', en: 'Home', ta: 'முகப்பு', icon: Home, detailEn: 'Start exploring', detailTa: 'இங்கிருந்து தொடங்குங்கள்' },
+  { href: '/alerts', en: 'Property alerts', ta: 'சொத்து அறிவிப்புகள்', icon: Bell, detailEn: 'Find your next match', detailTa: 'பொருத்தமான சொத்தை அறியுங்கள்' },
+  { href: '/diaspora', en: 'Overseas owners', ta: 'புலம்பெயர் சேவைகள்', icon: Globe, detailEn: 'Manage your Jaffna home', detailTa: 'உங்கள் யாழ் வீட்டைப் பராமரிக்க' },
+  { href: '/for-agents', en: 'For agents', ta: 'முகவர்களுக்கு', icon: Users, detailEn: 'List and connect', detailTa: 'பட்டியலிட்டு தொடர்பு கொள்ள' },
+  { href: '/about', en: 'About us', ta: 'எங்களைப் பற்றி', icon: Compass, detailEn: 'Meet Yaal Nilam', detailTa: 'யாழ் நிலத்தை அறியுங்கள்' },
+  { href: '/contact', en: 'Contact', ta: 'தொடர்பு', icon: Phone, detailEn: 'We are here to help', detailTa: 'உதவிக்கு எங்களை அணுகுங்கள்' },
+];
+
+function isCurrentPath(pathname: string, href: string) {
+  if (href === '/properties') {
+    return /^\/(?:properties|property|buy|rent|lands|real-estate|new-today)(?:\/|$)/.test(pathname);
+  }
+  return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Navbar() {
   const { locale, setLocale } = useStore();
+  const tamil = locale === 'ta';
+  const pathname = usePathname() || '/';
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const pathname = usePathname();
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+  useEffect(() => { setIsOpen(false); }, [pathname]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -41,129 +58,83 @@ export function Navbar() {
         menuButtonRef.current?.focus();
       }
     };
+    const closeOutside = (event: Event) => {
+      if (event.target instanceof Node && !navRef.current?.contains(event.target)) setIsOpen(false);
+    };
     document.addEventListener('keydown', closeOnEscape);
-    return () => document.removeEventListener('keydown', closeOnEscape);
+    document.addEventListener('pointerdown', closeOutside);
+    document.addEventListener('focusin', closeOutside);
+    return () => {
+      document.removeEventListener('keydown', closeOnEscape);
+      document.removeEventListener('pointerdown', closeOutside);
+      document.removeEventListener('focusin', closeOutside);
+    };
   }, [isOpen]);
 
-  const toggleMenu = useCallback(() => {
-    setIsOpen(prev => !prev);
-  }, []);
-
-  const toggleLanguage = useCallback(() => {
-    setLocale(locale === 'en' ? 'ta' : 'en');
-  }, [locale, setLocale]);
-
-  const getLabel = (link: NavLink) => {
-    return locale === 'en' ? link.labelEn : link.labelTa;
-  };
-
-  const navbarTitle = locale === 'en' ? 'Yaal Nilam' : 'யாழ் நிலம்';
-  const navbarSubtitle = locale === 'en' ? 'Trusted Property Marketplace' : 'யாழ்ப்பாணச் சொத்து சந்தை';
-  const addListingLabel = locale === 'en' ? 'Add Listing' : 'சொத்தைச் சேர்க்கவும்';
-  const languageButtonLabel = locale === 'en' ? 'தமிழ்' : 'EN';
+  const moreCurrent = MORE_LINKS.some((link) => link.href !== '/' && link.href !== '/alerts' && isCurrentPath(pathname, link.href));
+  const addListingLabel = tamil ? 'சொத்தைச் சேர்க்கவும்' : 'Add listing';
 
   return (
-    <nav aria-label={locale === 'ta' ? 'முதன்மை வழிசெலுத்தல்' : 'Main navigation'} className="sticky top-0 z-50 w-full border-b border-[#e0e7df] bg-white/95 backdrop-blur-md">
-      <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-        <div className="flex h-20 items-center justify-between gap-2 sm:gap-4">
-          {/* Logo */}
-          <Link href="/" className="group flex min-w-0 items-center gap-2.5" aria-label={locale === 'ta' ? 'யாழ் நிலம் — முகப்பு' : 'Yaal Nilam — home'}>
-            <img src="/logo-mark.png" alt="" aria-hidden="true" className="h-8 w-auto shrink-0 sm:h-10" />
-            <span className="flex flex-col items-start leading-none">
-              <span className="whitespace-nowrap text-base font-black tracking-tight sm:text-xl text-[#0d3935] group-hover:text-[#1a6657]">
-                {navbarTitle}
-              </span>
-              <span className="mt-0.5 hidden text-[10px] sm:block font-bold uppercase tracking-wider text-[#806026]">
-                {navbarSubtitle}
-              </span>
+    <header className="yn-site-header">
+      <nav ref={navRef} aria-label={tamil ? 'முதன்மை வழிசெலுத்தல்' : 'Main navigation'} className="yn-nav-shell">
+        <div className="yn-brand-row">
+          <Link href="/" className="yn-brand" aria-label={tamil ? 'யாழ் நிலம் — முகப்பு' : 'Yaal Nilam — home'} aria-current={pathname === '/' ? 'page' : undefined}>
+            <Image src="/logo-mark.png" alt="" aria-hidden="true" width={460} height={279} priority className="yn-brand-mark" />
+            <span className="yn-brand-wordmark">
+              <span className="yn-brand-title">{tamil ? 'யாழ் நிலம்' : 'Yaal Nilam'}</span>
+              <span className="yn-brand-subtitle">{tamil ? 'யாழ்ப்பாணச் சொத்து சந்தை' : 'Jaffna property marketplace'}</span>
             </span>
           </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden items-center gap-1 xl:flex xl:gap-3">
-            {NAV_LINKS.slice(0, 5).map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={pathname === link.href || (link.href !== '/' && pathname?.startsWith(link.href + '/')) ? 'page' : undefined}
-                className="rounded-full px-3 py-2 text-sm font-semibold text-[#496056] transition-colors hover:bg-[#edf3ec] hover:text-[#0d3935]"
-              >
-                {getLabel(link)}
-              </Link>
-            ))}
-          </div>
-
-          {/* Right Section - Language Toggle & Add Listing */}
-          <div className="flex shrink-0 items-center gap-2 md:gap-4">
-            {/* Language Toggle */}
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              lang={locale === 'ta' ? 'en' : 'ta'}
-              className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-full border border-[#dce5db] px-2.5 py-2.5 sm:px-3 transition-colors hover:bg-[#f2f6ef]"
-              aria-label={locale === 'ta' ? 'Switch to English' : 'தமிழுக்கு மாற்றவும்'}
-            >
-              <Globe className="hidden h-4 w-4 text-teal-700 sm:block" aria-hidden="true" />
-              <span className="text-xs font-bold text-teal-700">
-                {languageButtonLabel}
-              </span>
+          <div className="yn-header-actions">
+            <button type="button" onClick={() => setLocale(tamil ? 'en' : 'ta')} lang={tamil ? 'en' : 'ta'} className="yn-language-button" aria-label={tamil ? 'Switch to English' : 'தமிழுக்கு மாற்றவும்'}>
+              <Globe size={18} aria-hidden="true" />
+              <span>{tamil ? 'EN' : 'தமிழ்'}</span>
             </button>
-
-            {/* Add Listing CTA - Desktop */}
-            <Link
-              href="/add-listing"
-              className="hidden items-center gap-2 rounded-full bg-[#0d3935] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#18574d] sm:flex"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
+            <Link href="/add-listing" className="yn-header-add">
+              <Plus size={20} aria-hidden="true" />
               <span>{addListingLabel}</span>
             </Link>
-
-            {/* Mobile Menu Button */}
-            <button
-              ref={menuButtonRef}
-              type="button"
-              onClick={toggleMenu}
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-xl p-2 transition-colors hover:bg-[#f2f6ef] xl:hidden"
-              aria-label={locale === 'ta' ? (isOpen ? 'பட்டியலை மூடவும்' : 'பட்டியலைத் திறக்கவும்') : (isOpen ? 'Close menu' : 'Open menu')}
-              aria-expanded={isOpen}
-              aria-controls="mobile-navigation"
-            >
-              {isOpen ? (
-                <X className="w-6 h-6 text-teal-700" />
-              ) : (
-                <Menu className="w-6 h-6 text-teal-700" />
-              )}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
-          <div hidden={!isOpen} id="mobile-navigation" className="max-h-[calc(100dvh-5rem)] overflow-y-auto border-t border-[#e0e7df] bg-white xl:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {NAV_LINKS.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={pathname === link.href || (link.href !== '/' && pathname?.startsWith(link.href + '/')) ? 'page' : undefined}
-                  className="block px-4 py-2 text-base font-medium text-teal-600 hover:text-teal-500 hover:bg-teal-50 rounded-md transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {getLabel(link)}
-                </Link>
-              ))}
+        <div className="yn-nav-tabs">
+          {PRIMARY_LINKS.map(({ icon: Icon, ...link }) => (
+            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)}
+              aria-current={isCurrentPath(pathname, link.href) ? 'page' : undefined}
+              aria-label={tamil && link.mobileTa ? `${link.mobileTa} — ${link.ta}` : undefined}
+              className={`yn-nav-tab${link.desktopOnly ? ' yn-nav-tab-desktop' : ''}`}>
+              <Icon aria-hidden="true" />
+              <span className="yn-nav-label-full">{tamil ? link.ta : link.en}</span>
+              <span className="yn-nav-label-compact">{tamil ? link.mobileTa || link.ta : link.en}</span>
+            </Link>
+          ))}
+          <button ref={menuButtonRef} type="button" onClick={() => setIsOpen((open) => !open)}
+            className={`yn-nav-tab yn-nav-more${moreCurrent ? ' yn-nav-more-current' : ''}`}
+            aria-label={tamil ? (isOpen ? 'மேலும்: பட்டியலை மூடவும்' : 'மேலும்: பட்டியலைத் திறக்கவும்') : (isOpen ? 'Close more menu' : 'Open more menu')}
+            aria-expanded={isOpen} aria-controls="mobile-navigation">
+            {isOpen ? <X aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+            <span>{tamil ? 'மேலும்' : 'More'}</span>
+          </button>
+        </div>
 
-              {/* Mobile Add Listing Button */}
-              <Link
-                href="/add-listing"
-                className="mx-2 mt-4 block rounded-xl bg-[#0d3935] px-4 py-3 text-center font-bold text-white"
-                onClick={() => setIsOpen(false)}
-              >
-                {addListingLabel}
-              </Link>
-            </div>
+        <div hidden={!isOpen} id="mobile-navigation" className="yn-nav-menu">
+          <div className="yn-nav-menu-heading">
+            <span>{tamil ? 'மேலும் கண்டறியுங்கள்' : 'More from Yaal Nilam'}</span>
+            <span className="yn-nav-menu-caption">{tamil ? 'உங்கள் அடுத்த படி' : 'Your next step'}</span>
           </div>
-
-      </div>
-    </nav>
+          <div className="yn-nav-menu-grid">
+            {MORE_LINKS.map(({ icon: Icon, ...link }) => (
+              <Link key={link.href} href={link.href} className="yn-nav-menu-link" aria-current={isCurrentPath(pathname, link.href) ? 'page' : undefined} onClick={() => setIsOpen(false)}>
+                <span className="yn-nav-menu-icon"><Icon size={21} aria-hidden="true" /></span>
+                <span><span className="yn-nav-menu-title">{tamil ? link.ta : link.en}</span><span className="yn-nav-menu-detail">{tamil ? link.detailTa : link.detailEn}</span></span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/add-listing" className="yn-nav-menu-add" onClick={() => setIsOpen(false)}>
+            <Plus size={20} aria-hidden="true" /><span>{addListingLabel}</span><ArrowUpRight size={18} aria-hidden="true" />
+          </Link>
+        </div>
+      </nav>
+    </header>
   );
 }

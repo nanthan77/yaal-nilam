@@ -21,6 +21,7 @@ const ROUTES = [
 
 async function openEnglishHome(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta');
   await page.getByRole('button', { name: 'Switch to English' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
 }
@@ -97,20 +98,37 @@ test.describe('Driver — Navigation & Core Functions', () => {
     }
   });
 
-  test('area cards navigate and mobile menu supports Escape', async ({ page, isMobile }) => {
+  test('navigation More panel supports keyboard access, route close and current links', async ({ page }) => {
     await openEnglishHome(page);
-    if (isMobile) {
-      const menu = page.getByRole('button', { name: 'Open menu', exact: true });
-      await menu.click();
-      await expect(page.locator('#mobile-navigation')).toBeVisible();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#mobile-navigation')).toBeHidden();
-      await expect(menu).toBeFocused();
+    const menu = page.locator('button[aria-controls="mobile-navigation"]');
+    const panel = page.locator('#mobile-navigation');
+    await menu.click();
+    await expect(menu).toHaveAttribute('aria-expanded', 'true');
+    await expect(panel).toBeVisible();
+    for (const href of ['/', '/alerts/', '/diaspora/', '/for-agents/', '/about/', '/contact/', '/add-listing/']) {
+      await expect(panel.locator(`a[href="${href}"]`)).toBeVisible();
     }
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(menu).toBeFocused();
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => !!document.activeElement?.closest('#mobile-navigation'))).toBe(false);
+
+    await menu.click();
+    await panel.locator('a[href="/about/"]').click();
+    await expect(page).toHaveURL(/\/about\/?$/);
+    await expect(panel).toBeHidden();
+    await menu.click();
+    await expect(panel.locator('a[href="/about/"]')).toHaveAttribute('aria-current', 'page');
+    await page.mouse.click(2, (page.viewportSize()?.height || 900) - 2);
+    await expect(panel).toBeHidden();
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     const areaLinks = page.locator('.yn-area-card');
     await expect(areaLinks.first()).toBeVisible();
     await areaLinks.first().click();
     await expect(page).toHaveURL(/\/areas\/[^/?]+\/?(?:\?|$)/);
+    await expect(page.locator('.yn-nav-tabs a[href="/areas/"]')).toHaveAttribute('aria-current', 'page');
   });
 
   test('footer social links use HTTPS', async ({ page }) => {
@@ -327,6 +345,7 @@ test.describe('🤠 Quinn — Adversarial Exploration', () => {
     const resp = await page.goto('/properties/8fSf4y9RBP62PHm8LGcJ/', { waitUntil: 'domcontentloaded' });
     expect(resp?.status()).toBe(200);
     await expect(page.locator('.yn-detail')).toBeVisible();
+    await expect(page.locator('.yn-nav-tabs a[href="/properties/"]')).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('.yn-global-whatsapp')).toBeHidden();
     await expect(page.locator('.yn-detail a[href^="https://wa.me/"]').first()).toBeVisible();
     if (isMobile) await expect(page.locator('.yn-mobile-inquiry a[href^="https://wa.me/"]')).toBeVisible();

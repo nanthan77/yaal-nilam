@@ -17,6 +17,22 @@ New visitors start in Tamil; the language switch and stored visitor preference s
 
 Run `npm ci` and `npm run dev` from `web/`. The `web/package-lock.json` lockfile is authoritative for the website. `npm run build` creates `web/out/` and generates the sitemap index and child sitemaps using `https://yaalnilam.com`.
 
+## Navigation
+
+The shared header uses the existing logo at a larger size and route links styled
+as icon-and-label tabs. Compact screens keep Properties, Areas, Short stay and
+More visible; wider screens also show Home and Property alerts. More provides
+Home, alerts, overseas-owner services, agent information, About, Contact and Add
+listing on every screen size. These are ordinary navigation links with current
+page indicators, rather than an ARIA tab widget. Escape returns focus to More;
+outside interaction or navigation closes its panel.
+
+The structure draws on the distinct browse tabs and secondary menu in this
+[Mobbin reference](https://mobbin.com/screens/c0fd4ff1-6269-4cea-9289-bc44c726e24c),
+using Yaal Nilam's own logo, colors and bilingual labels. No reference assets
+were copied. `--yn-header-height` keeps section anchors and sticky property
+filters clear of the header at both responsive heights.
+
 ## Listing data and development fixtures
 
 The homepage and exported property pages render records read from the existing public Firestore project during the build, then refresh them in the browser. If the build cannot read records, the initial catalog is empty. A successful empty response clears the catalog. An unavailable request may retain previously fetched real listings, but never substitutes samples. Listings without supplied photos use the neutral property placeholder, never an area photo or the homepage illustration.

@@ -66,7 +66,7 @@ export default function DiasporaPropertyManagementForm({ locale: requestedLocale
   const whatsappUrl = buildWhatsAppUrl('94710995343', `${whatsappMsg}${notes.trim() ? `\nNotes: ${notes.trim()}` : ''}`);
 
   return (
-    <div id="enquire-form" lang={locale} className="scroll-mt-28 rounded-3xl border border-sand-300 bg-white p-6 shadow-2xl md:p-8">
+    <div id="enquire-form" lang={locale} className="scroll-mt-4 rounded-3xl border border-sand-300 bg-white p-6 shadow-2xl md:p-8">
       <div className="mb-6 flex items-center gap-3 border-b border-sand-200 pb-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-800">
           <Building2 className="h-6 w-6" />

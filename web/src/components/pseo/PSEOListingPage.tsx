@@ -200,7 +200,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
         </div>
       </section>
 
-      <section className="sticky top-16 z-30 bg-white border-b border-gray-200 py-3 shadow-sm">
+      <section className="sticky top-[var(--yn-header-height)] z-30 bg-white border-b border-gray-200 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center gap-3">
           {!locationSlug && (
             <select className="text-sm border border-gray-300 rounded-lg px-3 py-2">
