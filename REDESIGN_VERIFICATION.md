@@ -112,7 +112,7 @@ separate private profile. Login, reload/session restoration, logout, password
 reset and login with the reset password also passed. Production Firebase
 requests were blocked in these browser sessions.
 
-All 38 data regressions passed. Rules accepted valid anonymous details-only and
+All 45 data regressions passed. Rules accepted valid anonymous details-only and
 authenticated private-media submissions and rejected cross-account media paths
 and anonymous UID claims. Focused upload checks verified concurrency, private
 metadata, strict WebP output and cleanup after an upload failure. Google
@@ -141,7 +141,7 @@ read-only; no production test lead or account was created.
 | Production build and sitemap generation | Passed; 579 pages, 52 canonical sitemap URLs, four children and both RSS feeds |
 | TypeScript (`tsc --noEmit --incremental false`) | Passed |
 | Lint | Passed; existing native-image optimization warnings remain |
-| Data, routing and sitemap regression tests | 38 passed |
+| Data, routing and sitemap regression tests | 45 passed |
 | Production browser suite | 97 passed, 1 intentional desktop skip of a mobile-only observer, 0 failures |
 | Export and Hosting routing audit | Passed; 576 HTML canonicals, 22 detail exports from 11 records, all 52 sitemap targets returned HTTP 200; no fixtures |
 
@@ -151,6 +151,11 @@ skip, then stalled in one worker before starting the mobile homepage case. That
 case passed separately with exit code 0 (2 seconds), covering all 97 assertions.
 The stalled runner was interrupted; this is a runner limitation, not a clean
 single-run completion. The earlier navigation suite above exited normally.
+After the final preference fix, the complete suites ran as separate projects:
+desktop exited 0 with 48 passed and one expected skip; mobile reported all 49
+tests passed, then stalled during worker shutdown and was terminated. Thus the
+final export passed all 97 assertions with no assertion failures; the mobile
+runner shutdown limitation remains in the local test environment.
 
 ### Pages and screen sizes
 
@@ -218,6 +223,22 @@ default, then retains long caching for assets and ten-minute caching for feeds,
 sitemaps and robots. All 29 checks passed in an isolated Hosting emulator.
 Admin/backend configuration is unchanged. This configuration-only correction
 reuses the verified export; an already cached older response may need a reload.
+
+### Returning visitor preferences
+
+The previous public site stored version 2 preferences. The redesign initially
+used Zustand's default version 0, so an existing browser reported a missing
+migration and fell back to default preferences. The store now accepts the live
+version and migrates older versions. Only a valid Tamil/English preference and
+up to three unique comparison IDs are restored. Cached account, authentication,
+UI and action fields cannot override the running application. Seven regression
+cases exercise actual Zustand hydration, including an already authenticated
+Firebase identity that must survive preference restoration.
+Browser checks on an isolated development session also passed for versions 0,
+1 and 2: English and two comparison IDs survived, the compare action remained
+enabled, and forged cached authentication still redirected the dashboard to
+login. Fresh storage starts in Tamil with an empty compare tray. No migration
+warning was reported.
 
 ## Remaining issues and release boundaries
 

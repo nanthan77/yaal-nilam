@@ -51,6 +51,18 @@ interface AppState {
   clearCompare: () => void;
 }
 
+function persistedPreferences(value: unknown): Pick<AppState, "locale" | "compareIds"> {
+  const state = value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+  const compareIds = Array.isArray(state.compareIds)
+    ? Array.from(new Set(state.compareIds
+      .filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+      .map((id) => id.trim()))).slice(0, 3)
+    : [];
+  return { locale: state.locale === "en" ? "en" : "ta", compareIds };
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
@@ -92,6 +104,14 @@ export const useStore = create<AppState>()(
     {
       name: "yaal-nilam-public-store",
       storage: createJSONStorage(() => localStorage),
+      // The existing live site wrote version 2. Preserve explicit preferences
+      // from earlier releases without restoring cached account or UI state.
+      version: 2,
+      migrate: (persistedState) => persistedPreferences(persistedState),
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...persistedPreferences(persistedState),
+      }),
       partialize: (state) => ({ locale: state.locale, compareIds: state.compareIds }),
       skipHydration: true,
     }
