@@ -11,7 +11,8 @@ The earlier integration was committed as `e9f5b4e`; this follow-up also checks
 compatibility with the current public site and deployed Firestore contracts.
 The initial integration verification performed no PR merge, deployment,
 production lead, or external message. A later request authorized the website
-release; its deployment receipt is recorded separately.
+release; [RELEASE_2026-09-28.md](RELEASE_2026-09-28.md) records the completed public
+Hosting deployment, source commit, provider version and final live checks.
 
 ## Navigation follow-up
 

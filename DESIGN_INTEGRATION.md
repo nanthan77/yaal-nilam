@@ -82,9 +82,10 @@ The production backend, rules and admin application have newer changes than this
 repository's checked-in versions. Do not deploy all Firebase resources from this
 branch. This integration modifies the public website and its Hosting configuration;
 backend/admin reconciliation is required before releasing those components.
-The subsequent release request authorizes the public website only, using
+The subsequent release request was completed for the public website using
 `firebase deploy --only hosting:main --project yaal-nilam`. The draft PR remains
-unmerged. Check the release receipt for the deployed source and provider version.
+unmerged. See [RELEASE_2026-09-28.md](RELEASE_2026-09-28.md) for the deployed source,
+provider version and live verification.
 
 Public account and seller flows preserve the current live contracts: real Auth
 session checks, public/private agent profiles, private UID-owned WebP uploads,
