@@ -81,5 +81,15 @@ omitted rather than replaced with the build date.
 The production backend, rules and admin application have newer changes than this
 repository's checked-in versions. Do not deploy all Firebase resources from this
 branch. This integration modifies the public website and its Hosting configuration;
-backend/admin reconciliation is a separate release prerequisite. No deployment or
-merge is part of the current verification request.
+backend/admin reconciliation is required before releasing those components.
+The subsequent release request authorizes the public website only, using
+`firebase deploy --only hosting:main --project yaal-nilam`. The draft PR remains
+unmerged. Check the release receipt for the deployed source and provider version.
+
+Public account and seller flows preserve the current live contracts: real Auth
+session checks, public/private agent profiles, private UID-owned WebP uploads,
+and atomic listing/inquiry submission. To exercise these locally, the development
+app also accepts `NEXT_PUBLIC_AUTH_EMULATOR_HOST` and
+`NEXT_PUBLIC_STORAGE_EMULATOR_HOST`, alongside the Firestore emulator setting.
+All three require localhost addresses and are ignored in production. Use an
+isolated `demo-` project and reviewed deployed rules for write tests.

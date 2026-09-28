@@ -50,6 +50,8 @@ export interface NormalizedListing {
   amenities: string[];
   coordinates: { lat: number; lng: number };
   agent_id: string;
+  submission_source: string;
+  submitter_uid: string;
   agent_name: string;
   agent_phone: string;
   agent_email: string;
@@ -303,6 +305,8 @@ export function normalizeListing(raw: any): NormalizedListing {
     amenities: Array.isArray(raw?.amenities) ? raw.amenities : [],
     coordinates: buildCoordinates(raw, areaSlug, id),
     agent_id: raw?.agent_id || "",
+    submission_source: raw?.submission_source || raw?.source || "",
+    submitter_uid: raw?.submitter_uid || "",
     agent_name: raw?.agent_name || raw?.agent || "Yaal Nilam Advisor",
     agent_phone: raw?.agent_phone || raw?.phone || "+94704846555",
     agent_email: raw?.agent_email || "",
@@ -356,8 +360,8 @@ export function normalizeAgent(raw: any): NormalizedAgent {
     response_rate: toNumber(raw?.response_rate),
     status: raw?.status || "active",
     joined_date: normalizeDate(raw?.joined_date),
-    recent_activity: raw?.recent_activity || "Active in the last 7 days",
-    testimonial: raw?.testimonial || "Responsive, locally knowledgeable, and strong with serious buyer follow-up.",
+    recent_activity: raw?.recent_activity || "",
+    testimonial: raw?.testimonial || "",
     logo_url: raw?.logo_url || raw?.company_logo_url || raw?.logo || "",
     cover_url: raw?.cover_url || raw?.company_cover_url || "",
     agency_type: raw?.agency_type || "Independent agent",

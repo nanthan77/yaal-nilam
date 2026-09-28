@@ -9,7 +9,9 @@ Website root: `web/`. Draft PR: <https://github.com/nanthan77/yaal-nilam/pull/1>
 The editorial redesign is integrated into the existing Next.js application.
 The earlier integration was committed as `e9f5b4e`; this follow-up also checks
 compatibility with the current public site and deployed Firestore contracts.
-No PR merge, deployment, production lead, or external message was performed.
+The initial integration verification performed no PR merge, deployment,
+production lead, or external message. A later request authorized the website
+release; its deployment receipt is recorded separately.
 
 ## Navigation follow-up
 
@@ -81,24 +83,74 @@ the final static export passed navigation checks. No product blocker was found.
 - Retained visible illustration labeling and distinguished platform listing
   review from independent legal title, deed and survey checks. Added calculator
   input labels. Bundled the existing licensed fonts for repeatable builds.
+- Preserved current live public account and seller workflows before release:
+  session restoration, password reset, Google popup/redirect fallback,
+  profile synchronization checks, separate public/private agent profiles,
+  authenticated private photo uploads and atomic listing/inquiry submission.
+  Restored all 37 seller location choices and removed invented agent activity
+  and testimonial defaults. Dashboard loading and empty states use real data.
+  Agent listing ownership uses exact UIDs; legacy matching requires both name
+  and contact, and cannot override modern submission provenance.
+
+### Public account and seller release checks
+
+Comparison with the live public JavaScript found newer account and seller
+behavior missing from the branch. This was corrected before deployment.
+Private uploads use the signed-in UID, WebP conversion, a ten-photo limit and
+rollback on failure. Listing submissions contain private paths rather than
+download URLs. Listing and inquiry records are committed atomically, with
+the notification fields required by deployed rules. Dashboard reads include
+the submitter UID and preserve published-property links.
+
+An isolated `demo-yaal-nilam` project ran Auth on 9099, Firestore on 8280 and
+Storage on 9199 using read-only copies of deployed rules. Seller registration,
+private image upload, submission success and owner-dashboard visibility passed.
+The browser produced one 45-field submission and one matching inquiry; the
+photo path belonged to the Auth UID and no download URL was stored. Agent
+registration created a pending public profile with blank email fields and a
+separate private profile. Login, reload/session restoration, logout, password
+reset and login with the reset password also passed. Production Firebase
+requests were blocked in these browser sessions.
+
+All 38 data regressions passed. Rules accepted valid anonymous details-only and
+authenticated private-media submissions and rejected cross-account media paths
+and anonymous UID claims. Focused upload checks verified concurrency, private
+metadata, strict WebP output and cleanup after an upload failure. Google
+provider behavior was preserved from the live code; real Google authorization
+and production email delivery were not exercised.
+
+Login, registration and dashboard passed 24 layout combinations: Tamil and
+English at 320, 390, 768 and 1440px. Both seller-form steps passed another 16
+combinations at those widths. These checks fixed the dashboard's narrow grid
+and stacked the seller form's action buttons on phones; no horizontal overflow
+remains in these checks.
 
 ## Verification
 
 Dependencies were installed with `npm ci` using `web/package-lock.json`; the
 lockfile and dependency versions remain unchanged. Production output was served
-through the Firebase Hosting emulator at `127.0.0.1:4173`. Lead submissions used
-local development at `127.0.0.1:4174` with Firestore at `127.0.0.1:8180` and a
-read-only copy of the current deployed rules, rather than the older repository
-rules. Provider checks were read-only.
+through the Firebase Hosting emulator at `127.0.0.1:4173`. Initial lead submissions
+used local development at `127.0.0.1:4174` with Firestore at `127.0.0.1:8180`.
+Account and private-upload checks then used the isolated three-service emulator
+setup described above. Both used read-only copies of current deployed rules,
+rather than the older repository rules. Production data/provider checks were
+read-only; no production test lead or account was created.
 
 | Check | Result |
 | --- | --- |
 | Production build and sitemap generation | Passed; 579 pages, 52 canonical sitemap URLs, four children and both RSS feeds |
 | TypeScript (`tsc --noEmit --incremental false`) | Passed |
 | Lint | Passed; existing native-image optimization warnings remain |
-| Data, routing and sitemap regression tests | 30 passed |
+| Data, routing and sitemap regression tests | 38 passed |
 | Production browser suite | 97 passed, 1 intentional desktop skip of a mobile-only observer, 0 failures |
 | Export and Hosting routing audit | Passed; 576 HTML canonicals, 22 detail exports from 11 records, all 52 sitemap targets returned HTTP 200; no fixtures |
+
+The release build was rerun after the account, seller and ownership fixes and
+completed successfully. Its browser run completed 96 assertions and one expected
+skip, then stalled in one worker before starting the mobile homepage case. That
+case passed separately with exit code 0 (2 seconds), covering all 97 assertions.
+The stalled runner was interrupted; this is a runner limitation, not a clean
+single-run completion. The earlier navigation suite above exited normally.
 
 ### Pages and screen sizes
 
@@ -162,8 +214,9 @@ ignored `output/playwright/`, `web/test-results/` and `.firebase/`.
 - Production backend, security rules and admin are newer than this checkout.
   Read-only inventory found 17 live functions versus six in local source and
   substantially newer access-control rules. **Do not run a blanket Firebase
-  deployment from this branch.** Reconcile backend/admin and authenticated
-  submission workflows before a future release. No functions, rules, Storage
+  deployment from this branch.** Public account and submission compatibility
+  has been restored; reconcile backend/admin source before releasing those
+  components. No functions, rules, Storage
   configuration or admin source was changed or deployed in this integration.
 - `npm audit --omit=dev` still reports four existing findings: one critical,
   two high and one moderate. The proposed Next.js remediation is a major upgrade
@@ -230,6 +283,8 @@ ignored `output/playwright/`, `web/test-results/` and `.firebase/`.
 - `web/src/app/globals.css`
 - `web/src/app/lands/clear-title-lands-jaffna/page.tsx`
 - `web/src/app/layout.tsx`
+- `web/src/app/list-property/page.tsx`
+- `web/src/app/login/page.tsx`
 - `web/src/app/map/page.tsx`
 - `web/src/app/new-today/page.tsx`
 - `web/src/app/page.tsx`
@@ -243,6 +298,7 @@ ignored `output/playwright/`, `web/test-results/` and `.firebase/`.
 - `web/src/app/real-estate/page.tsx`
 - `web/src/app/rent/[type]/[location]/page.tsx`
 - `web/src/app/rent/[type]/page.tsx`
+- `web/src/app/register/page.tsx`
 - `web/src/app/safety/page.tsx`
 - `web/src/app/short-term-rental/[location]/page.tsx`
 - `web/src/app/short-term-rental/page.tsx`
@@ -266,11 +322,16 @@ ignored `output/playwright/`, `web/test-results/` and `.firebase/`.
 - `web/src/components/YouTubeEmbed.tsx`
 - `web/src/components/pseo/PSEOListingPage.tsx`
 - `web/src/lib/build-listings.ts`
+- `web/src/lib/agent-onboarding.ts`
+- `web/src/lib/api.ts`
+- `web/src/lib/brand.ts`
 - `web/src/lib/client-analytics.ts`
 - `web/src/lib/development-fixtures.ts`
 - `web/src/lib/diaspora.ts`
 - `web/src/lib/firebase.ts`
 - `web/src/lib/firestore.ts`
+- `web/src/lib/google-auth-redirect.ts`
+- `web/src/lib/imageToWebp.ts`
 - `web/src/lib/marketplace.ts`
 - `web/src/lib/property-alerts.ts`
 - `web/src/lib/property-presentation.ts`

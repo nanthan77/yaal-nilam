@@ -7,18 +7,26 @@ const ts = require('typescript');
 
 // Run the real TypeScript data layer with only the Firebase transport replaced.
 // These tests never contact Firebase or create public leads.
-function createDataLayer({ env = 'production', fixtureFlag = 'false', read, readDoc, stored = null, write, analytics = {}, callable, browser = true, hostname = 'yaalnilam.com' } = {}) {
+function createDataLayer({ env = 'production', fixtureFlag = 'false', read, readDoc, stored = null, write, batchWrite, analytics = {}, callable, browser = true, hostname = 'yaalnilam.com' } = {}) {
   const modules = new Map();
+  const queries = [];
   const storage = new Map(stored === null ? [] : [['yaal-nilam-saved-properties', stored]]);
   const window = { location: { hostname }, localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) } };
   const transport = {
     collection: (_db, name) => name,
-    doc: (_db, name, id) => ({ name, id }),
-    query: (collection) => collection,
-    where: () => ({}), limit: () => ({}),
+    doc: (...args) => args.length === 1 ? { name: args[0], id: `${args[0]}-generated-id` } : { name: args[1], id: args[2] },
+    query: (collection, ...constraints) => { queries.push({ collection, constraints }); return collection; },
+    where: (field, operator, value) => ({ field, operator, value }), limit: (count) => ({ count }),
     getDocs: read || (async () => ({ docs: [] })),
     getDoc: readDoc || (async () => ({ exists: () => false })),
     addDoc: write || (async () => ({ id: 'local-test-write' })),
+    writeBatch: () => {
+      const pending = [];
+      return {
+        set: (ref, payload) => pending.push({ collection: ref.name, id: ref.id, payload }),
+        commit: () => batchWrite ? batchWrite(pending) : Promise.resolve(),
+      };
+    },
   };
   function load(file) {
     const filename = path.resolve(__dirname, '../src/lib', `${file}.ts`);
@@ -38,11 +46,11 @@ function createDataLayer({ env = 'production', fixtureFlag = 'false', read, read
       },
       process: { env: { NODE_ENV: env, NEXT_PUBLIC_ENABLE_PROPERTY_FIXTURES: fixtureFlag } },
       console: { warn() {}, error() {} },
-      ...(browser ? { window } : {}), setTimeout, clearTimeout, Date, Intl,
+      ...(browser ? { window } : {}), setTimeout, clearTimeout, Date, Intl, URL,
     }, { filename });
     return module.exports;
   }
-  return { api: load('firestore'), marketplace: load('marketplace'), alerts: () => load('property-alerts'), storage };
+  return { api: load('firestore'), marketplace: load('marketplace'), alerts: () => load('property-alerts'), storage, queries };
 }
 
 function snapshot(records) {
@@ -302,4 +310,155 @@ test('invalid alert service response is not reported as success or stored', asyn
   const { api, storage } = createDataLayer({ callable: async () => ({ data: { registrationId: 'incomplete' } }) });
   assert.equal(await api.createPropertyAlert({ whatsapp: '+94000000000', purpose: 'buy' }), null);
   assert.equal(storage.has('yaalnilam-property-alert-receipts-v1'), false);
+});
+
+function sellerSubmission(overrides = {}) {
+  return {
+    ownerName: 'LOCAL TEST SELLER', email: 'seller@example.invalid', phone: '0700000000',
+    title: 'LOCAL TEST PROPERTY', description: 'Local automated test only.',
+    area: 'nallur', address: 'Local test address', propertyType: 'house', intent: 'sell',
+    price: '100', whatsappOptIn: true, ...overrides,
+  };
+}
+
+test('seller submission atomically writes the live private-media and inquiry schemas', async () => {
+  const commits = [];
+  let individualWrites = 0;
+  const { api } = createDataLayer({
+    write: async () => { individualWrites++; throw new Error('Seller writes must be atomic'); },
+    batchWrite: async (pending) => commits.push(pending),
+  });
+  const result = await api.submitListing(sellerSubmission({
+    submitterId: 'local-auth-uid', mediaOwnerId: 'local-auth-uid',
+    photoPaths: ['listing-submissions/local-auth-uid/local-photo.webp'],
+    photos: ['https://example.invalid/should-not-be-public.jpg'],
+    videoUrl: 'https://youtu.be/abcdefghijk?utm_source=local',
+  }));
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), { submissionId: 'listing_submissions-generated-id', inquiryId: 'inquiries-generated-id' });
+  assert.equal(individualWrites, 0);
+  assert.equal(commits.length, 1);
+  assert.deepEqual(commits[0].map((write) => write.collection), ['listing_submissions', 'inquiries']);
+  const [submission, inquiry] = commits[0].map((write) => write.payload);
+  assert.equal(submission.owner_phone, '+94700000000');
+  assert.equal(submission.agent_phone, submission.owner_phone);
+  assert.equal(submission.submitter_uid, 'local-auth-uid');
+  assert.equal(submission.media_owner_id, 'local-auth-uid');
+  assert.deepEqual(JSON.parse(JSON.stringify(submission.media_paths)), ['listing-submissions/local-auth-uid/local-photo.webp']);
+  for (const field of ['media_urls', 'images', 'photos']) assert.equal(submission[field].length, 0);
+  assert.equal(submission.video_tour_url, 'https://www.youtube.com/watch?v=abcdefghijk');
+  assert.equal(submission.notify_email, 'info@yaalnilam.com');
+  assert.equal(submission.status, 'new');
+  assert.equal(submission.featured, false);
+  assert.equal(submission.verified, false);
+  assert.deepEqual(Object.keys(submission).sort(), [
+    'title', 'title_ta', 'description', 'description_ta', 'area', 'area_slug', 'address', 'address_ta',
+    'price', 'bedrooms', 'bathrooms', 'sqft', 'land_size_perches', 'road_frontage_ft', 'property_type',
+    'type', 'intent', 'furnishing', 'parking', 'amenities', 'media_urls', 'images', 'photos', 'media_paths',
+    'media_owner_id', 'video_tour_url', 'featured', 'verified', 'remote_purchase_support', 'status',
+    'submission_source', 'owner_name', 'owner_phone', 'owner_email', 'submitter_uid', 'agent_id',
+    'agent_name', 'agent_phone', 'agent_email', 'agent_company', 'session_id', 'whatsapp_opt_in',
+    'notify_email', 'created_at', 'updated_at',
+  ].sort());
+  assert.equal(inquiry.notify_email, 'info@yaalnilam.com');
+  assert.equal(inquiry.assigned_email, 'info@yaalnilam.com');
+  assert.equal(inquiry.source, 'public_listing_form');
+  assert.equal(inquiry.phone, submission.owner_phone);
+});
+
+test('anonymous text-only seller submission resolves without waiting for analytics', async () => {
+  let committed;
+  const { api } = createDataLayer({
+    batchWrite: async (pending) => { committed = pending; },
+    analytics: { isSupported: () => new Promise(() => {}) },
+  });
+  let timeout;
+  const result = await Promise.race([
+    api.submitListing(sellerSubmission()),
+    new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('Seller submission waited for analytics')), 200); }),
+  ]).finally(() => clearTimeout(timeout));
+  assert.ok(result);
+  const payload = committed[0].payload;
+  assert.equal(payload.submitter_uid, '');
+  assert.equal(payload.agent_id, '');
+  assert.equal(payload.media_owner_id, '');
+  assert.equal(payload.media_paths.length, 0);
+});
+
+test('seller batch failure reports failure and never attempts separate lead writes', async () => {
+  let commits = 0;
+  let individualWrites = 0;
+  const { api } = createDataLayer({
+    write: async () => { individualWrites++; return { id: 'unexpected' }; },
+    batchWrite: async () => { commits++; throw new Error('permission-denied'); },
+  });
+  assert.equal(await api.submitListing(sellerSubmission()), null);
+  assert.equal(commits, 1);
+  assert.equal(individualWrites, 0);
+});
+
+test('invalid seller phone or non-YouTube tour cannot create a listing batch', async () => {
+  let commits = 0;
+  const { api } = createDataLayer({ batchWrite: async () => { commits++; } });
+  assert.equal(await api.submitListing(sellerSubmission({ phone: 'invalid' })), null);
+  assert.equal(await api.submitListing(sellerSubmission({ videoUrl: 'https://example.invalid/tour' })), null);
+  assert.equal(commits, 0);
+});
+
+test('owner profile restores protected agent fields alongside its public profile', async () => {
+  const reads = [];
+  const { api } = createDataLayer({ readDoc: async ({ name, id }) => {
+    reads.push({ name, id });
+    return { id, exists: () => true, data: () => name === 'agents'
+      ? { name: 'Local agent', company: 'Local agency', status: 'pending', email: '' }
+      : { internal_email: 'private@example.invalid', office_address: 'Local private office', agency_plan: 'starter' } };
+  } });
+  const profile = await api.getAgentProfileForUser({ id: 'local-auth-uid', user_type: 'agent' });
+  assert.deepEqual(reads.map(({ name }) => name).sort(), ['agent_private', 'agents']);
+  assert.equal(profile.internal_email, 'private@example.invalid');
+  assert.equal(profile.office_address, 'Local private office');
+  assert.equal(profile.email, '');
+});
+
+test('seller dashboard queries submitter UID and reconciles stable published IDs once', async () => {
+  const submissions = [
+    { id: 'submission-1', status: 'approved', published_listing_id: 'public-1', title: 'Already public' },
+    { id: 'submission-2', status: 'published', published_listing_id: 'public-2', title: 'Published before agent approval' },
+    { id: 'submission-3', status: 'approved', title: 'Missing publication reference' },
+    { id: 'submission-4', status: 'new', title: 'Pending review' },
+  ];
+  const { api, queries } = createDataLayer({
+    read: async (collection) => snapshot(collection === 'listing_submissions' ? submissions : collection === 'listings' ? [{ id: 'public-1', status: 'Available', agent_id: 'local-auth-uid' }] : []),
+  });
+  const result = await api.getAgentDashboardData({ id: 'local-auth-uid', user_type: 'agent' });
+  assert.ok(queries.some(({ collection, constraints }) => collection === 'listing_submissions' && constraints.some((constraint) => constraint.field === 'submitter_uid' && constraint.value === 'local-auth-uid')));
+  assert.deepEqual(Array.from(result.approvedListings, (listing) => listing.id).sort(), ['public-1', 'public-2']);
+  assert.deepEqual(Array.from(result.pendingListings, (listing) => listing.id).sort(), ['submission-3', 'submission-4']);
+  assert.equal(result.pendingListings.find((listing) => listing.id === 'submission-3').review_status, 'publication_issue');
+  assert.equal(result.agent.response_rate, 0);
+});
+
+test('agent listing ownership requires the exact UID even when public contact details match', async () => {
+  const agent = { id: 'Agent-UID', name: 'Local Agent', phone: '+94771234567', email: 'local@example.invalid' };
+  const shared = { status: 'Available', agent_name: agent.name, agent_phone: agent.phone, agent_email: agent.email };
+  const { api } = createDataLayer({ read: async () => snapshot([
+    { ...shared, id: 'owned', agent_id: agent.id, agent_name: 'Old display name', agent_phone: '', agent_email: '' },
+    { ...shared, id: 'another-agent', agent_id: 'another-uid' },
+    { ...shared, id: 'uid-case-collision', agent_id: 'agent-UID' },
+    { ...shared, id: 'uid-punctuation-collision', agent_id: 'AgentUID' },
+  ]) });
+  assert.deepEqual(Array.from(await api.getListingsByAgent(agent), (listing) => listing.id), ['owned']);
+});
+
+test('legacy listing ownership requires name and contact, and never applies to modern submissions', async () => {
+  const agent = { id: 'Agent-UID', name: 'Local Agent', phone: '+94771234567', email: 'local@example.invalid' };
+  const shared = { status: 'Available', agent_name: agent.name, agent_phone: agent.phone, agent_email: agent.email };
+  const { api } = createDataLayer({ read: async () => snapshot([
+    { ...shared, id: 'legacy-match', agent_name: 'LOCAL  AGENT', agent_phone: '+94 77 123 4567' },
+    { ...shared, id: 'name-only', agent_phone: '+94777654321', agent_email: 'other@example.invalid' },
+    { ...shared, id: 'contact-only', agent_name: 'Other Person' },
+    { ...shared, id: 'modern-source', submission_source: 'public_listing_form' },
+    { ...shared, id: 'legacy-source-field', source: 'public_listing_form' },
+    { ...shared, id: 'modern-submitter', submitter_uid: 'another-uid' },
+  ]) });
+  assert.deepEqual(Array.from(await api.getListingsByAgent(agent), (listing) => listing.id), ['legacy-match']);
 });

@@ -9,6 +9,7 @@ import {
   limit,
   query,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { AREAS as MOCK_AREAS } from "./data";
 import { DEVELOPMENT_PROPERTY_FIXTURES } from "./development-fixtures";
@@ -24,6 +25,7 @@ import {
 import { ALL_LOCATIONS } from "./locations";
 import { sanitizeAnalyticsEventName, sanitizeAnalyticsParameters } from "./client-analytics";
 import { normalizePropertySlug, resolvePropertyId } from "./property-routes";
+import { canonicalizePhoneNumber, canonicalizeYouTubeUrl, listingBelongsToAgent } from "./agent-onboarding";
 
 const FALLBACK_LISTINGS = DEVELOPMENT_PROPERTY_FIXTURES;
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
@@ -285,10 +287,6 @@ export async function getAgents() {
   }
 }
 
-function normalizeContact(value?: string) {
-  return (value || "").toString().replace(/[^0-9a-z]/gi, "").toLowerCase();
-}
-
 export async function getAgentById(id: string) {
   try {
     const docSnap = await safeDoc("agents", id);
@@ -308,25 +306,8 @@ export async function getAgentById(id: string) {
 export async function getListingsByAgent(agent: any) {
   try {
     const listings = await getProperties();
-    const agentId = normalizeContact(agent?.id);
-    const agentPhone = normalizeContact(agent?.phone || agent?.whatsapp);
-    const agentEmail = normalizeContact(agent?.email);
-    const agentName = normalizeContact(agent?.name);
-
     return listings
-      .filter((listing) => {
-        const listingAgentId = normalizeContact(listing.agent_id);
-        const listingPhone = normalizeContact(listing.agent_phone);
-        const listingEmail = normalizeContact(listing.agent_email);
-        const listingName = normalizeContact(listing.agent_name);
-
-        return (
-          (agentId && listingAgentId === agentId) ||
-          (agentPhone && listingPhone === agentPhone) ||
-          (agentEmail && listingEmail === agentEmail) ||
-          (agentName && listingName === agentName)
-        );
-      })
+      .filter((listing) => listingBelongsToAgent(listing, agent))
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   } catch (error) {
     console.error("Error fetching agent listings:", error);
@@ -348,7 +329,7 @@ export async function getAgentProfileForUser(user: any) {
     nic_uploaded: false,
     active_listings: 0,
     total_inquiries: 0,
-    response_rate: user?.user_type === "agent" ? 72 : 0,
+    response_rate: 0,
     recent_activity: "Profile setup in progress",
   });
   if (!user?.phone) {
@@ -357,9 +338,16 @@ export async function getAgentProfileForUser(user: any) {
   }
 
   try {
-    const docSnap = await safeDoc("agents", user?.id);
+    const [docSnap, privateSnap] = await Promise.all([
+      safeDoc("agents", user?.id),
+      safeDoc("agent_private", user?.id),
+    ]);
     if (docSnap?.exists()) {
-      return normalizeAgent({ id: docSnap.id, ...docSnap.data() });
+      return normalizeAgent({
+        id: docSnap.id,
+        ...docSnap.data(),
+        ...(privateSnap?.exists() ? privateSnap.data() : {}),
+      });
     }
   } catch (error) {
     console.error("Error loading current agent profile:", error);
@@ -373,10 +361,16 @@ export async function getListingSubmissionsForUser(user: any) {
 
   const queries = [];
   if (user?.id) {
-    queries.push({
-      label: `collection:listing_submissions:agent_id:${user.id}`,
-      request: query(collection(db, "listing_submissions"), where("agent_id", "==", user.id), limit(40)),
-    });
+    queries.push(
+      {
+        label: `collection:listing_submissions:submitter_uid:${user.id}`,
+        request: query(collection(db, "listing_submissions"), where("submitter_uid", "==", user.id), limit(40)),
+      },
+      {
+        label: `collection:listing_submissions:agent_id:${user.id}`,
+        request: query(collection(db, "listing_submissions"), where("agent_id", "==", user.id), limit(40)),
+      }
+    );
   }
   if (user?.email) {
     queries.push(
@@ -409,8 +403,14 @@ export async function getListingSubmissionsForUser(user: any) {
 
       return {
         ...normalizeListing({ ...item, status: normalizedStatus }),
-        review_status: item.status || "new",
+        review_status:
+          ["approved", "published", "available", "active"].includes(
+            (item.status || "").toString().toLowerCase()
+          ) && !item.published_listing_id
+            ? "publication_issue"
+            : item.status || "new",
         source_collection: "listing_submissions",
+        published_listing_id: item.published_listing_id || "",
       };
     })
     .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
@@ -419,10 +419,42 @@ export async function getListingSubmissionsForUser(user: any) {
 export async function getAgentDashboardData(user: any) {
   try {
     const agent = await getAgentProfileForUser(user);
-    const [approvedListings, pendingListings] = await Promise.all([
+    const [agentListings, submissions] = await Promise.all([
       getListingsByAgent(agent),
       getListingSubmissionsForUser(user),
     ]);
+
+    const approvedById = new Map(agentListings.map((listing) => [listing.id, listing]));
+    const pendingListings = [];
+    for (const submission of submissions) {
+      const submissionStatus = String(submission.review_status || submission.status || '').toLowerCase();
+      const publishedId = String(submission.published_listing_id || '').trim();
+      const isPublishedSubmission = ["approved", "published", "available", "active"].includes(
+        submissionStatus
+      );
+
+      if (isPublishedSubmission && publishedId) {
+        // Moderation publishes submissions under a stable public ID. Reconcile
+        // that record into the approved list once and use the real public route,
+        // including for submissions published before an agent profile went live.
+        if (!approvedById.has(publishedId)) {
+          approvedById.set(publishedId, {
+            ...submission,
+            id: publishedId,
+            status: "Available",
+            review_status: "approved",
+            source_collection: "listings",
+          });
+        }
+        continue;
+      }
+
+      pendingListings.push(submission);
+    }
+
+    const approvedListings = Array.from(approvedById.values()).sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    );
 
     return { agent, approvedListings, pendingListings };
   } catch (error) {
@@ -742,8 +774,13 @@ export async function submitPropertyRequest(data: Record<string, any>) {
 export async function submitListing(data: Record<string, any>) {
   try {
     const agentName = data.agentName || data.ownerName || data.contactName || "";
-    const agentPhone = data.agentPhone || data.phone || "";
+    const ownerPhone = canonicalizePhoneNumber(data.phone);
+    const agentPhone = canonicalizePhoneNumber(data.agentPhone || data.phone);
     const agentEmail = data.agentEmail || data.email || "";
+    const videoTourUrl = data.videoUrl ? canonicalizeYouTubeUrl(data.videoUrl) : "";
+    if (!ownerPhone || !agentPhone || (data.videoUrl && !videoTourUrl)) {
+      throw new Error("Listing contact or YouTube details are invalid.");
+    }
     const baseListing = {
       title: data.title,
       title_ta: data.title_ta || "",
@@ -765,16 +802,21 @@ export async function submitListing(data: Record<string, any>) {
       furnishing: data.furnishing || "not_specified",
       parking: Number(data.parking || 0),
       amenities: Array.isArray(data.amenities) ? data.amenities : [],
-      media_urls: Array.isArray(data.photos) ? data.photos : [],
-      video_tour_url: data.videoUrl || "",
+      media_urls: [],
+      images: [],
+      photos: [],
+      media_paths: Array.isArray(data.photoPaths) ? data.photoPaths : [],
+      media_owner_id: data.mediaOwnerId || "",
+      video_tour_url: videoTourUrl || "",
       featured: false,
       verified: false,
       remote_purchase_support: true,
       status: "Pending",
       submission_source: "public_listing_form",
       owner_name: data.ownerName || data.contactName || "",
-      owner_phone: data.phone,
+      owner_phone: ownerPhone,
       owner_email: data.email || "",
+      submitter_uid: data.submitterId || "",
       agent_id: data.agentId || data.agent_id || "",
       agent_name: agentName,
       agent_phone: agentPhone,
@@ -784,33 +826,40 @@ export async function submitListing(data: Record<string, any>) {
       updated_at: new Date().toISOString(),
     };
 
-    const [submissionRef, inquiryRef] = await Promise.all([
-      addDoc(collection(db, "listing_submissions"), {
+    const submissionRef = doc(collection(db, "listing_submissions"));
+    const inquiryRef = doc(collection(db, "inquiries"));
+    const batch = writeBatch(db);
+    batch.set(submissionRef, {
         ...baseListing,
         session_id: getClientSessionId(),
         whatsapp_opt_in: Boolean(data.whatsappOptIn),
+        notify_email: "info@yaalnilam.com",
         status: "new",
-      }),
-      addDoc(collection(db, "inquiries"), {
+      });
+    batch.set(inquiryRef, {
         customer_name: data.ownerName || data.contactName || "",
         email: data.email || "",
-        phone: data.phone || "",
-        whatsapp: data.phone || "",
+        phone: ownerPhone,
+        whatsapp: ownerPhone,
         subject: "New listing submission",
         message: data.description || `New ${data.propertyType || "property"} listing submission in ${data.area || "Jaffna"}.`,
         listing_id: "",
         listing_title: data.title || "",
         source: "public_listing_form",
+        notify_email: "info@yaalnilam.com",
+        assigned_email: "info@yaalnilam.com",
         status: "new",
         priority: "warm",
         assigned_to: "",
         notes: "",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }),
-    ]);
+      });
+    await batch.commit();
 
-    await trackAnalyticsEvent("submit_listing", {
+    // Lead analytics is useful but must not turn an already committed listing
+    // into a client-visible failure that then removes its pending media.
+    void trackAnalyticsEvent("submit_listing", {
       listing_submission_id: submissionRef.id,
       inquiry_id: inquiryRef.id,
       property_type: data.propertyType,

@@ -1,11 +1,20 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import { connectStorageEmulator, getStorage } from 'firebase/storage';
+
+function resolveAuthDomain() {
+  const configuredDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!;
+  if (typeof window === 'undefined') return configuredDomain;
+  const hostname = window.location.hostname.toLowerCase();
+  return hostname === 'yaalnilam.com' || hostname === 'www.yaalnilam.com'
+    ? 'yaalnilam.com'
+    : configuredDomain;
+}
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  authDomain: resolveAuthDomain(),
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
@@ -30,4 +39,26 @@ if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_FIRESTORE_
 }
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
+function localEmulatorAddress(value: string, name: string) {
+  const [host, port] = value.split(':');
+  if (!['localhost', '127.0.0.1'].includes(host) || !Number.isInteger(Number(port)) || Number(port) <= 0 || Number(port) > 65535) {
+    throw new Error(`${name} must be a localhost host:port.`);
+  }
+  return { host, port: Number(port) };
+}
+
+if (process.env.NODE_ENV === 'development') {
+  const localApp = app as typeof app & { __authEmulatorConnected?: boolean; __storageEmulatorConnected?: boolean };
+  if (process.env.NEXT_PUBLIC_AUTH_EMULATOR_HOST && !localApp.__authEmulatorConnected) {
+    const { host, port } = localEmulatorAddress(process.env.NEXT_PUBLIC_AUTH_EMULATOR_HOST, 'NEXT_PUBLIC_AUTH_EMULATOR_HOST');
+    connectAuthEmulator(auth, `http://${host}:${port}`, { disableWarnings: true });
+    localApp.__authEmulatorConnected = true;
+  }
+  if (process.env.NEXT_PUBLIC_STORAGE_EMULATOR_HOST && !localApp.__storageEmulatorConnected) {
+    const { host, port } = localEmulatorAddress(process.env.NEXT_PUBLIC_STORAGE_EMULATOR_HOST, 'NEXT_PUBLIC_STORAGE_EMULATOR_HOST');
+    connectStorageEmulator(storage, host, port);
+    localApp.__storageEmulatorConnected = true;
+  }
+}
 export default app;
