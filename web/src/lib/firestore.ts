@@ -22,6 +22,8 @@ import {
   normalizeListing,
 } from "./marketplace";
 import { ALL_LOCATIONS } from "./locations";
+import { sanitizeAnalyticsEventName, sanitizeAnalyticsParameters } from "./client-analytics";
+import { normalizePropertySlug, resolvePropertyId } from "./property-routes";
 
 const FALLBACK_LISTINGS = DEVELOPMENT_PROPERTY_FIXTURES;
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
@@ -204,14 +206,28 @@ export async function getFeaturedProperties() {
   return properties.filter((property) => property.featured).slice(0, 6);
 }
 
-export async function getPropertyById(id: string) {
+export async function getPropertyById(idOrSlug: string) {
+  if (!idOrSlug || typeof idOrSlug !== "string") return null;
+  const id = resolvePropertyId(idOrSlug);
   try {
     const docSnap = await safeDoc("listings", id);
-    if (docSnap) {
-      if (!docSnap.exists()) return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
+    if (docSnap?.exists()) {
       const raw = docSnap.data();
       if (!PUBLIC_LISTING_STATUSES.includes(raw.status)) return null;
       return normalizeListing({ ...raw, id: docSnap.id });
+    }
+    // New slug URLs may be published after this static build. Resolve only from
+    // a fresh, permission-checked published query, never a cached withdrawn listing.
+    const slug = normalizePropertySlug(idOrSlug);
+    if (id === idOrSlug && slug) {
+      const snapshot = await safeQuerySnapshot(
+        "collection:listings:slug",
+        query(collection(db, "listings"), where("status", "in", PUBLIC_LISTING_STATUSES))
+      );
+      const match = snapshot?.docs
+        .map((item: any) => normalizeListing({ ...item.data(), id: item.id }))
+        .find((listing: any) => listing.slug === slug);
+      if (match) return match;
     }
     return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
   } catch (error) {
@@ -424,23 +440,27 @@ export async function getAgentDashboardData(user: any) {
 // ========================
 
 export async function trackAnalyticsEvent(eventName: string, payload: Record<string, any> = {}) {
+  if (typeof window === "undefined") return true;
+  if (["localhost", "127.0.0.1", "[::1]"].includes(window.location?.hostname)) return true;
+
   try {
-    await addDoc(collection(db, "analytics_events"), {
-      event_name: eventName,
-      session_id: getClientSessionId(),
-      created_at: new Date().toISOString(),
-      ...payload,
-    });
+    const [{ getAnalytics, isSupported, logEvent }, { default: app }] = await Promise.all([
+      import("firebase/analytics"),
+      import("./firebase"),
+    ]);
+    if (!(await isSupported())) return true;
+
+    logEvent(getAnalytics(app), sanitizeAnalyticsEventName(eventName), sanitizeAnalyticsParameters(payload));
     return true;
   } catch (error) {
-    console.error("Error tracking analytics event:", error);
+    // Analytics availability must not turn a successful user action into an error.
+    console.warn("Analytics event was not available:", error);
     return false;
   }
 }
 
 export async function trackListingView(listing: any, source = "property_detail") {
-  // The listing `views` counter is incremented server-side by the onAnalyticsEvent
-  // Cloud Function — public clients can't write to listings (see firestore.rules).
+  // Browser analytics is aggregate-only; authoritative counters remain a server concern.
   return trackAnalyticsEvent("listing_view", {
     listing_id: listing.id,
     listing_code: listing.listing_code,
@@ -450,8 +470,7 @@ export async function trackListingView(listing: any, source = "property_detail")
 }
 
 export async function trackWhatsAppLead(listing: any, source = "property_card") {
-  // The listing `whatsapp_clicks` counter is incremented server-side by the
-  // onAnalyticsEvent Cloud Function (public clients can't write to listings).
+  // Keep contact tracking free of phone, name, and message data.
   return trackAnalyticsEvent("whatsapp_click", {
     listing_id: listing.id,
     listing_code: listing.listing_code,
@@ -462,8 +481,6 @@ export async function trackWhatsAppLead(listing: any, source = "property_card") 
 
 export async function trackAgentProfileView(agent: any, source = "agent_profile") {
   return trackAnalyticsEvent("agent_profile_view", {
-    agent_id: agent.id,
-    agent_name: agent.name,
     source,
   });
 }
@@ -551,29 +568,25 @@ export async function createPropertyAlert(data: {
   locale?: string;
 }) {
   try {
-    const docRef = await addDoc(collection(db, "property_alerts"), {
-      name: data.name || "",
-      whatsapp: (data.whatsapp || "").trim(),
-      email: (data.email || "").trim(),
-      purpose: data.purpose,
-      property_type: data.propertyType || "any",
-      area: data.area || "any",
-      min_bedrooms: Number(data.minBedrooms || 0),
-      max_price: Number(data.maxPrice || 0),
-      locale: data.locale || "en",
-      source: "property_alerts_form",
-      status: "active",
-      notified_listing_ids: [],
-      match_count: 0,
-      created_at: new Date().toISOString(),
+    const { registerPropertyAlert } = await import("./property-alerts");
+    const receipt = await registerPropertyAlert({
+      label: data.name?.trim() || "Property alert",
+      receiptLabel: data.locale === "ta" ? "சொத்து எச்சரிக்கை" : "Property alert",
+      phone: data.whatsapp,
+      email: data.email?.trim() || undefined,
+      purpose: data.purpose === "buy" ? "sale" : "rent",
+      propertyType: data.propertyType || "any",
+      areas: data.area && data.area !== "any" ? [data.area] : [],
+      minBedrooms: Number(data.minBedrooms || 0),
+      maxPrice: Number(data.maxPrice || 0),
+      locale: data.locale === "ta" ? "ta" : "en",
     });
     await trackAnalyticsEvent("create_property_alert", {
-      property_alert_id: docRef.id,
       purpose: data.purpose,
       property_type: data.propertyType || "any",
       area: data.area || "any",
     });
-    return docRef.id;
+    return receipt.registrationId;
   } catch (error) {
     console.error("Error creating property alert:", error);
     return null;
@@ -605,6 +618,8 @@ export async function submitInquiry(data: {
       listing_id: data.listing_id || "",
       listing_title: data.listing_title || "",
       source: data.source || "website_form",
+      notify_email: "info@yaalnilam.com",
+      assigned_email: "info@yaalnilam.com",
       status: "new",
       priority: "warm",
       assigned_to: "",
@@ -613,7 +628,7 @@ export async function submitInquiry(data: {
       updated_at: new Date().toISOString(),
     });
 
-    await trackAnalyticsEvent("submit_inquiry", {
+    void trackAnalyticsEvent("submit_inquiry", {
       inquiry_id: docRef.id,
       source: data.source || "website_form",
       listing_id: data.listing_id || "",
@@ -647,6 +662,7 @@ export async function submitViewingRequest(data: {
       preferred_date: data.preferred_date || "",
       timezone: data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       notes: data.notes || "",
+      notify_email: "info@yaalnilam.com",
       status: "new",
       created_at: new Date().toISOString(),
     });
@@ -662,7 +678,7 @@ export async function submitViewingRequest(data: {
       source: "viewing_request",
     });
 
-    await trackAnalyticsEvent("viewing_request", {
+    void trackAnalyticsEvent("viewing_request", {
       viewing_request_id: docRef.id,
       listing_id: data.listing.id,
       listing_code: data.listing.listing_code,
@@ -695,6 +711,7 @@ export async function submitPropertyRequest(data: Record<string, any>) {
       land_size: data.landSize || "",
       urgency: data.urgency || "medium",
       notes: data.description || "",
+      notify_email: "info@yaalnilam.com",
       status: "new",
       source: "request_property_form",
       created_at: new Date().toISOString(),
@@ -708,7 +725,7 @@ export async function submitPropertyRequest(data: Record<string, any>) {
       }),
     ]);
 
-    await trackAnalyticsEvent("submit_property_request", {
+    void trackAnalyticsEvent("submit_property_request", {
       property_request_id: requestRef.id,
       requirement_id: requirementRef.id,
       intent: data.intent,

@@ -11,13 +11,14 @@ import { PROPERTY_TYPES } from '@/lib/data';
 import { DEFAULT_AREA_CATALOG, DEFAULT_PROPERTY_CATALOG, getAreas, getProperties } from '@/lib/firestore';
 import { useStore } from '@/lib/store';
 import { localize } from '@/lib/translations';
+import type { NormalizedListing } from '@/lib/marketplace';
 
-export default function EditorialHome() {
+export default function EditorialHome({ initialProperties }: { initialProperties?: NormalizedListing[] }) {
   const { locale } = useStore();
   const router = useRouter();
-  const [properties, setProperties] = useState<any[]>(DEFAULT_PROPERTY_CATALOG);
+  const [properties, setProperties] = useState<NormalizedListing[]>(initialProperties ?? DEFAULT_PROPERTY_CATALOG);
   const [areas, setAreas] = useState<any[]>(DEFAULT_AREA_CATALOG);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialProperties === undefined);
   const [intent, setIntent] = useState('sell');
   const [area, setArea] = useState('');
   const [type, setType] = useState('');

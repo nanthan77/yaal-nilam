@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 const rs = (v: number) => "Rs. " + Math.round(v || 0).toLocaleString("en-LK");
 
@@ -13,6 +13,7 @@ export default function MortgageCalculator({
   price?: number;
   locale?: string;
 }) {
+  const fieldId = useId();
   const ta = locale === "ta";
   const [p, setP] = useState(price && price > 0 ? price : 10000000);
   const [down, setDown] = useState(20);
@@ -36,20 +37,20 @@ export default function MortgageCalculator({
       <h3 className="text-xl font-bold text-charcoal-900 mb-4">{L.title}</h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label className={label}>{L.price}</label>
-          <input type="number" min={0} value={p} onChange={(e) => setP(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-price`} className={label}>{L.price}</label>
+          <input id={`${fieldId}-price`} type="number" min={0} value={p} onChange={(e) => setP(Number(e.target.value))} className={field} />
         </div>
         <div>
-          <label className={label}>{L.down}</label>
-          <input type="number" min={0} max={100} value={down} onChange={(e) => setDown(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-down`} className={label}>{L.down}</label>
+          <input id={`${fieldId}-down`} type="number" min={0} max={100} value={down} onChange={(e) => setDown(Number(e.target.value))} className={field} />
         </div>
         <div>
-          <label className={label}>{L.rate}</label>
-          <input type="number" min={0} step={0.1} value={rate} onChange={(e) => setRate(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-rate`} className={label}>{L.rate}</label>
+          <input id={`${fieldId}-rate`} type="number" min={0} step={0.1} value={rate} onChange={(e) => setRate(Number(e.target.value))} className={field} />
         </div>
         <div className="col-span-2">
-          <label className={label}>{L.term}</label>
-          <input type="number" min={1} max={40} value={years} onChange={(e) => setYears(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-term`} className={label}>{L.term}</label>
+          <input id={`${fieldId}-term`} type="number" min={1} max={40} value={years} onChange={(e) => setYears(Number(e.target.value))} className={field} />
         </div>
       </div>
       <div className="mt-4 rounded-2xl bg-gradient-to-br from-teal-900 to-teal-800 text-white p-5 text-center">

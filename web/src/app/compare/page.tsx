@@ -7,6 +7,7 @@ import { getPropertyById } from "@/lib/firestore";
 import { resolvePropertyImage } from "@/lib/marketplace";
 import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel } from "@/lib/translations";
 import { rentalPriceSuffix } from "@/lib/property-presentation";
+import { getPropertyPath } from "@/lib/property-routes";
 
 const rs = (v: number) => "Rs. " + Math.round(v || 0).toLocaleString("en-LK");
 
@@ -83,7 +84,7 @@ export default function ComparePage() {
                     {items.map((p) => (
                       <th scope="col" key={p.id} className="p-3 align-top text-left">
                         <img src={resolvePropertyImage(p)} alt="" className="w-full h-28 object-cover rounded-xl mb-2" loading="lazy" />
-                        <a href={`/properties/${encodeURIComponent(p.id)}/`} className="block text-sm font-bold text-charcoal-900 hover:text-teal-700 line-clamp-2">
+                        <a href={getPropertyPath(p)} className="block text-sm font-bold text-charcoal-900 hover:text-teal-700 line-clamp-2">
                           {locale === "ta" && p.title_ta ? p.title_ta : p.title}
                         </a>
                         <button onClick={() => toggleCompare(p.id)} className="mt-1 text-xs font-semibold text-red-600 hover:underline">
@@ -106,7 +107,7 @@ export default function ComparePage() {
                     <td className="p-3" />
                     {items.map((p) => (
                       <td key={p.id} className="p-3">
-                        <a href={`/properties/${encodeURIComponent(p.id)}/`} className="inline-block bg-teal-50 text-teal-700 hover:bg-teal-100 text-sm font-semibold px-4 py-2 rounded-lg transition">
+                        <a href={getPropertyPath(p)} className="inline-block bg-teal-50 text-teal-700 hover:bg-teal-100 text-sm font-semibold px-4 py-2 rounded-lg transition">
                           {ta ? "விவரங்கள்" : "View"}
                         </a>
                       </td>

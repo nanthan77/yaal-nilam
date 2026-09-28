@@ -1,4 +1,5 @@
 import { ALL_LOCATIONS, getLocationBySlug } from "./locations";
+import { normalizePropertySlug } from "./property-routes";
 
 export type CurrencyCode = "LKR" | "GBP" | "USD";
 
@@ -18,6 +19,7 @@ export interface ListingFilters {
 
 export interface NormalizedListing {
   id: string;
+  slug?: string;
   title: string;
   title_ta: string;
   description: string;
@@ -250,7 +252,9 @@ function toNumber(value: any, fallback = 0) {
 
 export function normalizeListing(raw: any): NormalizedListing {
   const id = raw?.id || `listing-${hashString(JSON.stringify(raw || {}))}`;
-  const areaSlug = slugifyArea(raw?.area_slug || raw?.area || raw?.slug || "jaffna");
+  const legacyArea = getLocationBySlug(raw?.slug || "")?.slug;
+  const areaSlug = slugifyArea(raw?.area_slug || raw?.area || legacyArea || "jaffna");
+  const propertySlug = normalizePropertySlug(raw?.slug);
   const location = buildLocationFallback(areaSlug);
   const propertyType = normalizePropertyType(raw?.property_type || raw?.type);
   const status = normalizeStatus(raw?.status);
@@ -267,6 +271,8 @@ export function normalizeListing(raw: any): NormalizedListing {
 
   return {
     id,
+    // Older records used `slug` for the area, which is shared by many listings.
+    slug: propertySlug !== areaSlug ? propertySlug : undefined,
     title: raw?.title || `${areaName} ${propertyType}`,
     title_ta: raw?.title_ta || raw?.title || `${areaNameTa} ${propertyType}`,
     description: raw?.description || "More details available on request.",

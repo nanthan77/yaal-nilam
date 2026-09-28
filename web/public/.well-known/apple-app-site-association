@@ -1,0 +1,33 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "S2KR53WUDL.lk.yaalnilam.agent"
+        ],
+        "components": [
+          {
+            "/": "/properties/*",
+            "comment": "Open published property details in Yaal Nilam."
+          },
+          {
+            "/": "/map",
+            "comment": "Open the Yaal Nilam property map."
+          },
+          {
+            "/": "/map/",
+            "comment": "Open the Yaal Nilam property map."
+          },
+          {
+            "/": "/alerts",
+            "comment": "Open Yaal Nilam property alerts."
+          },
+          {
+            "/": "/alerts/",
+            "comment": "Open Yaal Nilam property alerts."
+          }
+        ]
+      }
+    ]
+  }
+}

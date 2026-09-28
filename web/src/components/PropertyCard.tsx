@@ -7,6 +7,7 @@ import { useStore } from '@/lib/store';
 import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel } from '@/lib/translations';
 import { buildWhatsAppUrl, normalizeListing, resolvePropertyImage, type NormalizedListing } from '@/lib/marketplace';
 import { rentalPriceSuffix } from '@/lib/property-presentation';
+import { getPropertyPath } from '@/lib/property-routes';
 import { googleMapsViewUrl } from '@/lib/maps';
 import ShareMenu from '@/components/ShareMenu';
 import { getSavedPropertyIds, toggleSavedProperty, trackWhatsAppLead } from '@/lib/firestore';
@@ -23,7 +24,7 @@ export default function PropertyCard({ property }: { property: Property | Normal
   const priceDisplay = p.price > 0 ? price + rentalPriceSuffix(p.intent, locale) : (locale === 'ta' ? 'விலையைக் கேளுங்கள்' : 'Price on request');
   const inCompare = compareIds.includes(p.id);
   const compareLimitReached = !inCompare && compareIds.length >= 3;
-  const detailUrl = '/properties/' + encodeURIComponent(p.id) + '/';
+  const detailUrl = getPropertyPath(p);
   const whatsappMessage = locale === 'ta'
     ? title + ' (' + (p.listing_code || p.id) + ') பற்றி தெரிந்து கொள்ள விரும்புகிறேன்.'
     : "Hi, I'm interested in " + title + ' (' + (p.listing_code || p.id) + ').';

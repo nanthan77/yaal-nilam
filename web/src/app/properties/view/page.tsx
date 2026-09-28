@@ -10,10 +10,12 @@ export default function PropertyViewPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const pathId = window.location.pathname.match(/^\/properties\/([^/]+)\/?$/)?.[1];
-    const listingId = pathId && pathId !== "view"
-      ? decodeURIComponent(pathId)
-      : new URLSearchParams(window.location.search).get("id");
+    const pathId = window.location.pathname.match(/^\/(?:properties|property)\/([^/]+)\/?$/)?.[1];
+    let listingId = new URLSearchParams(window.location.search).get("id");
+    if (pathId && pathId !== "view") {
+      try { listingId = decodeURIComponent(pathId); }
+      catch { listingId = pathId; }
+    }
     if (listingId && listingId !== "view") {
       setId(listingId);
       const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');

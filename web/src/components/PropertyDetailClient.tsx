@@ -15,18 +15,19 @@ import { useStore } from "@/lib/store";
 import { buildWhatsAppUrl, formatConvertedPrice, type NormalizedListing } from "@/lib/marketplace";
 import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel, localize } from "@/lib/translations";
 import { localDateToday, rentalPriceSuffix } from "@/lib/property-presentation";
+import { getPropertyPath, resolvePropertyId } from "@/lib/property-routes";
 import ShareMenu from "@/components/ShareMenu";
 
 const DISPLAY_CURRENCIES = ["LKR", "GBP", "USD"] as const;
 
-export default function PropertyDetailClient({ propertyId }: { propertyId?: string } = {}) {
+export default function PropertyDetailClient({ propertyId, initialProperty = null }: { propertyId?: string; initialProperty?: NormalizedListing | null } = {}) {
   const { locale, compareIds, toggleCompare } = useStore();
   const params = useParams<{ id: string }>();
-  const id = propertyId || params?.id;
+  const id = resolvePropertyId(propertyId || params?.id || initialProperty?.id || "");
 
-  const [property, setProperty] = useState<NormalizedListing | null>(null);
+  const [property, setProperty] = useState<NormalizedListing | null>(initialProperty);
   const [relatedProperties, setRelatedProperties] = useState<NormalizedListing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProperty);
   const [saved, setSaved] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<"LKR" | "GBP" | "USD">("LKR");
   const [saving, setSaving] = useState(false);
@@ -156,8 +157,9 @@ export default function PropertyDetailClient({ propertyId }: { propertyId?: stri
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setProperty(null);
+    const initialListing = initialProperty?.id === id ? initialProperty : null;
+    setLoading(!initialListing);
+    setProperty(initialListing);
     setRelatedProperties([]);
     setSaved(false);
     setViewingState("idle");
@@ -183,8 +185,8 @@ export default function PropertyDetailClient({ propertyId }: { propertyId?: stri
         if (!mounted) return;
 
         setProperty(propertyData);
-        setRelatedProperties(related.filter((item) => item.id !== id).slice(0, 3));
-        setSaved(savedIds.includes(id));
+        setRelatedProperties(related.filter((item) => item.id !== propertyData.id).slice(0, 3));
+        setSaved(savedIds.includes(propertyData.id));
         recordRecentlyViewed(propertyData.id);
         void trackListingView(propertyData, "property_detail");
       } catch (error) {
@@ -200,7 +202,14 @@ export default function PropertyDetailClient({ propertyId }: { propertyId?: stri
     return () => {
       mounted = false;
     };
-  }, [id]);
+  }, [id, initialProperty]);
+
+  useEffect(() => {
+    if (!property) return;
+    // The Hosting fallback initially knows only the incoming ID or slug.
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (canonical) canonical.href = `https://yaalnilam.com${getPropertyPath(property)}`;
+  }, [property]);
 
   const gallery = useMemo(() => {
     return property?.media_urls || [];
@@ -326,7 +335,7 @@ export default function PropertyDetailClient({ propertyId }: { propertyId?: stri
                   className={"rounded-xl border px-4 py-3 text-sm font-bold transition-colors " + (saved ? "border-[#c99746] bg-[#f3e8d1] text-[#0d3935]" : "border-[#dfe7dd] bg-white text-[#0d3935] hover:bg-[#f4f7f1]")}>
                   {saved ? "✓ " + copy.saved : copy.save}
                 </button>
-                <ShareMenu url={`/properties/${encodeURIComponent(property.id)}/`} title={propertyTitle} buttonLabel={copy.share} ariaLabel={copy.share}
+                <ShareMenu url={getPropertyPath(property)} title={propertyTitle} buttonLabel={copy.share} ariaLabel={copy.share}
                   buttonClassName="flex w-full items-center justify-center gap-2 rounded-xl border border-[#dfe7dd] bg-white px-4 py-3 text-sm font-bold text-[#0d3935] hover:bg-[#f4f7f1]" />
               </div>
               {saveError && <p role="alert" className="mt-3 text-sm text-red-700">{copy.saveError}</p>}

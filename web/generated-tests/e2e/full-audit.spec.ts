@@ -323,9 +323,13 @@ test.describe('🤠 Quinn — Adversarial Exploration', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('direct-access property detail route', async ({ page }) => {
+  test('direct-access property detail route preserves inquiry actions', async ({ page, isMobile }) => {
     const resp = await page.goto('/properties/8fSf4y9RBP62PHm8LGcJ/', { waitUntil: 'domcontentloaded' });
-    expect(resp?.status()).toBeLessThan(500);
+    expect(resp?.status()).toBe(200);
+    await expect(page.locator('.yn-detail')).toBeVisible();
+    await expect(page.locator('.yn-global-whatsapp')).toBeHidden();
+    await expect(page.locator('.yn-detail a[href^="https://wa.me/"]').first()).toBeVisible();
+    if (isMobile) await expect(page.locator('.yn-mobile-inquiry a[href^="https://wa.me/"]')).toBeVisible();
   });
 
   test('404 route handled gracefully', async ({ page }) => {

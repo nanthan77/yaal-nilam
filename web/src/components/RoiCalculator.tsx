@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 // Rental-yield / ROI estimator for a sale listing: "if you rented this out".
 // Gross yield = annual rent / price. Net subtracts running costs. Payback =
@@ -12,6 +12,7 @@ export default function RoiCalculator({
   price?: number;
   locale?: string;
 }) {
+  const fieldId = useId();
   const ta = locale === "ta";
   const base = price && price > 0 ? price : 10000000;
   const [p, setP] = useState(base);
@@ -36,16 +37,16 @@ export default function RoiCalculator({
       <h3 className="text-xl font-bold text-charcoal-900 mb-4">{L.title}</h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label className={label}>{L.price}</label>
-          <input type="number" min={0} value={p} onChange={(e) => setP(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-price`} className={label}>{L.price}</label>
+          <input id={`${fieldId}-price`} type="number" min={0} value={p} onChange={(e) => setP(Number(e.target.value))} className={field} />
         </div>
         <div>
-          <label className={label}>{L.rent}</label>
-          <input type="number" min={0} value={rent} onChange={(e) => setRent(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-rent`} className={label}>{L.rent}</label>
+          <input id={`${fieldId}-rent`} type="number" min={0} value={rent} onChange={(e) => setRent(Number(e.target.value))} className={field} />
         </div>
         <div>
-          <label className={label}>{L.costs}</label>
-          <input type="number" min={0} max={100} value={costs} onChange={(e) => setCosts(Number(e.target.value))} className={field} />
+          <label htmlFor={`${fieldId}-costs`} className={label}>{L.costs}</label>
+          <input id={`${fieldId}-costs`} type="number" min={0} max={100} value={costs} onChange={(e) => setCosts(Number(e.target.value))} className={field} />
         </div>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-3 text-center">

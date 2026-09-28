@@ -1,139 +1,175 @@
 # Redesign integration verification
 
-Date: 26 September 2026. Repository: `nanthan77/yaal-nilam`.
+Date: 28 September 2026. Repository: `nanthan77/yaal-nilam`.
 Branch: `codex/yaal-nilam-editorial-redesign-20260926`.
-Website root: `web/`.
+Website root: `web/`. Draft PR: <https://github.com/nanthan77/yaal-nilam/pull/1>.
+
+## Result
+
+The editorial redesign is integrated into the existing Next.js application.
+The earlier integration was committed as `e9f5b4e`; this follow-up also checks
+compatibility with the current public site and deployed Firestore contracts.
+No PR merge, deployment, production lead, or external message was performed.
 
 ## Changes
 
-- Removed production sample-property fallback, including initial UI catalogs,
-  generated property metadata, agent IDs and misleading area counts. Explicit
-  development fixtures are visibly labeled and cannot be enabled in production.
-- Built property exports from public Firestore records. Fixed the existing
-  `/properties/view/?id=...` route and client handling of the existing Firebase
-  rewrite for post-build IDs.
-  All generated canonical URLs and sitemap locations use `yaalnilam.com`.
-  Build reads bypass persistent Next.js fetch caching so later exports refresh
-  listing IDs, prices and publication status.
-- Unified homepage Enter/button search submission; retained existing intent,
-  area, type and keyword parameters. Corrected area-card selection, Tamil hero
-  typography, contrast, keyboard focus and mobile header behavior, including
-  long Tamil headings and actions at 320px.
-- Preserved listing photos and Firestore connections. Missing media uses a
-  neutral placeholder; the homepage illustration stays visibly labeled.
-- Fixed gallery keyboard controls, localized image descriptions, saved-state
-  feedback, accessible sharing controls, short-stay price periods, comparison
-  labels, mobile inquiry/compare overlap and viewing-request error handling.
-- Bundled the existing Inter and Noto Sans Tamil families with their licenses
-  after a Google Fonts download stalled the first build.
-- Added a localhost-only development Firestore emulator option and a separate
-  development cache so lead writes can be tested without creating public leads.
+- Kept Tamil as the first-visit language and preserved stored preferences.
+  Fixed responsive typography, mobile navigation, contrast, keyboard focus,
+  gallery controls, sharing, save/compare feedback and viewing-form states.
+- Removed production sample fallback. Empty or unavailable Firestore data never
+  becomes sample inventory. Fixtures require `npm run dev:fixtures`, carry a
+  visible development label, and are excluded from production builds.
+- Rendered confirmed Firestore listings in the homepage and property HTML,
+  with a fresh browser read. Builds bypass persistent listing fetch caches.
+  No hardcoded production catalog or concept listing photographs were imported.
+- Preserved all 11 published property slugs and ID redirects. One route helper
+  supplies card, compare, share and canonical URLs. Legacy area slugs cannot
+  become shared property URLs. New records still use the Hosting detail shell.
+- Preserved the existing `/properties/view/?id=...` and singular `/property/`
+  entry points, seven public service/guide/hub routes, app-link association files,
+  four published sitemap names, legacy sitemap aliases and both RSS endpoints.
+  Sitemaps include only self-canonical, indexable pages with real listing
+  coverage. Unknown modification/publication dates are omitted.
+- Matched current production lead schemas, including inquiry notification and
+  assignment fields. Analytics uses Firebase Analytics / GA4 because live rules
+  deny browser writes to `analytics_events`. Lead confirmation does not wait
+  for analytics. Aggregate events exclude contact details, free text and IDs;
+  local QA does not initialize production analytics.
+- Preserved callable-based property alert registration and cancellation with a
+  private browser receipt. Restored the full diaspora management form and package
+  selection through the supported inquiry collection.
+- Retained visible illustration labeling and distinguished platform listing
+  review from independent legal title, deed and survey checks. Added calculator
+  input labels. Bundled the existing licensed fonts for repeatable builds.
 
 ## Verification
 
-Dependencies were installed with `npm ci` using `web/package-lock.json`.
-Production was served through the Firebase Hosting emulator using the existing
-Hosting rewrites, clean URLs and trailing-slash settings.
+Dependencies were installed with `npm ci` using `web/package-lock.json`; the
+lockfile and dependency versions remain unchanged. Production output was served
+through the Firebase Hosting emulator at `127.0.0.1:4173`. Lead submissions used
+local development at `127.0.0.1:4174` with Firestore at `127.0.0.1:8180` and a
+read-only copy of the current deployed rules, rather than the older repository
+rules. Provider checks were read-only.
 
 | Check | Result |
 | --- | --- |
-| Next.js production build and sitemap generation | Passed; 560 generated pages, 549 sitemap URLs |
-| TypeScript (`tsc --noEmit`) | Passed |
-| Lint | Passed with existing native-image optimization warnings |
-| Production fallback and build-read regression tests | 10 passed |
-| Final browser suite | 91 passed, 1 intentionally skipped, 0 failed (51.1s) |
-| Export scan | 557 HTML files with canonical tags on `yaalnilam.com`; 11 public Firestore property pages; no fixture IDs/sample labels in HTML or JavaScript |
+| Production build and sitemap generation | Passed; 579 pages, 52 canonical sitemap URLs, four children and both RSS feeds |
+| TypeScript (`tsc --noEmit --incremental false`) | Passed |
+| Lint | Passed; existing native-image optimization warnings remain |
+| Data, routing and sitemap regression tests | 30 passed |
+| Production browser suite | 97 passed, 1 intentional desktop skip of a mobile-only observer, 0 failures (80.74s) |
+| Export and Hosting routing audit | Passed; 576 HTML canonicals, 22 detail exports from 11 records, all 52 sitemap targets returned HTTP 200; no fixtures |
 
-### Pages and sizes
+### Pages and screen sizes
 
-Homepage and existing public listing
-`/properties/8fSf4y9RBP62PHm8LGcJ/` were visually inspected in Tamil and English at
-390×844, 768×1024 and 1440×1000. Checks covered horizontal overflow, header,
-illustration label, photo presentation, labels, fixed inquiry actions and focus.
-The mobile inquiry actions remained unobscured and separate from comparison.
-An additional Tamil homepage check at 320×740 confirmed no horizontal overflow.
+The homepage and real public listing `/properties/nallur-house-4-bed-38-perch-yn-m8lgcj/` (Firestore ID `8fSf4y9RBP62PHm8LGcJ`) were visually inspected in Tamil and English at **320×740, 390×844, 768×1024 and 1440×1000** against both the local development app and the final production export. All 16 page/language/size combinations had no horizontal overflow and the correct language attributes. Checks covered header, illustration label, photo presentation, focus and inquiry actions. The final export is also exercised by the production browser suite.
 
-Additional routing checks: `/properties/`, `/properties/view/?id=...`,
-`/properties/view/`, an unknown property ID, sitemap and robots. The unknown-ID
-response was byte-identical to the exported property shell. A missing ID
-redirects to the listing page; an unknown ID renders the localized unavailable
-state. The generic shell is intentionally noindex until the next build creates
-that property's dedicated page.
+All seven restored routes also passed 56 language/width combinations. These checks found and fixed Tamil wrapping in the diaspora and safety guides at 320px. Desktop/mobile inquiry anchors clear the sticky header. The redundant floating WhatsApp widget is hidden on property pages so its tooltip cannot cover the dedicated inquiry actions.
 
-The single skipped check is the desktop execution of a mobile-only touch-target
-observer; that observer ran on mobile. The isolated browser suite exercised the
-honest empty listing state, while a separate persistent browser session loaded
-five homepage cards and the selected public listing.
+Additional browser coverage includes `/properties/`, area pages, short stays,
+about/contact, add-listing and 404 handling. All three homepage intents (Buy,
+Rent, Short stay) are tested with area, property type and keyword parameters,
+through both Enter and the search button. Language preference persists through
+navigation and reload.
 
-The browser suite also covers areas, four area detail pages, short stays, about,
-contact, add-listing, 404 handling, search input and security/accessibility basics.
-All three search intents were exercised with both Enter and the button, including
-area/type/keyword roundtrips and language persistence across navigation/reload.
+Restored routes are checked in Tamil and English on desktop and mobile:
+`/new-today/`, `/diaspora/`, `/diaspora/power-of-attorney-guide/`,
+`/lands/clear-title-lands-jaffna/`, `/real-estate/`, `/real-estate/jaffna/` and
+`/safety/`. `/new-today/` describes the current catalog without claiming every
+listing was published today. Land guidance does not promise certified titles.
 
-### Listing interactions and viewing requests
+### Listings, leads and tracking
 
-Public Firestore returned 11 records. The selected existing listing has two
-supplied photos, which were tested with previous/next, thumbnails and keyboard
-controls. Save persistence, comparison, sharing, currency display, related links
-and the WhatsApp listing reference were exercised. Clearly labeled emulator-only
-variants covered 25-perch land size, monthly rent, nightly short stays, missing
-photos and the three-property comparison limit; those variants were deleted
-after testing. Card, desktop-detail and mobile-detail WhatsApp actions retained
-their distinct tracking sources; external navigation was intercepted.
+The public Firestore catalog returned 11 records. The selected real listing has
+two supplied photos. Browser checks cover previous/next and keyboard gallery
+controls, save, compare, currency display, accessible calculator fields,
+canonical sharing, related listings and listing-specific WhatsApp payloads.
+The September 26 emulator checks also covered 25-perch land, monthly/nightly
+pricing, missing photos and the three-property compare limit using clearly
+identified local variants. Those variants were removed after testing.
 
-Viewing submissions used the local Firestore emulator with the repository's
-rules and copies of public listing records. Success created one
-`viewing_requests` record, one `inquiries` record with `source=viewing_request`,
-and both `submit_inquiry` and `viewing_request` analytics events. Fields were
-trimmed, the date retained, the form cleared and the success message persisted.
-Whitespace-only names and invalid phone numbers were rejected before writes.
-With emulator writes temporarily denied, the error remained visible, fields
-were preserved and submission became available again. Original rules were
-restored afterwards.
+A September 28 viewing submission against current deployed rules in the local
+emulator created exactly one `viewing_requests` record and one matching
+`inquiries` record, with `notify_email`, `assigned_email` and
+`source=viewing_request` as required. The success state persisted and fields
+cleared. The earlier validation/error checks confirmed invalid inputs make no
+writes and denied writes preserve input with a recoverable error. Current data
+regressions additionally verify analytics failures cannot fail accepted leads.
 
-## Remaining issues and boundaries
+The full diaspora management journey passed at 390×844: package, country, city,
+property location/type/occupancy and notes arrived in one emulator inquiry;
+confirmation appeared. Requests were blocked from reaching production Firestore.
+Property requests and their requirement records were also accepted under the
+current rules. The emulator rejected missing notification fields and direct
+analytics writes, as production does.
 
-- Live analytics writes return `permission-denied`. The same flow succeeds with
-  the repository's rules in the emulator; deployed rules/configuration need a
-  separate review. Tracking calls were retained. No live rules were deployed.
-- The locked dependencies have existing advisories. `npm audit --omit=dev`
-  reports 4 findings: 1 critical, 2 high and 1 moderate. Its proposed Next.js fix
-  is a major upgrade to 16.3.6, outside this redesign integration. The full
-  dependency audit reports 12 findings. No forced dependency upgrade was made.
-- General support remains the branch's `+94 70 484 6555`; the live site displays
-  `+94 71 099 5343`. This contact discrepancy was raised for confirmation.
-  Listing-specific contacts remain as supplied by each record.
-- Existing public listing content/media and availability were not independently
-  certified. The application distinguishes listing review from legal title and
-  deed checks. No generated concept image was introduced into listing media.
-- No production viewing lead or external WhatsApp message was sent. Downstream
-  production notifications were not exercised. No live deployment or PR merge
-  was performed.
+Property-alert registration and cancellation passed with intercepted callable responses: Buy mapped to `sale`, filters and consent were preserved, the private receipt was stored and then removed after cancellation. No live callable or WhatsApp send occurred. Local browser checks found no production analytics request; `analytics_events` and `property_alerts` remained empty in the emulator.
 
-Local screenshots are in ignored `output/playwright/`; detailed emulator/build
-evidence is in ignored `.firebase/`. These outputs contain no committed secrets
-or customer lead data.
+### Export and discovery
+
+The export contains 22 property pages: IDs and preserved slugs for 11 public records. ID requests redirect to their published slugs; only the 11 canonical property URLs enter the sitemap. Five real cards are present in homepage HTML before JavaScript. The four sitemap children contain 11 property, 16 hub and 25 core URLs, plus 11 image entries; there are 52 unique canonical page URLs. Both feeds contain 11 records. All 52 sitemap targets return HTTP 200 with matching canonicals.
+
+Hosting checks pass for a direct ID/slug, `/properties/view/?id=...`, the bare view route, an unknown ID, singular `/property/` paths, all seven restored routes, robots, sitemap, both feeds and the app-link JSON assets. Unknown property URLs receive the exact exported client shell; that shell is noindex, and new properties need a rebuild for dedicated indexable metadata. No unavailable property or generic shell appears in the sitemap.
+
+The illustration appears only in the homepage design treatment. Production HTML
+and JavaScript are scanned for fixture IDs and development sample labels.
+Canonical tags and sitemap locations are checked against `https://yaalnilam.com`.
+Local screenshots and detailed build/browser/emulator evidence are stored in
+ignored `output/playwright/`, `web/test-results/` and `.firebase/`.
+
+## Remaining issues and release boundaries
+
+- Production backend, security rules and admin are newer than this checkout.
+  Read-only inventory found 17 live functions versus six in local source and
+  substantially newer access-control rules. **Do not run a blanket Firebase
+  deployment from this branch.** Reconcile backend/admin and authenticated
+  submission workflows before a future release. No functions, rules, Storage
+  configuration or admin source was changed or deployed in this integration.
+- `npm audit --omit=dev` still reports four existing findings: one critical,
+  two high and one moderate. The proposed Next.js remediation is a major upgrade
+  to 16.3.6; that upgrade was not included in this redesign.
+- General support in the branch uses `+94 70 484 6555`; the current live site and
+  preserved diaspora management service use `+94 71 099 5343`. The business should
+  confirm the intended general support number. Listing contacts remain unchanged.
+- Published SEO slugs and live hardcoded listing copy differ from current
+  Firestore record content. Existing URLs are preserved while displayed listing
+  details come from Firestore. Availability, media rights, ownership and legal
+  documents were not independently certified.
+- Production notification delivery, actual WhatsApp sends and GA4 receipt were
+  not exercised. Property-alert provider calls were intercepted for local UI QA;
+  downstream delivery remains outside these verification results.
 
 ## Files changed
 
 <details>
-<summary>Source, tests, documentation, licensed fonts and generated sitemaps</summary>
+<summary>Files changed by the redesign branch and this verification follow-up</summary>
 
 - `.gitignore`
 - `DESIGN_INTEGRATION.md`
 - `REDESIGN_VERIFICATION.md`
+- `firebase.json`
 - `web/generated-tests/e2e/full-audit.spec.ts`
+- `web/generated-tests/e2e/preserved-routes.spec.ts`
 - `web/generated-tests/e2e/smoke/smoke-tests.spec.ts`
 - `web/next.config.js`
 - `web/package.json`
 - `web/playwright.config.ts`
+- `web/public/.well-known/apple-app-site-association`
+- `web/public/.well-known/assetlinks.json`
+- `web/public/design/jaffna-house-illustration.webp`
+- `web/public/feed.xml`
 - `web/public/robots.txt`
+- `web/public/rss.xml`
 - `web/public/sitemap-core.xml`
+- `web/public/sitemap-hubs.xml`
+- `web/public/sitemap-images.xml`
 - `web/public/sitemap-listings.xml`
 - `web/public/sitemap-locations.xml`
+- `web/public/sitemap-properties.xml`
 - `web/public/sitemap.xml`
 - `web/scripts/generate-sitemap.mjs`
 - `web/src/app/agents/[id]/page.tsx`
+- `web/src/app/alerts/page.tsx`
 - `web/src/app/areas/[slug]/page.tsx`
 - `web/src/app/areas/page.tsx`
 - `web/src/app/blog/best-property-services/page.tsx`
@@ -144,44 +180,68 @@ or customer lead data.
 - `web/src/app/buy/[type]/page.tsx`
 - `web/src/app/compare/page.tsx`
 - `web/src/app/dashboard/page.tsx`
+- `web/src/app/diaspora/page.tsx`
+- `web/src/app/diaspora/power-of-attorney-guide/page.tsx`
 - `web/src/app/fonts/Inter-OFL.txt`
 - `web/src/app/fonts/NotoSansTamil-OFL.txt`
 - `web/src/app/fonts/README.md`
 - `web/src/app/fonts/inter-latin-variable.woff2`
 - `web/src/app/fonts/noto-sans-tamil-variable.woff2`
 - `web/src/app/globals.css`
+- `web/src/app/lands/clear-title-lands-jaffna/page.tsx`
 - `web/src/app/layout.tsx`
 - `web/src/app/map/page.tsx`
+- `web/src/app/new-today/page.tsx`
+- `web/src/app/page.tsx`
 - `web/src/app/properties/[id]/page.tsx`
 - `web/src/app/properties/page.tsx`
 - `web/src/app/properties/view/layout.tsx`
 - `web/src/app/properties/view/page.tsx`
+- `web/src/app/property/view/layout.tsx`
+- `web/src/app/property/view/page.tsx`
+- `web/src/app/real-estate/jaffna/page.tsx`
+- `web/src/app/real-estate/page.tsx`
 - `web/src/app/rent/[type]/[location]/page.tsx`
 - `web/src/app/rent/[type]/page.tsx`
+- `web/src/app/safety/page.tsx`
 - `web/src/app/short-term-rental/[location]/page.tsx`
 - `web/src/app/short-term-rental/page.tsx`
 - `web/src/components/CategoryPage.tsx`
 - `web/src/components/CompareBar.tsx`
+- `web/src/components/DiasporaHomeClient.tsx`
+- `web/src/components/DiasporaPackageCard.tsx`
+- `web/src/components/DiasporaPropertyManagementForm.tsx`
 - `web/src/components/EditorialHome.tsx`
+- `web/src/components/MortgageCalculator.tsx`
 - `web/src/components/Navbar.tsx`
 - `web/src/components/PropertyCard.tsx`
 - `web/src/components/PropertyDetailClient.tsx`
 - `web/src/components/PropertyGallery.tsx`
+- `web/src/components/PublicListingHub.tsx`
+- `web/src/components/RoiCalculator.tsx`
+- `web/src/components/SafetyGuideClient.tsx`
 - `web/src/components/ShareMenu.tsx`
 - `web/src/components/VoiceSearch.tsx`
 - `web/src/components/WhatsAppButton.tsx`
 - `web/src/components/YouTubeEmbed.tsx`
 - `web/src/components/pseo/PSEOListingPage.tsx`
 - `web/src/lib/build-listings.ts`
+- `web/src/lib/client-analytics.ts`
 - `web/src/lib/development-fixtures.ts`
+- `web/src/lib/diaspora.ts`
 - `web/src/lib/firebase.ts`
 - `web/src/lib/firestore.ts`
 - `web/src/lib/marketplace.ts`
+- `web/src/lib/property-alerts.ts`
 - `web/src/lib/property-presentation.ts`
+- `web/src/lib/property-routes.ts`
 - `web/src/lib/public-listings.ts`
 - `web/src/lib/seo-config.ts`
+- `web/src/lib/store.ts`
 - `web/tests/build-listings.test.cjs`
 - `web/tests/firestore-fallback.test.cjs`
+- `web/tests/property-routes.test.cjs`
+- `web/tests/sitemap.test.cjs`
 - `web/tsconfig.json`
 
 </details>
