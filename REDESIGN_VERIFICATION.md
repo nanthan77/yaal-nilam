@@ -209,6 +209,16 @@ Canonical tags and sitemap locations are checked against `https://yaalnilam.com`
 Local screenshots and detailed build/browser/emulator evidence are stored in
 ignored `output/playwright/`, `web/test-results/` and `.firebase/`.
 
+### Hosting cache correction
+
+The first live browser check reused a pre-deployment page: clean routes received
+Firebase's default one-hour cache policy because the old `**/*.html` rule did
+not match the original clean URL. Public Hosting now sets revalidation as the
+default, then retains long caching for assets and ten-minute caching for feeds,
+sitemaps and robots. All 29 checks passed in an isolated Hosting emulator.
+Admin/backend configuration is unchanged. This configuration-only correction
+reuses the verified export; an already cached older response may need a reload.
+
 ## Remaining issues and release boundaries
 
 - Production backend, security rules and admin are newer than this checkout.
