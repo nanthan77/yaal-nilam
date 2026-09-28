@@ -272,6 +272,7 @@ warning was reported.
 - `.gitignore`
 - `DESIGN_INTEGRATION.md`
 - `REDESIGN_VERIFICATION.md`
+- `RELEASE_2026-09-28.md`
 - `firebase.json`
 - `web/generated-tests/e2e/full-audit.spec.ts`
 - `web/generated-tests/e2e/preserved-routes.spec.ts`
@@ -375,6 +376,7 @@ warning was reported.
 - `web/tests/firestore-fallback.test.cjs`
 - `web/tests/property-routes.test.cjs`
 - `web/tests/sitemap.test.cjs`
+- `web/tests/store-persistence.test.cjs`
 - `web/tsconfig.json`
 
 </details>
