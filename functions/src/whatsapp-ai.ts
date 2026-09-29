@@ -1,4 +1,4 @@
-import { ApiError, GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { ApiError, GoogleGenAI } from "@google/genai";
 import {
   buildWebsiteKnowledgePromptContext,
   getWebsiteKnowledgeUrl,
@@ -787,11 +787,6 @@ export function buildGeminiGenerateContentRequest(prompt: string) {
     config: {
       maxOutputTokens: 1200,
       temperature: 0.2,
-      thinkingConfig: {
-        // This is a short classification/JSON task. Minimal reasoning leaves
-        // the output budget for the schema-conformant reply and lowers latency.
-        thinkingLevel: ThinkingLevel.MINIMAL,
-      },
       responseMimeType: "application/json",
       responseJsonSchema: schema,
     },
