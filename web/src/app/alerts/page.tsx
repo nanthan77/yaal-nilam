@@ -10,6 +10,7 @@ import {
   registerPropertyAlert,
   type PropertyAlertReceipt,
 } from "@/lib/property-alerts";
+import BudgetInput from "@/components/BudgetInput";
 
 const TYPE_OPTIONS: { value: string; en: string; ta: string }[] = [
   { value: "any", en: "Any type", ta: "எந்த வகையும்" },
@@ -295,17 +296,13 @@ export default function PropertyAlertsPage() {
               </div>
 
               <div>
-                <label htmlFor="alert-maxPrice" className="block text-sm font-semibold text-charcoal-700 mb-2">{L.budget}</label>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={100000000000000}
+                <BudgetInput
                   id="alert-maxPrice"
+                  label={L.budget}
                   value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  placeholder={L.budgetPh}
-                  className="w-full px-3 py-2.5 border border-sand-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  onChange={setMaxPrice}
+                  purpose={purpose}
+                  locale={locale}
                 />
               </div>
             </div>
