@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
+exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const cors = require("cors");
@@ -139,5 +139,119 @@ exports.onNewWhatsAppMessage = functions.firestore
         updated_at: new Date().toISOString(),
     });
     console.log(`New inbound WhatsApp message in conversation ${convId}`);
+});
+// ============================================================================
+// Multi-Agent Social Listing & Agency System Callables
+// ============================================================================
+const pipeline_1 = require("./agents/pipeline");
+/**
+ * AI Extractor + Directory Staging + WhatsApp Outreach for a single social post
+ */
+exports.processSocialPost = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 120 })
+    .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+        throw new functions.https.HttpsError("permission-denied", "Only admins can run the social post processor");
+    }
+    return (0, pipeline_1.processSocialPostPipeline)(data);
+});
+/**
+ * Daily Multi-Agent Pipeline Job:
+ * Ingests new leads from `social_leads`, parses with Gemini 3.8 Flash,
+ * creates/updates agent profiles, stages draft listings, and sends WhatsApp consent links.
+ */
+exports.runDailyAgentPipeline = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 300 })
+    .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+        throw new functions.https.HttpsError("permission-denied", "Only admins can run the daily agent pipeline");
+    }
+    return (0, pipeline_1.runDailyAgentPipelineJob)(data);
+});
+/**
+ * Scheduled Daily Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
+ */
+exports.scheduledDailyAgentPipeline = functions.pubsub
+    .schedule("0 9 * * *")
+    .timeZone("Asia/Colombo")
+    .onRun(async () => {
+    console.log("Running scheduled daily agent pipeline for Jaffna property leads");
+    return (0, pipeline_1.runDailyAgentPipelineJob)({ limit: 25 });
+});
+/**
+ * Trigger or re-send WhatsApp consent request for an existing staged draft listing
+ */
+exports.sendAgentWhatsAppConsent = functions
+    .runWith({ memory: "256MB", timeoutSeconds: 60 })
+    .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+        throw new functions.https.HttpsError("permission-denied", "Only admins can send WhatsApp consent requests");
+    }
+    const listingId = data === null || data === void 0 ? void 0 : data.listing_id;
+    if (!listingId) {
+        throw new functions.https.HttpsError("invalid-argument", "listing_id is required");
+    }
+    return (0, pipeline_1.sendListingConsentOutreach)(listingId, data === null || data === void 0 ? void 0 : data.site_url);
+});
+// ============================================================================
+// Agent Preview & Claim Verification Endpoints
+// ============================================================================
+const claim_1 = require("./agents/claim");
+/**
+ * Callable: Fetch preview details for an agent using claim token
+ */
+exports.getListingPreview = functions
+    .runWith({ memory: "256MB", timeoutSeconds: 30 })
+    .https.onCall(async (data) => {
+    const token = data === null || data === void 0 ? void 0 : data.token;
+    return (0, claim_1.getListingByClaimToken)(token);
+});
+/**
+ * Callable: Approve, edit, or decline listing via claim token
+ */
+exports.respondListingConsent = functions
+    .runWith({ memory: "256MB", timeoutSeconds: 30 })
+    .https.onCall(async (data) => {
+    const { token, action, notes, site_url } = data || {};
+    if (!token || !action) {
+        throw new functions.https.HttpsError("invalid-argument", "Token and action are required");
+    }
+    return (0, claim_1.processListingClaimAction)(token, action, notes, site_url);
+});
+/**
+ * HTTP Endpoint for agent 1-click preview and approval from browser
+ */
+exports.claimListingHandler = functions
+    .runWith({ memory: "256MB", timeoutSeconds: 30 })
+    .https.onRequest(async (req, res) => {
+    return corsHandler(req, res, async () => {
+        try {
+            if (req.method === "GET") {
+                const token = String(req.query.token || "").trim();
+                const result = await (0, claim_1.getListingByClaimToken)(token);
+                if (!result.found) {
+                    res.status(404).json(result);
+                    return;
+                }
+                res.status(200).json(result);
+                return;
+            }
+            if (req.method === "POST") {
+                const { token, action, notes, site_url } = req.body || {};
+                if (!token || !action) {
+                    res.status(400).json({ error: "Token and action are required" });
+                    return;
+                }
+                const result = await (0, claim_1.processListingClaimAction)(token, action, notes, site_url);
+                res.status(result.success ? 200 : 400).json(result);
+                return;
+            }
+            res.status(405).send("Method Not Allowed");
+        }
+        catch (err) {
+            console.error("claimListingHandler error:", err);
+            res.status(500).json({ error: (err === null || err === void 0 ? void 0 : err.message) || "Internal server error" });
+        }
+    });
 });
 //# sourceMappingURL=index.js.map

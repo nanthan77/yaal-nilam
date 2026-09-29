@@ -84,6 +84,10 @@ export interface NormalizedArea {
   avg_price: number;
   featured: boolean;
   image: string;
+  lat: number;
+  lng: number;
+  google_maps_url: string;
+  google_maps_embed_url: string;
 }
 
 export interface NormalizedAgent {
@@ -328,11 +332,15 @@ export function normalizeListing(raw: any): NormalizedListing {
 export function normalizeArea(raw: any, listingCount = 0): NormalizedArea {
   const slug = raw?.slug || slugifyArea(raw?.name);
   const location = buildLocationFallback(slug);
+  const lat = toNumber(raw?.lat ?? raw?.coordinates?.lat ?? location?.lat, 9.6615);
+  const lng = toNumber(raw?.lng ?? raw?.coordinates?.lng ?? location?.lng, 80.0255);
+  const nameTa = location?.name_ta || raw?.name_ta || raw?.name || "யாழ்ப்பாணம்";
+
   return {
     id: raw?.id || slug,
     slug,
     name: raw?.name || location?.name || "Jaffna",
-    name_ta: raw?.name_ta || location?.name_ta || raw?.name || "யாழ்ப்பாணம்",
+    name_ta: nameTa,
     district: raw?.district || "Jaffna",
     description: raw?.description || location?.description?.en || "Explore this area with verified listings and local insights.",
     description_ta: raw?.description_ta || location?.description?.ta || "இந்த பகுதியை உள்ளூர் விளக்கங்களுடன் ஆராயுங்கள்.",
@@ -340,6 +348,10 @@ export function normalizeArea(raw: any, listingCount = 0): NormalizedArea {
     avg_price: toNumber(raw?.avg_price || raw?.average_price, location?.priceRange?.min || 0),
     featured: Boolean(raw?.featured),
     image: raw?.image || location?.image || FALLBACK_PROPERTY_IMAGE,
+    lat,
+    lng,
+    google_maps_url: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+    google_maps_embed_url: `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=14&output=embed`,
   };
 }
 

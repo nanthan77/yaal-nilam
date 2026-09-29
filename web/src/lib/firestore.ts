@@ -124,6 +124,8 @@ function buildAreaCatalog(rawAreas: any[], listings: any[]) {
       properties_count: location.properties_count,
       avg_price: location.priceRange.min,
       image: location.image,
+      lat: location.lat,
+      lng: location.lng,
     })),
   ];
 

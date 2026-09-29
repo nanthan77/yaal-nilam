@@ -39,6 +39,8 @@ export interface Area {
   description_ta?: string;
   properties_count: number;
   image: string;
+  lat?: number;
+  lng?: number;
 }
 
 export const PROPERTY_TYPES: PropertyType[] = [
@@ -230,6 +232,8 @@ export const AREAS: Area[] = [
     description_ta: 'காலனித்துவ மரபையும் நவீன வசதிகளையும் இணைத்துப் பேணும் வரலாற்றுப் பகுதி.',
     properties_count: 24,
     image: '/properties/villa_modern.webp',
+    lat: 9.6621,
+    lng: 80.0083,
   },
   {
     slug: 'nallur',
@@ -239,6 +243,8 @@ export const AREAS: Area[] = [
     description_ta: 'பண்பாட்டு மரபும் சமூகவாழ்வின் உயிரும் செழித்து நிற்கும் நல்லூர் பகுதி.',
     properties_count: 18,
     image: '/properties/house_family.webp',
+    lat: 9.6744,
+    lng: 80.0293,
   },
   {
     slug: 'chunnakam',
@@ -248,6 +254,8 @@ export const AREAS: Area[] = [
     description_ta: 'பாடசாலைகள், சேவைகள் மற்றும் குடும்பங்களுக்கு ஏற்ற வசதிகள் நிறைந்த குடியிருப்பு பகுதி.',
     properties_count: 21,
     image: '/properties/apartment_luxury.webp',
+    lat: 9.7430,
+    lng: 80.0175,
   },
   {
     slug: 'kopay',
@@ -257,6 +265,8 @@ export const AREAS: Area[] = [
     description_ta: 'சில்லறை விற்பனை, அலுவலகம் மற்றும் புதிய வணிக வளர்ச்சிக்கு ஏற்ற சுறுசுறுப்பான பகுதி.',
     properties_count: 15,
     image: '/properties/commercial_space.webp',
+    lat: 9.6833,
+    lng: 80.0500,
   },
   {
     slug: 'point-pedro',
@@ -266,6 +276,8 @@ export const AREAS: Area[] = [
     description_ta: 'கடற்கரை வளமும் அமைதியான வாழ்வுமுள்ள வடக்கு முனைப் பகுதி. விடுதி மற்றும் சுற்றுலா முதலீட்டுக்கும் ஏற்றது.',
     properties_count: 12,
     image: '/properties/land_beach.webp',
+    lat: 9.8167,
+    lng: 80.2333,
   },
   {
     slug: 'karainagar',
@@ -275,6 +287,8 @@ export const AREAS: Area[] = [
     description_ta: 'தீவு அமைதியுடன் தனியுரிமை மிக்க வீடுகள் மற்றும் விரிந்த நிலப் பகுதிகள் கொண்ட பகுதி.',
     properties_count: 8,
     image: '/properties/villa_island.webp',
+    lat: 9.7333,
+    lng: 79.8667,
   },
   {
     slug: 'thirunelvely',
@@ -284,6 +298,8 @@ export const AREAS: Area[] = [
     description_ta: 'கோவில்கள், மரபுச் சின்னங்கள் மற்றும் குடியிருப்பு வசதிகளுடன் பெயர்பெற்ற பகுதி.',
     properties_count: 10,
     image: '/properties/house_heritage.webp',
+    lat: 9.6833,
+    lng: 80.0333,
   },
   {
     slug: 'chavakachcheri',
@@ -293,5 +309,7 @@ export const AREAS: Area[] = [
     description_ta: 'வேகமாக வளர்ந்து வரும் அடிப்படை வசதிகளுடன் கூடிய குடியிருப்பு மற்றும் குடும்ப நட்பு பகுதி.',
     properties_count: 14,
     image: '/properties/house_family.webp',
+    lat: 9.6500,
+    lng: 80.1500,
   },
 ];

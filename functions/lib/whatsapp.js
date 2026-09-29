@@ -37,6 +37,7 @@ exports.whatsappVerify = whatsappVerify;
 exports.whatsappWebhook = whatsappWebhook;
 const admin = __importStar(require("firebase-admin"));
 const crypto = __importStar(require("crypto"));
+const whatsapp_send_1 = require("./whatsapp-send");
 function getDb() {
     return admin.firestore();
 }
@@ -218,8 +219,124 @@ async function processIncomingMessage(message, contact) {
         timestamp,
         wa_message_id: message.id,
     });
+    // Check if this conversation is awaiting listing consent from the agent/seller
+    const convDoc = await db.collection("whatsapp_conversations").doc(conversationId).get();
+    const convData = convDoc.data();
+    if (convData === null || convData === void 0 ? void 0 : convData.pending_consent_listing_id) {
+        const handled = await handleAgentConsentResponse(conversationId, phone, content, convData);
+        if (handled)
+            return;
+    }
     // Send auto-reply if enabled
     await handleAutoReply(conversationId, phone);
+}
+async function handleAgentConsentResponse(conversationId, phone, content, convData) {
+    const db = getDb();
+    const text = content.trim().toLowerCase();
+    const listingId = convData.pending_consent_listing_id;
+    const agentId = convData.pending_consent_agent_id;
+    // Consent publishes a listing, so match whole words only and let refusals
+    // win: substring checks treated "not ok", "no, don't publish" or "look" as
+    // approval.
+    const tokens = text.split(/[\s,.!?;:()"'-]+/).filter(Boolean);
+    const first = tokens[0] || "";
+    const has = (word) => tokens.includes(word);
+    const isNegative = first === "3" ||
+        ["no", "nope", "not", "stop", "decline", "cancel", "இல்லை"].some(has) ||
+        text.includes("வேண்டாம்");
+    const isEdit = !isNegative &&
+        (first === "2" || ["edit", "change", "correct"].some(has) || text.includes("திருத்த"));
+    const isAffirmative = !isNegative &&
+        !isEdit &&
+        (first === "1" ||
+            ["yes", "ok", "okay", "approve", "publish", "ஆம்", "சரி", "போடுங்க"].includes(first));
+    if (isAffirmative) {
+        // 1. Publish listing live
+        const listingRef = db.collection("listings").doc(listingId);
+        const listingSnap = await listingRef.get();
+        const listingData = listingSnap.data();
+        await listingRef.update({
+            status: "available",
+            verified: true,
+            consent_status: "granted",
+            consent_granted_at: new Date().toISOString(),
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        });
+        // 2. Activate agent in directory
+        if (agentId) {
+            await db.collection("agents").doc(agentId).update({
+                status: "active",
+                consent_status: "granted",
+                active_listings: admin.firestore.FieldValue.increment(1),
+                updated_at: new Date().toISOString(),
+            });
+        }
+        // 3. Clear pending consent in conversation
+        await db.collection("whatsapp_conversations").doc(conversationId).update({
+            pending_consent_listing_id: admin.firestore.FieldValue.delete(),
+            pending_consent_token: admin.firestore.FieldValue.delete(),
+            tags: admin.firestore.FieldValue.arrayUnion("consent_granted"),
+            updated_at: new Date().toISOString(),
+        });
+        // 4. Send instant confirmation with live link
+        const slug = (listingData === null || listingData === void 0 ? void 0 : listingData.slug) || listingId;
+        const liveUrl = `https://yaalnilam.com/properties/${slug}`;
+        const confirmMessage = `🎉 மிக்க நன்றி! உங்கள் சொத்து விளம்பரம் இப்போது யாழ் நிலம் (yaalnilam.com) தளத்தில் நேரலையாக பதிவேற்றப்பட்டுள்ளது:
+
+🔗 ${liveUrl}
+
+வாங்குபவர்கள் உங்களை நேரடியாக வாட்ஸ்அப்பில் தொடர்பு கொள்வார்கள்! வாழ்த்துக்கள்.`;
+        await (0, whatsapp_send_1.sendWhatsAppMessage)({
+            conversation_id: conversationId,
+            to: phone,
+            message: confirmMessage,
+        });
+        return true;
+    }
+    if (isEdit) {
+        await db.collection("listings").doc(listingId).update({
+            consent_status: "edit_requested",
+            updated_at: new Date().toISOString(),
+        });
+        await db.collection("whatsapp_conversations").doc(conversationId).update({
+            tags: admin.firestore.FieldValue.arrayUnion("edit_requested"),
+            updated_at: new Date().toISOString(),
+        });
+        await (0, whatsapp_send_1.sendWhatsAppMessage)({
+            conversation_id: conversationId,
+            to: phone,
+            message: `நன்றி! என்னென்ன விவரங்கள் மாற்ற வேண்டும் என்பதை இங்கு செய்தியாக அனுப்பவும். எங்கள் குழு உடனடியாக சரிசெய்யும். (Please send the corrections here).`,
+        });
+        return true;
+    }
+    if (isNegative) {
+        await db.collection("listings").doc(listingId).update({
+            status: "rejected",
+            consent_status: "declined",
+            updated_at: new Date().toISOString(),
+        });
+        if (agentId) {
+            await db.collection("agents").doc(agentId).update({
+                consent_status: "declined",
+                do_not_contact: true,
+                updated_at: new Date().toISOString(),
+            });
+        }
+        await db.collection("whatsapp_conversations").doc(conversationId).update({
+            pending_consent_listing_id: admin.firestore.FieldValue.delete(),
+            pending_consent_token: admin.firestore.FieldValue.delete(),
+            tags: admin.firestore.FieldValue.arrayUnion("consent_declined"),
+            updated_at: new Date().toISOString(),
+        });
+        await (0, whatsapp_send_1.sendWhatsAppMessage)({
+            conversation_id: conversationId,
+            to: phone,
+            message: `நன்றி, உங்கள் விருப்பப்படி இந்த விளம்பரம் தளத்தில் பதிவேற்றப்பட மாட்டாது. இனி உங்களுக்கு இத்தகைய குறுஞ்செய்திகள் அனுப்பப்படாது.`,
+        });
+        return true;
+    }
+    return false;
 }
 async function handleAutoReply(conversationId, customerPhone) {
     const db = getDb();

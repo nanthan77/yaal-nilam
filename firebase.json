@@ -176,6 +176,10 @@
           "destination": "/property/view/index.html"
         },
         {
+          "source": "/preview/**",
+          "destination": "/preview/view/index.html"
+        },
+        {
           "source": "/sitemap.xml/**",
           "destination": "/sitemap.xml"
         },
@@ -289,7 +293,7 @@
           ]
         },
         {
-          "source": "/@(dashboard|login|register|add-listing|properties/view|agents/view|property/view)/**",
+          "source": "/@(dashboard|login|register|add-listing|properties/view|agents/view|property/view|preview)/**",
           "headers": [
             {
               "key": "X-Robots-Tag",

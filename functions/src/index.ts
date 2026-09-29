@@ -123,3 +123,149 @@ export const onNewWhatsAppMessage = functions.firestore
 
     console.log(`New inbound WhatsApp message in conversation ${convId}`);
   });
+
+// ============================================================================
+// Multi-Agent Social Listing & Agency System Callables
+// ============================================================================
+import {
+  processSocialPostPipeline,
+  runDailyAgentPipelineJob,
+  sendListingConsentOutreach,
+} from "./agents/pipeline";
+
+/**
+ * AI Extractor + Directory Staging + WhatsApp Outreach for a single social post
+ */
+export const processSocialPost = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 120 })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run the social post processor"
+      );
+    }
+    return processSocialPostPipeline(data);
+  });
+
+/**
+ * Daily Multi-Agent Pipeline Job:
+ * Ingests new leads from `social_leads`, parses with Gemini 3.8 Flash,
+ * creates/updates agent profiles, stages draft listings, and sends WhatsApp consent links.
+ */
+export const runDailyAgentPipeline = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300 })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run the daily agent pipeline"
+      );
+    }
+    return runDailyAgentPipelineJob(data);
+  });
+
+/**
+ * Scheduled Daily Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
+ */
+export const scheduledDailyAgentPipeline = functions.pubsub
+  .schedule("0 9 * * *")
+  .timeZone("Asia/Colombo")
+  .onRun(async () => {
+    console.log("Running scheduled daily agent pipeline for Jaffna property leads");
+    return runDailyAgentPipelineJob({ limit: 25 });
+  });
+
+/**
+ * Trigger or re-send WhatsApp consent request for an existing staged draft listing
+ */
+export const sendAgentWhatsAppConsent = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 60 })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can send WhatsApp consent requests"
+      );
+    }
+    const listingId = data?.listing_id;
+    if (!listingId) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "listing_id is required"
+      );
+    }
+    return sendListingConsentOutreach(listingId, data?.site_url);
+  });
+
+// ============================================================================
+// Agent Preview & Claim Verification Endpoints
+// ============================================================================
+import {
+  getListingByClaimToken,
+  processListingClaimAction,
+} from "./agents/claim";
+
+/**
+ * Callable: Fetch preview details for an agent using claim token
+ */
+export const getListingPreview = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 30 })
+  .https.onCall(async (data) => {
+    const token = data?.token;
+    return getListingByClaimToken(token);
+  });
+
+/**
+ * Callable: Approve, edit, or decline listing via claim token
+ */
+export const respondListingConsent = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 30 })
+  .https.onCall(async (data) => {
+    const { token, action, notes, site_url } = data || {};
+    if (!token || !action) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Token and action are required"
+      );
+    }
+    return processListingClaimAction(token, action, notes, site_url);
+  });
+
+/**
+ * HTTP Endpoint for agent 1-click preview and approval from browser
+ */
+export const claimListingHandler = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 30 })
+  .https.onRequest(async (req, res) => {
+    return corsHandler(req, res, async () => {
+      try {
+        if (req.method === "GET") {
+          const token = String(req.query.token || "").trim();
+          const result = await getListingByClaimToken(token);
+          if (!result.found) {
+            res.status(404).json(result);
+            return;
+          }
+          res.status(200).json(result);
+          return;
+        }
+
+        if (req.method === "POST") {
+          const { token, action, notes, site_url } = req.body || {};
+          if (!token || !action) {
+            res.status(400).json({ error: "Token and action are required" });
+            return;
+          }
+          const result = await processListingClaimAction(token, action, notes, site_url);
+          res.status(result.success ? 200 : 400).json(result);
+          return;
+        }
+
+        res.status(405).send("Method Not Allowed");
+      } catch (err: any) {
+        console.error("claimListingHandler error:", err);
+        res.status(500).json({ error: err?.message || "Internal server error" });
+      }
+    });
+  });
