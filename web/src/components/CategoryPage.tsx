@@ -7,6 +7,7 @@ import VoiceSearch from "@/components/VoiceSearch";
 import { useStore } from "@/lib/store";
 import { getProperties } from "@/lib/firestore";
 import { filterListings } from "@/lib/marketplace";
+import { BRAND } from "@/lib/brand";
 import { DEVELOPMENT_PROPERTY_FIXTURES } from "@/lib/development-fixtures";
 import { localize, type Locale } from "@/lib/translations";
 
@@ -229,7 +230,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
   // For rent pages: never show sale listings — return empty state if none
   const isRentCategory = config.intent === "rent" || config.intent === "short_rent";
 
-  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(config.whatsappMsg[locale])}`;
+  const whatsappUrl = `https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(config.whatsappMsg[locale])}`;
 
   return (
     <>

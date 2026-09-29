@@ -1,16 +1,19 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import { BRAND } from "@/lib/brand";
 
 export default function WhatsAppFloat() {
   const { locale } = useStore();
   const message =
     locale === "ta"
-      ? "வணக்கம், யாழ்ப்பாணத்தில் ஒரு சொத்து பற்றி தகவல் வேண்டும்."
-      : "Hello, I would like help finding a property in Jaffna.";
-  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(message)}`;
+      ? "வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்."
+      : "Hello, I would like to get free property listings and information in Jaffna.";
+  const whatsappUrl = `https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(message)}`;
   const ariaLabel =
-    locale === "ta" ? "WhatsApp மூலம் எங்களுடன் தொடர்பு கொள்ளுங்கள்" : "Chat with us on WhatsApp";
+    locale === "ta"
+      ? `WhatsApp மூலம் எங்களுடன் தொடர்பு கொள்ளுங்கள்: ${BRAND.whatsappDisplay}`
+      : `Chat with us on WhatsApp: ${BRAND.whatsappDisplay}`;
 
   return (
     <a

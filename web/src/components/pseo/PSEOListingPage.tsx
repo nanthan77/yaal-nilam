@@ -17,6 +17,7 @@ import { getLocationBySlug, getPlacesForLocation } from '@/lib/locations';
 import { getPropertyType, getIntent, generatePageTitle, generatePageTitleTa } from '@/lib/seo-config';
 import { generateTier3FAQs, generateTier2FAQs } from '@/lib/faq-data';
 import { formatCompactPrice, localize } from '@/lib/translations';
+import { BRAND } from '@/lib/brand';
 
 const MOCK_FALLBACK = DEVELOPMENT_PROPERTY_FIXTURES;
 
@@ -150,7 +151,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
     : l === 'ta'
       ? `வணக்கம், யாழ்ப்பாணத்தில் ${type.name.ta} ${intent.name.ta} விரும்புகிறேன்.`
       : `Hello, I am looking to ${intentSlug} a ${type.name.en.toLowerCase()} in Jaffna.`;
-  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(whatsappMsg)}`;
+  const whatsappUrl = `https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(whatsappMsg)}`;
 
   return (
     <>

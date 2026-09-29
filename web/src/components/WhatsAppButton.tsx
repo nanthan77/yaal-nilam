@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
+import { BRAND } from "@/lib/brand";
 
 export default function WhatsAppButton() {
   const { locale } = useStore();
@@ -10,25 +11,26 @@ export default function WhatsAppButton() {
   const [showBubble, setShowBubble] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowBubble(false), 5000);
+    const timer = setTimeout(() => setShowBubble(false), 9000);
     return () => clearTimeout(timer);
   }, []);
 
-  const phoneNumber = "94704846555";
   const bubbleTitle =
-    locale === "ta" ? "உதவி வேண்டுமா? எங்களுடன் பேசுங்கள்." : "Need help? Chat with us.";
+    locale === "ta" ? "யாழ் நிலம் WhatsApp AI" : "Yaal Nilam WhatsApp AI";
   const bubbleBody =
     locale === "ta"
-      ? "சொத்து தேடல், விலை, பகுதி, அல்லது பட்டியலிடல் பற்றி WhatsApp-ல் உடனே கேளுங்கள்."
-      : "Ask us instantly on WhatsApp about property search, pricing, areas, or listing your property.";
+      ? `இலவச சொத்து பட்டியல் பெற அல்லது சொத்தை இலவசமாக விளம்பரம் செய்ய ${BRAND.whatsappDisplay}-ல் பேசுங்கள்.`
+      : `Get free property lists or list your property free on WhatsApp (${BRAND.whatsappDisplay}).`;
   const tooltipText =
-    locale === "ta" ? "WhatsApp மூலம் எங்களைத் தொடர்பு கொள்ளுங்கள்" : "Chat with us on WhatsApp";
+    locale === "ta"
+      ? `WhatsApp AI: ${BRAND.whatsappDisplay} (இலவச சொத்து பட்டியல்)`
+      : `WhatsApp AI: ${BRAND.whatsappDisplay} (Free Property Lists)`;
   const message = encodeURIComponent(
     locale === "ta"
-      ? "வணக்கம், யாழ் நிலத்தில் உள்ள சொத்துகள் பற்றி அறிய விரும்புகிறேன்."
-      : "Hi, I'm interested in properties on Yaal Nilam."
+      ? "வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்."
+      : "Hi, I would like to get free property listings and information in Jaffna."
   );
-  const waLink = `https://wa.me/${phoneNumber}?text=${message}`;
+  const waLink = `https://wa.me/${BRAND.whatsappDigits}?text=${message}`;
 
   return (
     <div className="yn-global-whatsapp fixed bottom-4 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">

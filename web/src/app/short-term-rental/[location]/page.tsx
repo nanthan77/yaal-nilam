@@ -151,7 +151,7 @@ export default function ShortTermRentalLocationPage({ params }: { params: { loca
             <h2 className="text-2xl font-bold mb-4">Ready to book your stay in {location.name}?</h2>
             <p className="mb-6">Chat with verified hosts on WhatsApp — Tamil and English supported.</p>
             <a
-              href={`https://wa.me/94704846555?text=${encodeURIComponent(`Hi, I'm looking for a short-term rental in ${location.name}, Jaffna.`)}`}
+              href={`https://wa.me/94710995343?text=${encodeURIComponent(`Hi, I'm looking for a short-term rental in ${location.name}, Jaffna.`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-warm-500 text-teal-900 px-8 py-3 rounded-lg font-bold hover:bg-warm-400 transition-all"

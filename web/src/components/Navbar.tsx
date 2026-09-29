@@ -4,8 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { Home, Search, MapPin, CalendarDays, Bell, Users, Compass, Phone, Globe, Plus, ChevronDown, X, ArrowUpRight, type LucideIcon } from 'lucide-react';
+import { Home, Search, MapPin, CalendarDays, Bell, Users, Compass, Phone, Globe, Plus, ChevronDown, X, ArrowUpRight, MessageCircle, type LucideIcon } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { BRAND } from '@/lib/brand';
 
 interface NavLink {
   href: string;
@@ -24,8 +25,9 @@ const PRIMARY_LINKS: NavLink[] = [
   { href: '/alerts', en: 'Property alerts', ta: 'சொத்து அறிவிப்புகள்', icon: Bell, desktopOnly: true },
 ];
 
-const MORE_LINKS: (NavLink & { detailEn: string; detailTa: string })[] = [
+const MORE_LINKS: (NavLink & { detailEn: string; detailTa: string; external?: boolean })[] = [
   { href: '/', en: 'Home', ta: 'முகப்பு', icon: Home, detailEn: 'Start exploring', detailTa: 'இங்கிருந்து தொடங்குங்கள்' },
+  { href: `https://wa.me/${BRAND.whatsappDigits}`, en: `WhatsApp AI (${BRAND.whatsappDisplay})`, ta: `WhatsApp பாட் (${BRAND.whatsappDisplay})`, icon: MessageCircle, detailEn: 'Free property lists & 24/7 AI chat', detailTa: 'இலவச சொத்து பட்டியல் & 24/7 AI உதவி', external: true },
   { href: '/alerts', en: 'Property alerts', ta: 'சொத்து அறிவிப்புகள்', icon: Bell, detailEn: 'Find your next match', detailTa: 'பொருத்தமான சொத்தை அறியுங்கள்' },
   { href: '/diaspora', en: 'Overseas owners', ta: 'புலம்பெயர் சேவைகள்', icon: Globe, detailEn: 'Manage your Jaffna home', detailTa: 'உங்கள் யாழ் வீட்டைப் பராமரிக்க' },
   { href: '/for-agents', en: 'For agents', ta: 'முகவர்களுக்கு', icon: Users, detailEn: 'List and connect', detailTa: 'பட்டியலிட்டு தொடர்பு கொள்ள' },
@@ -86,6 +88,20 @@ export function Navbar() {
             </span>
           </Link>
           <div className="yn-header-actions">
+            <a
+              href={`https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(
+                tamil
+                  ? 'வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்.'
+                  : 'Hi, I would like to get free property listings and information in Jaffna.'
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-900 transition hover:bg-emerald-100"
+              aria-label={tamil ? `WhatsApp: ${BRAND.whatsappDisplay}` : `WhatsApp: ${BRAND.whatsappDisplay}`}
+            >
+              <MessageCircle size={16} className="text-[#25D366]" aria-hidden="true" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </a>
             <button type="button" onClick={() => setLocale(tamil ? 'en' : 'ta')} lang={tamil ? 'en' : 'ta'} className="yn-language-button" aria-label={tamil ? 'Switch to English' : 'தமிழுக்கு மாற்றவும்'}>
               <Globe size={18} aria-hidden="true" />
               <span>{tamil ? 'EN' : 'தமிழ்'}</span>
@@ -123,8 +139,15 @@ export function Navbar() {
             <span className="yn-nav-menu-caption">{tamil ? 'உங்கள் அடுத்த படி' : 'Your next step'}</span>
           </div>
           <div className="yn-nav-menu-grid">
-            {MORE_LINKS.map(({ icon: Icon, ...link }) => (
-              <Link key={link.href} href={link.href} className="yn-nav-menu-link" aria-current={isCurrentPath(pathname, link.href) ? 'page' : undefined} onClick={() => setIsOpen(false)}>
+            {MORE_LINKS.map(({ icon: Icon, external, ...link }) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className="yn-nav-menu-link"
+                aria-current={!external && isCurrentPath(pathname, link.href) ? 'page' : undefined}
+                onClick={() => setIsOpen(false)}
+              >
                 <span className="yn-nav-menu-icon"><Icon size={21} aria-hidden="true" /></span>
                 <span><span className="yn-nav-menu-title">{tamil ? link.ta : link.en}</span><span className="yn-nav-menu-detail">{tamil ? link.detailTa : link.detailEn}</span></span>
               </Link>

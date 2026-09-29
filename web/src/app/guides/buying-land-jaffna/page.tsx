@@ -297,7 +297,7 @@ export default function BuyingLandGuidePage() {
                     {copy.ctaPrimary}
                   </Link>
                   <a
-                    href="https://wa.me/94704846555?text=Hi%2C%20I%20am%20looking%20for%20land%20in%20Jaffna"
+                    href="https://wa.me/94710995343?text=Hi%2C%20I%20am%20looking%20for%20land%20in%20Jaffna"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-whatsapp text-center rounded-xl"

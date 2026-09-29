@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback } from 'react';
-import { Globe, Phone, Mail, BookOpen, Wrench, Search } from 'lucide-react';
+import { Globe, Phone, Mail, BookOpen, Wrench, Search, MessageCircle } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { BRAND } from '@/lib/brand';
 import { FooterAppLinks } from './FooterAppLinks';
 
 interface Column1Config {
@@ -83,9 +84,9 @@ const UTILITY_LINKS: UtilityLinksConfig = {
 };
 
 const CONTACT_INFO: ContactConfig = {
-  titleEn: 'Direct Hotline',
-  titleTa: 'நேரடித் தொடர்பு',
-  phone: '+94 70 484 6555',
+  titleEn: 'Direct Hotline & WhatsApp',
+  titleTa: 'நேரடி அழைப்பு & WhatsApp',
+  phone: BRAND.whatsappDisplay,
   email: 'info@yaalnilam.lk',
 };
 
@@ -227,7 +228,20 @@ export function Footer() {
               <h5 className="text-[10px] font-black text-white uppercase tracking-wider">
                 {locale === 'en' ? CONTACT_INFO.titleEn : CONTACT_INFO.titleTa}
               </h5>
-              <div className="flex flex-col gap-1.5 text-xs text-sand-300 font-bold">
+              <div className="flex flex-col gap-2 text-xs text-sand-300 font-bold">
+                <a
+                  href={`https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(
+                    locale === 'ta'
+                      ? 'வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்.'
+                      : 'Hi, I would like to get free property listings and information in Jaffna.'
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#25D366] text-emerald-400 transition flex items-center gap-1.5"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                  <span>WhatsApp: {CONTACT_INFO.phone}</span>
+                </a>
                 <Link
                   href={`tel:${CONTACT_INFO.phone}`}
                   className="hover:text-[#D4A853] transition flex items-center gap-1.5"
