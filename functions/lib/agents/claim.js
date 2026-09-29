@@ -235,7 +235,9 @@ ${liveUrl}
 — யாழ் நிலம் குழு (Yaal Nilam Team)`;
     const cleanDigits = phone.replace(/[^\d]/g, "");
     const convRef = firestore.collection("whatsapp_conversations").doc(`conv-${cleanDigits}`);
-    if (!(config === null || config === void 0 ? void 0 : config.phone_number_id) || !(config === null || config === void 0 ? void 0 : config.access_token)) {
+    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || (config === null || config === void 0 ? void 0 : config.access_token) || "";
+    const phoneNumberId = (config === null || config === void 0 ? void 0 : config.phone_number_id) || "1245526575308526";
+    if (!phoneNumberId || !accessToken) {
         await convRef.collection("messages").add({
             conversation_id: `conv-${cleanDigits}`,
             direction: "outbound",
@@ -248,15 +250,16 @@ ${liveUrl}
         return;
     }
     try {
-        const apiVersion = config.api_version || "v21.0";
-        await axios_1.default.post(`https://graph.facebook.com/${apiVersion}/${config.phone_number_id}/messages`, {
+        const rawVersion = (config === null || config === void 0 ? void 0 : config.graph_api_version) || (config === null || config === void 0 ? void 0 : config.api_version) || "v21.0";
+        const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
+        await axios_1.default.post(`https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`, {
             messaging_product: "whatsapp",
             to: phone,
             type: "text",
             text: { body },
         }, {
             headers: {
-                Authorization: `Bearer ${config.access_token}`,
+                Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/json",
             },
             timeout: 10000,

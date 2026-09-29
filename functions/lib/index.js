@@ -254,7 +254,7 @@ exports.getListingPreview = functions
  * Callable: Approve, edit, or decline listing via claim token
  */
 exports.respondListingConsent = functions
-    .runWith({ memory: "256MB", timeoutSeconds: 30 })
+    .runWith({ memory: "256MB", timeoutSeconds: 30, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
     .https.onCall(async (data) => {
     const { token, action, notes, site_url } = data || {};
     if (!token || !action) {
@@ -266,7 +266,7 @@ exports.respondListingConsent = functions
  * HTTP Endpoint for agent 1-click preview and approval from browser
  */
 exports.claimListingHandler = functions
-    .runWith({ memory: "256MB", timeoutSeconds: 30 })
+    .runWith({ memory: "256MB", timeoutSeconds: 30, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
     .https.onRequest(async (req, res) => {
     return corsHandler(req, res, async () => {
         try {

@@ -285,7 +285,10 @@ ${liveUrl}
   const cleanDigits = phone.replace(/[^\d]/g, "");
   const convRef = firestore.collection("whatsapp_conversations").doc(`conv-${cleanDigits}`);
 
-  if (!config?.phone_number_id || !config?.access_token) {
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || config?.access_token || "";
+  const phoneNumberId = config?.phone_number_id || "1245526575308526";
+
+  if (!phoneNumberId || !accessToken) {
     await convRef.collection("messages").add({
       conversation_id: `conv-${cleanDigits}`,
       direction: "outbound",
@@ -299,9 +302,10 @@ ${liveUrl}
   }
 
   try {
-    const apiVersion = config.api_version || "v21.0";
+    const rawVersion = config?.graph_api_version || config?.api_version || "v21.0";
+    const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
     await axios.post(
-      `https://graph.facebook.com/${apiVersion}/${config.phone_number_id}/messages`,
+      `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`,
       {
         messaging_product: "whatsapp",
         to: phone,
@@ -310,7 +314,7 @@ ${liveUrl}
       },
       {
         headers: {
-          Authorization: `Bearer ${config.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         timeout: 10000,

@@ -74,8 +74,8 @@ export default function PropertyAlertsPage() {
     errGeneric: ta ? "சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்." : "Couldn't save. Please try again.",
     doneTitle: ta ? "✅ எச்சரிக்கை அமைக்கப்பட்டது!" : "✅ You're all set!",
     doneBody: ta
-      ? "உங்கள் பதிவு சேமிக்கப்பட்டது. இந்த browser-ல் கீழே உள்ள பகுதியில் எச்சரிக்கையை நிர்வகிக்கலாம்."
-      : "Your registration is saved. You can manage this alert below on this browser.",
+      ? "உங்கள் பதிவு சேமிக்கப்பட்டது மற்றும் WhatsApp உறுதிப்படுத்தல் செய்தி உங்கள் எண்ணிற்கு அனுப்பப்பட்டுள்ளது! உங்கள் விருப்பத்திற்குரிய புதிய சொத்துகள் வரும்போது உடனே அறிவிக்கப்படும்."
+      : "Your registration is saved and a WhatsApp confirmation has been sent to your number! You'll be alerted immediately as soon as matching properties are listed.",
     doneAnother: ta ? "மற்றொரு எச்சரிக்கையை அமைக்கவும்" : "Set another alert",
     browse: ta ? "சொத்துகளைப் பார்க்கவும்" : "Browse properties",
     privacy: ta

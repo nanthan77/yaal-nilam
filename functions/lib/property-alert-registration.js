@@ -32,6 +32,9 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cancelPropertyAlert = exports.registerPropertyAlert = void 0;
 exports.normalizeAlertPhone = normalizeAlertPhone;
@@ -41,11 +44,13 @@ exports.createCancellationToken = createCancellationToken;
 exports.hashCancellationToken = hashCancellationToken;
 exports.cancellationTokenMatches = cancellationTokenMatches;
 exports.validateCancellationReceipt = validateCancellationReceipt;
+exports.sendRegistrationConfirmationWhatsApp = sendRegistrationConfirmationWhatsApp;
 const admin = __importStar(require("firebase-admin"));
 const functions = __importStar(require("firebase-functions"));
 const firestore_1 = require("firebase-admin/firestore");
 const crypto_1 = require("crypto");
 const net_1 = require("net");
+const axios_1 = __importDefault(require("axios"));
 const MAX_AREAS = 8;
 const MAX_ALERTS_PER_REGISTRATION = MAX_AREAS * 2;
 const MAX_ACTIVE_REGISTRATIONS_PER_PHONE = 5;
@@ -254,6 +259,170 @@ function denied() {
     throw new functions.https.HttpsError("permission-denied", "This cancellation receipt is not valid");
 }
 /**
+ * Sends an immediate bilingual WhatsApp confirmation message acknowledging
+ * the buyer's search criteria and opt-in status.
+ */
+async function sendRegistrationConfirmationWhatsApp(input) {
+    var _a, _b, _c, _d, _e, _f;
+    const db = admin.firestore();
+    const phone = input.phone;
+    const cleanDigits = phone.replace(/[^0-9]/g, "");
+    if (!cleanDigits)
+        return;
+    const cfgSnap = await db.collection("config").doc("whatsapp").get();
+    const cfg = cfgSnap.data() || {};
+    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || cfg.access_token || "";
+    const phoneNumberId = cfg.phone_number_id || "1245526575308526";
+    const rawVersion = cfg.graph_api_version || "v21.0";
+    const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
+    const isTa = input.locale === "ta";
+    const purposeText = input.purposes.includes("buy") && input.purposes.includes("rent")
+        ? (isTa ? "வாங்க / வாடகை" : "Buy & Rent")
+        : input.purposes.includes("rent")
+            ? (isTa ? "வாடகை (Rent)" : "Rent")
+            : (isTa ? "வாங்க (Buy)" : "Buy");
+    const typeMap = {
+        house: { ta: "வீடு (House)", en: "House" },
+        land: { ta: "காணி / நிலம் (Land)", en: "Land" },
+        apartment: { ta: "அபார்ட்மெண்ட் (Apartment)", en: "Apartment" },
+        villa: { ta: "வில்லா (Villa)", en: "Villa" },
+        commercial: { ta: "வணிக இடம் (Commercial)", en: "Commercial" },
+        any: { ta: "அனைத்து வகைகள் (All Types)", en: "All Types" },
+    };
+    const typeText = (typeMap[input.propertyType] || typeMap["any"])[isTa ? "ta" : "en"];
+    const areaMap = {
+        jaffna: "யாழ்ப்பாணம் (Jaffna)",
+        nallur: "நல்லூர் (Nallur)",
+        kokkuvil: "கொக்குவில் (Kokkuvil)",
+        chunnakam: "சுன்னாகம் (Chunnakam)",
+        kopay: "கோப்பாய் (Kopay)",
+        thirunelvely: "திருநெல்வேலி (Thirunelvely)",
+        chavakachcheri: "சாவகச்சேரி (Chavakachcheri)",
+        "point-pedro": "பருத்தித்துறை (Point Pedro)",
+        valvettithurai: "வல்வெட்டித்துறை (Valvettithurai)",
+        karainagar: "காரைநகர் (Karainagar)",
+    };
+    const areasFormatted = input.areas.includes("any") || input.areas.length === 0
+        ? (isTa ? "அனைத்துப் பகுதிகள் (All Areas)" : "All areas")
+        : input.areas.map((a) => {
+            if (isTa && areaMap[a])
+                return areaMap[a];
+            return a.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+        }).join(", ");
+    const budgetFormatted = input.maxPrice > 0
+        ? (isTa
+            ? `ரூ. ${input.maxPrice.toLocaleString("en-US")}`
+            : `Rs ${input.maxPrice.toLocaleString("en-US")}`)
+        : (isTa ? "குறிப்பிடப்படவில்லை" : "Not specified");
+    const nameGreeting = input.label && input.label !== "சொத்து எச்சரிக்கை" && input.label !== "Property alert"
+        ? input.label
+        : (isTa ? "நண்பரே" : "there");
+    let body = "";
+    if (isTa) {
+        body = `வணக்கம் ${nameGreeting}! 🎉\n\n` +
+            `யாழ் நிலம் (yaalnilam.com) சொத்து எச்சரிக்கை வெற்றிகரமாக பதிவு செய்யப்பட்டது!\n\n` +
+            `📋 *உங்கள் தேடல் விவரங்கள்:*\n` +
+            `• நோக்கம்: *${purposeText}*\n` +
+            `• சொத்து வகை: *${typeText}*\n` +
+            `• பகுதி: *${areasFormatted}*\n` +
+            (input.maxPrice > 0 ? `• அதிகபட்ச பட்ஜெட்: *${budgetFormatted}*\n` : "") +
+            (input.minBedrooms > 0 ? `• படுக்கையறைகள்: *${input.minBedrooms}+*\n` : "") +
+            `\nஉங்கள் விருப்பத்திற்கு ஏற்ப புதிய சொத்துகள் எங்கள் தளத்தில் பதியப்படும் போது, உடனே இந்த WhatsApp எண்ணிற்கு நேரலை இணைப்புடன் தகவல் அனுப்புவோம்.\n\n` +
+            `💬 எப்போது வேண்டுமானாலும் இந்த எண்ணிற்கு செய்தி அனுப்பி புதிய சொத்துகளை தேடலாம் அல்லது எங்கள் AI உதவியாளருடன் பேசலாம்.\n\n` +
+            `நன்றி!\n— யாழ் நிலம் குழு (yaalnilam.com)`;
+    }
+    else {
+        body = `Hello ${nameGreeting}! 🎉\n\n` +
+            `Your property alert on Yaal Nilam (yaalnilam.com) has been successfully registered!\n\n` +
+            `📋 *Your Search Criteria:*\n` +
+            `• Purpose: *${purposeText}*\n` +
+            `• Property Type: *${typeText}*\n` +
+            `• Area: *${areasFormatted}*\n` +
+            (input.maxPrice > 0 ? `• Max Budget: *${budgetFormatted}*\n` : "") +
+            (input.minBedrooms > 0 ? `• Bedrooms: *${input.minBedrooms}+*\n` : "") +
+            `\nAs soon as a matching property is listed, we will automatically notify you here on WhatsApp with the direct link.\n\n` +
+            `💬 You can also message this number anytime to search properties or chat with our AI property assistant!\n\n` +
+            `Thank you!\n— Yaal Nilam Team (yaalnilam.com)`;
+    }
+    const conversationId = `conv-${cleanDigits}`;
+    const convRef = db.collection("whatsapp_conversations").doc(conversationId);
+    const now = new Date().toISOString();
+    await convRef.set({
+        id: conversationId,
+        customer_name: input.label || nameGreeting,
+        customer_phone: cleanDigits,
+        customer_whatsapp: cleanDigits,
+        last_message: body.slice(0, 100),
+        last_message_time: now,
+        status: "active",
+        unread_count: 0,
+        tags: ["property_alert_subscriber"],
+        automation_mode: "ai",
+        preferred_language: input.locale,
+        updated_at: now,
+    }, { merge: true });
+    if (!accessToken) {
+        console.warn("WhatsApp access token missing; saving alert confirmation locally.");
+        await convRef.collection("messages").add({
+            conversation_id: conversationId,
+            direction: "outbound",
+            content: body,
+            content_type: "text",
+            status: "pending_meta_credentials",
+            sender_name: "Yaal Nilam System",
+            origin: "bot",
+            timestamp: now,
+            created_at: now,
+        });
+        return;
+    }
+    try {
+        const response = await axios_1.default.post(`https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`, {
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: cleanDigits,
+            type: "text",
+            text: { preview_url: false, body },
+        }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+            },
+            timeout: 10000,
+        });
+        const waMessageId = ((_c = (_b = (_a = response.data) === null || _a === void 0 ? void 0 : _a.messages) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.id) || "";
+        await convRef.collection("messages").add({
+            conversation_id: conversationId,
+            direction: "outbound",
+            content: body,
+            content_type: "text",
+            status: "sent",
+            wa_message_id: waMessageId,
+            sender_name: "Yaal Nilam System",
+            origin: "bot",
+            timestamp: now,
+            created_at: now,
+        });
+        console.log(`Alert registration WhatsApp confirmation sent to ${cleanDigits}, wa_msg_id=${waMessageId}`);
+    }
+    catch (err) {
+        const errMsg = ((_f = (_e = (_d = err.response) === null || _d === void 0 ? void 0 : _d.data) === null || _e === void 0 ? void 0 : _e.error) === null || _f === void 0 ? void 0 : _f.message) || err.message;
+        console.error(`Alert registration WhatsApp confirmation failed for ${cleanDigits}:`, errMsg);
+        await convRef.collection("messages").add({
+            conversation_id: conversationId,
+            direction: "outbound",
+            content: body,
+            content_type: "text",
+            status: "failed",
+            error_detail: errMsg,
+            sender_name: "Yaal Nilam System",
+            origin: "bot",
+            timestamp: now,
+            created_at: now,
+        });
+    }
+}
+/**
  * Register web or mobile alerts through the Admin SDK and return a client-held
  * cancellation capability. The private registration record contains no buyer
  * PII and the plaintext token is never persisted server-side.
@@ -262,6 +431,7 @@ exports.registerPropertyAlert = functions
     .runWith({
     memory: "256MB",
     timeoutSeconds: 60,
+    secrets: ["WHATSAPP_ACCESS_TOKEN"],
 })
     .https.onCall(async (data, context) => {
     const input = normalizeAlertRegistration(data);
@@ -367,6 +537,10 @@ exports.registerPropertyAlert = functions
             hour_count: networkHourCount + 1,
             updated_at: createdAt,
         }, { merge: true });
+    });
+    // Dispatch instant WhatsApp confirmation to subscriber asynchronously
+    sendRegistrationConfirmationWhatsApp(input).catch((err) => {
+        console.error("[registerPropertyAlert] WhatsApp confirmation error:", err);
     });
     return {
         registrationId: registrationRef.id,
