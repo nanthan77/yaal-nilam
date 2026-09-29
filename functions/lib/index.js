@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
+exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.cancelPropertyAlert = exports.registerPropertyAlert = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const cors = require("cors");
@@ -48,6 +48,11 @@ Object.defineProperty(exports, "onAnalyticsEvent", { enumerable: true, get: func
 // criteria they registered (collection `property_alerts`).
 var alerts_1 = require("./alerts");
 Object.defineProperty(exports, "onListingPublishedAlert", { enumerable: true, get: function () { return alerts_1.onListingPublishedAlert; } });
+// Anonymous mobile/web buyer registration uses a private server-owned receipt so
+// the device can cancel only the alert group it created.
+var property_alert_registration_1 = require("./property-alert-registration");
+Object.defineProperty(exports, "registerPropertyAlert", { enumerable: true, get: function () { return property_alert_registration_1.registerPropertyAlert; } });
+Object.defineProperty(exports, "cancelPropertyAlert", { enumerable: true, get: function () { return property_alert_registration_1.cancelPropertyAlert; } });
 const corsHandler = cors({ origin: true });
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
 // Must be publicly accessible for Meta to call it

@@ -14,6 +14,10 @@ export { onAnalyticsEvent } from "./analytics";
 // criteria they registered (collection `property_alerts`).
 export { onListingPublishedAlert } from "./alerts";
 
+// Anonymous mobile/web buyer registration uses a private server-owned receipt so
+// the device can cancel only the alert group it created.
+export { registerPropertyAlert, cancelPropertyAlert } from "./property-alert-registration";
+
 const corsHandler = cors({ origin: true });
 
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
