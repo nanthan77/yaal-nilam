@@ -11,6 +11,7 @@ import { buildSubmissionAttribution, canonicalizePhoneNumber, canonicalizeYouTub
 import { useStore } from '@/lib/store';
 import { buildWhatsAppUrl } from '@/lib/marketplace';
 import { localize } from '@/lib/translations';
+import { BRAND } from '@/lib/brand';
 
 // Keep the current live seller form’s district and town choices.
 const areaGroups = [
@@ -188,7 +189,7 @@ export default function ListPropertyPage() {
       youtubeError: 'Use a real HTTPS YouTube watch, Shorts, Live, or youtu.be link.',
       profileLoadError: 'We could not restore your signed-in profile. Refresh the page or sign in again before submitting so the listing is linked to the correct account.',
       profileLoading: 'Your signed-in profile is still loading. Please wait a moment and submit again.',
-      submitError: `Sorry, we couldn't submit your listing. Please try again, or send the details on WhatsApp at +94 70 484 6555.`,
+      submitError: `Sorry, we couldn't submit your listing. Please try again, or send the details on WhatsApp at ${BRAND.whatsappDisplay}.`,
     },
     ta: {
       title: 'உங்கள் சொத்தைப் பட்டியலிடுங்கள்',
@@ -239,14 +240,14 @@ export default function ListPropertyPage() {
       youtubeError: 'உண்மையான HTTPS YouTube watch, Shorts, Live அல்லது youtu.be link-ஐ பயன்படுத்துங்கள்.',
       profileLoadError: 'உங்கள் signed-in profile-ஐ மீட்டெடுக்க முடியவில்லை. Listing சரியான கணக்குடன் இணைக்கப்பட refresh செய்யவும் அல்லது மீண்டும் sign in செய்யவும்.',
       profileLoading: 'உங்கள் signed-in profile இன்னும் load ஆகிறது. சிறிது நேரம் காத்திருந்து மீண்டும் submit செய்யுங்கள்.',
-      submitError: `மன்னிக்கவும், உங்கள் listing-ஐ அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது +94 70 484 6555 இல் WhatsApp மூலம் அனுப்புங்கள்.`,
+      submitError: `மன்னிக்கவும், உங்கள் listing-ஐ அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது ${BRAND.whatsappDisplay} இல் WhatsApp மூலம் அனுப்புங்கள்.`,
     },
   });
 
   const whatsappLink = useMemo(
     () =>
       buildWhatsAppUrl(
-        '94704846555',
+        BRAND.whatsappDigits,
         locale === 'ta'
           ? `வணக்கம், ${formData.area || 'யாழ்ப்பாணம்'} பகுதியில் ${formData.title || 'ஒரு சொத்தை'} பட்டியலிக்க விரும்புகிறேன்.`
           : `Hi, I'd like to list ${formData.title || 'a property'} in ${formData.area || 'Jaffna'}.`

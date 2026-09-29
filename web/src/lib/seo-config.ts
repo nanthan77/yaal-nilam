@@ -2,6 +2,7 @@
 
 import { ALL_LOCATIONS, getPlacesForLocation } from './locations';
 import type { Location } from './locations';
+import { BRAND } from './brand';
 
 const BASE_URL = 'https://yaalnilam.com';
 
@@ -245,7 +246,7 @@ export function generateRealEstateListingJsonLd(
     name: 'Yaal Nilam',
     alternateName: 'யாழ் நிலம்',
     url: BASE_URL,
-    telephone: '+94704846555',
+    telephone: BRAND.whatsappDisplay,
     areaServed: {
       '@type': 'Place',
       name: location ? `${location.name}, Jaffna District` : 'Jaffna District, Northern Province, Sri Lanka',

@@ -17,6 +17,7 @@ import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel, localize } fr
 import { localDateToday, rentalPriceSuffix } from "@/lib/property-presentation";
 import { getPropertyPath, resolvePropertyId } from "@/lib/property-routes";
 import ShareMenu from "@/components/ShareMenu";
+import { BRAND } from "@/lib/brand";
 
 const DISPLAY_CURRENCIES = ["LKR", "GBP", "USD"] as const;
 
@@ -239,7 +240,7 @@ export default function PropertyDetailClient({ propertyId, initialProperty = nul
   const compareLimitReached = !inCompare && compareIds.length >= 3;
   const priceSuffix = rentalPriceSuffix(property.intent, locale);
   const primaryWhatsappUrl = buildWhatsAppUrl(
-    property.agent_phone || "94704846555",
+    property.agent_phone || BRAND.whatsappDigits,
     locale === "ta"
       ? `${propertyTitle} (${property.listing_code || property.id}) பற்றி தெரிந்து கொள்ள விரும்புகிறேன்.`
       : `Hi, I'm interested in ${property.title} (${property.listing_code || property.id}).`

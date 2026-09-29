@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { localize } from '@/lib/translations';
 import { ShieldCheck, MapPin } from 'lucide-react';
+import { BRAND } from '@/lib/brand';
 
 interface SafetyGuideSection {
   iconName: string;
@@ -182,7 +183,7 @@ export default function SafetyPage() {
             <p className="text-slate-300">{copy.contactBody}</p>
             <div lang="en" className="pt-4 border-t border-slate-800 space-y-2 text-sm">
               <p className="font-bold text-white text-base">Yaal Nilam Support</p>
-              <p className="text-sand-200">Direct Helpline: <a href="tel:+94704846555" className="text-amber-400 font-bold hover:underline">+94 70 484 6555</a></p>
+              <p className="text-sand-200">Direct Helpline / WhatsApp: <a href={`https://wa.me/${BRAND.whatsappDigits}`} className="text-amber-400 font-bold hover:underline">{BRAND.whatsappDisplay}</a></p>
               <p className="text-sand-200">Email: <a href="mailto:info@yaalnilam.com" className="text-amber-400 font-bold hover:underline">info@yaalnilam.com</a></p>
               <div className="pt-2 flex items-start gap-2 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-1" />

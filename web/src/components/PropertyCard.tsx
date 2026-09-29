@@ -11,6 +11,7 @@ import { getPropertyPath } from '@/lib/property-routes';
 import { googleMapsViewUrl } from '@/lib/maps';
 import ShareMenu from '@/components/ShareMenu';
 import { getSavedPropertyIds, toggleSavedProperty, trackWhatsAppLead } from '@/lib/firestore';
+import { BRAND } from '@/lib/brand';
 import type { Property } from '@/lib/data';
 
 export default function PropertyCard({ property }: { property: Property | NormalizedListing }) {
@@ -93,7 +94,7 @@ export default function PropertyCard({ property }: { property: Property | Normal
           <button type="button" onClick={() => toggleCompare(p.id)} aria-pressed={inCompare} disabled={compareLimitReached} className="text-xs font-bold text-[#61756a] underline-offset-4 hover:underline disabled:cursor-not-allowed">
             {inCompare ? '✓ ' : ''}{compareLimitReached ? (locale === 'ta' ? 'அதிகபட்சம் 3 சொத்துகள்' : '3-property limit') : (locale === 'ta' ? 'ஒப்பிடு' : 'Compare')}
           </button>
-          <a href={buildWhatsAppUrl(p.agent_phone || '94704846555', whatsappMessage)} target="_blank" rel="noopener noreferrer"
+          <a href={buildWhatsAppUrl(p.agent_phone || BRAND.whatsappDigits, whatsappMessage)} target="_blank" rel="noopener noreferrer"
             onClick={() => { void trackWhatsAppLead(p, 'property_card'); }}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#166b48] hover:underline">
             <MessageCircle className="h-4 w-4" />WhatsApp

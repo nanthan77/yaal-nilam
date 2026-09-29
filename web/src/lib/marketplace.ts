@@ -1,5 +1,6 @@
 import { ALL_LOCATIONS, getLocationBySlug } from "./locations";
 import { normalizePropertySlug } from "./property-routes";
+import { BRAND } from "./brand";
 
 export type CurrencyCode = "LKR" | "GBP" | "USD";
 
@@ -312,7 +313,7 @@ export function normalizeListing(raw: any): NormalizedListing {
     submission_source: raw?.submission_source || raw?.source || "",
     submitter_uid: raw?.submitter_uid || "",
     agent_name: raw?.agent_name || raw?.agent || "Yaal Nilam Advisor",
-    agent_phone: raw?.agent_phone || raw?.phone || "+94704846555",
+    agent_phone: raw?.agent_phone || raw?.phone || BRAND.whatsappDisplay,
     agent_email: raw?.agent_email || "",
     agent_company: raw?.agent_company || "",
     agent_response_rate: toNumber(raw?.agent_response_rate || raw?.response_rate),
@@ -360,8 +361,8 @@ export function normalizeAgent(raw: any): NormalizedAgent {
     id: raw?.id || `agent-${hashString(raw?.name || raw?.email || "agent")}`,
     name: raw?.name || "Yaal Nilam Partner",
     company: raw?.company || "Independent",
-    phone: raw?.phone || "+94704846555",
-    whatsapp: raw?.whatsapp || raw?.phone || "+94704846555",
+    phone: raw?.phone || BRAND.whatsappDisplay,
+    whatsapp: raw?.whatsapp || raw?.phone || BRAND.whatsappDisplay,
     email: raw?.email || "",
     verified: Boolean(raw?.verified),
     nic_uploaded: Boolean(raw?.nic_uploaded),

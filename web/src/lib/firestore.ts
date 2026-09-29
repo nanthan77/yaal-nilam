@@ -26,6 +26,7 @@ import { ALL_LOCATIONS } from "./locations";
 import { sanitizeAnalyticsEventName, sanitizeAnalyticsParameters } from "./client-analytics";
 import { normalizePropertySlug, resolvePropertyId } from "./property-routes";
 import { canonicalizePhoneNumber, canonicalizeYouTubeUrl, listingBelongsToAgent } from "./agent-onboarding";
+import { BRAND } from "./brand";
 
 const FALLBACK_LISTINGS = DEVELOPMENT_PROPERTY_FIXTURES;
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
@@ -144,8 +145,8 @@ function buildAgentFallbackFromListings(listings: any[]) {
       id: listing.agent_id || key.toLowerCase().replace(/\s+/g, "-"),
       name: listing.agent_name,
       company: listing.agent_company || "Yaal Nilam Partner",
-      phone: listing.agent_phone || "+94704846555",
-      whatsapp: listing.agent_phone || "+94704846555",
+      phone: listing.agent_phone || BRAND.whatsappDisplay,
+      whatsapp: listing.agent_phone || BRAND.whatsappDisplay,
       email: listing.agent_email || "",
       verified: listing.verified,
       nic_uploaded: listing.verified,
