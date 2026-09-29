@@ -112,8 +112,10 @@ async function sendAgentConsentOutreach(agentResult) {
         outreach_sent_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
     };
+    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || (config === null || config === void 0 ? void 0 : config.access_token) || "";
+    const phoneNumberId = (config === null || config === void 0 ? void 0 : config.phone_number_id) || "1245526575308526";
     // If WhatsApp API credentials are not set, save locally for staging/testing
-    if (!(config === null || config === void 0 ? void 0 : config.phone_number_id) || !(config === null || config === void 0 ? void 0 : config.access_token)) {
+    if (!phoneNumberId || !accessToken) {
         console.warn("WhatsApp API credentials missing. Logging consent outreach locally to Firestore.");
         await convRef.set(convUpdateData, { merge: true });
         await convRef.collection("messages").add({
@@ -139,15 +141,16 @@ async function sendAgentConsentOutreach(agentResult) {
     }
     // 3. Send via Meta Graph API v21.0
     try {
-        const apiVersion = config.api_version || "v21.0";
-        const response = await axios_1.default.post(`https://graph.facebook.com/${apiVersion}/${config.phone_number_id}/messages`, {
+        const rawVersion = (config === null || config === void 0 ? void 0 : config.graph_api_version) || (config === null || config === void 0 ? void 0 : config.api_version) || "v21.0";
+        const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
+        const response = await axios_1.default.post(`https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`, {
             messaging_product: "whatsapp",
             to: phone,
             type: "text",
             text: { body: messageBody },
         }, {
             headers: {
-                Authorization: `Bearer ${config.access_token}`,
+                Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/json",
             },
             timeout: 12000,

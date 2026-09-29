@@ -50,10 +50,13 @@ export async function whatsappVerify(
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  const configDoc = await db.collection("config").doc("whatsapp").get();
-  const config = configDoc.data();
+  let expectedToken = process.env.WHATSAPP_VERIFY_TOKEN || "";
+  if (!expectedToken) {
+    const configDoc = await db.collection("config").doc("whatsapp").get();
+    expectedToken = configDoc.data()?.webhook_verify_token || "";
+  }
 
-  if (mode === "subscribe" && token === config?.webhook_verify_token) {
+  if (mode === "subscribe" && expectedToken && token === expectedToken) {
     console.log("WhatsApp webhook verified");
     res.status(200).send(challenge);
   } else {
@@ -201,7 +204,7 @@ async function processIncomingMessage(
   }
 
   // Add message to conversation
-  await db
+  const messageDocRef = await db
     .collection("whatsapp_conversations")
     .doc(conversationId)
     .collection("messages")
@@ -216,6 +219,7 @@ async function processIncomingMessage(
       timestamp,
       wa_message_id: message.id,
     });
+  const messageId = messageDocRef.id;
 
   // Check if this conversation is awaiting listing consent from the agent/seller
   const convDoc = await db.collection("whatsapp_conversations").doc(conversationId).get();
@@ -225,8 +229,21 @@ async function processIncomingMessage(
     if (handled) return;
   }
 
-  // Send auto-reply if enabled
-  await handleAutoReply(conversationId, phone);
+  // Enqueue AI Bot Job for onWhatsAppBotJob trigger
+  const sequence = Number(convData?.bot_next_sequence || 1);
+  const convRef = db.collection("whatsapp_conversations").doc(conversationId);
+  await convRef.collection("bot_jobs").doc(messageId).set({
+    conversation_id: conversationId,
+    inbound_message_id: messageId,
+    inbound_wa_message_id: message.id || "",
+    sequence,
+    content_type: contentType,
+    status: "pending",
+    attempt_count: 0,
+    created_at: timestamp,
+    updated_at: timestamp,
+  });
+  console.log(`Enqueued bot job ${messageId} for conversation ${conversationId}, sequence ${sequence}`);
 }
 
 async function handleAgentConsentResponse(

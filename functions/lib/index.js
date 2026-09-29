@@ -33,12 +33,13 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.cancelPropertyAlert = exports.registerPropertyAlert = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
+exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.onWhatsAppBotJob = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.cancelPropertyAlert = exports.registerPropertyAlert = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const cors = require("cors");
 const whatsapp_1 = require("./whatsapp");
 const whatsapp_send_1 = require("./whatsapp-send");
+const whatsapp_bot_1 = require("./whatsapp-bot");
 const social_monitor_1 = require("./social-monitor");
 admin.initializeApp();
 // Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
@@ -57,7 +58,16 @@ const corsHandler = cors({ origin: true });
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
 // Must be publicly accessible for Meta to call it
 exports.whatsappWebhookHandler = functions
-    .runWith({ memory: "256MB", timeoutSeconds: 60 })
+    .runWith({
+    memory: "512MB",
+    timeoutSeconds: 60,
+    secrets: [
+        "WHATSAPP_APP_SECRET",
+        "WHATSAPP_VERIFY_TOKEN",
+        "WHATSAPP_ACCESS_TOKEN",
+        "GEMINI_API_KEY",
+    ],
+})
     .https.onRequest(async (req, res) => {
     // Handle CORS preflight
     return corsHandler(req, res, async () => {
@@ -109,18 +119,45 @@ async function isAdminToken(token) {
     return false;
 }
 // Send WhatsApp message - called from admin dashboard
-exports.sendWhatsApp = functions.https.onCall(async (data, context) => {
+exports.sendWhatsApp = functions
+    .runWith({
+    memory: "256MB",
+    timeoutSeconds: 60,
+    secrets: ["WHATSAPP_ACCESS_TOKEN"],
+})
+    .https.onCall(async (data, context) => {
     // Verify admin auth (same admins firestore.rules isAdmin() accepts)
     if (!context.auth || !(await isAdminToken(context.auth.token))) {
         throw new functions.https.HttpsError("permission-denied", "Only admins can send WhatsApp messages");
     }
     return (0, whatsapp_send_1.sendWhatsAppMessage)(data);
 });
+// WhatsApp AI Bot Trigger: runs whenever a bot job is created/pending
+exports.onWhatsAppBotJob = functions
+    .runWith({
+    memory: "512MB",
+    timeoutSeconds: 120,
+    failurePolicy: true,
+    secrets: ["WHATSAPP_ACCESS_TOKEN", "GEMINI_API_KEY"],
+})
+    .firestore.document("whatsapp_conversations/{convId}/bot_jobs/{jobId}")
+    .onWrite(async (change, context) => {
+    if (!change.after.exists)
+        return;
+    const after = change.after.data() || {};
+    const before = change.before.exists ? change.before.data() || {} : {};
+    if (after.status !== "pending")
+        return;
+    if (change.before.exists && before.status === "pending" && before.wake_token === after.wake_token) {
+        return;
+    }
+    await (0, whatsapp_bot_1.runWhatsAppBotJob)(change.after.ref, String(context.eventId || context.params.jobId));
+});
 // Run source-specific social lead monitors and save discovered property posts
 // into `social_leads`. Triggered manually from the admin dashboard; scheduling
 // should be enabled only after choosing approved API/search providers.
 exports.runSocialLeadMonitor = functions
-    .runWith({ memory: "512MB", timeoutSeconds: 180 })
+    .runWith({ memory: "512MB", timeoutSeconds: 180, secrets: ["GEMINI_API_KEY"] })
     .https.onCall(async (_data, context) => {
     if (!context.auth || !(await isAdminToken(context.auth.token))) {
         throw new functions.https.HttpsError("permission-denied", "Only admins can run the social lead monitor");
@@ -153,7 +190,7 @@ const pipeline_1 = require("./agents/pipeline");
  * AI Extractor + Directory Staging + WhatsApp Outreach for a single social post
  */
 exports.processSocialPost = functions
-    .runWith({ memory: "512MB", timeoutSeconds: 120 })
+    .runWith({ memory: "512MB", timeoutSeconds: 120, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
     .https.onCall(async (data, context) => {
     if (!context.auth || !(await isAdminToken(context.auth.token))) {
         throw new functions.https.HttpsError("permission-denied", "Only admins can run the social post processor");
@@ -166,7 +203,7 @@ exports.processSocialPost = functions
  * creates/updates agent profiles, stages draft listings, and sends WhatsApp consent links.
  */
 exports.runDailyAgentPipeline = functions
-    .runWith({ memory: "512MB", timeoutSeconds: 300 })
+    .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
     .https.onCall(async (data, context) => {
     if (!context.auth || !(await isAdminToken(context.auth.token))) {
         throw new functions.https.HttpsError("permission-denied", "Only admins can run the daily agent pipeline");
@@ -176,7 +213,9 @@ exports.runDailyAgentPipeline = functions
 /**
  * Scheduled Daily Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
  */
-exports.scheduledDailyAgentPipeline = functions.pubsub
+exports.scheduledDailyAgentPipeline = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+    .pubsub
     .schedule("0 9 * * *")
     .timeZone("Asia/Colombo")
     .onRun(async () => {
@@ -187,7 +226,7 @@ exports.scheduledDailyAgentPipeline = functions.pubsub
  * Trigger or re-send WhatsApp consent request for an existing staged draft listing
  */
 exports.sendAgentWhatsAppConsent = functions
-    .runWith({ memory: "256MB", timeoutSeconds: 60 })
+    .runWith({ memory: "256MB", timeoutSeconds: 60, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
     .https.onCall(async (data, context) => {
     if (!context.auth || !(await isAdminToken(context.auth.token))) {
         throw new functions.https.HttpsError("permission-denied", "Only admins can send WhatsApp consent requests");

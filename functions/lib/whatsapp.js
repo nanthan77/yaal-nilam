@@ -67,13 +67,17 @@ function verifyMetaSignature(req, appSecret) {
  * Verify webhook - Meta sends a GET request to verify the webhook URL
  */
 async function whatsappVerify(req, res) {
+    var _a;
     const db = getDb();
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
-    const configDoc = await db.collection("config").doc("whatsapp").get();
-    const config = configDoc.data();
-    if (mode === "subscribe" && token === (config === null || config === void 0 ? void 0 : config.webhook_verify_token)) {
+    let expectedToken = process.env.WHATSAPP_VERIFY_TOKEN || "";
+    if (!expectedToken) {
+        const configDoc = await db.collection("config").doc("whatsapp").get();
+        expectedToken = ((_a = configDoc.data()) === null || _a === void 0 ? void 0 : _a.webhook_verify_token) || "";
+    }
+    if (mode === "subscribe" && expectedToken && token === expectedToken) {
         console.log("WhatsApp webhook verified");
         res.status(200).send(challenge);
     }
@@ -204,7 +208,7 @@ async function processIncomingMessage(message, contact) {
         conversationId = existingConv.docs[0].id;
     }
     // Add message to conversation
-    await db
+    const messageDocRef = await db
         .collection("whatsapp_conversations")
         .doc(conversationId)
         .collection("messages")
@@ -219,6 +223,7 @@ async function processIncomingMessage(message, contact) {
         timestamp,
         wa_message_id: message.id,
     });
+    const messageId = messageDocRef.id;
     // Check if this conversation is awaiting listing consent from the agent/seller
     const convDoc = await db.collection("whatsapp_conversations").doc(conversationId).get();
     const convData = convDoc.data();
@@ -227,8 +232,21 @@ async function processIncomingMessage(message, contact) {
         if (handled)
             return;
     }
-    // Send auto-reply if enabled
-    await handleAutoReply(conversationId, phone);
+    // Enqueue AI Bot Job for onWhatsAppBotJob trigger
+    const sequence = Number((convData === null || convData === void 0 ? void 0 : convData.bot_next_sequence) || 1);
+    const convRef = db.collection("whatsapp_conversations").doc(conversationId);
+    await convRef.collection("bot_jobs").doc(messageId).set({
+        conversation_id: conversationId,
+        inbound_message_id: messageId,
+        inbound_wa_message_id: message.id || "",
+        sequence,
+        content_type: contentType,
+        status: "pending",
+        attempt_count: 0,
+        created_at: timestamp,
+        updated_at: timestamp,
+    });
+    console.log(`Enqueued bot job ${messageId} for conversation ${conversationId}, sequence ${sequence}`);
 }
 async function handleAgentConsentResponse(conversationId, phone, content, convData) {
     const db = getDb();

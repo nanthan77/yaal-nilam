@@ -110,7 +110,11 @@ async function sendWhatsAppTemplate(cfg, to, params) {
     var _a, _b, _c;
     const name = cfg.alert_template_name || "new_listing_alert";
     const lang = cfg.alert_template_lang || "en";
-    const response = await axios_1.default.post(`https://graph.facebook.com/v18.0/${cfg.phone_number_id}/messages`, {
+    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || cfg.access_token || "";
+    const phoneNumberId = cfg.phone_number_id || "1245526575308526";
+    const rawVersion = cfg.graph_api_version || "v21.0";
+    const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
+    const response = await axios_1.default.post(`https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`, {
         messaging_product: "whatsapp",
         to,
         type: "template",
@@ -126,14 +130,14 @@ async function sendWhatsAppTemplate(cfg, to, params) {
         },
     }, {
         headers: {
-            Authorization: `Bearer ${cfg.access_token}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
         },
     });
     return ((_c = (_b = (_a = response.data) === null || _a === void 0 ? void 0 : _a.messages) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.id) || "";
 }
 exports.onListingPublishedAlert = functions
-    .runWith({ memory: "256MB", timeoutSeconds: 120 })
+    .runWith({ memory: "256MB", timeoutSeconds: 120, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
     .firestore.document("listings/{id}")
     .onWrite(async (change, context) => {
     var _a;
@@ -159,7 +163,7 @@ exports.onListingPublishedAlert = functions
     }
     const cfgSnap = await db.collection("config").doc("whatsapp").get();
     const cfg = cfgSnap.data() || {};
-    const configured = Boolean(cfg.phone_number_id && cfg.access_token);
+    const configured = Boolean(cfg.phone_number_id && (cfg.access_token || process.env.WHATSAPP_ACCESS_TOKEN));
     const siteUrl = String(cfg.site_url || "https://yaal-nilam.web.app").replace(/\/+$/, "");
     const alertsSnap = await db
         .collection("property_alerts")

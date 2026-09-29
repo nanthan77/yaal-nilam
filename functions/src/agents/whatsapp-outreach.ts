@@ -97,8 +97,11 @@ export async function sendAgentConsentOutreach(
     updated_at: new Date().toISOString(),
   };
 
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || config?.access_token || "";
+  const phoneNumberId = config?.phone_number_id || "1245526575308526";
+
   // If WhatsApp API credentials are not set, save locally for staging/testing
-  if (!config?.phone_number_id || !config?.access_token) {
+  if (!phoneNumberId || !accessToken) {
     console.warn("WhatsApp API credentials missing. Logging consent outreach locally to Firestore.");
 
     await convRef.set(convUpdateData, { merge: true });
@@ -128,9 +131,10 @@ export async function sendAgentConsentOutreach(
 
   // 3. Send via Meta Graph API v21.0
   try {
-    const apiVersion = config.api_version || "v21.0";
+    const rawVersion = config?.graph_api_version || config?.api_version || "v21.0";
+    const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
     const response = await axios.post(
-      `https://graph.facebook.com/${apiVersion}/${config.phone_number_id}/messages`,
+      `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`,
       {
         messaging_product: "whatsapp",
         to: phone,
@@ -139,7 +143,7 @@ export async function sendAgentConsentOutreach(
       },
       {
         headers: {
-          Authorization: `Bearer ${config.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         timeout: 12000,

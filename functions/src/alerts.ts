@@ -73,8 +73,12 @@ function matchesAlert(alert: any, l: any): boolean {
 async function sendWhatsAppTemplate(cfg: any, to: string, params: string[]): Promise<string> {
   const name = cfg.alert_template_name || "new_listing_alert";
   const lang = cfg.alert_template_lang || "en";
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || cfg.access_token || "";
+  const phoneNumberId = cfg.phone_number_id || "1245526575308526";
+  const rawVersion = cfg.graph_api_version || "v21.0";
+  const apiVersion = rawVersion === "v26.0" ? "v21.0" : rawVersion;
   const response = await axios.post(
-    `https://graph.facebook.com/v18.0/${cfg.phone_number_id}/messages`,
+    `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`,
     {
       messaging_product: "whatsapp",
       to,
@@ -92,7 +96,7 @@ async function sendWhatsAppTemplate(cfg: any, to: string, params: string[]): Pro
     },
     {
       headers: {
-        Authorization: `Bearer ${cfg.access_token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     }
@@ -101,7 +105,7 @@ async function sendWhatsAppTemplate(cfg: any, to: string, params: string[]): Pro
 }
 
 export const onListingPublishedAlert = functions
-  .runWith({ memory: "256MB", timeoutSeconds: 120 })
+  .runWith({ memory: "256MB", timeoutSeconds: 120, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
   .firestore.document("listings/{id}")
   .onWrite(async (change, context) => {
     const after = change.after.exists ? (change.after.data() as any) : null;
@@ -128,7 +132,7 @@ export const onListingPublishedAlert = functions
 
     const cfgSnap = await db.collection("config").doc("whatsapp").get();
     const cfg = (cfgSnap.data() as any) || {};
-    const configured = Boolean(cfg.phone_number_id && cfg.access_token);
+    const configured = Boolean(cfg.phone_number_id && (cfg.access_token || process.env.WHATSAPP_ACCESS_TOKEN));
     const siteUrl = String(cfg.site_url || "https://yaal-nilam.web.app").replace(/\/+$/, "");
 
     const alertsSnap = await db
