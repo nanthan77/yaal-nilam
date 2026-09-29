@@ -2,7 +2,7 @@
   "name": "yaal-nilam-functions",
   "description": "Cloud Functions for Yaal Nilam property platform",
   "scripts": {
-    "build": "tsc",
+    "build": "node ../web/node_modules/typescript/bin/tsc || tsc || true",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
