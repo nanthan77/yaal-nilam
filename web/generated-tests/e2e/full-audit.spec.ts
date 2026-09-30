@@ -331,9 +331,15 @@ test.describe('⚡ Performance Observer', () => {
 test.describe('🤠 Quinn — Adversarial Exploration', () => {
   test('emoji + unicode in search does not break UI', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta', { timeout: 15000 });
     const search = page.getByRole('searchbox');
-    await search.fill('🏠 யாழ்ப்பாணம் 😎 ' + 'a'.repeat(200));
-    await expect(search).toHaveValue(/🏠/);
+    const keyword = '🏠 யாழ்ப்பாணம் 😎 ' + 'a'.repeat(200);
+    await search.fill(keyword);
+    await expect(search).toHaveValue(keyword);
+    await search.press('Enter');
+    await expect(page).toHaveURL(/\/properties\/\?/);
+    expect(new URL(page.url()).searchParams.get('q')).toBe(keyword);
+    await expect(page.locator('#property-search')).toHaveValue(keyword);
   });
 
   test('rapid nav back/forward stable', async ({ page }) => {

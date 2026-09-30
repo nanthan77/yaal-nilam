@@ -4,6 +4,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const test = require('node:test');
 const ts = require('typescript');
+const React = require('react');
+const { renderToString } = require('react-dom/server');
 
 // Exercise the real Zustand hydration path against isolated local storage.
 const filename = path.resolve(__dirname, '../src/lib/store.ts');
@@ -11,11 +13,13 @@ const js = ts.transpileModule(readFileSync(filename, 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText;
 
-function createStoredState(state, version) {
+function createStoredState(state, version, options = {}) {
   const storage = new Map([['yaal-nilam-public-store', JSON.stringify({ state, version })]]);
+  if (options.currency !== undefined) storage.set('yaal-nilam-currency', options.currency);
   const storeModule = { exports: {} };
   vm.runInNewContext(js, {
     module: storeModule, exports: storeModule.exports, require,
+    window: options.server ? undefined : {},
     localStorage: {
       getItem: (key) => storage.get(key) ?? null,
       setItem: (key, value) => storage.set(key, value),
@@ -24,6 +28,37 @@ function createStoredState(state, version) {
   }, { filename });
   return { store: storeModule.exports.useStore, storage };
 }
+
+test('saved currency matches server price markup until explicit client rehydration', async () => {
+  const server = createStoredState({ locale: 'ta' }, 2, { server: true }).store;
+  const client = createStoredState({ locale: 'ta' }, 2, { currency: 'CAD' }).store;
+  function Price({ store }) {
+    const { currency } = store();
+    return React.createElement('p', null, currency === 'LKR' ? 'LKR 55,000,000' : '$244,444');
+  }
+  const serverHTML = renderToString(React.createElement(Price, { store: server }));
+  const hydrationHTML = renderToString(React.createElement(Price, { store: client }));
+  assert.equal(serverHTML, '<p>LKR 55,000,000</p>');
+  assert.equal(hydrationHTML, serverHTML);
+  assert.equal(client.getInitialState().currency, 'LKR');
+  assert.equal(client.getState().currency, 'LKR');
+  await client.persist.rehydrate();
+  assert.equal(client.getState().currency, 'CAD');
+  assert.equal(client.getInitialState().currency, 'LKR');
+});
+
+test('currency restoration rejects invalid saved values and keeps manual changes', async () => {
+  for (const currency of ['usd', 'invalid', '', 'null']) {
+    const { store, storage } = createStoredState({}, 2, { currency });
+    await store.persist.rehydrate();
+    assert.equal(store.getState().currency, 'LKR');
+    store.getState().setCurrency('GBP');
+    assert.equal(storage.get('yaal-nilam-currency'), 'GBP');
+    await store.persist.rehydrate();
+    assert.equal(store.getState().currency, 'GBP');
+    assert.equal(store.getInitialState().currency, 'LKR');
+  }
+});
 
 for (const version of [undefined, 0, 1, 2]) {
   test(`stored version ${version ?? 'unversioned'} keeps preferences and rejects cached identity/UI`, async () => {

@@ -68,8 +68,11 @@ current public sale listings rather than static area-range averages.
   and lockfile parity before reinstalling a linked cache.
 - Full website TypeScript check passed; lint has no errors. Existing image
   optimization advisories remain on older pages/components.
-- Data tests: 73 passed, covering fallback, public seed/media guards, lead contracts,
+- Data tests: 75 passed, covering fallback, public seed/media guards, lead contracts,
   language persistence, land/currency calculations and release validation.
+- Saved currencies now restore after the first client mount. Actual React server
+  rendering confirmed that initial price markup stays identical for LKR and a
+  returning visitor with CAD selected; validated preferences still restore.
 - Production build and sitemap generation passed. Final route/test/release totals
   are recorded in the release receipt after the final prepared build.
 - Homepage intent, all property types, area and encoded/trimmed keyword filters
@@ -93,6 +96,12 @@ components separately. Email/WhatsApp delivery and real account authorization
 were not exercised by this UI refinement. Genuine listing coverage requires
 owner-supplied property records and photographs.
 
+The dependency audit currently reports 12 affected package entries (1 critical,
+8 high, 2 moderate, 1 low). The critical Next findings require request-server or
+AVIF optimization features absent from this static export. The audit remains
+open; see `WEB_DEPENDENCY_AUDIT_2026-09-30.md` for exact findings, exposure and
+candidate updates. Next fixes require a separate major framework update.
+
 The live export inspected at the start matched local `web/out`; the latest
 provider releases showed no rollback. GitHub main remains older than the redesign,
 and an unidentified old export could previously be deployed without a build.
@@ -105,6 +114,7 @@ The new release path refuses the older baseline and identifies each built releas
 - `DESIGN_INTEGRATION.md`
 - `docs/LISTING_SOURCE_AUDIT_2026-09-30.md`
 - `docs/WEB_REDESIGN_REVIEW_2026-09-30.md`
+- `docs/WEB_DEPENDENCY_AUDIT_2026-09-30.md`
 - `docs/WEB_RELEASE.md`
 - `firebase.json`
 - `scripts/release-web.mjs`
@@ -174,5 +184,6 @@ The new release path refuses the older baseline and identifies each built releas
 - `web/tests/geospatial.test.cjs`
 - `web/tests/property-information.test.cjs`
 - `web/tests/release-web.test.cjs`
+- `web/tests/store-persistence.test.cjs`
 - `web/tests/units-currency.test.cjs`
 - `web/tsconfig.tsbuildinfo` — removed from tracking; local copy retained

@@ -58,7 +58,7 @@ interface AppState {
 
 const VALID_CURRENCIES: CurrencyCode[] = ["LKR", "CAD", "GBP", "AUD", "USD", "EUR"];
 
-function getInitialCurrency(): CurrencyCode {
+function getStoredCurrency(): CurrencyCode {
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem("yaal-nilam-currency");
@@ -91,8 +91,8 @@ export const useStore = create<AppState>()(
       locale: "ta",
       setLocale: (locale) => set({ locale }),
 
-      // Default currency LKR, initialized with persisted preference if available
-      currency: getInitialCurrency(),
+      // Match the server snapshot; restore currency after the first client mount.
+      currency: "LKR",
       setCurrency: (currency) => {
         if (typeof window !== "undefined") {
           try {
@@ -145,6 +145,7 @@ export const useStore = create<AppState>()(
       merge: (persistedState, currentState) => ({
         ...currentState,
         ...persistedPreferences(persistedState),
+        currency: getStoredCurrency(),
       }),
       partialize: (state) => ({ locale: state.locale, compareIds: state.compareIds }),
       skipHydration: true,
