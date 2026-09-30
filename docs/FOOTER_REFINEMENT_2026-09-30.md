@@ -64,3 +64,27 @@ The production build and provider release receipt are recorded in
 
 This change does not modify listing data, Firestore connections, lead tracking,
 gallery behavior, pricing, generated listing imagery or legal-review wording.
+
+## Production and publication
+
+The complete lockfile install, 75 data checks, TypeScript, lint, static export,
+sitemaps and feeds passed. All eight production footer layouts and four enlarged
+text cases passed against build `01b6b17ed361-20260930T064209705Z`. The exported
+site has 552 HTML files and 33 canonical sitemap URLs.
+
+Published only public Hosting at 2026-09-30 06:47:15.181 UTC / 12:17:15 Sri Lanka:
+version `e10da038b90b0b4b`, release `1790750835181000`. Both public hosts match
+source `01b6b17ed361abdc9dc247834b81824801ac0942` and its homepage hash. Twenty
+additional live route/feed/image/cache checks and eight dashboard redirect checks
+passed. Admin Hosting is unchanged. No footer QA issues remain.
+
+The production build used an isolated committed copy while another process was
+changing the shared checkout. The normal 4173 development preview was restarted
+from the actual repository `web/`; its previous generated cache was preserved.
+The shared branch's prepared-export predeploy check was restored after a parallel
+commit replaced it. The public release had already used the intact committed
+check. That restoration changes `firebase.json` in addition to the four UI files.
+
+Published phone screenshot:
+`/Volumes/Work/Desktop/Ventures/Yaal-Nilam/Design-Review/2026-09-30/footer-compact/footer-live-390-ta.png`.
+Existing inventory/dependency limits remain described in the release report.
