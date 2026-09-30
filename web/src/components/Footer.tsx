@@ -124,19 +124,23 @@ export function Footer() {
         </div>
 
         <div className="yn-footer-bottom">
-          <div role="group" className="yn-footer-social" aria-label={tamil ? "சமூக வலைத்தளங்கள்" : "Social channels"}>
-            {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon /></a>)}
+          <div className="yn-footer-utility-row">
+            <div role="group" className="yn-footer-social" aria-label={tamil ? "சமூக வலைத்தளங்கள்" : "Social channels"}>
+              {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon /></a>)}
+            </div>
+            <button className="yn-footer-language" type="button" onClick={() => setLocale(tamil ? "en" : "ta")} aria-label={tamil ? "அடிக்குறிப்பு மொழி: English" : "Footer language: Tamil"}>
+              <Globe size={14} aria-hidden="true" /><span>{tamil ? "English" : "தமிழ்"}</span>
+            </button>
           </div>
-          <button className="yn-footer-language" type="button" onClick={() => setLocale(tamil ? "en" : "ta")} aria-label={tamil ? "அடிக்குறிப்பு மொழி: English" : "Footer language: Tamil"}>
-            <Globe size={14} aria-hidden="true" /><span>{tamil ? "English" : "தமிழ்"}</span>
-          </button>
-          <nav className="yn-footer-legal" aria-label={tamil ? "கொள்கைகள்" : "Policies"}>
-            <Link href="/privacy">{tamil ? "தனியுரிமை" : "Privacy"}</Link>
-            <Link href="/terms">{tamil ? "விதிமுறைகள்" : "Terms"}</Link>
-          </nav>
-          <a className="yn-footer-credit" href="https://safenetcreations.com" target="_blank" rel="noopener noreferrer" aria-label={tamil ? "SafeNet Creations வடிவமைத்தது — புதிய தாவலில் திறக்கும்" : "Architected by SafeNet Creations — opens in a new tab"}>
-            <span lang="en">Architected by</span><strong lang="en">SafeNet Creations</strong>
-          </a>
+          <div className="yn-footer-utility-row">
+            <nav className="yn-footer-legal" aria-label={tamil ? "கொள்கைகள்" : "Policies"}>
+              <Link href="/privacy">{tamil ? "தனியுரிமை" : "Privacy"}</Link>
+              <Link href="/terms">{tamil ? "விதிமுறைகள்" : "Terms"}</Link>
+            </nav>
+            <a className="yn-footer-credit" href="https://safenetcreations.com" target="_blank" rel="noopener noreferrer" lang={tamil ? "ta" : "en"} aria-label={tamil ? "சேஃப்நெட் கிரியேஷன்ஸ் வடிவமைத்தது — புதிய தாவலில் திறக்கும்" : "Architected by SafeNet Creations — opens in a new tab"}>
+              <span>{tamil ? "வடிவமைப்பு" : "Architected by"}</span><strong>{tamil ? "சேஃப்நெட் கிரியேஷன்ஸ்" : "SafeNet Creations"}</strong>
+            </a>
+          </div>
           <p className="yn-footer-copyright">© 2026 {tamil ? "யாழ் நிலம்" : "Yaal Nilam"}</p>
         </div>
       </div>
