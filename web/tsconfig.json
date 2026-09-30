@@ -39,7 +39,8 @@
   },
   "include": [
     "src",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next-emulator/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

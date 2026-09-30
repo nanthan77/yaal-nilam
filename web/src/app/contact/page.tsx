@@ -2,10 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, MessageCircle } from 'lucide-react';
 import { submitInquiry } from '@/lib/firestore';
 import { useStore } from '@/lib/store';
 import { localize } from '@/lib/translations';
+import { BRAND } from '@/lib/brand';
 
 export default function ContactPage() {
   const { locale } = useStore();
@@ -264,7 +265,33 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-charcoal-900 mb-1">{copy.phone}</h3>
-                  <p className="text-charcoal-600 text-sm">+94 (0) 70 484 6555</p>
+                  <a href={BRAND.phoneTel} className="text-charcoal-800 hover:text-teal-700 text-sm font-bold block">
+                    {BRAND.phoneDisplay}
+                  </a>
+                  <p className="text-xs text-charcoal-500 mt-0.5">{locale === 'ta' ? 'நேரடி அழைப்பு உதவி' : 'Direct Helpline / Phone Calls'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="flex gap-4 mb-4">
+                <div className="bg-emerald-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-bold text-charcoal-900 mb-1">WhatsApp</h3>
+                  <div>
+                    <a href={BRAND.supportWhatsappUrl} target="_blank" rel="noopener noreferrer" className="text-charcoal-800 hover:text-emerald-700 text-sm font-bold block">
+                      {BRAND.supportWhatsappDisplay}
+                    </a>
+                    <p className="text-xs text-charcoal-500">{locale === 'ta' ? 'மனித உதவி WhatsApp' : 'Human Support WhatsApp'}</p>
+                  </div>
+                  <div className="pt-2 border-t border-charcoal-100">
+                    <a href={BRAND.botWhatsappUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:text-emerald-800 text-sm font-bold block">
+                      {BRAND.botWhatsappDisplay}
+                    </a>
+                    <p className="text-xs text-emerald-600 font-medium">{locale === 'ta' ? 'WhatsApp சொத்து உதவியாளர்' : 'WhatsApp property assistant'}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -276,7 +303,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-charcoal-900 mb-1">{copy.email}</h3>
-                  <p className="text-charcoal-600 text-sm">info@yaalnilam.lk</p>
+                  <a href="mailto:info@yaalnilam.com" className="text-charcoal-600 hover:text-teal-700 text-sm">info@yaalnilam.com</a>
                 </div>
               </div>
             </div>

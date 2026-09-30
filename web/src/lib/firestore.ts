@@ -9,8 +9,11 @@ import {
   limit,
   query,
   where,
+  writeBatch,
 } from "firebase/firestore";
-import { AREAS as MOCK_AREAS, PROPERTIES as MOCK_PROPERTIES } from "./data";
+import { AREAS as MOCK_AREAS } from "./data";
+import { DEVELOPMENT_PROPERTY_FIXTURES } from "./development-fixtures";
+import { isKnownSeedListing, isPublicListingRecord, PUBLIC_LISTING_STATUSES } from "./public-listings";
 import {
   buildSavedSearchLabel,
   filterListings,
@@ -20,11 +23,16 @@ import {
   normalizeListing,
 } from "./marketplace";
 import { ALL_LOCATIONS } from "./locations";
+import { sanitizeAnalyticsEventName, sanitizeAnalyticsParameters } from "./client-analytics";
+import { normalizePropertySlug, resolvePropertyId } from "./property-routes";
+import { canonicalizePhoneNumber, canonicalizeYouTubeUrl, listingBelongsToAgent } from "./agent-onboarding";
+import { BRAND } from "./brand";
+import { calculateLandBreakdown } from "./units";
 
-const FALLBACK_LISTINGS = MOCK_PROPERTIES.map((listing) => normalizeListing(listing));
+const FALLBACK_LISTINGS = DEVELOPMENT_PROPERTY_FIXTURES;
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
-const PUBLIC_LISTING_STATUSES = ["available", "approved", "published", "active", "Available", "Published"];
-const FIRESTORE_READ_TIMEOUT_MS = 2200;
+// Allow cold mobile/network connections to establish before showing an empty result.
+const FIRESTORE_READ_TIMEOUT_MS = 8000;
 let savedPropertyCache: string[] | null = null;
 let propertyCatalogCache = FALLBACK_LISTINGS;
 let areaCatalogCache: any[] | null = null;
@@ -43,7 +51,7 @@ async function withFirestoreTimeout<T>(promise: Promise<T>, label: string, fallb
   if (timer) clearTimeout(timer);
 
   if (result.status === "timeout") {
-    console.warn(`Firestore request timed out for ${label}; using fallback data.`);
+    console.warn(`Firestore request timed out for ${label}; returning the last confirmed catalog or an empty result.`);
     return fallback;
   }
 
@@ -118,11 +126,13 @@ function buildAreaCatalog(rawAreas: any[], listings: any[]) {
       properties_count: location.properties_count,
       avg_price: location.priceRange.min,
       image: location.image,
+      lat: location.lat,
+      lng: location.lng,
     })),
   ];
 
   return uniqueBy(areaPool, (area) => area.slug || area.name).map((area) =>
-    normalizeArea(area, listingCounts[area.slug] || 0)
+    normalizeArea({ ...area, properties_count: listingCounts[area.slug] || 0, listings_count: 0 }, listingCounts[area.slug] || 0)
   );
 }
 
@@ -136,8 +146,8 @@ function buildAgentFallbackFromListings(listings: any[]) {
       id: listing.agent_id || key.toLowerCase().replace(/\s+/g, "-"),
       name: listing.agent_name,
       company: listing.agent_company || "Yaal Nilam Partner",
-      phone: listing.agent_phone || "+94704846555",
-      whatsapp: listing.agent_phone || "+94704846555",
+      phone: listing.agent_phone || BRAND.whatsappDisplay,
+      whatsapp: listing.agent_phone || BRAND.whatsappDisplay,
       email: listing.agent_email || "",
       verified: listing.verified,
       nic_uploaded: listing.verified,
@@ -184,13 +194,13 @@ export async function getProperties(filters = {}) {
     if (!snapshot) return filterListings(propertyCatalogCache, filters);
 
     const listings = snapshot.docs
+      .filter((item) => isPublicListingRecord(item.data()))
       .map((item) => normalizeListing({ id: item.id, ...item.data() }))
       .filter((listing) => listing.status !== "archived");
 
-    const catalog = listings.length > 0 ? listings : propertyCatalogCache;
-    if (listings.length > 0) {
-      propertyCatalogCache = listings;
-    }
+    const catalog = listings.length > 0 ? listings : FALLBACK_LISTINGS;
+    // A successful empty query must clear previously available listings.
+    propertyCatalogCache = listings.length > 0 ? listings : FALLBACK_LISTINGS;
     return filterListings(catalog, filters);
   } catch (error) {
     console.error("Error fetching properties:", error);
@@ -203,16 +213,34 @@ export async function getFeaturedProperties() {
   return properties.filter((property) => property.featured).slice(0, 6);
 }
 
-export async function getPropertyById(id: string) {
+export async function getPropertyById(idOrSlug: string) {
+  if (!idOrSlug || typeof idOrSlug !== "string") return null;
+  const id = resolvePropertyId(idOrSlug);
   try {
     const docSnap = await safeDoc("listings", id);
     if (docSnap?.exists()) {
-      return normalizeListing({ id: docSnap.id, ...docSnap.data() });
+      const raw = docSnap.data();
+      if (!isPublicListingRecord(raw)) return null;
+      return normalizeListing({ ...raw, id: docSnap.id });
     }
-    return propertyCatalogCache.find((listing) => listing.id === id) || null;
+    // New slug URLs may be published after this static build. Resolve only from
+    // a fresh, permission-checked published query, never a cached withdrawn listing.
+    const slug = normalizePropertySlug(idOrSlug);
+    if (id === idOrSlug && slug) {
+      const snapshot = await safeQuerySnapshot(
+        "collection:listings:slug",
+        query(collection(db, "listings"), where("status", "in", PUBLIC_LISTING_STATUSES))
+      );
+      const match = snapshot?.docs
+        .filter((item: any) => isPublicListingRecord(item.data()))
+        .map((item: any) => normalizeListing({ ...item.data(), id: item.id }))
+        .find((listing: any) => listing.slug === slug);
+      if (match) return match;
+    }
+    return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
   } catch (error) {
     console.error("Error fetching property:", error);
-    return propertyCatalogCache.find((listing) => listing.id === id) || null;
+    return FALLBACK_LISTINGS.find((listing) => listing.id === id) || null;
   }
 }
 
@@ -265,10 +293,6 @@ export async function getAgents() {
   }
 }
 
-function normalizeContact(value?: string) {
-  return (value || "").toString().replace(/[^0-9a-z]/gi, "").toLowerCase();
-}
-
 export async function getAgentById(id: string) {
   try {
     const docSnap = await safeDoc("agents", id);
@@ -288,25 +312,8 @@ export async function getAgentById(id: string) {
 export async function getListingsByAgent(agent: any) {
   try {
     const listings = await getProperties();
-    const agentId = normalizeContact(agent?.id);
-    const agentPhone = normalizeContact(agent?.phone || agent?.whatsapp);
-    const agentEmail = normalizeContact(agent?.email);
-    const agentName = normalizeContact(agent?.name);
-
     return listings
-      .filter((listing) => {
-        const listingAgentId = normalizeContact(listing.agent_id);
-        const listingPhone = normalizeContact(listing.agent_phone);
-        const listingEmail = normalizeContact(listing.agent_email);
-        const listingName = normalizeContact(listing.agent_name);
-
-        return (
-          (agentId && listingAgentId === agentId) ||
-          (agentPhone && listingPhone === agentPhone) ||
-          (agentEmail && listingEmail === agentEmail) ||
-          (agentName && listingName === agentName)
-        );
-      })
+      .filter((listing) => listingBelongsToAgent(listing, agent))
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   } catch (error) {
     console.error("Error fetching agent listings:", error);
@@ -328,7 +335,7 @@ export async function getAgentProfileForUser(user: any) {
     nic_uploaded: false,
     active_listings: 0,
     total_inquiries: 0,
-    response_rate: user?.user_type === "agent" ? 72 : 0,
+    response_rate: 0,
     recent_activity: "Profile setup in progress",
   });
   if (!user?.phone) {
@@ -337,9 +344,16 @@ export async function getAgentProfileForUser(user: any) {
   }
 
   try {
-    const docSnap = await safeDoc("agents", user?.id);
+    const [docSnap, privateSnap] = await Promise.all([
+      safeDoc("agents", user?.id),
+      safeDoc("agent_private", user?.id),
+    ]);
     if (docSnap?.exists()) {
-      return normalizeAgent({ id: docSnap.id, ...docSnap.data() });
+      return normalizeAgent({
+        id: docSnap.id,
+        ...docSnap.data(),
+        ...(privateSnap?.exists() ? privateSnap.data() : {}),
+      });
     }
   } catch (error) {
     console.error("Error loading current agent profile:", error);
@@ -353,10 +367,16 @@ export async function getListingSubmissionsForUser(user: any) {
 
   const queries = [];
   if (user?.id) {
-    queries.push({
-      label: `collection:listing_submissions:agent_id:${user.id}`,
-      request: query(collection(db, "listing_submissions"), where("agent_id", "==", user.id), limit(40)),
-    });
+    queries.push(
+      {
+        label: `collection:listing_submissions:submitter_uid:${user.id}`,
+        request: query(collection(db, "listing_submissions"), where("submitter_uid", "==", user.id), limit(40)),
+      },
+      {
+        label: `collection:listing_submissions:agent_id:${user.id}`,
+        request: query(collection(db, "listing_submissions"), where("agent_id", "==", user.id), limit(40)),
+      }
+    );
   }
   if (user?.email) {
     queries.push(
@@ -389,8 +409,14 @@ export async function getListingSubmissionsForUser(user: any) {
 
       return {
         ...normalizeListing({ ...item, status: normalizedStatus }),
-        review_status: item.status || "new",
+        review_status:
+          ["approved", "published", "available", "active"].includes(
+            (item.status || "").toString().toLowerCase()
+          ) && !item.published_listing_id
+            ? "publication_issue"
+            : item.status || "new",
         source_collection: "listing_submissions",
+        published_listing_id: item.published_listing_id || "",
       };
     })
     .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
@@ -399,10 +425,42 @@ export async function getListingSubmissionsForUser(user: any) {
 export async function getAgentDashboardData(user: any) {
   try {
     const agent = await getAgentProfileForUser(user);
-    const [approvedListings, pendingListings] = await Promise.all([
+    const [agentListings, submissions] = await Promise.all([
       getListingsByAgent(agent),
       getListingSubmissionsForUser(user),
     ]);
+
+    const approvedById = new Map(agentListings.map((listing) => [listing.id, listing]));
+    const pendingListings = [];
+    for (const submission of submissions) {
+      const submissionStatus = String(submission.review_status || submission.status || '').toLowerCase();
+      const publishedId = String(submission.published_listing_id || '').trim();
+      const isPublishedSubmission = ["approved", "published", "available", "active"].includes(
+        submissionStatus
+      );
+
+      if (isPublishedSubmission && publishedId) {
+        // Moderation publishes submissions under a stable public ID. Reconcile
+        // that record into the approved list once and use the real public route,
+        // including for submissions published before an agent profile went live.
+        if (!approvedById.has(publishedId)) {
+          approvedById.set(publishedId, {
+            ...submission,
+            id: publishedId,
+            status: "Available",
+            review_status: "approved",
+            source_collection: "listings",
+          });
+        }
+        continue;
+      }
+
+      pendingListings.push(submission);
+    }
+
+    const approvedListings = Array.from(approvedById.values()).sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    );
 
     return { agent, approvedListings, pendingListings };
   } catch (error) {
@@ -420,23 +478,27 @@ export async function getAgentDashboardData(user: any) {
 // ========================
 
 export async function trackAnalyticsEvent(eventName: string, payload: Record<string, any> = {}) {
+  if (typeof window === "undefined") return true;
+  if (["localhost", "127.0.0.1", "[::1]"].includes(window.location?.hostname)) return true;
+
   try {
-    await addDoc(collection(db, "analytics_events"), {
-      event_name: eventName,
-      session_id: getClientSessionId(),
-      created_at: new Date().toISOString(),
-      ...payload,
-    });
+    const [{ getAnalytics, isSupported, logEvent }, { default: app }] = await Promise.all([
+      import("firebase/analytics"),
+      import("./firebase"),
+    ]);
+    if (!(await isSupported())) return true;
+
+    logEvent(getAnalytics(app), sanitizeAnalyticsEventName(eventName), sanitizeAnalyticsParameters(payload));
     return true;
   } catch (error) {
-    console.error("Error tracking analytics event:", error);
+    // Analytics availability must not turn a successful user action into an error.
+    console.warn("Analytics event was not available:", error);
     return false;
   }
 }
 
 export async function trackListingView(listing: any, source = "property_detail") {
-  // The listing `views` counter is incremented server-side by the onAnalyticsEvent
-  // Cloud Function — public clients can't write to listings (see firestore.rules).
+  // Browser analytics is aggregate-only; authoritative counters remain a server concern.
   return trackAnalyticsEvent("listing_view", {
     listing_id: listing.id,
     listing_code: listing.listing_code,
@@ -446,8 +508,7 @@ export async function trackListingView(listing: any, source = "property_detail")
 }
 
 export async function trackWhatsAppLead(listing: any, source = "property_card") {
-  // The listing `whatsapp_clicks` counter is incremented server-side by the
-  // onAnalyticsEvent Cloud Function (public clients can't write to listings).
+  // Keep contact tracking free of phone, name, and message data.
   return trackAnalyticsEvent("whatsapp_click", {
     listing_id: listing.id,
     listing_code: listing.listing_code,
@@ -458,8 +519,6 @@ export async function trackWhatsAppLead(listing: any, source = "property_card") 
 
 export async function trackAgentProfileView(agent: any, source = "agent_profile") {
   return trackAnalyticsEvent("agent_profile_view", {
-    agent_id: agent.id,
-    agent_name: agent.name,
     source,
   });
 }
@@ -471,8 +530,12 @@ export async function trackAgentProfileView(agent: any, source = "agent_profile"
 export async function getSavedPropertyIds() {
   if (savedPropertyCache) return savedPropertyCache;
   if (typeof window !== "undefined") {
-    const local = JSON.parse(window.localStorage.getItem("yaal-nilam-saved-properties") || "[]");
-    savedPropertyCache = Array.isArray(local) ? local : [];
+    try {
+      const local = JSON.parse(window.localStorage.getItem("yaal-nilam-saved-properties") || "[]");
+      savedPropertyCache = Array.isArray(local) ? local.filter((id) => typeof id === "string" && id && id !== "undefined") : [];
+    } catch {
+      savedPropertyCache = [];
+    }
     return savedPropertyCache;
   }
   savedPropertyCache = [];
@@ -487,7 +550,7 @@ export async function toggleSavedProperty(listing: any) {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(savedPropertyCache));
       }
-      await trackAnalyticsEvent("unsave_property", {
+      void trackAnalyticsEvent("unsave_property", {
         listing_id: listing.id,
         listing_code: listing.listing_code,
       });
@@ -498,7 +561,7 @@ export async function toggleSavedProperty(listing: any) {
     if (typeof window !== "undefined") {
       window.localStorage.setItem("yaal-nilam-saved-properties", JSON.stringify(savedPropertyCache));
     }
-    await trackAnalyticsEvent("save_property", {
+    void trackAnalyticsEvent("save_property", {
       listing_id: listing.id,
       listing_code: listing.listing_code,
       area_slug: listing.area_slug,
@@ -543,29 +606,25 @@ export async function createPropertyAlert(data: {
   locale?: string;
 }) {
   try {
-    const docRef = await addDoc(collection(db, "property_alerts"), {
-      name: data.name || "",
-      whatsapp: (data.whatsapp || "").trim(),
-      email: (data.email || "").trim(),
-      purpose: data.purpose,
-      property_type: data.propertyType || "any",
-      area: data.area || "any",
-      min_bedrooms: Number(data.minBedrooms || 0),
-      max_price: Number(data.maxPrice || 0),
-      locale: data.locale || "en",
-      source: "property_alerts_form",
-      status: "active",
-      notified_listing_ids: [],
-      match_count: 0,
-      created_at: new Date().toISOString(),
+    const { registerPropertyAlert } = await import("./property-alerts");
+    const receipt = await registerPropertyAlert({
+      label: data.name?.trim() || "Property alert",
+      receiptLabel: data.locale === "ta" ? "சொத்து எச்சரிக்கை" : "Property alert",
+      phone: data.whatsapp,
+      email: data.email?.trim() || undefined,
+      purpose: data.purpose === "buy" ? "sale" : "rent",
+      propertyType: data.propertyType || "any",
+      areas: data.area && data.area !== "any" ? [data.area] : [],
+      minBedrooms: Number(data.minBedrooms || 0),
+      maxPrice: Number(data.maxPrice || 0),
+      locale: data.locale === "ta" ? "ta" : "en",
     });
     await trackAnalyticsEvent("create_property_alert", {
-      property_alert_id: docRef.id,
       purpose: data.purpose,
       property_type: data.propertyType || "any",
       area: data.area || "any",
     });
-    return docRef.id;
+    return receipt.registrationId;
   } catch (error) {
     console.error("Error creating property alert:", error);
     return null;
@@ -597,6 +656,8 @@ export async function submitInquiry(data: {
       listing_id: data.listing_id || "",
       listing_title: data.listing_title || "",
       source: data.source || "website_form",
+      notify_email: "info@yaalnilam.com",
+      assigned_email: "info@yaalnilam.com",
       status: "new",
       priority: "warm",
       assigned_to: "",
@@ -605,7 +666,7 @@ export async function submitInquiry(data: {
       updated_at: new Date().toISOString(),
     });
 
-    await trackAnalyticsEvent("submit_inquiry", {
+    void trackAnalyticsEvent("submit_inquiry", {
       inquiry_id: docRef.id,
       source: data.source || "website_form",
       listing_id: data.listing_id || "",
@@ -626,6 +687,22 @@ export async function submitViewingRequest(data: {
   notes?: string;
   timezone?: string;
 }) {
+  // Fixture viewing tests are allowed only against an explicitly connected
+  // local emulator using a demo project, never a production Firebase project.
+  const isFixture = data.listing?.is_development_fixture === true ||
+    data.listing?.submission_source === "development_fixture";
+  if (isFixture) {
+    const [host, port] = (process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST || "").split(":");
+    const project = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
+    const connectedApp = db.app;
+    const localFixtureWrite = process.env.NODE_ENV === "development" && project.startsWith("demo-") &&
+      connectedApp?.options?.projectId === project && connectedApp?.__firestoreEmulatorConnected === true &&
+      ["localhost", "127.0.0.1"].includes(host) && Number.isInteger(Number(port)) && Number(port) > 0 && Number(port) <= 65535 &&
+      (typeof window === "undefined" || ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname));
+    if (!localFixtureWrite) return null;
+  } else if (isKnownSeedListing(data.listing)) {
+    return null;
+  }
   try {
     const docRef = await addDoc(collection(db, "viewing_requests"), {
       session_id: getClientSessionId(),
@@ -639,6 +716,7 @@ export async function submitViewingRequest(data: {
       preferred_date: data.preferred_date || "",
       timezone: data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       notes: data.notes || "",
+      notify_email: "info@yaalnilam.com",
       status: "new",
       created_at: new Date().toISOString(),
     });
@@ -654,7 +732,7 @@ export async function submitViewingRequest(data: {
       source: "viewing_request",
     });
 
-    await trackAnalyticsEvent("viewing_request", {
+    void trackAnalyticsEvent("viewing_request", {
       viewing_request_id: docRef.id,
       listing_id: data.listing.id,
       listing_code: data.listing.listing_code,
@@ -687,6 +765,7 @@ export async function submitPropertyRequest(data: Record<string, any>) {
       land_size: data.landSize || "",
       urgency: data.urgency || "medium",
       notes: data.description || "",
+      notify_email: "info@yaalnilam.com",
       status: "new",
       source: "request_property_form",
       created_at: new Date().toISOString(),
@@ -700,7 +779,7 @@ export async function submitPropertyRequest(data: Record<string, any>) {
       }),
     ]);
 
-    await trackAnalyticsEvent("submit_property_request", {
+    void trackAnalyticsEvent("submit_property_request", {
       property_request_id: requestRef.id,
       requirement_id: requirementRef.id,
       intent: data.intent,
@@ -717,8 +796,53 @@ export async function submitPropertyRequest(data: Record<string, any>) {
 export async function submitListing(data: Record<string, any>) {
   try {
     const agentName = data.agentName || data.ownerName || data.contactName || "";
-    const agentPhone = data.agentPhone || data.phone || "";
+    const ownerPhone = canonicalizePhoneNumber(data.phone);
+    const agentPhone = canonicalizePhoneNumber(data.agentPhone || data.phone);
     const agentEmail = data.agentEmail || data.email || "";
+    const videoTourUrl = data.videoUrl ? canonicalizeYouTubeUrl(data.videoUrl) : "";
+    if (!ownerPhone || !agentPhone || (data.videoUrl && !videoTourUrl)) {
+      throw new Error("Listing contact or YouTube details are invalid.");
+    }
+
+    const rawLandUnit = (data.landUnit || "perch").toString().toLowerCase();
+    const rawLandSize = Number(data.landSize || 0);
+    const rawPrice = Number(data.price || 0);
+    const landBreakdown = calculateLandBreakdown(rawLandSize, rawLandUnit as any, rawPrice);
+
+    const roadFrontageWidth = Number(data.roadFrontage || 0);
+    const roadFrontage = {
+      width_ft: roadFrontageWidth,
+      road_type: data.roadType || null,
+      access_type: data.roadAccessType || null,
+      notes: data.roadNotes || "",
+    };
+
+    const surveyPlan = {
+      plan_no: data.surveyPlanNo || "",
+      plan_date: data.surveyPlanDate || "",
+      surveyor_name: data.surveyorName || "",
+      surveyor_reg_no: data.surveyorRegNo || "",
+      court_approved: typeof data.courtApproved === "boolean" ? data.courtApproved : null,
+      notes: data.surveyNotes || "",
+    };
+
+    const waterSource = {
+      type: data.waterSource || null,
+      sweetness_index: data.waterSweetness || "not_tested",
+      well_available: typeof data.wellAvailable === "boolean" ? data.wellAvailable : null,
+      municipal_line_available: typeof data.municipalLineAvailable === "boolean" ? data.municipalLineAvailable : null,
+      notes: data.waterNotes || "",
+    };
+
+    const pathivagamStatus = {
+      deed_history_years: data.deedHistoryYears != null && data.deedHistoryYears !== "" && Number.isFinite(Number(data.deedHistoryYears)) && Number(data.deedHistoryYears) >= 0 ? Number(data.deedHistoryYears) : null,
+      extract_status: data.deedHistoryStatus || "not_checked",
+      land_registry_office: data.landRegistryOffice || null,
+      folio_checked: typeof data.folioChecked === "boolean" ? data.folioChecked : null,
+      encumbrance_free: typeof data.encumbranceFree === "boolean" ? data.encumbranceFree : null,
+      notes: data.deedNotes || "",
+    };
+
     const baseListing = {
       title: data.title,
       title_ta: data.title_ta || "",
@@ -728,28 +852,42 @@ export async function submitListing(data: Record<string, any>) {
       area_slug: data.area,
       address: data.address,
       address_ta: data.address_ta || "",
-      price: Number(data.price || 0),
+      price: rawPrice,
       bedrooms: Number(data.bedrooms || 0),
       bathrooms: Number(data.bathrooms || 0),
       sqft: Number(data.sqft || 0),
-      land_size_perches: Number(data.landSize || 0),
-      road_frontage_ft: Number(data.roadFrontage || 0),
+      land_unit: rawLandUnit,
+      land_size_perches: landBreakdown.perches,
+      land_size_lachams: landBreakdown.lachams,
+      price_per_perch: landBreakdown.pricePerPerch || 0,
+      price_per_lacham: landBreakdown.pricePerLacham || 0,
+      road_frontage_ft: roadFrontageWidth,
+      road_frontage: roadFrontage,
+      survey_plan: surveyPlan,
+      water_source: waterSource,
+      pathivagam_status: pathivagamStatus,
+      verification_tier: "tier3_basic_listed",
       property_type: data.propertyType,
       type: data.propertyType,
       intent: data.intent,
       furnishing: data.furnishing || "not_specified",
       parking: Number(data.parking || 0),
       amenities: Array.isArray(data.amenities) ? data.amenities : [],
-      media_urls: Array.isArray(data.photos) ? data.photos : [],
-      video_tour_url: data.videoUrl || "",
+      media_urls: [],
+      images: [],
+      photos: [],
+      media_paths: Array.isArray(data.photoPaths) ? data.photoPaths : [],
+      media_owner_id: data.mediaOwnerId || "",
+      video_tour_url: videoTourUrl || "",
       featured: false,
       verified: false,
       remote_purchase_support: true,
       status: "Pending",
       submission_source: "public_listing_form",
       owner_name: data.ownerName || data.contactName || "",
-      owner_phone: data.phone,
+      owner_phone: ownerPhone,
       owner_email: data.email || "",
+      submitter_uid: data.submitterId || "",
       agent_id: data.agentId || data.agent_id || "",
       agent_name: agentName,
       agent_phone: agentPhone,
@@ -759,33 +897,44 @@ export async function submitListing(data: Record<string, any>) {
       updated_at: new Date().toISOString(),
     };
 
-    const [submissionRef, inquiryRef] = await Promise.all([
-      addDoc(collection(db, "listing_submissions"), {
+    if (data.boundaryCoordinates) {
+      baseListing.boundary_geojson = String(data.boundaryCoordinates);
+    }
+
+    const submissionRef = doc(collection(db, "listing_submissions"));
+    const inquiryRef = doc(collection(db, "inquiries"));
+    const batch = writeBatch(db);
+    batch.set(submissionRef, {
         ...baseListing,
         session_id: getClientSessionId(),
         whatsapp_opt_in: Boolean(data.whatsappOptIn),
+        notify_email: "info@yaalnilam.com",
         status: "new",
-      }),
-      addDoc(collection(db, "inquiries"), {
+      });
+    batch.set(inquiryRef, {
         customer_name: data.ownerName || data.contactName || "",
         email: data.email || "",
-        phone: data.phone || "",
-        whatsapp: data.phone || "",
+        phone: ownerPhone,
+        whatsapp: ownerPhone,
         subject: "New listing submission",
         message: data.description || `New ${data.propertyType || "property"} listing submission in ${data.area || "Jaffna"}.`,
         listing_id: "",
         listing_title: data.title || "",
         source: "public_listing_form",
+        notify_email: "info@yaalnilam.com",
+        assigned_email: "info@yaalnilam.com",
         status: "new",
         priority: "warm",
         assigned_to: "",
         notes: "",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }),
-    ]);
+      });
+    await batch.commit();
 
-    await trackAnalyticsEvent("submit_listing", {
+    // Lead analytics is useful but must not turn an already committed listing
+    // into a client-visible failure that then removes its pending media.
+    void trackAnalyticsEvent("submit_listing", {
       listing_submission_id: submissionRef.id,
       inquiry_id: inquiryRef.id,
       property_type: data.propertyType,

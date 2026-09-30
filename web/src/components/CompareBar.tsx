@@ -12,8 +12,8 @@ export default function CompareBar() {
   const ready = compareIds.length >= 2;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-2">
-      <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-charcoal-900/95 px-4 py-2.5 text-white shadow-2xl backdrop-blur">
+    <div className="yn-compare-bar fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-full px-2" role="region" aria-label={ta ? "சொத்து ஒப்பீடு" : "Property comparison"}>
+      <div className="inline-flex max-w-full items-center gap-2 rounded-2xl border border-white/10 bg-charcoal-900/95 px-3 py-2.5 text-white shadow-2xl backdrop-blur sm:gap-3 sm:px-4">
         <span className="text-sm font-semibold whitespace-nowrap">
           {compareIds.length}
           <span className="text-white/50 font-normal">/3 </span>
@@ -25,6 +25,8 @@ export default function CompareBar() {
         <Link
           href="/compare"
           aria-disabled={!ready}
+          tabIndex={ready ? 0 : -1}
+          onClick={(event) => { if (!ready) event.preventDefault(); }}
           className={`text-sm font-bold px-4 py-1.5 rounded-xl transition-colors whitespace-nowrap ${
             ready ? "bg-[#D4A853] text-[#0F2E25] hover:bg-[#c79a45]" : "bg-white/15 text-white/50 pointer-events-none"
           }`}

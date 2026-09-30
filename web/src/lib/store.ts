@@ -5,6 +5,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Locale } from "./translations";
+import type { CurrencyCode } from "./marketplace";
 
 interface User {
   id: string;
@@ -18,6 +19,10 @@ interface AppState {
   // Locale
   locale: Locale;
   setLocale: (locale: Locale) => void;
+
+  // Currency (Pillar 1 Dual-Currency Engine)
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
 
   // Auth
   user: User | null;
@@ -51,12 +56,53 @@ interface AppState {
   clearCompare: () => void;
 }
 
+const VALID_CURRENCIES: CurrencyCode[] = ["LKR", "CAD", "GBP", "AUD", "USD", "EUR"];
+
+function getStoredCurrency(): CurrencyCode {
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem("yaal-nilam-currency");
+      if (saved && VALID_CURRENCIES.includes(saved as any)) {
+        return saved as CurrencyCode;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return "LKR";
+}
+
+function persistedPreferences(value: unknown): Pick<AppState, "locale" | "compareIds"> {
+  const state = value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+  const compareIds = Array.isArray(state.compareIds)
+    ? Array.from(new Set(state.compareIds
+      .filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+      .map((id) => id.trim()))).slice(0, 3)
+    : [];
+  return { locale: state.locale === "en" ? "en" : "ta", compareIds };
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      // Locale — default English, can toggle to Tamil
-      locale: "en",
+      // Tamil first for local visitors; persisted language preference still wins.
+      locale: "ta",
       setLocale: (locale) => set({ locale }),
+
+      // Match the server snapshot; restore currency after the first client mount.
+      currency: "LKR",
+      setCurrency: (currency) => {
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("yaal-nilam-currency", currency);
+          } catch {
+            // ignore
+          }
+        }
+        set({ currency });
+      },
 
       // Auth
       user: null,
@@ -92,6 +138,15 @@ export const useStore = create<AppState>()(
     {
       name: "yaal-nilam-public-store",
       storage: createJSONStorage(() => localStorage),
+      // The existing live site wrote version 2. Preserve explicit preferences
+      // from earlier releases without restoring cached account or UI state.
+      version: 2,
+      migrate: (persistedState) => persistedPreferences(persistedState),
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...persistedPreferences(persistedState),
+        currency: getStoredCurrency(),
+      }),
       partialize: (state) => ({ locale: state.locale, compareIds: state.compareIds }),
       skipHydration: true,
     }

@@ -3,9 +3,15 @@ import * as admin from "firebase-admin";
 import cors = require("cors");
 import { whatsappWebhook, whatsappVerify } from "./whatsapp";
 import { sendWhatsAppMessage } from "./whatsapp-send";
+import { runWhatsAppBotJob } from "./whatsapp-bot";
 import { runSocialLeadMonitorJob } from "./social-monitor";
 
 admin.initializeApp();
+try {
+  admin.firestore().settings({ ignoreUndefinedProperties: true });
+} catch {
+  // Ignore if already configured
+}
 
 // Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
 export { onAnalyticsEvent } from "./analytics";
@@ -14,12 +20,28 @@ export { onAnalyticsEvent } from "./analytics";
 // criteria they registered (collection `property_alerts`).
 export { onListingPublishedAlert } from "./alerts";
 
+// Anonymous mobile/web buyer registration uses a private server-owned receipt so
+// the device can cancel only the alert group it created.
+export { registerPropertyAlert, cancelPropertyAlert } from "./property-alert-registration";
+
+// Dual-Currency FX Engine: Daily sync and callable exchange rates endpoint
+export { getExchangeRates, scheduledExchangeRateSync } from "./exchange-rates";
+
 const corsHandler = cors({ origin: true });
 
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
 // Must be publicly accessible for Meta to call it
 export const whatsappWebhookHandler = functions
-  .runWith({ memory: "256MB", timeoutSeconds: 60 })
+  .runWith({
+    memory: "512MB",
+    timeoutSeconds: 60,
+    secrets: [
+      "WHATSAPP_APP_SECRET",
+      "WHATSAPP_VERIFY_TOKEN",
+      "WHATSAPP_ACCESS_TOKEN",
+      "GEMINI_API_KEY",
+    ],
+  })
   .https.onRequest(async (req, res) => {
     // Handle CORS preflight
     return corsHandler(req, res, async () => {
@@ -44,7 +66,13 @@ const ADMIN_ROLES = [
   "lead_manager",
   "content_manager",
 ];
-const OWNER_ADMIN_EMAILS = ["nanthan77@gmail.com"];
+const OWNER_ADMIN_EMAILS = [
+  "nanthan77@gmail.com",
+  "info@yaalnilam.com",
+  "admin@yaalnilam.com",
+  "admin@safenetcreations.com",
+  "info@safenetcreations.com",
+];
 
 async function isAdminToken(token: admin.auth.DecodedIdToken): Promise<boolean> {
   if (token.admin === true) return true;
@@ -77,22 +105,48 @@ async function isAdminToken(token: admin.auth.DecodedIdToken): Promise<boolean> 
 }
 
 // Send WhatsApp message - called from admin dashboard
-export const sendWhatsApp = functions.https.onCall(async (data, context) => {
-  // Verify admin auth (same admins firestore.rules isAdmin() accepts)
-  if (!context.auth || !(await isAdminToken(context.auth.token))) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Only admins can send WhatsApp messages"
-    );
-  }
-  return sendWhatsAppMessage(data);
-});
+export const sendWhatsApp = functions
+  .runWith({
+    memory: "256MB",
+    timeoutSeconds: 60,
+    secrets: ["WHATSAPP_ACCESS_TOKEN"],
+  })
+  .https.onCall(async (data, context) => {
+    // Verify admin auth (same admins firestore.rules isAdmin() accepts)
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can send WhatsApp messages"
+      );
+    }
+    return sendWhatsAppMessage(data);
+  });
+
+// WhatsApp AI Bot Trigger: runs whenever a bot job is created/pending
+export const onWhatsAppBotJob = functions
+  .runWith({
+    memory: "512MB",
+    timeoutSeconds: 120,
+    failurePolicy: true,
+    secrets: ["WHATSAPP_ACCESS_TOKEN", "GEMINI_API_KEY"],
+  })
+  .firestore.document("whatsapp_conversations/{convId}/bot_jobs/{jobId}")
+  .onWrite(async (change, context) => {
+    if (!change.after.exists) return;
+    const after = change.after.data() || {};
+    const before = change.before.exists ? change.before.data() || {} : {};
+    if (after.status !== "pending") return;
+    if (change.before.exists && before.status === "pending" && before.wake_token === after.wake_token) {
+      return;
+    }
+    await runWhatsAppBotJob(change.after.ref, String(context.eventId || context.params.jobId));
+  });
 
 // Run source-specific social lead monitors and save discovered property posts
 // into `social_leads`. Triggered manually from the admin dashboard; scheduling
 // should be enabled only after choosing approved API/search providers.
 export const runSocialLeadMonitor = functions
-  .runWith({ memory: "512MB", timeoutSeconds: 180 })
+  .runWith({ memory: "512MB", timeoutSeconds: 180, secrets: ["GEMINI_API_KEY"] })
   .https.onCall(async (_data, context) => {
     if (!context.auth || !(await isAdminToken(context.auth.token))) {
       throw new functions.https.HttpsError(
@@ -123,3 +177,215 @@ export const onNewWhatsAppMessage = functions.firestore
 
     console.log(`New inbound WhatsApp message in conversation ${convId}`);
   });
+
+// ============================================================================
+// Multi-Agent Social Listing & Agency System Callables
+// ============================================================================
+import {
+  processSocialPostPipeline,
+  runDailyAgentPipelineJob,
+  sendListingConsentOutreach,
+} from "./agents/pipeline";
+
+/**
+ * AI Extractor + Directory Staging + WhatsApp Outreach for a single social post
+ */
+export const processSocialPost = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 120, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run the social post processor"
+      );
+    }
+    return processSocialPostPipeline(data);
+  });
+
+/**
+ * Daily Multi-Agent Pipeline Job:
+ * Ingests new leads from `social_leads`, parses with Gemini 3.8 Flash,
+ * creates/updates agent profiles, stages draft listings, and sends WhatsApp consent links.
+ */
+export const runDailyAgentPipeline = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run the daily agent pipeline"
+      );
+    }
+    return runDailyAgentPipelineJob(data);
+  });
+
+/**
+ * Scheduled Morning Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
+ */
+export const scheduledDailyAgentPipeline = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+  .pubsub
+  .schedule("0 9 * * *")
+  .timeZone("Asia/Colombo")
+  .onRun(async () => {
+    console.log("Running morning daily agent pipeline for Jaffna property leads (09:00 AM)");
+    return runDailyAgentPipelineJob({ limit: 25 });
+  });
+
+/**
+ * Scheduled Evening Multi-Agent Ingestion Job (6:00 PM / 18:00 Colombo time daily)
+ */
+export const scheduledEveningAgentPipeline = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+  .pubsub
+  .schedule("0 18 * * *")
+  .timeZone("Asia/Colombo")
+  .onRun(async () => {
+    console.log("Running evening daily agent pipeline for Jaffna property leads (06:00 PM)");
+    return runDailyAgentPipelineJob({ limit: 25 });
+  });
+
+/**
+ * Trigger or re-send WhatsApp consent request for an existing staged draft listing
+ */
+export const sendAgentWhatsAppConsent = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 60, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can send WhatsApp consent requests"
+      );
+    }
+    const listingId = data?.listing_id;
+    if (!listingId) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "listing_id is required"
+      );
+    }
+    return sendListingConsentOutreach(listingId, data?.site_url);
+  });
+
+// ============================================================================
+// Agent Preview & Claim Verification Endpoints
+// ============================================================================
+import {
+  getListingByClaimToken,
+  processListingClaimAction,
+} from "./agents/claim";
+
+/**
+ * Callable: Fetch preview details for an agent using claim token
+ */
+export const getListingPreview = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 30 })
+  .https.onCall(async (data) => {
+    const token = data?.token;
+    return getListingByClaimToken(token);
+  });
+
+/**
+ * Callable: Approve, edit, or decline listing via claim token
+ */
+export const respondListingConsent = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 30, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
+  .https.onCall(async (data) => {
+    const { token, action, notes, site_url } = data || {};
+    if (!token || !action) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Token and action are required"
+      );
+    }
+    return processListingClaimAction(token, action, notes, site_url);
+  });
+
+/**
+ * HTTP Endpoint for agent 1-click preview and approval from browser
+ */
+export const claimListingHandler = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 30, secrets: ["WHATSAPP_ACCESS_TOKEN"] })
+  .https.onRequest(async (req, res) => {
+    return corsHandler(req, res, async () => {
+      try {
+        if (req.method === "GET") {
+          const token = String(req.query.token || "").trim();
+          const result = await getListingByClaimToken(token);
+          if (!result.found) {
+            res.status(404).json(result);
+            return;
+          }
+          res.status(200).json(result);
+          return;
+        }
+
+        if (req.method === "POST") {
+          const { token, action, notes, site_url } = req.body || {};
+          if (!token || !action) {
+            res.status(400).json({ error: "Token and action are required" });
+            return;
+          }
+          const result = await processListingClaimAction(token, action, notes, site_url);
+          res.status(result.success ? 200 : 400).json(result);
+          return;
+        }
+
+        res.status(405).send("Method Not Allowed");
+      } catch (err: any) {
+        console.error("claimListingHandler error:", err);
+        res.status(500).json({ error: err?.message || "Internal server error" });
+      }
+    });
+  });
+
+// ============================================================================
+// YouTube Property Discovery Agent (Twice-Daily Scheduled & Callable)
+// ============================================================================
+import { runYouTubeDiscoveryJob, sendRecentDiscoveriesEmailDigest } from "./agents/youtube-discovery";
+
+/**
+ * Scheduled YouTube Property Discovery Agent
+ * Runs twice daily at 08:00 AM and 06:00 PM Asia/Colombo time
+ */
+export const scheduledYouTubeDiscovery = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "RESEND_API_KEY"] })
+  .pubsub
+  .schedule("0 8,18 * * *")
+  .timeZone("Asia/Colombo")
+  .onRun(async () => {
+    console.log("Running scheduled twice-daily YouTube property discovery agent");
+    return runYouTubeDiscoveryJob();
+  });
+
+/**
+ * Callable: Run YouTube Property Discovery on demand from admin dashboard
+ */
+export const runYouTubeDiscoveryCallable = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "RESEND_API_KEY"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run YouTube property discovery"
+      );
+    }
+    return runYouTubeDiscoveryJob(data);
+  });
+
+/**
+ * Callable: Send recent property discoveries email digest on demand
+ */
+export const sendDiscoveryEmailDigestNow = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 60, secrets: ["RESEND_API_KEY"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can send email digests"
+      );
+    }
+    const limit = Number(data?.limit || 15);
+    return sendRecentDiscoveriesEmailDigest(limit);
+  });
+

@@ -20,6 +20,10 @@ import {
   Trash2,
   Video,
   X,
+  Sparkles,
+  Bot,
+  Send,
+  Check,
 } from 'lucide-react';
 import { functions } from '@/lib/firebase';
 import {
@@ -352,6 +356,238 @@ function AddLeadModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
   );
 }
 
+function PasteAndParseModal({
+  onClose,
+  onProcessed,
+}: {
+  onClose: () => void;
+  onProcessed: (msg: string) => void;
+}) {
+  const [postText, setPostText] = useState('');
+  const [authorName, setAuthorName] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [autoOutreach, setAutoOutreach] = useState(true);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState('');
+
+  const runPipeline = async () => {
+    if (!postText.trim()) {
+      setError('Please paste the social media post text.');
+      return;
+    }
+    setRunning(true);
+    setError('');
+    setResult(null);
+
+    try {
+      const callable = httpsCallable(functions, 'processSocialPost');
+      const res: any = await callable({
+        text: postText,
+        author_name: authorName,
+        source_url: sourceUrl,
+        auto_outreach: autoOutreach,
+        site_url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yaalnilam.com',
+      });
+
+      if (res.data?.success) {
+        setResult(res.data);
+        onProcessed(`AI successfully extracted property & staged draft listing ${res.data.listing_id}!`);
+      } else {
+        setError(res.data?.error || 'AI pipeline processing failed.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Pipeline execution failed. Check admin authentication.');
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="px-6 py-4 border-b border-charcoal-200 flex items-center justify-between bg-gradient-to-r from-emerald-900 to-teal-900 text-white">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold">AI Property Extractor & Agent Pipeline</h2>
+              <p className="text-xs text-teal-200">Parse social media posts (Tamil / English), profile agents, and dispatch WhatsApp consent</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/10 text-white/80 hover:text-white" aria-label="Close">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
+              {error}
+            </div>
+          )}
+
+          {!result ? (
+            <>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                  Raw Social Post Text (Tamil or English) *
+                </label>
+                <textarea
+                  rows={6}
+                  value={postText}
+                  onChange={(e) => setPostText(e.target.value)}
+                  placeholder="Paste the Facebook post or group listing text here... e.g.:
+நல்லூர் கோவில் அருகில் 20 பரப்பு காணி விற்பனைக்கு உள்ளது. விலை 1.5 கோடி. தொடர்பு: 0771234567"
+                  className="textarea-field font-sans text-sm w-full"
+                />
+                <p className="text-xs text-charcoal-500 mt-1">
+                  AI automatically parses location (40+ canonical Jaffna slugs), price in LKR, land size in perches/parappu, bedrooms, bathrooms, and contact phone.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                    Author / Broker Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    placeholder="e.g. Sivakumar Agency"
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                    Source URL (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={sourceUrl}
+                    onChange={(e) => setSourceUrl(e.target.value)}
+                    placeholder="https://facebook.com/groups/..."
+                    className="input-field w-full"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-teal-50 border border-teal-200 p-4">
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoOutreach}
+                    onChange={(e) => setAutoOutreach(e.target.checked)}
+                    className="w-4 h-4 text-teal-700 rounded border-teal-300 focus:ring-teal-500"
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-teal-950">
+                      Send WhatsApp Consent Request Automatically
+                    </p>
+                    <p className="text-xs text-teal-700">
+                      Sends the preview link asking: &ldquo;Can we post your listing free of charge? (1=Yes, 2=Edit, 3=No)&rdquo;
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-4 animate-fade-in">
+              <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                  <Check className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-emerald-950">Property Extracted & Listing Staged!</h3>
+                  <p className="text-xs text-emerald-800">
+                    Draft Listing ID: <span className="font-mono font-bold">{result.listing_id}</span> • Agent ID: <span className="font-mono font-bold">{result.agent_id}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Extracted Data Card */}
+              <div className="rounded-xl border border-sand-200 p-4 bg-sand-50 space-y-2 text-sm">
+                <div className="flex justify-between items-center pb-2 border-b border-sand-200">
+                  <span className="font-bold text-charcoal-900">{result.extracted?.title_ta || result.extracted?.title}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 text-xs font-bold">
+                    {result.extracted?.property_type} • {result.extracted?.area_name_ta || result.extracted?.area_name}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-charcoal-700 pt-1">
+                  <div>Price: <span className="font-bold">{result.extracted?.price_text || `LKR ${result.extracted?.price?.toLocaleString()}`}</span></div>
+                  <div>Land Size: <span className="font-bold">{result.extracted?.land_size_perches ? `${result.extracted.land_size_perches} Perches` : 'N/A'}</span></div>
+                  <div>Agent: <span className="font-bold">{result.extracted?.agent_name} ({result.extracted?.agent_phone})</span></div>
+                  <div>Confidence: <span className="font-bold text-emerald-700">{result.extracted?.confidence_score}%</span></div>
+                </div>
+              </div>
+
+              {/* Preview Link */}
+              <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 space-y-2">
+                <p className="text-xs uppercase font-bold text-teal-800 tracking-wider">Agent Preview & Consent Link</p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={result.preview_url || `https://yaalnilam.com/preview/${result.claim_token}`}
+                    className="input-field text-xs font-mono bg-white flex-1"
+                  />
+                  <a
+                    href={result.preview_url || `https://yaalnilam.com/preview/${result.claim_token}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary text-xs px-3 py-2 flex items-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Open
+                  </a>
+                </div>
+              </div>
+
+              {/* Outreach status */}
+              <div className="text-xs text-charcoal-600 flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-emerald-600" />
+                <span>
+                  WhatsApp Outreach Status:{" "}
+                  <strong className="text-charcoal-900 capitalize">
+                    {result.outreach?.status || (autoOutreach ? "Queued" : "Skipped")}
+                  </strong>
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 py-4 border-t border-charcoal-200 flex items-center justify-end gap-3 bg-sand-50">
+          <button onClick={onClose} className="btn-ghost">
+            {result ? "Done" : "Cancel"}
+          </button>
+          {!result ? (
+            <button onClick={runPipeline} disabled={running} className="btn-primary bg-emerald-700 hover:bg-emerald-800">
+              {running ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Running AI Pipeline...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Extract & Stage Listing
+                </>
+              )}
+            </button>
+          ) : (
+            <button onClick={() => setResult(null)} className="btn-secondary">
+              Parse Another Post
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LeadDetailModal({ lead, onClose, onSave, onCopied }: { lead: any; onClose: () => void; onSave: (lead: any, data: any) => void; onCopied: (msg: string) => void }) {
   const [notes, setNotes] = useState(lead.notes || '');
   const [status, setStatus] = useState(lead.status || 'new');
@@ -466,6 +702,10 @@ export default function SocialLeadsPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [addingLead, setAddingLead] = useState(false);
+  const [pastingPost, setPastingPost] = useState(false);
+  const [batchRunning, setBatchRunning] = useState(false);
+  const [processingLeadId, setProcessingLeadId] = useState<string | null>(null);
+  const [resendingLeadId, setResendingLeadId] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
@@ -494,7 +734,80 @@ export default function SocialLeadsPage() {
 
   const showMessage = (text: string) => {
     setMessage(text);
-    window.setTimeout(() => setMessage(''), 3500);
+    window.setTimeout(() => setMessage(''), 4500);
+  };
+
+  const runBatchPipeline = async () => {
+    setBatchRunning(true);
+    setMessage('');
+    setError('');
+    try {
+      const callable = httpsCallable(functions, 'runDailyAgentPipeline');
+      const result: any = await callable({
+        limit: 25,
+        site_url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yaalnilam.com',
+        auto_outreach: true,
+      });
+      const { processed = 0, succeeded = 0, failed = 0 } = result?.data || {};
+      showMessage(`Daily Multi-Agent Pipeline: ${processed} scanned, ${succeeded} staged & contacted, ${failed} failed.`);
+      await loadData();
+    } catch (err: any) {
+      setError(err?.message || 'Daily AI Pipeline run failed. Verify admin authorization.');
+    } finally {
+      setBatchRunning(false);
+    }
+  };
+
+  const runSingleLeadPipeline = async (lead: any) => {
+    setProcessingLeadId(lead.id);
+    setMessage('');
+    setError('');
+    try {
+      const callable = httpsCallable(functions, 'processSocialPost');
+      const text = `${lead.title || ''}\n${lead.snippet || ''}`.trim();
+      const result: any = await callable({
+        lead_id: lead.id,
+        text,
+        author_name: lead.author_name || '',
+        source_url: lead.source_url || '',
+        source: lead.source || 'facebook',
+        auto_outreach: true,
+        site_url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yaalnilam.com',
+      });
+      if (result.data?.success) {
+        showMessage(`AI Extracted & Staged Listing ${result.data.listing_id}! WhatsApp consent link dispatched.`);
+        await loadData();
+      } else {
+        setError(result.data?.error || 'AI processing failed.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Failed to process lead with AI pipeline.');
+    } finally {
+      setProcessingLeadId(null);
+    }
+  };
+
+  const resendConsent = async (lead: any) => {
+    const listingId = lead.extracted_listing_id;
+    if (!listingId) return;
+    setResendingLeadId(lead.id);
+    try {
+      const callable = httpsCallable(functions, 'sendAgentWhatsAppConsent');
+      const result: any = await callable({
+        listing_id: listingId,
+        site_url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yaalnilam.com',
+      });
+      if (result.data?.success) {
+        showMessage(`WhatsApp consent message dispatched to ${lead.phone || 'agent'}!`);
+        await loadData();
+      } else {
+        setError(result.data?.error || 'Consent dispatch failed.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Failed to dispatch WhatsApp consent.');
+    } finally {
+      setResendingLeadId(null);
+    }
   };
 
   const runMonitor = async () => {
@@ -617,11 +930,30 @@ export default function SocialLeadsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setPastingPost(true)}
+              className="btn-primary bg-emerald-700 hover:bg-emerald-800 text-white flex items-center shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Parse & Ingest Post
+            </button>
+            <button
+              onClick={runBatchPipeline}
+              disabled={batchRunning}
+              className="btn-secondary flex items-center"
+            >
+              {batchRunning ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin text-teal-700" />
+              ) : (
+                <Bot className="w-4 h-4 mr-2 text-teal-700" />
+              )}
+              Run Daily Agent Pipeline
+            </button>
             <button onClick={() => setAddingLead(true)} className="btn-ghost">
               <Plus className="w-4 h-4 mr-2" />
               Add lead
             </button>
-            <button onClick={runMonitor} disabled={running} className="btn-primary">
+            <button onClick={runMonitor} disabled={running} className="btn-ghost">
               {running ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
               Run monitor
             </button>
@@ -733,9 +1065,40 @@ export default function SocialLeadsPage() {
                     return (
                       <tr key={lead.id} className="border-b border-sand-100 hover:bg-sand-50 transition">
                         <td className="px-5 py-4 min-w-[320px]">
-                          <p className="font-semibold text-charcoal-900 line-clamp-1">{lead.title}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-charcoal-900 line-clamp-1">{lead.title}</p>
+                            {lead.extracted_listing_id && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold shrink-0">
+                                Staged: {lead.extracted_listing_id}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-charcoal-500 mt-1">{lead.author_name || 'Unknown author'} · {lead.area || 'area unknown'}</p>
                           <p className="text-xs text-charcoal-600 mt-2 line-clamp-2">{lead.snippet || 'No post text captured.'}</p>
+                          {lead.claim_token && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <a
+                                href={lead.preview_url || `https://yaalnilam.com/preview/${lead.claim_token}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                Agent Preview Link
+                              </a>
+                              {lead.outreach_status && (
+                                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                                  lead.outreach_status === 'sent'
+                                    ? 'bg-green-100 text-green-800'
+                                    : lead.outreach_status === 'saved_local'
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-stone-100 text-stone-700'
+                                }`}>
+                                  WA: {lead.outreach_status}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td className="px-5 py-4">
                           <span className="inline-flex items-center gap-2 rounded-full bg-navy-50 text-navy-700 px-2.5 py-1 text-xs font-semibold">
@@ -765,8 +1128,38 @@ export default function SocialLeadsPage() {
                           {new Date(lead.last_seen_at || lead.discovered_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </td>
                         <td className="px-5 py-4">
-                          <div className="flex flex-wrap gap-2">
-                            <button onClick={() => setSelectedLead(lead)} className="btn-ghost btn-sm">
+                          <div className="flex flex-wrap gap-1.5">
+                            {!lead.extracted_listing_id ? (
+                              <button
+                                onClick={() => runSingleLeadPipeline(lead)}
+                                disabled={processingLeadId === lead.id}
+                                className="btn-primary btn-sm flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-2.5 py-1.5"
+                                title="Run AI Extractor & Send WhatsApp Consent"
+                              >
+                                {processingLeadId === lead.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                )}
+                                <span>AI Ingest</span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => resendConsent(lead)}
+                                disabled={resendingLeadId === lead.id}
+                                className="btn-secondary btn-sm flex items-center gap-1 text-xs px-2 py-1"
+                                title="Re-send WhatsApp Consent"
+                              >
+                                {resendingLeadId === lead.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Send className="w-3.5 h-3.5 text-teal-700" />
+                                )}
+                                <span>Consent</span>
+                              </button>
+                            )}
+
+                            <button onClick={() => setSelectedLead(lead)} className="btn-ghost btn-sm" title="View details">
                               <Eye className="w-4 h-4" />
                             </button>
                             {lead.source_url && (
@@ -822,6 +1215,16 @@ export default function SocialLeadsPage() {
       </div>
 
       {addingLead && <AddLeadModal onClose={() => setAddingLead(false)} onCreated={loadData} />}
+      {pastingPost && (
+        <PasteAndParseModal
+          onClose={() => setPastingPost(false)}
+          onProcessed={(msg) => {
+            setPastingPost(false);
+            showMessage(msg);
+            loadData();
+          }}
+        />
+      )}
       {selectedLead && (
         <LeadDetailModal
           lead={selectedLead}

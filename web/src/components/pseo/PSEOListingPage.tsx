@@ -10,15 +10,16 @@ import NearbyLandmarks from './NearbyLandmarks';
 import InternalLinks from './InternalLinks';
 import AreaGuideContent from './AreaGuideContent';
 import { useStore } from '@/lib/store';
-import { PROPERTIES as MOCK_PROPERTIES } from '@/lib/data';
+import { DEVELOPMENT_PROPERTY_FIXTURES } from '@/lib/development-fixtures';
 import { getProperties } from '@/lib/firestore';
-import { filterListings, normalizeListing } from '@/lib/marketplace';
+import { filterListings } from '@/lib/marketplace';
 import { getLocationBySlug, getPlacesForLocation } from '@/lib/locations';
 import { getPropertyType, getIntent, generatePageTitle, generatePageTitleTa } from '@/lib/seo-config';
 import { generateTier3FAQs, generateTier2FAQs } from '@/lib/faq-data';
 import { formatCompactPrice, localize } from '@/lib/translations';
+import { BRAND } from '@/lib/brand';
 
-const MOCK_FALLBACK = MOCK_PROPERTIES.map((p) => normalizeListing(p));
+const MOCK_FALLBACK = DEVELOPMENT_PROPERTY_FIXTURES;
 
 interface PSEOListingPageProps {
   intentSlug: string;
@@ -49,7 +50,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
       } catch {
         if (!mounted) return;
         setAllListings(MOCK_FALLBACK);
-        setUsingFallback(true);
+        setUsingFallback(MOCK_FALLBACK.length > 0);
       } finally {
         if (mounted) setLoadingListings(false);
       }
@@ -95,7 +96,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
       tenToTwentyFive: 'Rs. 10M - 25M',
       overTwentyFive: 'Rs. 25M+',
       bedrooms: 'Bedrooms',
-      verifiedOnly: 'Verified only',
+      verifiedOnly: 'Reviewed listings only',
       noMatches: 'No exact matches yet. Showing related properties instead.',
       found: 'properties found',
       ctaTitle: "Can't find what you're looking for?",
@@ -106,9 +107,9 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
         ? `FAQs: ${type.plural.en} ${intent.verb.en} in ${location.name}`
         : `FAQs: ${type.plural.en} ${intent.verb.en} in Jaffna`,
       heroDescription: location
-        ? `Browse verified ${type.plural.en.toLowerCase()} ${intent.verb.en.toLowerCase()} in ${location.name}, Jaffna.`
-        : `Browse verified ${type.plural.en.toLowerCase()} ${intent.verb.en.toLowerCase()} across the Jaffna Peninsula.`,
-      priceLabel: 'Price range',
+        ? `Browse listed ${type.plural.en.toLowerCase()} ${intent.verb.en.toLowerCase()} in ${location.name}, Jaffna.`
+        : `Browse listed ${type.plural.en.toLowerCase()} ${intent.verb.en.toLowerCase()} across the Jaffna Peninsula.`,
+      priceLabel: 'Search budget guide',
     },
     ta: {
       request: 'கோரிக்கை அனுப்புங்கள்',
@@ -120,7 +121,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
       tenToTwentyFive: 'ரூ. 1 கோடி - 2.5 கோடி',
       overTwentyFive: 'ரூ. 2.5 கோடிக்கு மேல்',
       bedrooms: 'படுக்கையறைகள்',
-      verifiedOnly: 'சரிபார்க்கப்பட்டவை மட்டும்',
+      verifiedOnly: 'தள மதிப்பாய்வு உள்ளவை மட்டும்',
       noMatches: 'துல்லியமான பொருத்தம் இன்னும் இல்லை. தொடர்புடைய பிற சொத்துகளைக் காட்டுகிறோம்.',
       found: 'சொத்துக்கள் கிடைத்தன',
       ctaTitle: 'நீங்கள் தேடுவது இன்னும் கிடைக்கவில்லையா?',
@@ -131,9 +132,9 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
         ? `${location.name_ta} பகுதியில் ${intent.verb.ta} ${type.plural.ta} பற்றிய கேள்விகள்`
         : `யாழ்ப்பாணத்தில் ${intent.verb.ta} ${type.plural.ta} பற்றிய கேள்விகள்`,
       heroDescription: location
-        ? `${location.name_ta} பகுதியில் ${intent.verb.ta} உள்ள சரிபார்க்கப்பட்ட ${type.plural.ta} பார்க்கலாம்.`
-        : `யாழ் குடாநாடு முழுவதும் ${intent.verb.ta} உள்ள சரிபார்க்கப்பட்ட ${type.plural.ta} பார்க்கலாம்.`,
-      priceLabel: 'விலை வரம்பு',
+        ? `${location.name_ta} பகுதியில் ${intent.verb.ta} உள்ள பட்டியலிடப்பட்ட ${type.plural.ta} பார்க்கலாம்.`
+        : `யாழ் குடாநாடு முழுவதும் ${intent.verb.ta} உள்ள பட்டியலிடப்பட்ட ${type.plural.ta} பார்க்கலாம்.`,
+      priceLabel: 'தேடல் வரவு செலவு வழிகாட்டி',
     },
   });
 
@@ -150,7 +151,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
     : l === 'ta'
       ? `வணக்கம், யாழ்ப்பாணத்தில் ${type.name.ta} ${intent.name.ta} விரும்புகிறேன்.`
       : `Hello, I am looking to ${intentSlug} a ${type.name.en.toLowerCase()} in Jaffna.`;
-  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(whatsappMsg)}`;
+  const whatsappUrl = `https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(whatsappMsg)}`;
 
   return (
     <>
@@ -162,6 +163,9 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
 
       <section className="bg-teal-900 text-white py-14 md:py-18">
         <div className="max-w-7xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-teal-400/40 bg-teal-800/70 px-3.5 py-1 text-xs font-semibold text-teal-200 mb-3">
+            <span>{l === 'ta' ? 'உரிமையாளர் விவரங்கள் • பகுதி வழிகாட்டிகள் • சுயாதீன ஆய்வு' : 'Owner-supplied details • Area guides • Independent checks'}</span>
+          </div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 text-white text-balance">
             {l === 'ta' ? titleTa : title.replace(' | Yaal Nilam', '')}
           </h1>
@@ -200,7 +204,7 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
         </div>
       </section>
 
-      <section className="sticky top-16 z-30 bg-white border-b border-gray-200 py-3 shadow-sm">
+      <section className="sticky top-[var(--yn-header-height)] z-30 bg-white border-b border-gray-200 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center gap-3">
           {!locationSlug && (
             <select className="text-sm border border-gray-300 rounded-lg px-3 py-2">
@@ -234,6 +238,26 @@ export default function PSEOListingPage({ intentSlug, typeSlug, locationSlug }: 
       </section>
 
       <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-6 rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 via-white to-amber-50/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-teal-800">
+              {l === 'ta' ? 'புலம்பெயர் வாங்குபவரா?' : 'Buying from Abroad?'}
+            </p>
+            <p className="text-sm font-bold text-slate-800 mt-0.5">
+              {l === 'ta'
+                ? 'உரிமையாளர் வழங்கும் தற்போதைய படங்கள் மற்றும் வீடியோவை கேளுங்கள். ஆவணங்களையும் எல்லைகளையும் சுயாதீன நிபுணர்களிடம் சரிபாருங்கள். தள மதிப்பாய்வு சட்டச் சான்று அல்ல.'
+                : 'Ask for current owner-supplied photos and video, and arrange independent document and survey checks. Platform review does not certify ownership or boundaries.'}
+            </p>
+          </div>
+          <Link
+            href="/diaspora#inspection"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-teal-800 px-4 py-2.5 text-xs font-bold text-white hover:bg-teal-900 transition flex-shrink-0"
+          >
+            <span>{l === 'ta' ? 'அடுத்த படிகளுக்கான உதவி' : 'Explore search support'}</span>
+            <span className="ml-1.5 font-bold">→</span>
+          </Link>
+        </div>
+
         {usingFallback && (
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-4 py-2 text-xs font-semibold text-amber-700">
             <span>⚠</span>{' '}

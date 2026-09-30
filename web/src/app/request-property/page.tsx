@@ -7,6 +7,7 @@ import { submitPropertyRequest } from '@/lib/firestore';
 import { useStore } from '@/lib/store';
 import { buildWhatsAppUrl } from '@/lib/marketplace';
 import { localize } from '@/lib/translations';
+import { BRAND } from '@/lib/brand';
 
 const areas = [
   { value: 'jaffna', en: 'Jaffna', ta: 'யாழ்ப்பாணம்' },
@@ -118,7 +119,7 @@ export default function RequestPropertyPage() {
   const whatsappLink = useMemo(
     () =>
       buildWhatsAppUrl(
-        '94704846555',
+        BRAND.whatsappDigits,
         locale === 'ta'
           ? `வணக்கம், ${formData.area || 'யாழ்ப்பாணம்'} பகுதியில் ${formData.propertyType || 'ஒரு சொத்து'} ${formData.intent || 'வாங்க'} தேடுகிறேன்.`
           : `Hi, I'm looking for a ${formData.propertyType || 'property'} to ${formData.intent || 'buy'} in ${formData.area || 'Jaffna'}.`

@@ -7,11 +7,11 @@ import VoiceSearch from "@/components/VoiceSearch";
 import { useStore } from "@/lib/store";
 import { getProperties } from "@/lib/firestore";
 import { filterListings } from "@/lib/marketplace";
-import { PROPERTIES as MOCK_PROPERTIES } from "@/lib/data";
-import { normalizeListing } from "@/lib/marketplace";
+import { BRAND } from "@/lib/brand";
+import { DEVELOPMENT_PROPERTY_FIXTURES } from "@/lib/development-fixtures";
 import { localize, type Locale } from "@/lib/translations";
 
-const MOCK_FALLBACK = MOCK_PROPERTIES.map((p) => normalizeListing(p));
+const MOCK_FALLBACK = DEVELOPMENT_PROPERTY_FIXTURES;
 
 const areaOptions = [
   { en: "Nallur", ta: "நல்லூர்", slug: "nallur" },
@@ -194,7 +194,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
       } catch {
         if (!mounted) return;
         setAllListings(MOCK_FALLBACK);
-        setUsingFallback(true);
+        setUsingFallback(MOCK_FALLBACK.length > 0);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -230,7 +230,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
   // For rent pages: never show sale listings — return empty state if none
   const isRentCategory = config.intent === "rent" || config.intent === "short_rent";
 
-  const whatsappUrl = `https://wa.me/94704846555?text=${encodeURIComponent(config.whatsappMsg[locale])}`;
+  const whatsappUrl = `https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(config.whatsappMsg[locale])}`;
 
   return (
     <>
@@ -273,7 +273,7 @@ export default function CategoryPage({ categoryKey }: CategoryPageProps) {
         </div>
       </section>
 
-      <section className="sticky top-16 z-30 border-b border-sand-200 bg-white py-3 shadow-sm">
+      <section className="sticky top-[var(--yn-header-height)] z-30 border-b border-sand-200 bg-white py-3 shadow-sm">
         <div className="container-wide flex flex-wrap items-center gap-3">
           {/* Area filter */}
           <select

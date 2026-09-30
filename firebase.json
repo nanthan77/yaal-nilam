@@ -10,18 +10,57 @@
     {
       "source": "functions",
       "codebase": "default",
-      "ignore": ["node_modules", ".git"],
-      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"]
+      "ignore": [
+        "node_modules",
+        ".git"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
     }
   ],
   "hosting": [
     {
       "target": "main",
       "public": "web/out",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "ignore": [
+        "firebase.json",
+        "**/node_modules/**",
+        "**/.DS_Store"
+      ],
       "cleanUrls": true,
       "trailingSlash": true,
       "redirects": [
+        {
+          "source": "/dashboard/discovered-properties",
+          "destination": "https://yaal-nilam-admin.web.app/discovered-properties/",
+          "type": 302
+        },
+        {
+          "source": "/dashboard/discovered-properties/",
+          "destination": "https://yaal-nilam-admin.web.app/discovered-properties/",
+          "type": 302
+        },
+        {
+          "source": "/dashboard",
+          "destination": "https://yaal-nilam-admin.web.app/",
+          "type": 302
+        },
+        {
+          "source": "/dashboard/**",
+          "destination": "https://yaal-nilam-admin.web.app/",
+          "type": 302
+        },
+        {
+          "source": "/itemap-core.xml",
+          "destination": "/sitemap-core.xml",
+          "type": 301
+        },
+        {
+          "source": "/itemap.xml",
+          "destination": "/sitemap.xml",
+          "type": 301
+        },
         {
           "source": "/areas/kokuvil",
           "destination": "/areas/kokkuvil/",
@@ -30,6 +69,116 @@
         {
           "source": "/areas/kokuvil/",
           "destination": "/areas/kokkuvil/",
+          "type": 301
+        },
+        {
+          "source": "/properties/8fSf4y9RBP62PHm8LGcJ",
+          "destination": "/properties/nallur-house-4-bed-38-perch-yn-m8lgcj/",
+          "type": 301
+        },
+        {
+          "source": "/properties/8fSf4y9RBP62PHm8LGcJ/",
+          "destination": "/properties/nallur-house-4-bed-38-perch-yn-m8lgcj/",
+          "type": 301
+        },
+        {
+          "source": "/properties/9HjrN6tffhRUe8O7tecE",
+          "destination": "/properties/nallur-family-home-3-bed-20-perch-yn-o7tece/",
+          "type": 301
+        },
+        {
+          "source": "/properties/9HjrN6tffhRUe8O7tecE/",
+          "destination": "/properties/nallur-family-home-3-bed-20-perch-yn-o7tece/",
+          "type": 301
+        },
+        {
+          "source": "/properties/Lgv1ZwL2IF8cDyQS4n9J",
+          "destination": "/properties/jaffna-fort-coastal-villa-6-bed-25-perch-yn-qs4n9j/",
+          "type": 301
+        },
+        {
+          "source": "/properties/Lgv1ZwL2IF8cDyQS4n9J/",
+          "destination": "/properties/jaffna-fort-coastal-villa-6-bed-25-perch-yn-qs4n9j/",
+          "type": 301
+        },
+        {
+          "source": "/properties/oR0WXPcPLHPJsQCFCsz2",
+          "destination": "/properties/karainagar-island-villa-5-bed-30-perch-yn-cfcsz2/",
+          "type": 301
+        },
+        {
+          "source": "/properties/oR0WXPcPLHPJsQCFCsz2/",
+          "destination": "/properties/karainagar-island-villa-5-bed-30-perch-yn-cfcsz2/",
+          "type": 301
+        },
+        {
+          "source": "/properties/yAdZEsEPpARKNdchH6nL",
+          "destination": "/properties/point-pedro-beachfront-land-22-perch-yn-chh6nl/",
+          "type": 301
+        },
+        {
+          "source": "/properties/yAdZEsEPpARKNdchH6nL/",
+          "destination": "/properties/point-pedro-beachfront-land-22-perch-yn-chh6nl/",
+          "type": 301
+        },
+        {
+          "source": "/properties/4HvEsRwN9sioWWHLArQL",
+          "destination": "/properties/nallur-prime-residential-land-18-perch-yn-hlarql/",
+          "type": 301
+        },
+        {
+          "source": "/properties/4HvEsRwN9sioWWHLArQL/",
+          "destination": "/properties/nallur-prime-residential-land-18-perch-yn-hlarql/",
+          "type": 301
+        },
+        {
+          "source": "/properties/5eUYCbbwaAhEc5sUNq2Y",
+          "destination": "/properties/chavakachcheri-modern-apartment-2-bed-yn-sunq2y/",
+          "type": 301
+        },
+        {
+          "source": "/properties/5eUYCbbwaAhEc5sUNq2Y/",
+          "destination": "/properties/chavakachcheri-modern-apartment-2-bed-yn-sunq2y/",
+          "type": 301
+        },
+        {
+          "source": "/properties/6eVMReBbdEy09aufZYIB",
+          "destination": "/properties/chunnakam-luxury-apartment-2-bed-yn-ufzyib/",
+          "type": 301
+        },
+        {
+          "source": "/properties/6eVMReBbdEy09aufZYIB/",
+          "destination": "/properties/chunnakam-luxury-apartment-2-bed-yn-ufzyib/",
+          "type": 301
+        },
+        {
+          "source": "/properties/bj05u7ftcaTEEljPLryD",
+          "destination": "/properties/kopay-commercial-building-space-15-perch-yn-jplryd/",
+          "type": 301
+        },
+        {
+          "source": "/properties/bj05u7ftcaTEEljPLryD/",
+          "destination": "/properties/kopay-commercial-building-space-15-perch-yn-jplryd/",
+          "type": 301
+        },
+        {
+          "source": "/properties/nc4rU0dtaJVyku7Isayn",
+          "destination": "/properties/thirunelvely-heritage-residence-3-bed-24-perch-yn-7isayn/",
+          "type": 301
+        },
+        {
+          "source": "/properties/nc4rU0dtaJVyku7Isayn/",
+          "destination": "/properties/thirunelvely-heritage-residence-3-bed-24-perch-yn-7isayn/",
+          "type": 301
+        },
+        {
+          "source": "/properties/UAfN6wCBCf0NeeUKUQbR",
+          "destination": "/properties/kopay-quiet-cottage-home-2-bed-16-perch-yn-ukuqbr/",
+          "type": 301
+        },
+        {
+          "source": "/properties/UAfN6wCBCf0NeeUKUQbR/",
+          "destination": "/properties/kopay-quiet-cottage-home-2-bed-16-perch-yn-ukuqbr/",
           "type": 301
         }
       ],
@@ -43,6 +192,14 @@
           "destination": "/properties/view/index.html"
         },
         {
+          "source": "/property/**",
+          "destination": "/property/view/index.html"
+        },
+        {
+          "source": "/preview/**",
+          "destination": "/preview/view/index.html"
+        },
+        {
           "source": "/sitemap.xml/**",
           "destination": "/sitemap.xml"
         },
@@ -53,7 +210,38 @@
       ],
       "headers": [
         {
-          "source": "**/*.@(js|css|svg|png|jpg|jpeg|webp|woff2|woff|ttf)",
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/.well-known/apple-app-site-association",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600, must-revalidate"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(js|css|svg|png|jpg|jpeg|webp|avif|woff2|woff|ttf)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600, must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/_next/static/**",
           "headers": [
             {
               "key": "Cache-Control",
@@ -65,6 +253,10 @@
           "source": "**/*.html",
           "headers": [
             {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            },
+            {
               "key": "Cache-Control",
               "value": "public, max-age=0, must-revalidate"
             },
@@ -75,16 +267,16 @@
             {
               "key": "X-Frame-Options",
               "value": "SAMEORIGIN"
-            },
-            {
-              "key": "Referrer-Policy",
-              "value": "strict-origin-when-cross-origin"
             }
           ]
         },
         {
           "source": "**",
           "headers": [
+            {
+              "key": "Permissions-Policy",
+              "value": "camera=(), payment=(), usb=(), microphone=(self), geolocation=(self)"
+            },
             {
               "key": "X-Content-Type-Options",
               "value": "nosniff"
@@ -100,33 +292,84 @@
             {
               "key": "Strict-Transport-Security",
               "value": "max-age=31536000; includeSubDomains; preload"
-            },
-            {
-              "key": "Permissions-Policy",
-              "value": "camera=(), payment=(), usb=(), microphone=(self), geolocation=(self)"
             }
           ]
         },
         {
-          "source": "**/sitemap*.xml",
+          "source": "**/@(sitemap*|feed|rss).xml",
           "headers": [
-            { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-            { "key": "Cache-Control", "value": "public, max-age=600, must-revalidate" }
+            {
+              "key": "Content-Type",
+              "value": "application/xml; charset=utf-8"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=600, must-revalidate"
+            }
           ]
         },
         {
           "source": "/robots.txt",
           "headers": [
-            { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
-            { "key": "Cache-Control", "value": "public, max-age=600, must-revalidate" }
+            {
+              "key": "Content-Type",
+              "value": "text/plain; charset=utf-8"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=600, must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/@(dashboard|login|register|add-listing|list-property|request-property|preview)",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/@(dashboard|login|register|add-listing|list-property|request-property|preview)/**",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/@(properties|agents|property)/view",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/@(properties|agents|property)/view/**",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
           ]
         }
+      ],
+      "predeploy": [
+        "node scripts/release-web.mjs --check-prepared"
       ]
     },
     {
       "target": "admin",
       "public": "dashboard/out",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
       "cleanUrls": true,
       "trailingSlash": true,
       "rewrites": [

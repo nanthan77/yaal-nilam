@@ -232,9 +232,10 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
         {/* Collapsed button */}
         {!isOpen && (
           <button
+            type="button"
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-24 right-6 z-50 bg-teal-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-float hover:bg-teal-700 hover:scale-110 transition-all duration-300"
-            aria-label="Voice Search"
+            className="yn-global-voice fixed bottom-24 right-6 z-40 bg-teal-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-float hover:bg-teal-700 hover:scale-110 transition-all duration-300"
+            aria-label={l === "ta" ? "குரல் தேடல்" : "Voice search"}
           >
             <MicIcon className="w-6 h-6" />
           </button>
@@ -242,7 +243,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
 
         {/* Expanded panel */}
         {isOpen && (
-          <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-float border border-sand-200 overflow-hidden animate-slide-up">
+          <div className="yn-global-voice fixed bottom-24 right-6 z-40 w-80 max-w-[calc(100vw-3rem)] bg-white rounded-2xl shadow-float border border-sand-200 overflow-hidden animate-slide-up">
             {/* Header */}
             <div className="bg-teal-900 text-white px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -254,7 +255,7 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
                   <p className="text-xs text-teal-300">{l === "ta" ? "தமிழ் மற்றும் English" : "Tamil & English"}</p>
                 </div>
               </div>
-              <button onClick={() => { setIsOpen(false); stopSpeaking(); }} className="text-teal-300 hover:text-white p-1">
+              <button type="button" aria-label={l === "ta" ? "குரல் தேடலை மூடு" : "Close voice search"} onClick={() => { setIsOpen(false); stopSpeaking(); }} className="text-teal-300 hover:text-white p-1">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -282,7 +283,9 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
               {/* Mic button */}
               <div className="text-center">
                 <button
+                  type="button"
                   onClick={handleMicClick}
+                  aria-label={stateLabel[state]}
                   disabled={state === "processing"}
                   className={`
                     w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 transition-all duration-300
@@ -331,7 +334,9 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
     return (
       <div className="flex flex-col items-center">
         <button
+          type="button"
           onClick={handleMicClick}
+          aria-label={stateLabel[state]}
           disabled={state === "processing"}
           className={`
             w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-300
@@ -371,7 +376,9 @@ export default function VoiceSearch({ variant = "floating" }: VoiceSearchProps) 
   return (
     <div className="inline-flex items-center gap-2">
       <button
+        type="button"
         onClick={handleMicClick}
+        aria-label={stateLabel[state]}
         disabled={state === "processing"}
         className={`
           flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200

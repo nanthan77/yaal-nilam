@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './generated-tests/e2e',
+  outputDir: './test-results/artifacts',
   testMatch: '**/*.spec.ts',
   fullyParallel: true,
   retries: 0,
@@ -12,6 +13,8 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    // Set PLAYWRIGHT_CHANNEL=chrome to use an installed Chrome browser.
+    channel: process.env.PLAYWRIGHT_CHANNEL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

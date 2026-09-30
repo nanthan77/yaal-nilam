@@ -57,8 +57,8 @@ export default function BuyTypeLocationPage({ params }: { params: { type: string
 
   const faqs = generateTier3FAQs(intent, type, location);
   const breadcrumbs = generateBreadcrumbJsonLd([
-    { name: 'Home', url: 'https://yaal-nilam.web.app/' },
-    { name: 'Buy', url: 'https://yaal-nilam.web.app/buy/' },
+    { name: 'Home', url: 'https://yaalnilam.com/' },
+    { name: 'Buy', url: 'https://yaalnilam.com/buy/' },
     { name: type.plural.en, url: buildCanonicalUrl('buy', params.type) },
     { name: location.name, url: buildCanonicalUrl('buy', params.type, params.location) },
   ]);

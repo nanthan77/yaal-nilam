@@ -7,13 +7,11 @@ import { Calendar, Users, MapPin, Home } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { localize } from '@/lib/translations';
 import { getProperties } from '@/lib/firestore';
-import { filterListings, resolvePropertyImage, normalizeListing } from '@/lib/marketplace';
-import { PROPERTIES as MOCK_PROPERTIES } from '@/lib/data';
+import { filterListings, resolvePropertyImage } from '@/lib/marketplace';
+import { DEVELOPMENT_PROPERTY_FIXTURES } from '@/lib/development-fixtures';
 import PropertyCard from '@/components/PropertyCard';
 
-const MOCK_FALLBACK = MOCK_PROPERTIES
-  .map((p) => normalizeListing(p))
-  .filter((p) => p.intent === 'short_rent');
+const MOCK_FALLBACK = DEVELOPMENT_PROPERTY_FIXTURES.filter((p) => p.intent === 'short_rent');
 
 export default function ShortTermRentalPage() {
   const { locale } = useStore();
@@ -38,7 +36,7 @@ export default function ShortTermRentalPage() {
       } catch {
         if (!mounted) return;
         setAllListings(MOCK_FALLBACK);
-        setUsingFallback(true);
+        setUsingFallback(MOCK_FALLBACK.length > 0);
       } finally {
         if (mounted) setLoading(false);
       }

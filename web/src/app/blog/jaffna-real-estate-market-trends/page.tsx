@@ -142,7 +142,7 @@ export default function MarketTrendsBlogPage() {
               "name": "Yaal Nilam"
             },
             "datePublished": "2026-06-01",
-            "mainEntityOfPage": "https://yaal-nilam.web.app/blog/jaffna-real-estate-market-trends",
+            "mainEntityOfPage": "https://yaalnilam.com/blog/jaffna-real-estate-market-trends",
             "image": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=500&h=300&fit=crop"
           })
         }}

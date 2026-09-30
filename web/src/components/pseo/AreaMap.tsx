@@ -29,9 +29,21 @@ export default function AreaMap({ location }: { location: Location }) {
   }
 
   const center: [number, number] = [location.lat, location.lng];
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}`;
 
   return (
-    <div className="h-[350px] w-full rounded-3xl overflow-hidden border border-sand-200 shadow-sm relative z-10">
+    <div className="h-[350px] w-full rounded-3xl overflow-hidden border border-sand-200 shadow-sm relative z-10 group">
+      <a
+        href={googleMapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute top-4 right-4 z-[500] bg-white/95 hover:bg-white text-teal-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-sm transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-1.5 border border-sand-200"
+      >
+        <span>Google Maps</span>
+        <svg className="w-3.5 h-3.5 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
       <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

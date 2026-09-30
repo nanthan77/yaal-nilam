@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Yaal Nilam property listings</title>
+    <link>https://yaalnilam.com/new-today/</link>
+    <description>Current published property listings on Yaal Nilam. Confirm availability with the advertiser.</description>
+    <atom:link href="https://yaalnilam.com/feed.xml" rel="self" type="application/rss+xml"/>
+
+  </channel>
+</rss>

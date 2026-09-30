@@ -17,16 +17,31 @@ import {
   limit as firestoreLimit,
   increment,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  getAdditionalUserInfo,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut,
   signInWithPopup,
+  signInWithRedirect,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   updateProfile,
 } from "firebase/auth";
 import { db, auth } from "./firebase";
+import {
+  clearGoogleRedirectUserType,
+  hasPendingGoogleRedirect,
+  normalizePublicUserType,
+  readGoogleRedirectUserType,
+  rememberGoogleRedirectUserType,
+  type PublicUserType,
+} from "./google-auth-redirect";
+import { canonicalizePhoneNumber } from "./agent-onboarding";
 import type { Property, Area } from "./data";
 
 // ── Property Filters ─────────────────────────────────────────
@@ -162,46 +177,63 @@ export async function getAgents() {
 
 // ── Auth (Firebase Auth) ─────────────────────────────────────
 
-type PublicUserType = "buyer" | "seller" | "agent";
-
 function normalizeUserType(value?: string): PublicUserType {
-  return value === "seller" || value === "agent" || value === "buyer" ? value : "buyer";
+  return normalizePublicUserType(value);
 }
 
 function cleanText(value?: string | null) {
   return (value || "").toString().trim();
 }
 
+function publicAuthError(code: string, message: string) {
+  const error = new Error(message) as Error & { code: string };
+  error.code = code;
+  return error;
+}
+
+export async function rejectAuthenticatedFlow(
+  code: string,
+  message: string,
+  expectedUid?: string
+): Promise<never> {
+  // A delayed profile read for account A must never sign out account B after a
+  // same-tab or cross-tab Auth switch.
+  if (!expectedUid || auth.currentUser?.uid === expectedUid) {
+    await signOut(auth).catch(() => undefined);
+  }
+  throw publicAuthError(code, message);
+}
+
 async function ensurePendingAgentProfile(user: any, profile: { name: string; email: string; phone: string }) {
   const agentRef = doc(db, "agents", user.uid);
+  const privateRef = doc(db, "agent_private", user.uid);
   try {
-    const existing = await getDoc(agentRef);
-    if (existing.exists()) return true;
+    const [existing, existingPrivate] = await Promise.all([
+      getDoc(agentRef),
+      getDoc(privateRef),
+    ]);
+    if (existing.exists() && existingPrivate.exists()) return true;
 
-    await setDoc(agentRef, {
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+    if (!existing.exists()) batch.set(agentRef, {
       uid: user.uid,
       role: "agent",
       name: profile.name,
       company: "Independent",
       phone: profile.phone,
       whatsapp: profile.phone,
-      email: profile.email,
+      email: "",
       logo_url: "",
       agency_type: "Independent agent",
-      public_email: profile.email,
-      internal_email: profile.email,
+      public_email: "",
       website: "",
-      office_address: "",
-      company_registration_no: "",
-      license_no: "",
       registration_verified: false,
       social_links: {},
-      languages: ["Tamil", "English"],
+      languages: [],
       team_size: 1,
       years_experience: 0,
-      business_hours: "Mon-Sat, 9:00 AM - 6:00 PM",
-      agency_plan: "starter",
-      billing_status: "free",
+      business_hours: "",
       verified: false,
       nic_uploaded: false,
       service_areas: [],
@@ -210,11 +242,26 @@ async function ensurePendingAgentProfile(user: any, profile: { name: string; ema
       total_inquiries: 0,
       response_rate: 0,
       status: "pending",
-      joined_date: new Date().toISOString(),
+      joined_date: now,
       source: "public_registration",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: now,
+      updated_at: now,
     });
+    if (!existingPrivate.exists()) batch.set(privateRef, {
+      uid: user.uid,
+      internal_email: profile.email,
+      office_address: "",
+      company_registration_no: "",
+      license_no: "",
+      agency_plan: "starter",
+      billing_status: "free",
+      account_manager: "",
+      internal_notes: "",
+      source: "public_registration",
+      created_at: now,
+      updated_at: now,
+    });
+    await batch.commit();
     return true;
   } catch (error) {
     console.warn("Agent profile setup is pending:", error);
@@ -224,11 +271,15 @@ async function ensurePendingAgentProfile(user: any, profile: { name: string; ema
 
 async function ensurePublicUserProfile(
   firebaseUser: any,
-  defaults: { name?: string; phone?: string; user_type?: string } = {}
+  defaults: {
+    name?: string;
+    phone?: string;
+    user_type?: string;
+    newAuthAccount?: boolean;
+  } = {}
 ) {
   const userRef = doc(db, "users", firebaseUser.uid);
   let existing: any = null;
-
   try {
     const snap = await getDoc(userRef);
     existing = snap.exists() ? snap.data() : null;
@@ -236,17 +287,19 @@ async function ensurePublicUserProfile(
     console.warn("Could not read public user profile before sync:", error);
   }
 
-  const userType = normalizeUserType(existing?.user_type || defaults.user_type);
+  const requestedUserType = normalizeUserType(defaults.user_type);
+  const userType = normalizeUserType(existing?.user_type || requestedUserType);
   const email = cleanText(firebaseUser.email || existing?.email).toLowerCase();
-  const name = cleanText(defaults.name || firebaseUser.displayName || existing?.name || email.split("@")[0] || "Yaal Nilam user");
-  const phone = cleanText(defaults.phone || existing?.phone);
+  const name = cleanText(existing?.name || defaults.name || firebaseUser.displayName || email.split("@")[0] || "Yaal Nilam user");
+  const requestedPhone = cleanText(existing?.phone || defaults.phone);
+  const phone = requestedPhone ? canonicalizePhoneNumber(requestedPhone) : null;
   const now = new Date().toISOString();
 
   const profilePayload = {
     uid: firebaseUser.uid,
     name,
     email,
-    phone,
+    phone: phone || "",
     user_type: userType,
     created_at: existing?.created_at || now,
     updated_at: now,
@@ -257,14 +310,20 @@ async function ensurePublicUserProfile(
     await setDoc(userRef, profilePayload, { merge: true });
     profileSynced = true;
   } catch (error) {
-    // Do not strand the user after Firebase Auth succeeds. Rules/deploy issues
-    // can be fixed by admin while the user can still access their dashboard.
+    // Callers fail closed and sign out when this flag is false, so an Auth
+    // session never reaches posting or dashboard flows with a partial profile.
     console.warn("Public user profile sync is pending:", error);
   }
 
   let agentProfileSynced = true;
   if (userType === "agent") {
-    agentProfileSynced = await ensurePendingAgentProfile(firebaseUser, { name, email, phone });
+    agentProfileSynced = profileSynced
+      ? await ensurePendingAgentProfile(firebaseUser, {
+          name,
+          email,
+          phone: phone || "",
+        })
+      : false;
   }
 
   return {
@@ -272,7 +331,7 @@ async function ensurePublicUserProfile(
       id: firebaseUser.uid,
       name,
       email,
-      phone,
+      phone: phone || "",
       user_type: userType,
     },
     profileSynced,
@@ -280,11 +339,21 @@ async function ensurePublicUserProfile(
   };
 }
 
-export async function login(email: string, password: string) {
+export async function login(email: string, password: string, userType: PublicUserType = "buyer") {
   const result = await signInWithEmailAndPassword(auth, email, password);
   return ensurePublicUserProfile(result.user, {
     name: result.user.displayName || email.split("@")[0],
-    user_type: "buyer",
+    user_type: userType,
+  });
+}
+
+export async function restoreAuthenticatedSession(userType: PublicUserType = "buyer") {
+  const firebaseUser = auth.currentUser;
+  if (!firebaseUser) return null;
+
+  return ensurePublicUserProfile(firebaseUser, {
+    name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
+    user_type: userType,
   });
 }
 
@@ -295,9 +364,22 @@ export async function register(payload: {
   password: string;
   user_type?: string;
 }) {
-  const userType = payload.user_type || "buyer";
+  const userType = normalizeUserType(payload.user_type);
   const email = payload.email.trim().toLowerCase();
-  const phone = payload.phone.trim();
+  const rawPhone = payload.phone.trim();
+  const phone = rawPhone ? canonicalizePhoneNumber(rawPhone) : null;
+  if (rawPhone && !phone) {
+    throw publicAuthError(
+      "account/valid-phone-required",
+      "Enter a valid Sri Lankan or international phone number."
+    );
+  }
+  if (userType === "agent" && !phone) {
+    throw publicAuthError(
+      "account/agent-phone-required",
+      "Agent registration requires a valid phone number."
+    );
+  }
   let result;
   let createdNewAccount = false;
 
@@ -312,29 +394,102 @@ export async function register(payload: {
   }
 
   if (createdNewAccount || !result.user.displayName) {
-    await updateProfile(result.user, { displayName: payload.name.trim() });
+    // The Firestore public profile below is authoritative. A transient Auth
+    // display-name failure should not strand a newly-created, signed-in account
+    // before that profile can be completed (or safely failed closed by caller).
+    await updateProfile(result.user, { displayName: payload.name.trim() }).catch((error) => {
+      console.warn("Firebase Auth display name could not be updated yet:", error);
+    });
+  }
+
+  if (createdNewAccount && !result.user.emailVerified) {
+    // Public accounts continue normally, but verified ownership is required
+    // before an email-matched staff access-list role can ever be used.
+    await sendEmailVerification(result.user).catch((error) => {
+      console.warn("Verification email could not be sent yet:", error);
+    });
   }
 
   return ensurePublicUserProfile(result.user, {
     name: payload.name.trim(),
-    phone,
+    phone: phone || "",
     user_type: userType,
+    newAuthAccount: createdNewAccount,
   });
 }
 
-export async function signInWithGoogle(userType: PublicUserType = "buyer") {
+export async function signInWithGoogle(
+  userType: PublicUserType = "buyer",
+  defaults: { name?: string; phone?: string } = {}
+) {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   const result = await signInWithPopup(auth, provider);
   return ensurePublicUserProfile(result.user, {
-    name: result.user.displayName || "",
-    phone: "",
+    name: defaults.name || result.user.displayName || "",
+    phone: defaults.phone || "",
     user_type: userType,
+    newAuthAccount: Boolean(getAdditionalUserInfo(result)?.isNewUser),
   });
+}
+
+/**
+ * Start Google Auth in the current tab. Redirect auth is more reliable than a
+ * popup on mobile browsers and avoids popup blockers closing the agent flow.
+ */
+export async function startGoogleRedirectSignIn(userType: PublicUserType = "buyer") {
+  rememberGoogleRedirectUserType(userType);
+
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+
+  try {
+    await signInWithRedirect(auth, provider);
+  } catch (error) {
+    clearGoogleRedirectUserType();
+    throw error;
+  }
+}
+
+export { hasPendingGoogleRedirect };
+
+/** Complete a Google redirect and create/sync the correct public user profile. */
+export async function completeGoogleRedirectSignIn(defaultUserType: PublicUserType = "buyer") {
+  const userType = readGoogleRedirectUserType(defaultUserType);
+
+  try {
+    const result = await getRedirectResult(auth);
+    if (!result) return null;
+
+    return ensurePublicUserProfile(result.user, {
+      name: result.user.displayName || "",
+      phone: "",
+      user_type: userType,
+      newAuthAccount: Boolean(getAdditionalUserInfo(result)?.isNewUser),
+    });
+  } finally {
+    clearGoogleRedirectUserType();
+  }
 }
 
 export async function logout() {
   await signOut(auth);
+}
+
+export async function requestPasswordReset(email: string) {
+  const normalized = cleanText(email).toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(normalized)) {
+    throw publicAuthError("auth/invalid-email", "Enter a valid email address.");
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, normalized);
+  } catch (error: any) {
+    // Keep account existence private whether or not Firebase email-enumeration
+    // protection is enabled for this project.
+    if (error?.code === "auth/user-not-found") return;
+    throw error;
+  }
 }
 
 // ── Inquiries ────────────────────────────────────────────────

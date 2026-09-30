@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getYouTubeId, youTubeThumb, youTubeEmbedUrl } from "@/lib/video";
+import { useStore } from "@/lib/store";
 
 // Click-to-play YouTube tour. The iframe is only mounted on tap, so the page
 // stays light — until then it's just a thumbnail + play button. Falls back to a
@@ -14,6 +15,7 @@ export default function YouTubeEmbed({
   title?: string;
 }) {
   const [play, setPlay] = useState(false);
+  const { locale } = useStore();
   const id = getYouTubeId(url);
 
   if (!id) {
@@ -25,7 +27,7 @@ export default function YouTubeEmbed({
         rel="noopener noreferrer"
         className="text-teal-700 font-semibold underline"
       >
-        Watch video tour
+        {locale === "ta" ? "காணொளிப் பார்வை" : "Watch video tour"}
       </a>
     );
   }
@@ -47,7 +49,7 @@ export default function YouTubeEmbed({
           type="button"
           onClick={() => setPlay(true)}
           className="group absolute inset-0 h-full w-full"
-          aria-label={`Play ${title}`}
+          aria-label={locale === "ta" ? `${title} காணொளியை இயக்கவும்` : `Play ${title}`}
         >
           <img
             src={youTubeThumb(id)}

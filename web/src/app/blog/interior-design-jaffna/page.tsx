@@ -80,7 +80,7 @@ export default function InteriorDesignBlogPage() {
               "name": "Yaal Nilam"
             },
             "datePublished": "2026-06-01",
-            "mainEntityOfPage": "https://yaal-nilam.web.app/blog/interior-design-jaffna",
+            "mainEntityOfPage": "https://yaalnilam.com/blog/interior-design-jaffna",
             "image": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=500&h=300&fit=crop"
           })
         }}

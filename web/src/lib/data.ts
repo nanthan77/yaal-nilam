@@ -39,6 +39,8 @@ export interface Area {
   description_ta?: string;
   properties_count: number;
   image: string;
+  lat?: number;
+  lng?: number;
 }
 
 export const PROPERTY_TYPES: PropertyType[] = [
@@ -54,8 +56,8 @@ export const PROPERTIES: Property[] = [
     id: 'prop-001',
     title: 'Modern Villa in Jaffna Fort',
     title_ta: 'யாழ் கோட்டையில் நவீன வில்லா',
-    description: 'A stunning modern villa with sea views and contemporary amenities.',
-    description_ta: 'கடற்காட்சி மற்றும் நவீன வசதிகளுடன் அமைந்த அழகிய வில்லா. குடும்ப வாழ்வுக்கும் உயர்தர முதலீட்டுக்கும் ஏற்ற தேர்வு.',
+    description: 'A stunning modern villa overlooking the Jaffna lagoon with contemporary amenities.',
+    description_ta: 'யாழ் கோட்டை பண்ணை காயல் பார்வையும் நவீன வசதிகளும் கொண்ட அழகிய வில்லா. குடும்ப வாழ்வுக்கும் உயர்தர முதலீட்டுக்கும் ஏற்ற தேர்வு.',
     price: 85000000,
     area: 'jaffna-fort',
     slug: 'jaffna-fort',
@@ -228,8 +230,10 @@ export const AREAS: Area[] = [
     name_ta: 'யாழ் கோட்டை',
     description: 'Historic district with colonial charm and modern amenities.',
     description_ta: 'காலனித்துவ மரபையும் நவீன வசதிகளையும் இணைத்துப் பேணும் வரலாற்றுப் பகுதி.',
-    properties_count: 24,
+    properties_count: 0,
     image: '/properties/villa_modern.webp',
+    lat: 9.6621,
+    lng: 80.0083,
   },
   {
     slug: 'nallur',
@@ -237,8 +241,10 @@ export const AREAS: Area[] = [
     name_ta: 'நல்லூர்',
     description: 'Traditional neighborhood with cultural heritage and community spirit.',
     description_ta: 'பண்பாட்டு மரபும் சமூகவாழ்வின் உயிரும் செழித்து நிற்கும் நல்லூர் பகுதி.',
-    properties_count: 18,
+    properties_count: 0,
     image: '/properties/house_family.webp',
+    lat: 9.6744,
+    lng: 80.0293,
   },
   {
     slug: 'chunnakam',
@@ -246,8 +252,10 @@ export const AREAS: Area[] = [
     name_ta: 'சுன்னாகம்',
     description: 'Residential area with excellent schools and family-friendly amenities.',
     description_ta: 'பாடசாலைகள், சேவைகள் மற்றும் குடும்பங்களுக்கு ஏற்ற வசதிகள் நிறைந்த குடியிருப்பு பகுதி.',
-    properties_count: 21,
+    properties_count: 0,
     image: '/properties/apartment_luxury.webp',
+    lat: 9.7430,
+    lng: 80.0175,
   },
   {
     slug: 'kopay',
@@ -255,8 +263,10 @@ export const AREAS: Area[] = [
     name_ta: 'கோப்பாய்',
     description: 'Vibrant commercial hub with retail and office spaces.',
     description_ta: 'சில்லறை விற்பனை, அலுவலகம் மற்றும் புதிய வணிக வளர்ச்சிக்கு ஏற்ற சுறுசுறுப்பான பகுதி.',
-    properties_count: 15,
+    properties_count: 0,
     image: '/properties/commercial_space.webp',
+    lat: 9.6833,
+    lng: 80.0500,
   },
   {
     slug: 'point-pedro',
@@ -264,8 +274,10 @@ export const AREAS: Area[] = [
     name_ta: 'பருத்தித்துறை',
     description: 'Coastal area with pristine beaches and recreational facilities.',
     description_ta: 'கடற்கரை வளமும் அமைதியான வாழ்வுமுள்ள வடக்கு முனைப் பகுதி. விடுதி மற்றும் சுற்றுலா முதலீட்டுக்கும் ஏற்றது.',
-    properties_count: 12,
+    properties_count: 0,
     image: '/properties/land_beach.webp',
+    lat: 9.8167,
+    lng: 80.2333,
   },
   {
     slug: 'karainagar',
@@ -273,8 +285,10 @@ export const AREAS: Area[] = [
     name_ta: 'காரைநகர்',
     description: 'Island community with exclusive properties and serene environment.',
     description_ta: 'தீவு அமைதியுடன் தனியுரிமை மிக்க வீடுகள் மற்றும் விரிந்த நிலப் பகுதிகள் கொண்ட பகுதி.',
-    properties_count: 8,
+    properties_count: 0,
     image: '/properties/villa_island.webp',
+    lat: 9.7333,
+    lng: 79.8667,
   },
   {
     slug: 'thirunelvely',
@@ -282,8 +296,10 @@ export const AREAS: Area[] = [
     name_ta: 'திருநெல்வேலி',
     description: 'Sacred spiritual area with heritage temples and historic landmarks.',
     description_ta: 'கோவில்கள், மரபுச் சின்னங்கள் மற்றும் குடியிருப்பு வசதிகளுடன் பெயர்பெற்ற பகுதி.',
-    properties_count: 10,
+    properties_count: 0,
     image: '/properties/house_heritage.webp',
+    lat: 9.6833,
+    lng: 80.0333,
   },
   {
     slug: 'chavakachcheri',
@@ -291,7 +307,9 @@ export const AREAS: Area[] = [
     name_ta: 'சாவகச்சேரி',
     description: 'Growing residential community with modern infrastructure.',
     description_ta: 'வேகமாக வளர்ந்து வரும் அடிப்படை வசதிகளுடன் கூடிய குடியிருப்பு மற்றும் குடும்ப நட்பு பகுதி.',
-    properties_count: 14,
+    properties_count: 0,
     image: '/properties/house_family.webp',
+    lat: 9.6500,
+    lng: 80.1500,
   },
 ];

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Jaffna House Price Index — Average Property Prices by Area",
+  title: "Jaffna Property Asking Prices by Area",
   description:
-    "Compare average property prices across Jaffna Peninsula areas — Nallur, Jaffna Fort, Chunnakam, Point Pedro and more. A simple house price index to guide buyers and investors.",
+    "Compare asking prices from current public sale listings across the Jaffna Peninsula. Listing prices are not independent property valuations.",
   alternates: { canonical: "/price-index/" },
   openGraph: {
-    title: "Jaffna House Price Index — Average Property Prices by Area | Yaal Nilam",
-    description: "Average property prices across the Jaffna Peninsula, area by area.",
+    title: "Jaffna Property Asking Prices by Area | Yaal Nilam",
+    description: "Asking prices from current public sale listings, grouped by area.",
     url: "/price-index/",
     type: "website",
     siteName: "Yaal Nilam",

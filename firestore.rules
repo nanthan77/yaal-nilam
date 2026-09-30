@@ -146,6 +146,20 @@ service cloud.firestore {
         && request.resource.data.team_size is number
         && request.resource.data.years_experience is number;
     }
+    function validPrivateAgentCreate(agentId) {
+      return boundedDoc(20)
+        && request.resource.data.uid == agentId
+        && request.resource.data.internal_email is string
+        && request.resource.data.internal_email.size() <= 320
+        && request.resource.data.agency_plan == 'starter'
+        && request.resource.data.billing_status == 'free'
+        && fieldStr('office_address', 500)
+        && fieldStr('company_registration_no', 120)
+        && fieldStr('license_no', 120)
+        && fieldStr('account_manager', 120)
+        && fieldStr('internal_notes', 1000)
+        && fieldStr('source', 80);
+    }
     function validSavedSearch() {
       return boundedDoc(20)
         && fieldStr('session_id', 200)
@@ -235,6 +249,17 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.auth.uid == agentId
         && validAgentCreate(agentId);
+      allow update, delete: if isAdmin();
+    }
+
+    match /agent_private/{agentId} {
+      allow get: if isAdmin() || (signedIn() && request.auth.uid == agentId);
+      allow list: if isAdmin();
+      allow create: if isAdmin() || (
+        signedIn()
+        && request.auth.uid == agentId
+        && validPrivateAgentCreate(agentId)
+      );
       allow update, delete: if isAdmin();
     }
 

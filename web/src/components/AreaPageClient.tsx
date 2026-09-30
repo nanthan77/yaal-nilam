@@ -36,14 +36,14 @@ export default function AreaPageClient() {
       totalProperties: "Live properties",
       featuredListings: "Featured listings",
       averagePrice: "Average asking price",
-      verifiedListings: "Verified listings",
+      verifiedListings: "Listing details reviewed",
       areaProperties: "Properties in",
       empty: "There are no properties in this area at the moment.",
       otherAreas: "Explore Other Areas",
       buyerNotes: "Buyer notes",
-      priceBand: "Typical price band",
-      remoteTitle: "Diaspora buying support",
-      remoteBody: "Need a remote shortlist, lawyer coordination, or video walkthrough? This area is supported through the same bilingual lead flow used across Yaal Nilam.",
+      priceBand: "Search budget guide",
+      remoteTitle: "Support for overseas searches",
+      remoteBody: "Searching from abroad? Ask the advertiser for current photos and video, and arrange independent document and survey checks before deciding. Platform review covers listing details; it does not certify ownership, deeds or boundaries.",
       landmarks: "Nearby places people ask about",
     },
     ta: {
@@ -53,14 +53,14 @@ export default function AreaPageClient() {
       totalProperties: "நேரடி சொத்துக்கள்",
       featuredListings: "முன்னிலை பட்டியல்கள்",
       averagePrice: "சராசரி கேட்கப்படும் விலை",
-      verifiedListings: "சரிபார்க்கப்பட்ட பட்டியல்கள்",
+      verifiedListings: "தள மதிப்பாய்வு உள்ள பட்டியல்கள்",
       areaProperties: "இந்த பகுதியில் உள்ள சொத்துக்கள்",
       empty: "இந்த பகுதியில் தற்போது சொத்துக்கள் எதுவும் இல்லை.",
       otherAreas: "மற்ற பகுதிகளைப் பாருங்கள்",
       buyerNotes: "வாங்குபவர் குறிப்புகள்",
-      priceBand: "சாதாரண விலை வரம்பு",
-      remoteTitle: "வெளிநாட்டு வாங்குபவர் உதவி",
-      remoteBody: "Remote shortlist, lawyer coordination, அல்லது video walkthrough வேண்டுமா? இந்த பகுதி Yaal Nilam முழுவதும் பயன்படுத்தும் bilingual lead flow-இல் ஆதரிக்கப்படுகிறது.",
+      priceBand: "தேடல் வரவு செலவு வழிகாட்டி",
+      remoteTitle: "வெளிநாட்டிலிருந்து சொத்து தேடுபவர்களுக்கு உதவி",
+      remoteBody: "வெளிநாட்டிலிருந்து தேடுகிறீர்களா? தற்போதைய படங்கள் மற்றும் வீடியோவை விளம்பரதாரரிடம் கேளுங்கள். முடிவு எடுக்கும் முன் ஆவணங்களையும் எல்லைகளையும் சுயாதீன நிபுணர்களிடம் சரிபாருங்கள். தள மதிப்பாய்வு உரிமை, பத்திரம் அல்லது எல்லைகளைச் சான்றளிக்காது.",
       landmarks: "மக்கள் அடிக்கடி கேட்கும் அருகிலுள்ள இடங்கள்",
     },
   });
@@ -200,9 +200,24 @@ export default function AreaPageClient() {
                 <h2 className="text-2xl font-black mb-3.5">{copy.remoteTitle}</h2>
                 <p className="text-teal-100/90 leading-relaxed mb-5">{copy.remoteBody}</p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-sand-100 hover:bg-white/15 transition-colors">WhatsApp Shortlists</span>
-                  <span className="rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-sand-100 hover:bg-white/15 transition-colors">Lawyer Handoff</span>
-                  <span className="rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-sand-100 hover:bg-white/15 transition-colors">Video Tours</span>
+                  <span className="rounded-xl bg-white/10 border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-sand-100">
+                    {locale === "ta" ? "உரிமையாளர் வழங்கும் படங்கள்" : "Owner-supplied media"}
+                  </span>
+                  <span className="rounded-xl bg-white/10 border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-sand-100">
+                    {locale === "ta" ? "சுயாதீன ஆவண ஆய்வு" : "Independent document review"}
+                  </span>
+                  <span className="rounded-xl bg-white/10 border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-sand-100">
+                    {locale === "ta" ? "நில அளவையாளர் ஆய்வு" : "Surveyor checks"}
+                  </span>
+                </div>
+                <div className="mt-6">
+                  <Link
+                    href="/diaspora#inspection"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#D4A853] px-5 py-3 text-xs font-bold text-[#0F2E25] hover:bg-[#e4be63] transition shadow-md"
+                  >
+                    <span>{locale === "ta" ? "அடுத்த படிகளைத் திட்டமிடுங்கள்" : "Plan your next steps"}</span>
+                    <span>→</span>
+                  </Link>
                 </div>
               </div>
             </section>

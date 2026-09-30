@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+**/node_modules
 .pnp
 .pnp.js
 __pycache__/
@@ -15,7 +16,9 @@ venv/
 .env.production.local
 
 # Next.js
+*.tsbuildinfo
 .next/
+.next-emulator/
 out/
 
 # Build
@@ -69,3 +72,9 @@ web/test-results/
 web/test-manifest.json
 web/playwright-report/
 web/.claude/
+.playwright-cli/
+output/playwright/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase-redesign-qa.json

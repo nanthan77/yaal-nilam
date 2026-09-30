@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { getPropertyById } from "@/lib/firestore";
 import { resolvePropertyImage } from "@/lib/marketplace";
-import { formatCompactPrice, getPropertyTypeLabel } from "@/lib/translations";
+import { formatCompactPrice, getIntentLabel, getPropertyTypeLabel } from "@/lib/translations";
+import { rentalPriceSuffix } from "@/lib/property-presentation";
+import { getPropertyPath } from "@/lib/property-routes";
 
 const rs = (v: number) => "Rs. " + Math.round(v || 0).toLocaleString("en-LK");
 
@@ -35,16 +37,16 @@ export default function ComparePage() {
   }, [compareIds]);
 
   const rows: { label: string; render: (p: any) => ReactNode }[] = [
-    { label: ta ? "விலை" : "Price", render: (p) => <span className="font-bold text-teal-800">{formatCompactPrice(p.price, locale)}</span> },
+    { label: ta ? "விலை" : "Price", render: (p) => <span className="font-bold text-teal-800">{p.price > 0 ? formatCompactPrice(p.price, locale) + rentalPriceSuffix(p.intent, locale) : (ta ? "விலையைக் கேளுங்கள்" : "Price on request")}</span> },
     { label: ta ? "வகை" : "Type", render: (p) => getPropertyTypeLabel(p.property_type || p.type, locale) },
-    { label: ta ? "நோக்கம்" : "For", render: (p) => (p.intent === "rent" || p.intent === "short_rent" ? (ta ? "வாடகை" : "Rent") : (ta ? "விற்பனை" : "Sale")) },
-    { label: ta ? "பகுதி" : "Area", render: (p) => p.area_name || p.area || "—" },
+    { label: ta ? "நோக்கம்" : "For", render: (p) => getIntentLabel(p.intent, locale) },
+    { label: ta ? "பகுதி" : "Area", render: (p) => (ta ? p.area_name_ta || p.area_name : p.area_name) || p.area || "—" },
     { label: ta ? "படுக்கை" : "Bedrooms", render: (p) => p.bedrooms || "—" },
     { label: ta ? "குளியல்" : "Bathrooms", render: (p) => p.bathrooms || "—" },
     { label: ta ? "நிலம் (பேர்ச்)" : "Land (perches)", render: (p) => (p.land_size_perches > 0 ? p.land_size_perches : "—") },
     { label: ta ? "பரப்பு (sqft)" : "Floor (sqft)", render: (p) => (p.sqft > 0 ? p.sqft.toLocaleString() : "—") },
-    { label: ta ? "விலை / பேர்ச்" : "Price / perch", render: (p) => (p.land_size_perches > 0 && p.price > 0 ? rs(p.price / p.land_size_perches) : "—") },
-    { label: ta ? "சரிபார்க்கப்பட்டது" : "Verified", render: (p) => (p.verified ? "✓" : "—") },
+    { label: ta ? "விலை / பேர்ச்" : "Price / perch", render: (p) => (p.intent === "sell" && p.land_size_perches > 0 && p.price > 0 ? rs(p.price / p.land_size_perches) : "—") },
+    { label: ta ? "பட்டியல் மதிப்பாய்வு" : "Listing reviewed", render: (p) => (p.verified ? "✓" : "—") },
     { label: ta ? "வீடியோ" : "Video tour", render: (p) => (p.video_tour_url ? "✓" : "—") },
   ];
 
@@ -74,17 +76,17 @@ export default function ComparePage() {
                 {ta ? "அனைத்தையும் அழி" : "Clear all"}
               </button>
             </div>
-            <div className="overflow-x-auto rounded-3xl border border-sand-200 bg-white">
+            <div tabIndex={0} role="region" aria-label={ta ? "சொத்து ஒப்பீட்டு அட்டவணை" : "Property comparison table"} className="overflow-x-auto rounded-3xl border border-sand-200 bg-white">
               <table className="w-full min-w-[640px] border-collapse">
                 <thead>
                   <tr className="border-b border-sand-200">
                     <th className="w-32 p-3" />
                     {items.map((p) => (
-                      <th key={p.id} className="p-3 align-top text-left">
+                      <th scope="col" key={p.id} className="p-3 align-top text-left">
                         <img src={resolvePropertyImage(p)} alt="" className="w-full h-28 object-cover rounded-xl mb-2" loading="lazy" />
-                        <Link href={`/properties/${p.id}`} className="block text-sm font-bold text-charcoal-900 hover:text-teal-700 line-clamp-2">
+                        <a href={getPropertyPath(p)} className="block text-sm font-bold text-charcoal-900 hover:text-teal-700 line-clamp-2">
                           {locale === "ta" && p.title_ta ? p.title_ta : p.title}
-                        </Link>
+                        </a>
                         <button onClick={() => toggleCompare(p.id)} className="mt-1 text-xs font-semibold text-red-600 hover:underline">
                           {ta ? "அகற்று" : "Remove"}
                         </button>
@@ -95,7 +97,7 @@ export default function ComparePage() {
                 <tbody>
                   {rows.map((row, i) => (
                     <tr key={row.label} className={i % 2 ? "bg-sand-50/50" : ""}>
-                      <td className="p-3 text-xs font-bold uppercase tracking-wide text-charcoal-500 align-top">{row.label}</td>
+                      <th scope="row" className="p-3 text-left text-xs font-bold uppercase tracking-wide text-charcoal-500 align-top">{row.label}</th>
                       {items.map((p) => (
                         <td key={p.id} className="p-3 text-sm text-charcoal-800 align-top">{row.render(p)}</td>
                       ))}
@@ -105,9 +107,9 @@ export default function ComparePage() {
                     <td className="p-3" />
                     {items.map((p) => (
                       <td key={p.id} className="p-3">
-                        <Link href={`/properties/${p.id}`} className="inline-block bg-teal-50 text-teal-700 hover:bg-teal-100 text-sm font-semibold px-4 py-2 rounded-lg transition">
+                        <a href={getPropertyPath(p)} className="inline-block bg-teal-50 text-teal-700 hover:bg-teal-100 text-sm font-semibold px-4 py-2 rounded-lg transition">
                           {ta ? "விவரங்கள்" : "View"}
-                        </Link>
+                        </a>
                       </td>
                     ))}
                   </tr>
