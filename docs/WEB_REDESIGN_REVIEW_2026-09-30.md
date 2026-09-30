@@ -2,6 +2,11 @@
 
 ## Result
 
+Published from source `776f9b1` at 11:03:20 Sri Lanka time on September 30.
+The final build passed with 552 HTML exports, 33 canonical sitemap URLs,
+75 data tests and 111 production browser tests (one expected skip).
+See `../RELEASE_2026-09-30.md` for provider identity, live checks and remaining limits.
+
 The actual Next.js website in `web/` has a shorter bilingual homepage, larger
 brand header, usable navigation, compact search and clearer property cards and
 detail layouts. The existing routes, public Firestore read paths and inquiry
