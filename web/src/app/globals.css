@@ -683,7 +683,7 @@ html[lang^="ta"] .yn-hero-copy h1 { font-size: clamp(1.7rem, 3vw, 3rem); line-he
 .yn-footer-credit > strong { font-weight: 500; }
 .yn-footer-copyright { flex-basis: 100%; margin: 0; padding-top: 4px; color: var(--sand-300); font-size: 11px; line-height: 1.6; }
 @media (max-width: 359px) {
-  .yn-footer-credit[lang="ta"] { max-width: 38%; }
+  .yn-footer-credit[lang="ta"] { max-width: max(38%, 10em); }
 }
 @media (min-width: 768px) {
   .yn-footer-shell { padding: 24px 24px 12px; }
