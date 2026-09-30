@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import DiasporaHomeClient from '@/components/DiasporaHomeClient';
 
 export const metadata: Metadata = {
-  title: 'Manage Your Jaffna Home from Abroad',
-  description: 'Property care, rental management packages and enquiries for overseas owners of Jaffna homes and land.',
+  title: 'Jaffna Property Inspections & Independent Document Checks | Yaal Nilam',
+  description: 'Enquire about Jaffna property inspections, video walkthroughs, independent legal and survey checks, and property management for overseas owners.',
   alternates: { canonical: 'https://yaalnilam.com/diaspora/' },
 };
 

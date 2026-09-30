@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { AREAS as MOCK_AREAS } from "./data";
 import { DEVELOPMENT_PROPERTY_FIXTURES } from "./development-fixtures";
-import { PUBLIC_LISTING_STATUSES } from "./public-listings";
+import { isKnownSeedListing, isPublicListingRecord, PUBLIC_LISTING_STATUSES } from "./public-listings";
 import {
   buildSavedSearchLabel,
   filterListings,
@@ -27,6 +27,7 @@ import { sanitizeAnalyticsEventName, sanitizeAnalyticsParameters } from "./clien
 import { normalizePropertySlug, resolvePropertyId } from "./property-routes";
 import { canonicalizePhoneNumber, canonicalizeYouTubeUrl, listingBelongsToAgent } from "./agent-onboarding";
 import { BRAND } from "./brand";
+import { calculateLandBreakdown } from "./units";
 
 const FALLBACK_LISTINGS = DEVELOPMENT_PROPERTY_FIXTURES;
 const FALLBACK_AREAS = MOCK_AREAS.map((area) => normalizeArea(area));
@@ -193,6 +194,7 @@ export async function getProperties(filters = {}) {
     if (!snapshot) return filterListings(propertyCatalogCache, filters);
 
     const listings = snapshot.docs
+      .filter((item) => isPublicListingRecord(item.data()))
       .map((item) => normalizeListing({ id: item.id, ...item.data() }))
       .filter((listing) => listing.status !== "archived");
 
@@ -218,7 +220,7 @@ export async function getPropertyById(idOrSlug: string) {
     const docSnap = await safeDoc("listings", id);
     if (docSnap?.exists()) {
       const raw = docSnap.data();
-      if (!PUBLIC_LISTING_STATUSES.includes(raw.status)) return null;
+      if (!isPublicListingRecord(raw)) return null;
       return normalizeListing({ ...raw, id: docSnap.id });
     }
     // New slug URLs may be published after this static build. Resolve only from
@@ -230,6 +232,7 @@ export async function getPropertyById(idOrSlug: string) {
         query(collection(db, "listings"), where("status", "in", PUBLIC_LISTING_STATUSES))
       );
       const match = snapshot?.docs
+        .filter((item: any) => isPublicListingRecord(item.data()))
         .map((item: any) => normalizeListing({ ...item.data(), id: item.id }))
         .find((listing: any) => listing.slug === slug);
       if (match) return match;
@@ -684,6 +687,22 @@ export async function submitViewingRequest(data: {
   notes?: string;
   timezone?: string;
 }) {
+  // Fixture viewing tests are allowed only against an explicitly connected
+  // local emulator using a demo project, never a production Firebase project.
+  const isFixture = data.listing?.is_development_fixture === true ||
+    data.listing?.submission_source === "development_fixture";
+  if (isFixture) {
+    const [host, port] = (process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST || "").split(":");
+    const project = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
+    const connectedApp = db.app;
+    const localFixtureWrite = process.env.NODE_ENV === "development" && project.startsWith("demo-") &&
+      connectedApp?.options?.projectId === project && connectedApp?.__firestoreEmulatorConnected === true &&
+      ["localhost", "127.0.0.1"].includes(host) && Number.isInteger(Number(port)) && Number(port) > 0 && Number(port) <= 65535 &&
+      (typeof window === "undefined" || ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname));
+    if (!localFixtureWrite) return null;
+  } else if (isKnownSeedListing(data.listing)) {
+    return null;
+  }
   try {
     const docRef = await addDoc(collection(db, "viewing_requests"), {
       session_id: getClientSessionId(),
@@ -784,6 +803,46 @@ export async function submitListing(data: Record<string, any>) {
     if (!ownerPhone || !agentPhone || (data.videoUrl && !videoTourUrl)) {
       throw new Error("Listing contact or YouTube details are invalid.");
     }
+
+    const rawLandUnit = (data.landUnit || "perch").toString().toLowerCase();
+    const rawLandSize = Number(data.landSize || 0);
+    const rawPrice = Number(data.price || 0);
+    const landBreakdown = calculateLandBreakdown(rawLandSize, rawLandUnit as any, rawPrice);
+
+    const roadFrontageWidth = Number(data.roadFrontage || 0);
+    const roadFrontage = {
+      width_ft: roadFrontageWidth,
+      road_type: data.roadType || null,
+      access_type: data.roadAccessType || null,
+      notes: data.roadNotes || "",
+    };
+
+    const surveyPlan = {
+      plan_no: data.surveyPlanNo || "",
+      plan_date: data.surveyPlanDate || "",
+      surveyor_name: data.surveyorName || "",
+      surveyor_reg_no: data.surveyorRegNo || "",
+      court_approved: typeof data.courtApproved === "boolean" ? data.courtApproved : null,
+      notes: data.surveyNotes || "",
+    };
+
+    const waterSource = {
+      type: data.waterSource || null,
+      sweetness_index: data.waterSweetness || "not_tested",
+      well_available: typeof data.wellAvailable === "boolean" ? data.wellAvailable : null,
+      municipal_line_available: typeof data.municipalLineAvailable === "boolean" ? data.municipalLineAvailable : null,
+      notes: data.waterNotes || "",
+    };
+
+    const pathivagamStatus = {
+      deed_history_years: data.deedHistoryYears != null && data.deedHistoryYears !== "" && Number.isFinite(Number(data.deedHistoryYears)) && Number(data.deedHistoryYears) >= 0 ? Number(data.deedHistoryYears) : null,
+      extract_status: data.deedHistoryStatus || "not_checked",
+      land_registry_office: data.landRegistryOffice || null,
+      folio_checked: typeof data.folioChecked === "boolean" ? data.folioChecked : null,
+      encumbrance_free: typeof data.encumbranceFree === "boolean" ? data.encumbranceFree : null,
+      notes: data.deedNotes || "",
+    };
+
     const baseListing = {
       title: data.title,
       title_ta: data.title_ta || "",
@@ -793,12 +852,21 @@ export async function submitListing(data: Record<string, any>) {
       area_slug: data.area,
       address: data.address,
       address_ta: data.address_ta || "",
-      price: Number(data.price || 0),
+      price: rawPrice,
       bedrooms: Number(data.bedrooms || 0),
       bathrooms: Number(data.bathrooms || 0),
       sqft: Number(data.sqft || 0),
-      land_size_perches: Number(data.landSize || 0),
-      road_frontage_ft: Number(data.roadFrontage || 0),
+      land_unit: rawLandUnit,
+      land_size_perches: landBreakdown.perches,
+      land_size_lachams: landBreakdown.lachams,
+      price_per_perch: landBreakdown.pricePerPerch || 0,
+      price_per_lacham: landBreakdown.pricePerLacham || 0,
+      road_frontage_ft: roadFrontageWidth,
+      road_frontage: roadFrontage,
+      survey_plan: surveyPlan,
+      water_source: waterSource,
+      pathivagam_status: pathivagamStatus,
+      verification_tier: "tier3_basic_listed",
       property_type: data.propertyType,
       type: data.propertyType,
       intent: data.intent,
@@ -828,6 +896,10 @@ export async function submitListing(data: Record<string, any>) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+
+    if (data.boundaryCoordinates) {
+      baseListing.boundary_geojson = String(data.boundaryCoordinates);
+    }
 
     const submissionRef = doc(collection(db, "listing_submissions"));
     const inquiryRef = doc(collection(db, "inquiries"));

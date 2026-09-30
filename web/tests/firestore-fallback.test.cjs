@@ -352,7 +352,9 @@ test('seller submission atomically writes the live private-media and inquiry sch
   assert.equal(submission.verified, false);
   assert.deepEqual(Object.keys(submission).sort(), [
     'title', 'title_ta', 'description', 'description_ta', 'area', 'area_slug', 'address', 'address_ta',
-    'price', 'bedrooms', 'bathrooms', 'sqft', 'land_size_perches', 'road_frontage_ft', 'property_type',
+    'price', 'bedrooms', 'bathrooms', 'sqft', 'land_unit', 'land_size_perches', 'land_size_lachams',
+    'price_per_perch', 'price_per_lacham', 'road_frontage_ft', 'road_frontage', 'survey_plan', 'water_source',
+    'pathivagam_status', 'verification_tier', 'property_type',
     'type', 'intent', 'furnishing', 'parking', 'amenities', 'media_urls', 'images', 'photos', 'media_paths',
     'media_owner_id', 'video_tour_url', 'featured', 'verified', 'remote_purchase_support', 'status',
     'submission_source', 'owner_name', 'owner_phone', 'owner_email', 'submitter_uid', 'agent_id',

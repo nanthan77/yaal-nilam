@@ -20,24 +20,24 @@ export default function SafetyPage() {
     en: {
       title: 'Buyer Safety & Anti-Fraud Guide',
       home: 'Home',
-      updated: 'Last updated: August 1, 2026',
+      updated: 'Last updated: September 30, 2026',
       intro:
-        'Your security and peace of mind are our highest priority. This guide details essential safety precautions for land and property buyers in Jaffna and Sri Lanka’s Northern Province, helping you avoid scams and complete legally sound transactions.',
+        'Use this guide to prepare questions for the advertiser and independent professionals. Listing information is supplied by owners or agents; platform review does not establish the legal status of a property.',
       contactTitle: 'Need Assistance or Want to Report a Listing?',
       contactBody:
         'If you suspect a fraudulent listing, unauthorized seller, or suspicious pricing, please report it to our team immediately.',
-      officeHeader: 'Official Business Office in Jaffna',
+      officeHeader: 'Contact details in Jaffna',
     },
     ta: {
       title: 'வாங்குபவர் பாதுகாப்பு & மோசடி தடுப்பு வழிகாட்டி',
       home: 'முகப்பு',
-      updated: 'கடைசியாக புதுப்பிக்கப்பட்டது: ஆகஸ்ட் 1, 2026',
+      updated: 'கடைசியாக புதுப்பிக்கப்பட்டது: செப்டம்பர் 30, 2026',
       intro:
-        'உங்கள் பாதுகாப்பும் மனநிம்மதியும் எங்களின் முதன்மை முன்னுரிமையாகும். யாழ்ப்பாணம் மற்றும் வட இலங்கையில் நிலம் அல்லது சொத்து வாங்குபவர்கள் பாதுகாப்பாகவும் சட்டப்பூர்வமாகவும் பரிவர்த்தனைகளை முடிக்க உதவும் அத்தியாவசிய வழிகாட்டுதல்கள் இங்கே வழங்கப்பட்டுள்ளன.',
+        'விளம்பரதாரரிடமும் சுயாதீன நிபுணர்களிடமும் கேட்க வேண்டிய கேள்விகளைத் தயாரிக்க இந்த வழிகாட்டியைப் பயன்படுத்துங்கள். விவரங்கள் உரிமையாளர்கள் அல்லது முகவர்கள் மூலம் வழங்கப்படுகின்றன; தள மதிப்பாய்வு சொத்தின் சட்ட நிலையை உறுதிப்படுத்தாது.',
       contactTitle: 'உதவி தேவையா அல்லது சந்தேகத்திற்கிடமான சொத்தைப் புகாரளிக்க வேண்டுமா?',
       contactBody:
         'போலியான பட்டியல், உரிமையற்ற விற்பனையாளர் அல்லது சந்தேகத்திற்கிடமான கோரிக்கைகளை கண்டால் உடனடியாக எங்களை அணுகவும்.',
-      officeHeader: 'யாழ்ப்பாணத்தின் உத்தியோகபூர்வ அலுவலகம்',
+      officeHeader: 'யாழ்ப்பாணத்தில் தொடர்பு விவரங்கள்',
     },
   });
 
@@ -45,28 +45,28 @@ export default function SafetyPage() {
     en: [
       {
         iconName: 'FileCheck',
-        title: '1. Always Verify Title Deeds & Extract Search',
+        title: '1. Ask for independent document review',
         body: [
-          'Before making any financial commitment, ask an independent Sri Lankan lawyer or notary to confirm the title history and registry searches appropriate to the property and transaction.',
-          'Verify that the seller holds an unencumbered title deed (Deed of Transfer / Partition Decree / Grant) verified by a practicing Attorney-at-Law and Notary Public.',
+          'Ask an independent lawyer or notary to explain the ownership documents, registry records and checks relevant to the property.',
+          'Owner-supplied documents and a listing review do not establish ownership or legal eligibility on their own.',
         ],
         tips: [
-          'Obtain a fresh Extract Search from the Land Registry (Pathivagam)',
-          'Ensure there are no pending court disputes or caveats on the land',
-          'Verify boundary measurements with a licensed surveyor (Co-planar Survey)',
+          'Ask your adviser which registry records are needed',
+          'Ask about any unresolved disputes or restrictions',
+          'Ask a qualified surveyor to check boundary measurements',
         ],
       },
       {
         iconName: 'AlertTriangle',
-        title: '2. Never Wire Advance Payments Without Notarized Contract',
+        title: '2. Review terms before sending money',
         body: [
-          'Do not transfer advance money or advance deposits directly to unknown individuals, unverified intermediaries, or foreign bank accounts without a signed Sales Agreement drafted by your legal counsel.',
+          'Ask your independent adviser to review the transaction terms and payment details before you make a commitment.',
           'Do not let pressure to pay quickly prevent you from arranging independent advice and document checks.',
         ],
         tips: [
           'Avoid sellers demanding urgent cash advances before deed inspection',
-          'Always use bank transfers or bank drafts to keep a clear audit trail',
-          'Pay earnest money only under an executed Agreement to Sell & Purchase',
+          'Keep copies of written communications and payment records',
+          'Ask your adviser which payment arrangements suit the transaction',
         ],
       },
       {
@@ -89,28 +89,28 @@ export default function SafetyPage() {
     ta: [
       {
         iconName: 'FileCheck',
-        title: '1. எப்போதும் உறுதியுறுதி மற்றும் பத்திலைப் பரிசோதிக்கவும்',
+        title: '1. சுயாதீன ஆவண ஆய்வைக் கேளுங்கள்',
         body: [
-          'பணம் செலுத்தும் முன், சொத்திற்கும் பரிவர்த்தனைக்கும் பொருந்தும் உரிமை வரலாறு மற்றும் பதிவக தேடல்களை சுயாதீன சட்டத்தரணி அல்லது நோட்டரி மூலம் உறுதிப்படுத்தவும்.',
-          'விற்பனையாளரிடம் முழுமையான மற்றும் வில்லங்கமற்ற உறுதி உள்ளதா என்பதை வழக்கறிஞர் மூலம் உறுதிப்படுத்தவும்.',
+          'சொத்திற்குப் பொருந்தும் உரிமை ஆவணங்கள், பதிவக தகவல்கள் மற்றும் ஆய்வுகளை சுயாதீன சட்டத்தரணி அல்லது நோட்டரியிடம் விளக்கமாகக் கேளுங்கள்.',
+          'உரிமையாளர் வழங்கும் ஆவணங்களும் தள மதிப்பாய்வும் மட்டும் உரிமை அல்லது சட்டத் தகுதியை உறுதிப்படுத்தாது.',
         ],
         tips: [
-          'காணிப் பதிவகத்திலிருந்து (பதிவகம்) புதிய பத்திலைப் பதிவைப் பெறுங்கள்',
-          'நிலத்தின் மீது நிலுவையில் உள்ள நீதிமன்ற வழக்குகள் இல்லை என்பதை உறுதிப்படுத்துங்கள்',
-          'அனுமதி பெற்ற நில அளவையாளர் மூலம் எல்லைகளை அளந்து சரிபாருங்கள்',
+          'தேவையான பதிவக தகவல்களை உங்கள் ஆலோசகரிடம் கேளுங்கள்',
+          'தீர்க்கப்படாத சர்ச்சைகள் அல்லது கட்டுப்பாடுகள் உள்ளனவா என்று கேளுங்கள்',
+          'தகுதியான நில அளவையாளரிடம் எல்லை அளவுகளைச் சரிபார்க்கக் கேளுங்கள்',
         ],
       },
       {
         iconName: 'AlertTriangle',
-        title: '2. சட்ட ஒப்பந்தமின்றி முன்பணம் அனுப்ப வேண்டாம்',
+        title: '2. பணம் அனுப்பும் முன் நிபந்தனைகளை ஆய்வு செய்யுங்கள்',
         body: [
-          'உங்கள் சட்டத்தரணியால் தயாரிக்கப்பட்ட விற்பனை ஒப்பந்தமின்றி முன்பணத்தை முன்பின் தெரியாத நபர்களுக்கோ அல்லது வெளிநாட்டு வங்கிக் கணக்குகளுக்கோ நேரடியாக அனுப்ப வேண்டாம்.',
+          'முடிவு எடுக்கும் முன் பரிவர்த்தனை நிபந்தனைகளையும் பணம் செலுத்தும் விவரங்களையும் சுயாதீன ஆலோசகரிடம் ஆய்வு செய்யக் கேளுங்கள்.',
           'அவசரமாகப் பணம் செலுத்தும்படி அழுத்தம் வந்தாலும் சுயாதீன ஆலோசனை மற்றும் ஆவண ஆய்வைத் தவிர்க்க வேண்டாம்.',
         ],
         tips: [
           'உறுதியைப் பார்ப்பதற்கு முன் அவசரமாக பணத்தைக் கோருபவர்களைத் தவிருங்கள்',
-          'எப்போதும் வங்கிப் பரிமாற்றங்கள் அல்லது வங்கி வரைவோலைகளைப் பயன்படுத்துங்கள்',
-          'முறையான விற்பனை ஒப்பந்தத்தின் கீழ் மட்டுமே முன்பணம் வழங்குங்கள்',
+          'எழுத்து மூலமான தொடர்புகளையும் பணம் செலுத்திய பதிவுகளையும் சேமியுங்கள்',
+          'பொருத்தமான பணம் செலுத்தும் ஏற்பாடுகளை உங்கள் ஆலோசகரிடம் கேளுங்கள்',
         ],
       },
       {
@@ -182,8 +182,9 @@ export default function SafetyPage() {
             <h2 className="text-2xl font-bold text-amber-400">{copy.contactTitle}</h2>
             <p className="text-slate-300">{copy.contactBody}</p>
             <div lang="en" className="pt-4 border-t border-slate-800 space-y-2 text-sm">
-              <p className="font-bold text-white text-base">Yaal Nilam Support</p>
-              <p className="text-sand-200">Direct Helpline / WhatsApp: <a href={`https://wa.me/${BRAND.whatsappDigits}`} className="text-amber-400 font-bold hover:underline">{BRAND.whatsappDisplay}</a></p>
+              <p className="text-sand-200">Customer Helpline: <a href={BRAND.phoneTel} className="text-amber-400 font-bold hover:underline">{BRAND.phoneDisplay}</a></p>
+              <p className="text-sand-200">Human WhatsApp Support: <a href={BRAND.supportWhatsappUrl} className="text-amber-400 font-bold hover:underline">{BRAND.supportWhatsappDisplay}</a></p>
+              <p className="text-sand-200">24/7 AI Property Assistant: <a href={BRAND.botWhatsappUrl} className="text-emerald-400 font-bold hover:underline">{BRAND.botWhatsappDisplay}</a></p>
               <p className="text-sand-200">Email: <a href="mailto:info@yaalnilam.com" className="text-amber-400 font-bold hover:underline">info@yaalnilam.com</a></p>
               <div className="pt-2 flex items-start gap-2 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-1" />

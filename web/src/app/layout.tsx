@@ -83,7 +83,7 @@ const jsonLd = {
         address: { '@type': 'PostalAddress', addressRegion: 'Northern Province', addressCountry: 'LK' },
       },
       contactPoint: [
-        { '@type': 'ContactPoint', telephone: '+94-71-099-5343', email: 'info@yaalnilam.lk', contactType: 'sales', availableLanguage: ['English', 'Tamil'] },
+        { '@type': 'ContactPoint', telephone: '+94-70-484-6555', email: 'info@yaalnilam.com', contactType: 'customer support', availableLanguage: ['English', 'Tamil'] },
       ],
       knowsLanguage: ['en', 'ta'],
     },

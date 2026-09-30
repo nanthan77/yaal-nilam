@@ -216,6 +216,15 @@
           "headers": [
             {
               "key": "Cache-Control",
+              "value": "public, max-age=3600, must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/_next/static/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
               "value": "public, max-age=31536000, immutable"
             }
           ]
@@ -293,7 +302,34 @@
           ]
         },
         {
-          "source": "/@(dashboard|login|register|add-listing|properties/view|agents/view|property/view|preview)/**",
+          "source": "/@(dashboard|login|register|add-listing|list-property|request-property|preview)",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/@(dashboard|login|register|add-listing|list-property|request-property|preview)/**",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/@(properties|agents|property)/view",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/@(properties|agents|property)/view/**",
           "headers": [
             {
               "key": "X-Robots-Tag",
@@ -301,6 +337,9 @@
             }
           ]
         }
+      ],
+      "predeploy": [
+        "node scripts/release-web.mjs --check-prepared"
       ]
     },
     {

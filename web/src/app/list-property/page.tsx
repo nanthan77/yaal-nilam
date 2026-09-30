@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { Check, ChevronRight, MessageCircle, UploadCloud, User, Phone, Mail, Home, MapPin, DollarSign, Bed, Bath, Car, Layers, Ruler, FileText, Tag, Sparkles } from 'lucide-react';
+import { Check, ChevronRight, MessageCircle, UploadCloud, User, Phone, Mail, Home, MapPin, DollarSign, Bed, Bath, Car, Layers, Ruler, FileText, Tag, Sparkles, ShieldCheck, Compass } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import { fileToWebp } from '@/lib/imageToWebp';
 import { buildSubmissionAttribution, canonicalizePhoneNumber, canonicalizeYouTubeUrl, type RestoredPublicProfile } from '@/lib/agent-onboarding';
@@ -12,6 +12,9 @@ import { useStore } from '@/lib/store';
 import { buildWhatsAppUrl } from '@/lib/marketplace';
 import { localize } from '@/lib/translations';
 import { BRAND } from '@/lib/brand';
+import { calculateLandBreakdown, type LandUnit } from '@/lib/units';
+import { parseGeoJsonPolygon, calculateBoundaryMetrics, assessFloodAndSoilZone } from '@/lib/geospatial';
+import { getLocationBySlug } from '@/lib/locations';
 
 // Keep the current live seller form’s district and town choices.
 const areaGroups = [
@@ -110,8 +113,16 @@ const INITIAL_LISTING_FORM = {
   bedrooms: '',
   bathrooms: '',
   landSize: '',
+  landUnit: 'perch' as LandUnit,
   sqft: '',
   roadFrontage: '',
+  roadType: '',
+  waterSource: '',
+  waterSweetness: 'not_tested',
+  surveyPlanDate: '',
+  surveyorRegNo: '',
+  deedHistoryStatus: 'not_checked',
+  boundaryCoordinates: '',
   parking: '',
   furnishing: '',
   description: '',
@@ -139,6 +150,26 @@ export default function ListPropertyPage() {
     amenities: [...INITIAL_LISTING_FORM.amenities],
   }));
 
+  const parsedBoundaryPolygon = useMemo(
+    () => parseGeoJsonPolygon(formData.boundaryCoordinates),
+    [formData.boundaryCoordinates]
+  );
+
+  const boundaryMetrics = useMemo(
+    () => (parsedBoundaryPolygon ? calculateBoundaryMetrics(parsedBoundaryPolygon.coordinates[0]) : null),
+    [parsedBoundaryPolygon]
+  );
+
+  const areaLocation = useMemo(
+    () => getLocationBySlug(formData.area),
+    [formData.area]
+  );
+
+  const areaFloodAssessment = useMemo(
+    () => assessFloodAndSoilZone(areaLocation?.lat || 9.6615, areaLocation?.lng || 80.0255, formData.area),
+    [areaLocation, formData.area]
+  );
+
   const copy = localize(locale, {
     en: {
       title: 'List Your Property',
@@ -154,7 +185,7 @@ export default function ListPropertyPage() {
       propertyTitle: 'Property title',
       address: 'Full address',
       price: 'Price (LKR)',
-      landSize: 'Land Size (Perches)',
+      landSize: 'Land size',
       bedrooms: 'Bedrooms',
       bathrooms: 'Bathrooms',
       sqft: 'Square Feet',
@@ -205,7 +236,7 @@ export default function ListPropertyPage() {
       propertyTitle: 'சொத்து தலைப்பு',
       address: 'முழு முகவரி',
       price: 'விலை (LKR)',
-      landSize: 'காணி அளவு (பேர்ச்)',
+      landSize: 'காணி அளவு',
       bedrooms: 'படுக்கையறைகள்',
       bathrooms: 'குளியலறைகள்',
       sqft: 'சதுர அடி',
@@ -372,7 +403,7 @@ export default function ListPropertyPage() {
     const propertyType = labelFor(propertyTypes, formData.propertyType) || 'Property';
     const intent = labelFor(intents, formData.intent) || 'For Sale';
     const details = [
-      formData.landSize ? `${formData.landSize} perches` : '',
+      formData.landSize ? calculateLandBreakdown(Number(formData.landSize), formData.landUnit).formatted[locale === 'ta' ? 'ta' : 'en'] : '',
       formData.bedrooms ? `${formData.bedrooms} bedrooms` : '',
       formData.bathrooms ? `${formData.bathrooms} bathrooms` : '',
       formData.roadFrontage ? `${formData.roadFrontage} ft road frontage` : '',
@@ -779,28 +810,30 @@ export default function ListPropertyPage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      <div>
+                      <div className="col-span-2 sm:col-span-1">
                         <label htmlFor="landSize" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.landSize}</label>
                         <div className="input-container-icon">
                           <Layers className="input-icon" />
-                          <input id="landSize" name="landSize" type="number" value={formData.landSize} onChange={handleChange} className="input-field input-field-icon w-full" />
+                          <input id="landSize" name="landSize" type="number" step="any" value={formData.landSize} onChange={handleChange} placeholder="e.g. 15" className="input-field input-field-icon w-full" />
                         </div>
                       </div>
-                      <div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <label htmlFor="landUnit" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{locale === 'ta' ? 'காணி அலகு' : 'Land unit'}</label>
+                        <select id="landUnit" name="landUnit" value={formData.landUnit} onChange={handleChange} className="select-field w-full">
+                          <option value="perch">{locale === 'ta' ? 'பேர்ச் (Perch)' : 'Perches (Standard)'}</option>
+                          <option value="lacham">{locale === 'ta' ? 'லச்சம் / பரப்பு (16 பேர்ச்)' : 'Lachams (16 Perches)'}</option>
+                          <option value="acre">{locale === 'ta' ? 'ஏக்கர் (Acre - 160 பேர்ச்)' : 'Acres (160 Perches)'}</option>
+                          <option value="sqft">{locale === 'ta' ? 'சதுர அடி (Sq Ft)' : 'Square Feet'}</option>
+                        </select>
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
                         <label htmlFor="sqft" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.sqft}</label>
                         <div className="input-container-icon">
                           <Ruler className="input-icon" />
                           <input id="sqft" name="sqft" type="number" value={formData.sqft} onChange={handleChange} className="input-field input-field-icon w-full" />
                         </div>
                       </div>
-                      <div>
-                        <label htmlFor="roadFrontage" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.roadFrontage}</label>
-                        <div className="input-container-icon">
-                          <Ruler className="input-icon" />
-                          <input id="roadFrontage" name="roadFrontage" type="number" value={formData.roadFrontage} onChange={handleChange} className="input-field input-field-icon w-full" />
-                        </div>
-                      </div>
-                      <div>
+                      <div className="col-span-2 sm:col-span-1">
                         <label htmlFor="furnishing" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">{copy.furnishing}</label>
                         <div className="input-container-icon">
                           <Home className="input-icon" />
@@ -812,6 +845,173 @@ export default function ListPropertyPage() {
                           </select>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Live Land Unit & Rate Calculation Preview */}
+                    {Number(formData.landSize) > 0 && (
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-xs text-amber-950 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-bold text-amber-900">{locale === 'ta' ? '📐 தானியங்கி அலகு மாற்றம் (Auto-Conversion):' : '📐 Northern Land Unit Breakdown:'}</p>
+                          <p className="mt-1 font-semibold text-charcoal-800">
+                            {calculateLandBreakdown(Number(formData.landSize), formData.landUnit, Number(formData.price)).formatted[locale === 'ta' ? 'ta' : 'en']}
+                          </p>
+                        </div>
+                        {Number(formData.price) > 0 && (
+                          <div className="text-right">
+                            <p className="font-bold text-amber-900">{locale === 'ta' ? 'விலை விகிதம்:' : 'Estimated Unit Rates:'}</p>
+                            <p className="mt-1 font-semibold text-charcoal-800">
+                              {calculateLandBreakdown(Number(formData.landSize), formData.landUnit, Number(formData.price)).formatted[locale === 'ta' ? 'pricePerUnitTa' : 'pricePerUnitEn']}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Pillar 1: Due-Diligence & Title Clarity Intake */}
+                    <div className="rounded-3xl border border-sand-250 bg-sand-50/60 p-6 space-y-5">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-5 h-5 text-teal-700" />
+                        <h3 className="text-base font-bold text-charcoal-900">
+                          {locale === 'ta' ? 'சரிபார்ப்பு & உரிமை ஆவண விவரங்கள் (Due-Diligence)' : 'Due-Diligence & Verification Metadata'}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-charcoal-600">
+                        {locale === 'ta'
+                          ? 'வீதி முகப்பு, காணிப் பதிவக (Pathivagam) 30 வருட வரலாறு, அளவை படம் மற்றும் நீர் வசதி பற்றிய தகவல்கள்.'
+                          : 'Provide road frontage width, 30-year Land Registry (Pathivagam) status, surveyor registration, and water source index.'}
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label htmlFor="roadFrontage" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                            {locale === 'ta' ? 'வீதி முகப்பு அகலம் (அடி)' : 'Road frontage width (ft)'}
+                          </label>
+                          <input id="roadFrontage" name="roadFrontage" type="number" placeholder="e.g. 16" value={formData.roadFrontage} onChange={handleChange} className="input-field w-full" />
+                        </div>
+                        <div>
+                          <label htmlFor="roadType" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                            {locale === 'ta' ? 'வீதி வகை (Road surface)' : 'Road surface type'}
+                          </label>
+                          <select id="roadType" name="roadType" value={formData.roadType} onChange={handleChange} className="select-field w-full">
+                            <option value="">{locale === 'ta' ? 'குறிப்பிடப்படவில்லை' : 'Not specified'}</option>
+                            <option value="tarred">{locale === 'ta' ? 'தார் வீதி (Tarred road)' : 'Tarred road'}</option>
+                            <option value="concrete">{locale === 'ta' ? 'கொன்கிரீட் வீதி (Concrete)' : 'Concrete road'}</option>
+                            <option value="gravel">{locale === 'ta' ? 'சரளை வீதி (Gravel)' : 'Gravel road'}</option>
+                            <option value="pradeshiya_sabha_paved">{locale === 'ta' ? 'பிரதேச சபை நடைபாதை (Paved)' : 'Pradeshiya Sabha paved'}</option>
+                            <option value="dirt">{locale === 'ta' ? 'மண் வீதி (Dirt track)' : 'Dirt track'}</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label htmlFor="waterSource" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                            {locale === 'ta' ? 'நீர் ஆதாரம் & தரம்' : 'Water source & quality'}
+                          </label>
+                          <select id="waterSource" name="waterSource" value={formData.waterSource} onChange={handleChange} className="select-field w-full">
+                            <option value="">{locale === 'ta' ? 'குறிப்பிடப்படவில்லை' : 'Not specified'}</option>
+                            <option value="sweet_well">{locale === 'ta' ? 'நன்னீர் கிணறு (Sweet well water)' : 'Sweet well water (நன்னீர்)'}</option>
+                            <option value="brackish_well">{locale === 'ta' ? 'மிதமான/உவர் கிணற்று நீர்' : 'Moderate/brackish well water'}</option>
+                            <option value="municipal_nwsdb">{locale === 'ta' ? 'தேசிய நீர் வழங்கல் (NWSDB municipal line)' : 'NWSDB municipal line'}</option>
+                            <option value="tube_well">{locale === 'ta' ? 'ஆழ்குழாய் கிணறு (Tube well)' : 'Tube well'}</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="deedHistoryStatus" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                            {locale === 'ta' ? 'காணிப் பதிவக (Pathivagam) 30 வருட வரலாறு' : 'Land Registry (Pathivagam) 30-Yr Status'}
+                          </label>
+                          <select id="deedHistoryStatus" name="deedHistoryStatus" value={formData.deedHistoryStatus} onChange={handleChange} className="select-field w-full">
+                            <option value="not_checked">{locale === 'ta' ? 'சரிபார்க்கப்படவில்லை' : 'Not checked'}</option>
+                            <option value="verified_30_years">{locale === 'ta' ? 'உரிமையாளர் குறிப்பிட்ட 30 வருட ஆய்வு' : 'Owner reports a 30-year review'}</option>
+                            <option value="verified_10_years">{locale === 'ta' ? 'உரிமையாளர் குறிப்பிட்ட 10 வருட ஆய்வு' : 'Owner reports a 10-year review'}</option>
+                            <option value="pending">{locale === 'ta' ? 'பதிவக ஆய்வு நிலுவையில் (Pending inspection)' : 'Pending Land Registry verification'}</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label htmlFor="surveyorRegNo" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                            {locale === 'ta' ? 'அளவையாளர் பதிவெண் (Surveyor Reg #)' : 'Licensed Surveyor Registration #'}
+                          </label>
+                          <input id="surveyorRegNo" name="surveyorRegNo" type="text" placeholder="e.g. LS/2018/492" value={formData.surveyorRegNo} onChange={handleChange} className="input-field w-full" />
+                        </div>
+                        <div>
+                          <label htmlFor="surveyPlanDate" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                            {locale === 'ta' ? 'அளவைத் திட்ட திகதி (Survey Plan Date)' : 'Survey Plan Date'}
+                          </label>
+                          <input id="surveyPlanDate" name="surveyPlanDate" type="date" value={formData.surveyPlanDate} onChange={handleChange} className="input-field w-full" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pillar 2: Geospatial Boundary & Surveyor Coordinate Intake */}
+                    <div className="rounded-3xl border border-sand-250 bg-sand-50/60 p-6 space-y-5">
+                      <div className="flex items-center gap-2">
+                        <Compass className="w-5 h-5 text-teal-700" />
+                        <h3 className="text-base font-bold text-charcoal-900">
+                          {locale === 'ta' ? 'காணி எல்லை வரைபடம் & அளவை ஒருங்கிணைப்புகள் (Pillar 2: Boundary Polygon)' : 'Boundary Polygon & Surveyor Coordinates'}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-charcoal-600">
+                        {locale === 'ta'
+                          ? 'நில அளவையாளர் (Licensed Surveyor) வரைபட ஆயத்தொலைவுகள் அல்லது GPS புள்ளிகளை (GeoJSON format) உள்ளிடுங்கள்.'
+                          : 'Licensed surveyor GPS boundary points or GeoJSON polygon coordinates to render exact land shape.'}
+                      </p>
+
+                      <div>
+                        <label htmlFor="boundaryCoordinates" className="block text-xs font-black uppercase tracking-wider text-teal-905 mb-2">
+                          {locale === 'ta' ? 'எல்லை ஆயத்தொலைவுகள் (GPS / GeoJSON Coordinates)' : 'Boundary Coordinates (GeoJSON / GPS Points)'}
+                        </label>
+                        <textarea
+                          id="boundaryCoordinates"
+                          name="boundaryCoordinates"
+                          rows={3}
+                          value={formData.boundaryCoordinates}
+                          onChange={handleChange}
+                          placeholder="e.g. [[80.0291, 9.6741], [80.0298, 9.6741], [80.0298, 9.6746], [80.0291, 9.6746]]"
+                          className="input-field w-full font-mono text-xs"
+                        />
+                      </div>
+
+                      {/* Real-time Boundary Enclosed Area & Perimeter Preview */}
+                      {parsedBoundaryPolygon && boundaryMetrics && (
+                        <div className="rounded-2xl border border-teal-300 bg-teal-50/70 p-4 text-xs text-teal-950 flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <p className="font-bold text-teal-900">
+                              {locale === 'ta' ? '📐 கணக்கிடப்பட்ட எல்லை அளவு (Enclosed Polygon Area):' : '📐 Enclosed Boundary Metrics:'}
+                            </p>
+                            <p className="mt-1 font-semibold text-charcoal-800">
+                              {boundaryMetrics.perches} Perches ({boundaryMetrics.lachams} லச்சம்) • {boundaryMetrics.areaSqFt.toLocaleString()} sq ft
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-bold text-teal-900">
+                              {locale === 'ta' ? 'சுற்றளவு (Perimeter):' : 'Perimeter:'}
+                            </p>
+                            <p className="mt-1 font-semibold text-charcoal-800">
+                              {boundaryMetrics.perimeterFeet} ft ({boundaryMetrics.perimeterMeters} m)
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Real-time Topographical & Environmental Risk Preview for selected Area */}
+                      {formData.area && areaFloodAssessment && (
+                        <div className="rounded-2xl border border-sand-300 bg-white p-4 text-xs space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-charcoal-900">
+                              {locale === 'ta' ? 'பகுதி இடவியல் & நீர்வள மதிப்பீடு:' : 'Topographical & Aquifer Assessment:'}
+                            </span>
+                            <span className={`font-bold px-2 py-0.5 rounded text-[11px] ${areaFloodAssessment.risk_level === 'safe' ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'}`}>
+                              {locale === 'ta' ? areaFloodAssessment.badge_label_ta : areaFloodAssessment.badge_label_en}
+                            </span>
+                          </div>
+                          <p className="text-charcoal-600 leading-relaxed">
+                            {locale === 'ta' ? areaFloodAssessment.advisory_ta : areaFloodAssessment.advisory_en}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div>

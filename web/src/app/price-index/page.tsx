@@ -1,27 +1,52 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ALL_LOCATIONS } from "@/lib/locations";
 import { useStore } from "@/lib/store";
 import { formatCompactPrice } from "@/lib/translations";
+import { getProperties } from "@/lib/firestore";
 
 export default function PriceIndexPage() {
   const { locale } = useStore();
   const ta = locale === "ta";
   const [sort, setSort] = useState<"price" | "name">("price");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [askingPrices, setAskingPrices] = useState<Record<string, number[]>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    getProperties()
+      .then((properties) => {
+        if (cancelled) return;
+        const prices: Record<string, number[]> = {};
+        properties.forEach((p) => {
+          const areaKey = p.area_slug;
+          if (areaKey && p.price > 0 && p.intent === "sell") {
+            (prices[areaKey] ||= []).push(p.price);
+          }
+        });
+        setAskingPrices(prices);
+        setStatus("ready");
+      })
+      .catch(() => { if (!cancelled) setStatus("error"); });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const rows = useMemo(() => {
-    const base = ALL_LOCATIONS.map((l: any) => {
-      const min = Number(l?.priceRange?.min) || 0;
-      const max = Number(l?.priceRange?.max) || min;
+    const base = ALL_LOCATIONS.map((l) => {
+      const prices = askingPrices[l.slug] || [];
+      const min = prices.length ? Math.min(...prices) : 0;
+      const max = prices.length ? Math.max(...prices) : 0;
       return {
         slug: l.slug as string,
         name: (ta ? l.name_ta || l.name : l.name) as string,
         min,
         max,
-        avg: Math.round((min + max) / 2),
-        count: Number(l?.properties_count) || 0,
+        avg: prices.length ? Math.round(prices.reduce((sum, price) => sum + price, 0) / prices.length) : 0,
+        count: prices.length,
       };
     }).filter((d) => d.avg > 0);
 
@@ -29,7 +54,7 @@ export default function PriceIndexPage() {
     const withPct = base.map((d) => ({ ...d, pct: Math.max(6, Math.round((d.avg / maxAvg) * 100)) }));
     withPct.sort((a, b) => (sort === "price" ? b.avg - a.avg : a.name.localeCompare(b.name)));
     return withPct;
-  }, [ta, sort]);
+  }, [ta, sort, askingPrices]);
 
   return (
     <div className="min-h-screen bg-sand-50">
@@ -39,12 +64,12 @@ export default function PriceIndexPage() {
             {ta ? "சந்தை வழிகாட்டி" : "Market guide"}
           </p>
           <h1 className="text-3xl md:text-5xl font-black leading-tight">
-            {ta ? "யாழ்ப்பாண சொத்து விலைச் சுட்டெண்" : "Jaffna House Price Index"}
+            {ta ? "யாழ்ப்பாண சொத்து கேட்கும் விலைகள்" : "Jaffna property asking prices"}
           </h1>
           <p className="text-white/70 mt-3 max-w-2xl">
             {ta
-              ? "யாழ்ப்பாண குடாநாட்டின் பகுதிகளில் சராசரி சொத்து விலைகள். வாங்குபவர்கள் மற்றும் முதலீட்டாளர்களுக்கான வழிகாட்டி."
-              : "Average property prices across Jaffna Peninsula areas — a quick guide for buyers and investors. Tap any area for its full guide and listings."}
+              ? "தற்போதைய விற்பனைப் பட்டியல்களில் வழங்கப்பட்ட விலைகளின் பகுதி வாரியான தொகுப்பு. சொத்து வகையும் நிலையும் விலையைப் பாதிக்கின்றன."
+              : "Asking prices from current public sale listings, grouped by area. Property type, size and condition affect each price. Select an area to explore its listings."}
           </p>
         </div>
       </section>
@@ -54,15 +79,20 @@ export default function PriceIndexPage() {
           <p className="text-sm text-charcoal-500">{rows.length} {ta ? "பகுதிகள்" : "areas"}</p>
           <div className="flex items-center gap-2 text-xs font-semibold">
             <span className="text-charcoal-500">{ta ? "வரிசை:" : "Sort:"}</span>
-            <button onClick={() => setSort("price")} className={`px-3 py-1.5 rounded-lg transition ${sort === "price" ? "bg-teal-700 text-white" : "bg-white border border-sand-200 text-charcoal-600"}`}>
+            <button onClick={() => setSort("price")} className={`min-h-11 px-3 py-1.5 rounded-lg transition ${sort === "price" ? "bg-teal-700 text-white" : "bg-white border border-sand-200 text-charcoal-600"}`}>
               {ta ? "விலை" : "Price"}
             </button>
-            <button onClick={() => setSort("name")} className={`px-3 py-1.5 rounded-lg transition ${sort === "name" ? "bg-teal-700 text-white" : "bg-white border border-sand-200 text-charcoal-600"}`}>
+            <button onClick={() => setSort("name")} className={`min-h-11 px-3 py-1.5 rounded-lg transition ${sort === "name" ? "bg-teal-700 text-white" : "bg-white border border-sand-200 text-charcoal-600"}`}>
               {ta ? "பெயர்" : "Name"}
             </button>
           </div>
         </div>
 
+        {rows.length === 0 && <p role="status" className="rounded-2xl border border-sand-200 bg-white p-6 text-charcoal-600">{status === "loading"
+          ? (ta ? "விலைத் தகவல் ஏற்றப்படுகிறது…" : "Loading asking prices…")
+          : status === "error"
+            ? (ta ? "விலைத் தகவலை ஏற்ற முடியவில்லை. பின்னர் மீண்டும் பார்க்கவும்." : "Asking prices could not be loaded. Please check again later.")
+            : (ta ? "தற்போதைய பட்டியல்கள் இல்லாததால் விலைத் தகவல் கிடைக்கவில்லை." : "There are no current listings to calculate asking prices from.")}</p>}
         <div className="space-y-3">
           {rows.map((d) => (
             <Link
@@ -87,8 +117,8 @@ export default function PriceIndexPage() {
 
         <p className="text-xs text-charcoal-400 mt-8">
           {ta
-            ? "* சராசரி மதிப்பீடுகள் வழிகாட்டுதலுக்காக மட்டுமே; உண்மையான விலைகள் சொத்து மற்றும் இருப்பிடத்தைப் பொறுத்து மாறும்."
-            : "* Averages are indicative only; actual prices vary by property, condition and exact location."}
+            ? "* இவை பட்டியல் வழங்குநர்கள் கேட்கும் விலைகள். வாங்கும் முன் தனியான தொழில்முறை மதிப்பீட்டைப் பெறுங்கள்."
+            : "* Figures describe listing providers’ asking prices. Obtain an independent professional valuation before a purchase."}
         </p>
       </div>
     </div>

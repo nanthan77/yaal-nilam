@@ -21,7 +21,7 @@ const ROUTES = [
 
 async function openEnglishHome(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta');
+  await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta', { timeout: 15000 });
   await page.getByRole('button', { name: 'Switch to English' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
 }
@@ -42,15 +42,15 @@ test.describe('Driver — Navigation & Core Functions', () => {
     for (const intent of ['Buy', 'Rent', 'Short stay']) {
       await expect(page.getByRole('button', { name: intent, exact: true })).toBeVisible();
     }
-    await expect(page.getByText('Illustrative image', { exact: true })).toBeVisible();
-    await expect(page.getByRole('img', { name: 'Illustration of a Jaffna style house, not a property listing' })).toBeVisible();
+    await expect(page.getByText('Illustration · not a listing photo', { exact: true })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Illustration of a Jaffna-style home; not a property listing' })).toBeVisible();
   });
 
   test('homepage search fields have accessible labels and property types', async ({ page }) => {
     await openEnglishHome(page);
-    await expect(page.getByRole('searchbox', { name: 'Search by keyword' })).toBeVisible();
-    await expect(page.getByRole('combobox', { name: 'Where?' })).toBeVisible();
-    const propertyType = page.getByRole('combobox', { name: 'What kind?' });
+    await expect(page.getByRole('searchbox', { name: 'Keyword' })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Location' })).toBeVisible();
+    const propertyType = page.getByRole('combobox', { name: 'Property type' });
     for (const type of ['house', 'apartment', 'villa', 'land', 'commercial']) {
       await propertyType.selectOption(type);
       await expect(propertyType).toHaveValue(type);
@@ -62,12 +62,12 @@ test.describe('Driver — Navigation & Core Functions', () => {
       test(`homepage ${label} search via ${submission} preserves filters`, async ({ page }) => {
         await openEnglishHome(page);
         await page.getByRole('button', { name: label, exact: true }).click();
-        await page.getByRole('combobox', { name: 'Where?' }).selectOption('nallur');
-        await page.getByRole('combobox', { name: 'What kind?' }).selectOption('house');
-        const keyword = page.getByRole('searchbox', { name: 'Search by keyword' });
+        await page.getByRole('combobox', { name: 'Location' }).selectOption('nallur');
+        await page.getByRole('combobox', { name: 'Property type' }).selectOption('house');
+        const keyword = page.getByRole('searchbox', { name: 'Keyword' });
         await keyword.fill('  Nallur & temple  ');
         if (submission === 'Enter') await keyword.press('Enter');
-        else await page.getByRole('button', { name: 'Find properties', exact: true }).click();
+        else await page.getByRole('button', { name: 'Search', exact: true }).click();
         await expect(page).toHaveURL(/\/properties\/?\?/);
         const params = new URL(page.url()).searchParams;
         expect(Object.fromEntries(params)).toEqual({ intent, area: 'nallur', type: 'house', q: 'Nallur & temple' });
@@ -82,7 +82,7 @@ test.describe('Driver — Navigation & Core Functions', () => {
   test('featured section shows real links or an honest empty state', async ({ page }) => {
     await openEnglishHome(page);
     const featured = page.locator('#featured');
-    await expect.poll(async () => (await featured.locator('.yn-listing-card').count()) > 0 || await featured.getByText('No properties are available right now.', { exact: false }).isVisible(), { timeout: 15000 }).toBeTruthy();
+    await expect.poll(async () => (await featured.locator('.yn-listing-card').count()) > 0 || await featured.getByText('There are no current listings to show.', { exact: false }).isVisible(), { timeout: 15000 }).toBeTruthy();
     for (const link of await featured.locator('.yn-listing-card h3 a').all()) {
       await expect(link).toHaveAttribute('href', /^\/properties\/[^/]+\/$/);
     }
@@ -124,7 +124,7 @@ test.describe('Driver — Navigation & Core Functions', () => {
     await expect(panel).toBeHidden();
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const areaLinks = page.locator('.yn-area-card');
+    const areaLinks = page.locator('.yn-neighbourhood');
     await expect(areaLinks.first()).toBeVisible();
     await areaLinks.first().click();
     await expect(page).toHaveURL(/\/areas\/[^/?]+\/?(?:\?|$)/);
@@ -143,14 +143,16 @@ test.describe('Driver — Navigation & Core Functions', () => {
 
   test('Tamil is default and English preference persists after reload', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta', { timeout: 15000 });
     await expect(page.locator('html')).toHaveAttribute('lang', 'ta-LK');
-    await expect(page.getByRole('button', { name: 'சொத்துகளைத் தேடுங்கள்', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'தேடுங்கள்', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Switch to English' }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-LK');
-    await expect(page.getByRole('button', { name: 'Find properties', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'தமிழுக்கு மாற்றவும்' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta', { timeout: 15000 });
     await expect(page.locator('html')).toHaveAttribute('lang', 'ta-LK');
   });
 
@@ -262,13 +264,14 @@ test.describe('♿ Accessibility Observer', () => {
   test('touch targets ≥ 44px on mobile', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'mobile only');
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta', { timeout: 15000 });
     const buttons = await page.getByRole('button').all();
     let small = 0;
     for (const b of buttons.slice(0, 15)) {
       const box = await b.boundingBox();
       if (box && (box.width < 44 || box.height < 44)) small++;
     }
-    console.log(`[A11Y-MOBILE] Small touch targets: ${small}`);
+    expect(small, 'Visible homepage buttons must provide 44px touch targets').toBe(0);
   });
 });
 
@@ -335,20 +338,23 @@ test.describe('🤠 Quinn — Adversarial Exploration', () => {
 
   test('rapid nav back/forward stable', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-locale', 'ta', { timeout: 15000 });
     await page.goto('/properties/', { waitUntil: 'domcontentloaded' });
-    await page.goBack();
-    await page.goForward();
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator('#property-search')).toBeVisible();
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator('#yn-search-keyword')).toBeVisible();
+    await page.goForward({ waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/properties\/$/);
+    await expect(page.locator('#property-search')).toBeVisible();
   });
 
-  test('direct-access property detail route preserves inquiry actions', async ({ page, isMobile }) => {
-    const resp = await page.goto('/properties/8fSf4y9RBP62PHm8LGcJ/', { waitUntil: 'domcontentloaded' });
-    expect(resp?.status()).toBe(200);
-    await expect(page.locator('.yn-detail')).toBeVisible();
+  test('direct-access seeded property never presents available inventory', async ({ page }) => {
+    await page.goto('/properties/8fSf4y9RBP62PHm8LGcJ/', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'சொத்து தற்போது கிடைக்கவில்லை', exact: true })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.yn-detail')).toHaveCount(0);
+    await expect(page.locator('#viewing-request')).toHaveCount(0);
     await expect(page.locator('.yn-nav-tabs a[href="/properties/"]')).toHaveAttribute('aria-current', 'page');
-    await expect(page.locator('.yn-global-whatsapp')).toBeHidden();
-    await expect(page.locator('.yn-detail a[href^="https://wa.me/"]').first()).toBeVisible();
-    if (isMobile) await expect(page.locator('.yn-mobile-inquiry a[href^="https://wa.me/"]')).toBeVisible();
   });
 
   test('404 route handled gracefully', async ({ page }) => {

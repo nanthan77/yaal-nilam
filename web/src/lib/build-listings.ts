@@ -1,7 +1,7 @@
 import { cache } from "react";
 import axios from "axios";
 import { normalizeListing } from "./marketplace";
-import { PUBLIC_LISTING_STATUSES } from "./public-listings";
+import { isPublicListingRecord, PUBLIC_LISTING_STATUSES } from "./public-listings";
 
 type FirestoreValue = {
   stringValue?: string;
@@ -54,7 +54,7 @@ export const getBuildListings = cache(async () => {
     return rows.flatMap(({ document }) => {
       if (!document) return [];
       const raw = decodeFields(document.fields);
-      if (!PUBLIC_LISTING_STATUSES.includes(String(raw.status))) return [];
+      if (!isPublicListingRecord(raw)) return [];
       return [normalizeListing({ ...raw, id: document.name.split("/").pop() })];
     });
   } catch (error) {

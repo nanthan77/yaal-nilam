@@ -5,6 +5,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Locale } from "./translations";
+import type { CurrencyCode } from "./marketplace";
 
 interface User {
   id: string;
@@ -18,6 +19,10 @@ interface AppState {
   // Locale
   locale: Locale;
   setLocale: (locale: Locale) => void;
+
+  // Currency (Pillar 1 Dual-Currency Engine)
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
 
   // Auth
   user: User | null;
@@ -51,6 +56,22 @@ interface AppState {
   clearCompare: () => void;
 }
 
+const VALID_CURRENCIES: CurrencyCode[] = ["LKR", "CAD", "GBP", "AUD", "USD", "EUR"];
+
+function getInitialCurrency(): CurrencyCode {
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem("yaal-nilam-currency");
+      if (saved && VALID_CURRENCIES.includes(saved as any)) {
+        return saved as CurrencyCode;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return "LKR";
+}
+
 function persistedPreferences(value: unknown): Pick<AppState, "locale" | "compareIds"> {
   const state = value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -69,6 +90,19 @@ export const useStore = create<AppState>()(
       // Tamil first for local visitors; persisted language preference still wins.
       locale: "ta",
       setLocale: (locale) => set({ locale }),
+
+      // Default currency LKR, initialized with persisted preference if available
+      currency: getInitialCurrency(),
+      setCurrency: (currency) => {
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("yaal-nilam-currency", currency);
+          } catch {
+            // ignore
+          }
+        }
+        set({ currency });
+      },
 
       // Auth
       user: null,

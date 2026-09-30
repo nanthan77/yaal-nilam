@@ -94,3 +94,33 @@ app also accepts `NEXT_PUBLIC_AUTH_EMULATOR_HOST` and
 `NEXT_PUBLIC_STORAGE_EMULATOR_HOST`, alongside the Firestore emulator setting.
 All three require localhost addresses and are ignored in production. Use an
 isolated `demo-` project and reviewed deployed rules for write tests.
+
+## September 30 refinement and source audit
+
+The current homepage uses a shorter header and hero, native labeled search fields,
+Buy/Rent/Short stay controls and photo-first cards with clear prices and land size.
+The listing page has compact responsive filters; details include a fullscreen,
+keyboard-accessible gallery and a mobile inquiry bar that leaves content visible.
+Tamil and English use the same existing routes and Firestore/lead contracts.
+
+Design references were reviewed through Mobbin: [Airbnb](https://mobbin.com/screens/a92f14ea-1a94-4a63-99f3-8b5fbd42d106),
+[Zillow](https://mobbin.com/screens/42f755a7-c72c-4a20-8eb1-07649d8289f0),
+[Redfin](https://mobbin.com/screens/97e5e553-ccc1-43e5-8603-b622df6c1d00)
+and [Realtor.com](https://mobbin.com/screens/5500d2d1-8001-4d35-8bad-1a962f6924b6).
+Reference images remain in a private local review folder outside the website.
+
+**Correction to earlier verification records:** Firestore residency alone does not
+prove that a listing is genuine. All 11 currently public records match the seed
+catalog, and Git history confirms their supplied listing images were generated.
+They are now excluded from public reads, exported pages, feeds and sitemaps.
+No database records were deleted. Known generated property media is removed
+outside explicitly marked development fixtures. See
+[the listing source audit](docs/LISTING_SOURCE_AUDIT_2026-09-30.md).
+A genuine public property-detail journey cannot be tested until genuine records
+are supplied; UI and lead tests use visibly labeled samples and a localhost demo
+Firestore emulator. Do not describe those samples as real available properties.
+
+The website-only [release wrapper](docs/WEB_RELEASE.md) checks committed source,
+builds from the lockfile, validates the export and canonical URLs, and records the
+source commit in a public release receipt. Use it for each release instead of
+publishing an unidentified old export. Do not deploy all Firebase resources.

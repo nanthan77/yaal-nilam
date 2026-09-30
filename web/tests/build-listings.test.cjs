@@ -17,7 +17,14 @@ function loadBuildReader(post, projectId = 'public-test-project') {
       if (name === 'react') return { cache: (fn) => fn };
       if (name === 'axios') return { default: { post } };
       if (name === './marketplace') return { normalizeListing: (record) => record };
-      if (name === './public-listings') return { PUBLIC_LISTING_STATUSES: ['Available', 'published'] };
+      if (name === './public-listings') {
+        const publicModule = { exports: {} };
+        const publicCode = ts.transpileModule(readFileSync(path.resolve(__dirname, '../src/lib/public-listings.ts'), 'utf8'), {
+          compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+        }).outputText;
+        vm.runInNewContext(publicCode, { module: publicModule, exports: publicModule.exports, process: { env: { NODE_ENV: 'production' } }, URL, Date });
+        return publicModule.exports;
+      }
       throw new Error(`Unexpected import: ${name}`);
     },
     process: { env: { NEXT_PUBLIC_FIREBASE_PROJECT_ID: projectId } },

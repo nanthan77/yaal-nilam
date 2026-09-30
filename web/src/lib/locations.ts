@@ -88,7 +88,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Jaffna property', 'property in Jaffna', 'Jaffna real estate', 'Jaffna town property', 'buy house Jaffna city'],
       ta: ['யாழ்ப்பாணம் சொத்து', 'யாழ் நகர் சொத்து', 'யாழ்ப்பாணத்தில் வீடு'],
     },
-    properties_count: 45,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -99,29 +99,29 @@ export const ALL_LOCATIONS: Location[] = [
     lat: 9.6744,
     lng: 80.0293,
     description: {
-      en: 'Nallur is the cultural and spiritual heart of Jaffna, home to the iconic Nallur Kandaswamy Temple and a thriving residential community.',
-      ta: 'நல்லூர் யாழ்ப்பாணத்தின் கலாசார மற்றும் ஆன்மீக இதயமாகும், புகழ்பெற்ற நல்லூர் கந்தசுவாமி கோவிலின் தாயகமாகும்.',
+      en: 'Nallur is a residential area around the historic Nallur Kandaswamy Kovil. Explore individual listings and nearby places.',
+      ta: 'நல்லூர் வரலாற்றுச் சிறப்புமிக்க நல்லூர் கந்தசுவாமி கோவிலைச் சுற்றிய குடியிருப்புப் பகுதியாகும். சொத்து பட்டியல்களையும் அருகிலுள்ள இடங்களையும் ஆராயுங்கள்.',
     },
     nearbyLandmarks: ['Nallur Kandaswamy Temple'],
     nearbyLocations: ['jaffna', 'thirunelvely', 'kokkuvil', 'kopay'],
     areaGuide: {
-      en: 'Nallur is one of the most sought-after residential areas in Jaffna. The neighbourhood is defined by its proximity to the Nallur Kandaswamy Temple, one of the most important Hindu temples in Sri Lanka. Streets here are tree-lined and quieter than the city centre, yet everything is just a short ride away. Property development is steady, with a mix of traditional homes, modern houses, and some apartment projects. The annual Nallur Festival (July-August) draws thousands of visitors, making properties near the temple route excellent investment opportunities for short-term rentals.',
-      ta: 'நல்லூர் யாழ்ப்பாணத்தில் மிகவும் விரும்பப்படும் குடியிருப்புப் பகுதிகளில் ஒன்றாகும். இலங்கையின் மிக முக்கியமான இந்துக் கோவில்களில் ஒன்றான நல்லூர் கந்தசுவாமி கோவிலுக்கு அருகிலேயே இப்பகுதி அமைந்துள்ளது. வருடாந்திர நல்லூர் திருவிழா (ஜூலை-ஆகஸ்ட்) ஆயிரக்கணக்கான பார்வையாளர்களை ஈர்க்கிறது.',
+      en: 'Nallur includes residential streets around the temple and neighboring areas towards Kokuvil and Kopay. Asking prices, road access, land size and water conditions vary by property. Ask the advertiser for current details and arrange independent document, survey and water checks where needed.',
+      ta: 'நல்லூர் கோவிலைச் சுற்றிய குடியிருப்பு வீதிகளையும் கொக்குவில் மற்றும் கோப்பாய் நோக்கிய பகுதிகளையும் கொண்டுள்ளது. கேட்கப்படும் விலை, பாதை வசதி, நில அளவு மற்றும் நீர் நிலை சொத்துக்குச் சொத்து மாறும். தற்போதைய விவரங்களை விளம்பரதாரரிடம் கேட்டு, தேவையான ஆவண, நில அளவை மற்றும் நீர் ஆய்வுகளை சுயாதீனமாக ஏற்பாடு செய்யுங்கள்.',
     },
     whyLiveHere: {
-      en: 'Nallur offers a perfect blend of culture and convenience. Families love the quiet streets, proximity to temples and schools, and the strong sense of community. Properties here hold their value well due to consistent demand.',
-      ta: 'நல்லூர் கலாசாரம் மற்றும் வசதிகளின் சிறந்த கலவையை வழங்குகிறது. அமைதியான தெருக்கள், கோவில்கள் மற்றும் பாடசாலைகளுக்கு அருகாமை ஆகியவற்றை குடும்பங்கள் விரும்புகின்றன.',
+      en: 'Explore temple-area neighborhoods and nearby schools. Compare individual listings for access, condition and available facilities.',
+      ta: 'கோவிலைச் சுற்றிய குடியிருப்புப் பகுதிகளையும் அருகிலுள்ள பாடசாலைகளையும் ஆராயுங்கள். பாதை வசதி, நிலைமை மற்றும் கிடைக்கும் வசதிகளைச் சொத்து வாரியாக ஒப்பிடுங்கள்.',
     },
     transportAccess: {
       en: 'Nallur is just 2 km from Jaffna city centre. Buses run frequently along Nallur Road and Kandy Road. Auto-rickshaws are readily available.',
-      ta: 'நல்லூர் யாழ் நகர மையத்திலிருந்து வெறும் 2 கி.மீ தொலைவில் உள்ளது.',
+      ta: 'நல்லூர் யாழ் நகர மையத்திலிருந்து வெறும் 2 கி.மீ தொலைவில் உள்ளது. நல்லூர் வீதி மற்றும் கண்டி வீதி வழியாக பேருந்துகள் தொடர்ச்சியாக இயக்கப்படுகின்றன.',
     },
     priceRange: { min: 20000000, max: 90000000 },
     searchTerms: {
-      en: ['Nallur property', 'house for sale Nallur', 'land in Nallur Jaffna', 'Nallur real estate'],
-      ta: ['நல்லூர் சொத்து', 'நல்லூரில் வீடு', 'நல்லூர் காணி'],
+      en: ['Nallur property', 'house for sale Nallur', 'land in Nallur Jaffna', 'Nallur real estate', 'Nallur temple road land price', 'average perch price Nallur'],
+      ta: ['நல்லூர் சொத்து', 'நல்லூரில் வீடு', 'நல்லூர் காணி', 'நல்லூர் கோவில் வீதி காணி விலை', 'நல்லூர் பேர்ச் விலை'],
     },
-    properties_count: 18,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -154,7 +154,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Valikamam North property', 'Tellippalai land', 'property near Keerimalai'],
       ta: ['வலிகாமம் வடக்கு சொத்து', 'தெல்லிப்பளை காணி'],
     },
-    properties_count: 10,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -187,7 +187,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Valikamam South property', 'Kopay property', 'near University of Jaffna'],
       ta: ['வலிகாமம் தெற்கு சொத்து', 'கோப்பாய் சொத்து'],
     },
-    properties_count: 15,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -220,7 +220,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Valikamam East property', 'Chunnakam property', 'Chunnakam real estate'],
       ta: ['வலிகாமம் கிழக்கு சொத்து', 'சுன்னாகம் சொத்து'],
     },
-    properties_count: 21,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -253,7 +253,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Valikamam West property', 'Manipay land', 'affordable land Jaffna'],
       ta: ['வலிகாமம் மேற்கு சொத்து', 'மாணிப்பாய் காணி'],
     },
-    properties_count: 8,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -286,7 +286,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Vadamarachchi North property', 'Point Pedro land', 'beachfront property Jaffna'],
       ta: ['வடமராட்சி வடக்கு சொத்து', 'பருத்தித்துறை காணி'],
     },
-    properties_count: 12,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -319,7 +319,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Vadamarachchi South land', 'affordable land Jaffna', 'agricultural land Jaffna'],
       ta: ['வடமராட்சி தெற்கு காணி', 'மலிவான நிலம் யாழ்'],
     },
-    properties_count: 5,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop',
   },
   {
@@ -352,7 +352,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Vadamarachchi East land', 'coastal land Jaffna', 'beachfront Jaffna cheap'],
       ta: ['வடமராட்சி கிழக்கு காணி', 'கடலோர நிலம் யாழ்'],
     },
-    properties_count: 4,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -385,7 +385,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Thenmarachchi property', 'Chavakachcheri property', 'property near A9 Jaffna'],
       ta: ['தென்மராட்சி சொத்து', 'சாவகச்சேரி சொத்து'],
     },
-    properties_count: 14,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -418,7 +418,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Sandilipay property', 'Sandilipay land', 'suburban Jaffna property'],
       ta: ['சண்டிலிப்பாய் சொத்து', 'சண்டிலிப்பாய் காணி'],
     },
-    properties_count: 7,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -451,7 +451,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Karainagar property', 'Casuarina Beach land', 'island property Jaffna', 'beachfront villa Jaffna'],
       ta: ['காரைநகர் சொத்து', 'கசுரினா கடற்கரை நிலம்', 'தீவு சொத்து யாழ்'],
     },
-    properties_count: 8,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -484,7 +484,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Velanai property', 'Kayts land', 'island property cheap Jaffna', 'waterfront land Jaffna'],
       ta: ['வேலணை சொத்து', 'காய்ட்ஸ் காணி', 'தீவு நிலம் யாழ்'],
     },
-    properties_count: 5,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -517,7 +517,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Island North Jaffna land', 'island property Jaffna cheap', 'remote land Jaffna'],
       ta: ['தீவு வடக்கு காணி', 'தீவு சொத்து யாழ்'],
     },
-    properties_count: 3,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -550,7 +550,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Island South Jaffna property', 'lagoon property Jaffna', 'cheap island land Sri Lanka'],
       ta: ['தீவு தெற்கு சொத்து', 'குள நிலம் யாழ்'],
     },
-    properties_count: 2,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
 
@@ -586,7 +586,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Jaffna Fort property', 'heritage property Jaffna', 'premium house Jaffna', 'waterfront Jaffna'],
       ta: ['யாழ் கோட்டை சொத்து', 'பாரம்பரிய சொத்து யாழ்'],
     },
-    properties_count: 24,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -620,7 +620,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Grand Bazaar Jaffna property', 'commercial property Jaffna', 'shop for sale Jaffna market'],
       ta: ['கிராண்ட் பசார் சொத்து', 'வணிக சொத்து யாழ்'],
     },
-    properties_count: 10,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -654,7 +654,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Vannarpannai property', 'Vannarpannai house', 'property near Jaffna hospital'],
       ta: ['வண்ணார்பண்ணை சொத்து', 'வண்ணார்பண்ணை வீடு'],
     },
-    properties_count: 12,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -688,7 +688,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Kokkuvil property', 'Kokkuvil house', 'property near Jaffna university'],
       ta: ['கொக்குவில் சொத்து', 'கொக்குவில் வீடு'],
     },
-    properties_count: 11,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -722,7 +722,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Thirunelvely property', 'heritage house Jaffna', 'traditional home Thirunelvely'],
       ta: ['திருநெல்வேலி சொத்து', 'திருநெல்வேலி வீடு', 'பாரம்பரிய வீடு யாழ்'],
     },
-    properties_count: 10,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -756,7 +756,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Kondavil property', 'Kondavil house', 'affordable house Jaffna'],
       ta: ['கொண்டாவில் சொத்து', 'கொண்டாவில் வீடு'],
     },
-    properties_count: 9,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -790,7 +790,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Chundikuli property', 'Chundikuli house Jaffna', 'property near Chundikuli Girls College'],
       ta: ['சுண்டிக்குளி சொத்து', 'சுண்டிக்குளி வீடு'],
     },
-    properties_count: 8,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -824,7 +824,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Passaiyoor property', 'coastal house Jaffna', 'Passaiyoor land', 'fishing harbour Jaffna property'],
       ta: ['பருத்தியூர் சொத்து', 'கடலோர வீடு யாழ்'],
     },
-    properties_count: 6,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -858,7 +858,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Kopay property', 'Kopay land', 'property near Jaffna university', 'Kopay house'],
       ta: ['கோப்பாய் சொத்து', 'கோப்பாய் காணி', 'கோப்பாய் வீடு'],
     },
-    properties_count: 15,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -892,7 +892,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Urumpirai property', 'Urumpirai land', 'affordable land near Kopay'],
       ta: ['உரும்பிராய் சொத்து', 'உரும்பிராய் காணி'],
     },
-    properties_count: 7,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -926,7 +926,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Ilavalai property', 'Ilavalai land', 'land in Ilavalai Jaffna'],
       ta: ['இளவாலை சொத்து', 'இளவாலை காணி'],
     },
-    properties_count: 5,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop',
   },
   {
@@ -960,7 +960,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Chunnakam property', 'house for sale Chunnakam', 'land in Chunnakam', 'Chunnakam real estate'],
       ta: ['சுன்னாகம் சொத்து', 'சுன்னாகம் வீடு', 'சுன்னாகம் காணி'],
     },
-    properties_count: 21,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -994,7 +994,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Erlalai property', 'Erlalai land', 'property near Chunnakam'],
       ta: ['ஏழாலை சொத்து', 'ஏழாலை காணி'],
     },
-    properties_count: 6,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -1028,7 +1028,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Manipay property', 'Manipay land', 'cheap land Manipay Jaffna'],
       ta: ['மானிப்பாய் சொத்து', 'மானிப்பாய் காணி'],
     },
-    properties_count: 6,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop',
   },
   {
@@ -1062,7 +1062,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Tellippalai property', 'Tellippalai land', 'property near Naguleswaram'],
       ta: ['தெல்லிப்பளை சொத்து', 'தெல்லிப்பளை காணி'],
     },
-    properties_count: 7,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -1096,7 +1096,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Maviddapuram property', 'land near Maviddapuram temple', 'Keerimalai property'],
       ta: ['மாவிட்டபுரம் சொத்து', 'மாவிட்டபுரம் காணி'],
     },
-    properties_count: 4,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -1108,29 +1108,29 @@ export const ALL_LOCATIONS: Location[] = [
     lat: 9.6500,
     lng: 80.1500,
     description: {
-      en: 'Chavakachcheri is a major town on the A9 highway — the gateway between Jaffna and the rest of Sri Lanka.',
-      ta: 'சாவகச்சேரி A9 நெடுஞ்சாலையில் உள்ள முக்கிய நகரமாகும் — யாழ்ப்பாணத்திற்கும் இலங்கையின் ஏனைய பகுதிகளுக்கும் இடையிலான நுழைவாயிலாகும்.',
+      en: 'Chavakachcheri is a commercial and residential area in Thenmarachchi on the A9 corridor. Compare listings in town and the surrounding neighborhoods.',
+      ta: 'சாவகச்சேரி தென்மராட்சியில் ஏ9 நெடுஞ்சாலையை ஒட்டிய வணிக மற்றும் குடியிருப்புப் பகுதியாகும். நகரிலும் சுற்றுவட்டாரப் பகுதிகளிலும் உள்ள பட்டியல்களை ஒப்பிடுங்கள்.',
     },
-    nearbyLandmarks: ['Chavakachcheri Hindu College'],
-    nearbyLocations: ['thenmarachchi', 'kodikamam'],
+    nearbyLandmarks: ['Chavakachcheri Hindu College', 'Chavakachcheri Land Registry (Pathivagam)', 'Chavakachcheri Railway Station'],
+    nearbyLocations: ['thenmarachchi', 'kodikamam', 'kopay'],
     areaGuide: {
-      en: 'Chavakachcheri is the largest town in the Thenmarachchi division and sits strategically on the A9 highway connecting Jaffna to the south. The town is a significant commercial centre with its own market, banks, schools, and government offices. Being on the main highway gives it excellent transport connectivity, and the railway station adds another layer of accessibility. Property here offers exceptional value — town-centre commercial properties and surrounding residential land at prices well below Jaffna city rates.',
-      ta: 'சாவகச்சேரி தென்மராட்சி பிரிவின் மிகப்பெரிய நகரமாகும், யாழ்ப்பாணத்தை தெற்குடன் இணைக்கும் A9 நெடுஞ்சாலையில் மூலோபாய ரீதியாக அமைந்துள்ளது.',
+      en: 'Chavakachcheri includes town and surrounding residential areas such as Meesalai and Sangathanai. Compare owner-supplied plot sizes, road access and utility details. Ask qualified professionals to independently check documents, boundaries and water conditions where relevant.',
+      ta: 'சாவகச்சேரி நகரையும் மீசாலை மற்றும் சங்கத்தானை போன்ற சுற்றுவட்டாரக் குடியிருப்புப் பகுதிகளையும் கொண்டுள்ளது. உரிமையாளர் வழங்கும் நில அளவு, பாதை வசதி மற்றும் சேவை விவரங்களை ஒப்பிடுங்கள். தேவையான ஆவணங்கள், எல்லைகள் மற்றும் நீர் நிலையைச் சுயாதீன நிபுணர்களிடம் சரிபார்க்கக் கேளுங்கள்.',
     },
     whyLiveHere: {
-      en: 'A9 highway location — excellent connectivity. Major commercial centre. Railway station access. Very affordable prices.',
-      ta: 'A9 நெடுஞ்சாலை இடம் — சிறந்த இணைப்பு. முக்கிய வணிக மையம்.',
+      en: 'Explore town amenities and access to the A9 corridor. Check the routes and facilities relevant to each property.',
+      ta: 'நகர வசதிகளையும் ஏ9 பாதை அணுகலையும் ஆராயுங்கள். ஒவ்வொரு சொத்திற்கும் பொருந்தும் பாதைகளையும் வசதிகளையும் சரிபாருங்கள்.',
     },
     transportAccess: {
-      en: 'On the A9 highway, 15 km from Jaffna. Railway station with trains to Colombo. Major bus routes.',
-      ta: 'A9 நெடுஞ்சாலையில், யாழ்ப்பாணத்திலிருந்து 15 கி.மீ. கொழும்புக்கு ரயில்களுடன் ரயில் நிலையம்.',
+      en: 'On the A9 highway, 16 km from Jaffna city centre. Chavakachcheri Railway Station on the Northern Line connects to Colombo. Continuous CTB and private bus services.',
+      ta: 'ஏ9 நெடுஞ்சாலையில், யாழ் நகர மையத்திலிருந்து 16 கி.மீ. கொழும்புக்கான வடக்கு ரயில் பாதை மற்றும் தொடர்ச்சியான பேருந்து சேவைகள்.',
     },
     priceRange: { min: 8000000, max: 40000000 },
     searchTerms: {
-      en: ['Chavakachcheri property', 'Chavakachcheri house', 'property on A9 Jaffna', 'Chavakachcheri land'],
-      ta: ['சாவகச்சேரி சொத்து', 'சாவகச்சேரி வீடு', 'சாவகச்சேரி காணி'],
+      en: ['Chavakachcheri property', 'Chavakachcheri house', 'property on A9 Jaffna', 'Chavakachcheri land for sale', 'average perch price Chavakachcheri', 'Chavakachcheri pathivagam search'],
+      ta: ['சாவகச்சேரி சொத்து', 'சாவகச்சேரி வீடு', 'சாவகச்சேரி காணி', 'சாவகச்சேரி பேர்ச் விலை', 'சாவகச்சேரி பதிவகம்'],
     },
-    properties_count: 14,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600321784486-77b1371cdbfe?w=500&h=300&fit=crop',
   },
   {
@@ -1164,7 +1164,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Kodikamam property', 'Kodikamam land', 'cheap land Jaffna'],
       ta: ['கொடிகாமம் சொத்து', 'கொடிகாமம் காணி'],
     },
-    properties_count: 4,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop',
   },
   {
@@ -1198,7 +1198,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Point Pedro property', 'Point Pedro land', 'beachfront land Point Pedro', 'northernmost Sri Lanka property'],
       ta: ['பருத்தித்துறை சொத்து', 'பருத்தித்துறை காணி', 'கடற்கரை நிலம் பருத்தித்துறை'],
     },
-    properties_count: 12,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -1232,7 +1232,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Valvettithurai property', 'VVT land', 'beachfront Valvettithurai', 'coastal property Jaffna'],
       ta: ['வல்வெட்டித்துறை சொத்து', 'VVT காணி'],
     },
-    properties_count: 5,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -1266,7 +1266,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Kayts property', 'Kayts island land', 'cheap waterfront Jaffna', 'Kayts fort area property'],
       ta: ['காய்ட்ஸ் சொத்து', 'காய்ட்ஸ் காணி'],
     },
-    properties_count: 4,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -1299,7 +1299,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Vavuniya property', 'land in Vavuniya', 'house for sale Vavuniya', 'Vavuniya town land'],
       ta: ['வவுனியா சொத்து', 'வவுனியாவில் காணி', 'வவுனியா விற்கப்படும் வீடு'],
     },
-    properties_count: 14,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=300&fit=crop',
   },
   {
@@ -1310,29 +1310,29 @@ export const ALL_LOCATIONS: Location[] = [
     lat: 9.3803,
     lng: 80.3982,
     description: {
-      en: 'The agricultural heartland of the Vanni — Kilinochchi is a rapidly growing administrative hub with fertile soils and vast developmental potential.',
-      ta: 'வன்னியின் விவசாய இதயம் — கிளிநொச்சி என்பது வளமான மண் மற்றும் பரந்த வளர்ச்சித் திறனைக் கொண்ட வேகமாக வளரும் ஒரு நிர்வாக மையமாகும்.',
+      en: 'Kilinochchi is an administrative and commercial area on the A9 corridor, with surrounding residential and agricultural land.',
+      ta: 'கிளிநொச்சி ஏ9 பாதையில் அமைந்த நிர்வாக மற்றும் வணிகப் பகுதியாகும். சுற்றுவட்டாரத்தில் குடியிருப்பு மற்றும் விவசாய நிலங்கள் உள்ளன.',
     },
-    nearbyLandmarks: ['Iranamadu Tank', 'Kilinochchi General Hospital', 'Kilinochchi Railway Station'],
+    nearbyLandmarks: ['Iranamadu Tank', 'Kilinochchi General Hospital', 'Kilinochchi Railway Station', 'A9 Commercial Corridor'],
     nearbyLocations: ['jaffna', 'vavuniya', 'mullaitivu'],
     areaGuide: {
-      en: 'Kilinochchi is undergoing a massive post-war reconstruction boom, transforming it into a modern administrative and commercial centre. Anchored by the fertile Iranamadu agricultural region, the district is famous for its paddy cultivation. The real estate market offers large tracts of land at highly competitive rates, making it an excellent investment for agricultural ventures, industrial warehousing, and affordable housing projects.',
-      ta: 'கிளிநொச்சி ஒரு நவீன நிர்வாக மற்றும் வணிக மையமாக வேகமாக வளர்ந்து வருகிறது. வளமான இரணைமடு விவசாயப் பகுதியை மையமாகக் கொண்ட இந்த மாவட்டம் அதன் நெல் விவசாயத்திற்குப் புகழ்பெற்றது.',
+      en: 'Kilinochchi includes town, A9 roadside locations and agricultural areas around Iranamadu. Property prices, soil, irrigation and utility access are specific to each site. Request current owner-supplied information and ask independent professionals to review the documents and suitability for your intended use.',
+      ta: 'கிளிநொச்சி நகரம், ஏ9 வீதியை ஒட்டிய இடங்கள் மற்றும் இரணைமடுவைச் சுற்றிய விவசாயப் பகுதிகளைக் கொண்டுள்ளது. விலை, மண் நிலை, நீர்ப்பாசனம் மற்றும் சேவை அணுகல் ஒவ்வொரு இடத்திற்கும் மாறும். தற்போதைய தகவல்களை உரிமையாளரிடம் கேட்டு, ஆவணங்களையும் உங்கள் தேவைக்கான பொருத்தத்தையும் சுயாதீன நிபுணர்களிடம் ஆய்வு செய்யக் கேளுங்கள்.',
     },
     whyLiveHere: {
-      en: 'Fertile agricultural land, low cost of living, expanding infrastructure, and rich nature reserves near the Iranamadu tank area.',
-      ta: 'வளமான விவசாய நிலம், குறைந்த வாழ்க்கைச் செலவு, மற்றும் விரிவடையும் உள்கட்டமைப்பு.',
+      en: 'Compare town, roadside and agricultural locations for your needs. Confirm access and site conditions before deciding.',
+      ta: 'உங்கள் தேவைக்கேற்ப நகர, வீதியோர மற்றும் விவசாயப் பகுதிகளை ஒப்பிடுங்கள். முடிவு எடுக்கும் முன் அணுகல் வசதியையும் இடத்தின் நிலையையும் உறுதிப்படுத்துங்கள்.',
     },
     transportAccess: {
-      en: 'Directly situated on the A9 Highway. Fully functional railway station on the Northern Line. Regular local and express bus services.',
-      ta: 'நேரடியாக ஏ9 நெடுஞ்சாலையில் அமைந்துள்ளது. வடமத்திய ரயில் நிலைய இணைப்பு.',
+      en: 'Directly situated on the A9 Highway. Fully functional railway station on the Northern Line. Regular local and express bus services connecting Jaffna, Vavuniya, and Colombo.',
+      ta: 'நேரடியாக ஏ9 நெடுஞ்சாலையில் அமைந்துள்ளது. வடமத்திய ரயில் நிலைய இணைப்பு மற்றும் கொழும்பு-யாழ்ப்பாணம் இடையேயான விரைவுப் பேருந்து வசதிகள்.',
     },
     priceRange: { min: 4000000, max: 30000000 },
     searchTerms: {
-      en: ['Kilinochchi land', 'property in Kilinochchi', 'agricultural land Vanni', 'buy house Kilinochchi'],
-      ta: ['கிளிநொச்சி சொத்து', 'கிளிநொச்சியில் காணி', 'வன்னியில் விவசாய நிலம்'],
+      en: ['Kilinochchi land', 'property in Kilinochchi', 'agricultural land Vanni', 'buy house Kilinochchi', 'A9 road land Kilinochchi', 'average perch price Kilinochchi', 'Iranamadu farm land for sale'],
+      ta: ['கிளிநொச்சி சொத்து', 'கிளிநொச்சியில் காணி', 'வன்னியில் விவசாய நிலம்', 'ஏ9 வீதி காணி கிளிநொச்சி', 'கிளிநொச்சி பேர்ச் விலை'],
     },
-    properties_count: 9,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop',
   },
   {
@@ -1365,7 +1365,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Mullaitivu land', 'beachfront Mullaitivu', 'property near Nanthikadal', 'Mullaitivu real estate'],
       ta: ['முல்லைத்தீவு காணி', 'முல்லைத்தீவு கடற்கரை நிலம்', 'நந்திக்கடல் அருகில் சொத்து'],
     },
-    properties_count: 6,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -1398,7 +1398,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Mannar land', 'property in Mannar', 'coastal land Mannar', 'Thiruketheeswaram temple land'],
       ta: ['மன்னார் காணி', 'மன்னார் சொத்து', 'திருக்கேதீஸ்வரம் கோவில் அருகில் நிலம்'],
     },
-    properties_count: 7,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
   {
@@ -1431,7 +1431,7 @@ export const ALL_LOCATIONS: Location[] = [
       en: ['Trincomalee property', 'Nilaveli beach land', 'commercial land Trincomalee', 'Koneswaram temple property'],
       ta: ['திருகோணமலை சொத்து', 'நிலாவெளி கடற்கரை காணி', 'வணிக நிலம் திருகோணமலை'],
     },
-    properties_count: 19,
+    properties_count: 0,
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
   },
 ];

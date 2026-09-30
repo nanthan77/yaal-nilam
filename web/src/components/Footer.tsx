@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback } from 'react';
 import { Globe, Phone, Mail, BookOpen, Wrench, Search, MessageCircle } from 'lucide-react';
 import { useStore } from '@/lib/store';
-import { BRAND } from '@/lib/brand';
+import { BRAND, CONTACT_EMAIL, CONTACT_FACEBOOK_URL } from '@/lib/brand';
 import { FooterAppLinks } from './FooterAppLinks';
 
 interface Column1Config {
@@ -36,6 +36,11 @@ interface ContactConfig {
   titleEn: string;
   titleTa: string;
   phone: string;
+  phoneTel: string;
+  supportWhatsapp: string;
+  supportWhatsappDigits: string;
+  botWhatsapp: string;
+  botWhatsappDigits: string;
   email: string;
 }
 
@@ -84,10 +89,15 @@ const UTILITY_LINKS: UtilityLinksConfig = {
 };
 
 const CONTACT_INFO: ContactConfig = {
-  titleEn: 'Direct Hotline & WhatsApp',
-  titleTa: 'நேரடி அழைப்பு & WhatsApp',
-  phone: BRAND.whatsappDisplay,
-  email: 'info@yaalnilam.lk',
+  titleEn: 'Customer Support & Contact',
+  titleTa: 'வாடிக்கையாளர் சேவை & தொடர்பு',
+  phone: BRAND.phoneDisplay,
+  phoneTel: BRAND.phoneTel,
+  supportWhatsapp: BRAND.supportWhatsappDisplay,
+  supportWhatsappDigits: BRAND.supportWhatsappDigits,
+  botWhatsapp: BRAND.botWhatsappDisplay,
+  botWhatsappDigits: BRAND.botWhatsappDigits,
+  email: CONTACT_EMAIL,
 };
 
 const FacebookIcon = () => (
@@ -104,10 +114,10 @@ const YoutubeIcon = () => (
 );
 
 const SOCIAL_LINKS = [
-  { icon: FacebookIcon, href: 'https://www.facebook.com/yaalnilam', label: 'Facebook' },
+  { icon: FacebookIcon, href: CONTACT_FACEBOOK_URL, label: 'Facebook' },
   { icon: InstagramIcon, href: 'https://www.instagram.com/yaalnilam', label: 'Instagram' },
   { icon: TwitterIcon, href: 'https://x.com/yaalnilam', label: 'X' },
-  { icon: YoutubeIcon, href: 'https://www.youtube.com/@yaalnilam', label: 'YouTube' },
+  { icon: YoutubeIcon, href: 'https://www.youtube.com/@YaalNilam-JaffnaProperty', label: 'YouTube' },
 ];
 
 export function Footer() {
@@ -131,14 +141,14 @@ export function Footer() {
   return (
     <footer className="bg-[#0F2E25] text-sand-200 border-t border-[#D4A853]/20">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-6 md:gap-8">
           
           {/* Column 1: Brand */}
-          <div className="space-y-5">
+          <div className="col-span-2 space-y-3 lg:col-span-1">
             <div className="flex flex-col gap-3">
               <Link href="/" className="inline-block bg-white rounded-xl p-3 w-fit shadow-sm" aria-label="Yaal Nilam — home">
-                <img src="/logo.png" alt="Yaal Nilam — Jaffna Real Estate" className="h-16 w-auto" />
+                <img src="/logo.png" alt="Yaal Nilam — Jaffna Real Estate" className="h-12 w-auto" />
               </Link>
               <p className="text-xs text-sand-300 leading-relaxed font-medium">
                 {locale === 'en' ? BRAND_CONFIG.taglineEn : BRAND_CONFIG.taglineTa}
@@ -151,7 +161,7 @@ export function Footer() {
                 <Link
                   key={social.label}
                   href={social.href}
-                  className="text-sand-200 hover:text-[#D4A853] transition-colors duration-200"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-sand-200 hover:text-[#D4A853] transition-colors duration-200"
                   aria-label={social.label}
                 >
                   <social.icon />
@@ -168,12 +178,12 @@ export function Footer() {
               <Search className="w-4 h-4 text-[#D4A853]" />
               {getLabel(PROPERTY_SEARCH)}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-0.5">
               {PROPERTY_SEARCH.links.map(link => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold"
+                    className="flex min-h-11 items-center text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold leading-relaxed"
                   >
                     {getLabel(link)}
                   </Link>
@@ -188,12 +198,12 @@ export function Footer() {
               <BookOpen className="w-4 h-4 text-[#D4A853]" />
               {getLabel(RESOURCES_LINKS)}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-0.5">
               {RESOURCES_LINKS.links.map(link => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold block leading-relaxed"
+                    className="flex min-h-11 items-center text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold leading-relaxed"
                   >
                     {getLabel(link)}
                   </Link>
@@ -203,18 +213,18 @@ export function Footer() {
           </div>
 
           {/* Column 4: Free Utilities & Support */}
-          <div className="space-y-6">
+          <div className="col-span-2 space-y-6 lg:col-span-1">
             <div className="space-y-4">
               <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
                 <Wrench className="w-4 h-4 text-[#D4A853]" />
                 {getLabel(UTILITY_LINKS)}
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-0.5">
                 {UTILITY_LINKS.links.map(link => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold"
+                      className="flex min-h-11 items-center text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold leading-relaxed"
                     >
                       {getLabel(link)}
                     </Link>
@@ -224,38 +234,70 @@ export function Footer() {
             </div>
 
             {/* Direct Contact info integrated */}
-            <div className="pt-4 border-t border-white/5 space-y-2">
+            <div className="pt-4 border-t border-white/5 space-y-3">
               <h5 className="text-[10px] font-black text-white uppercase tracking-wider">
                 {locale === 'en' ? CONTACT_INFO.titleEn : CONTACT_INFO.titleTa}
               </h5>
-              <div className="flex flex-col gap-2 text-xs text-sand-300 font-bold">
+              <div className="grid gap-1 text-xs text-sand-300 font-bold sm:grid-cols-2 lg:grid-cols-1">
+                {/* 1. Direct Customer Service Call */}
                 <a
-                  href={`https://wa.me/${BRAND.whatsappDigits}?text=${encodeURIComponent(
+                  href={CONTACT_INFO.phoneTel}
+                  className="hover:text-[#D4A853] transition flex min-h-11 items-center gap-1.5"
+                  title={locale === 'en' ? 'Call Customer Service' : 'வாடிக்கையாளர் சேவையை அழைக்க'}
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#D4A853] shrink-0" />
+                  <span>
+                    <span className="text-sand-400 font-medium">{locale === 'en' ? 'Helpline: ' : 'அழைப்பு: '}</span>
+                    {CONTACT_INFO.phone}
+                  </span>
+                </a>
+
+                {/* 2. Real Human Support WhatsApp */}
+                <a
+                  href={`https://wa.me/${CONTACT_INFO.supportWhatsappDigits}?text=${encodeURIComponent(
+                    locale === 'ta'
+                      ? 'வணக்கம் Yaal Nilam வாடிக்கையாளர் சேவை, எனக்கு நேரடி உதவி தேவை.'
+                      : 'Hi Yaal Nilam Customer Support, I need some assistance.'
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#25D366] text-emerald-400 transition flex min-h-11 items-center gap-1.5"
+                  title={locale === 'en' ? 'Chat with Customer Support on WhatsApp' : 'வாடிக்கையாளர் சேவையுடன் WhatsApp-ல் உரையாட'}
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
+                  <span>
+                    <span className="text-sand-400 font-medium">{locale === 'en' ? 'Support WhatsApp: ' : 'உதவி WhatsApp: '}</span>
+                    {CONTACT_INFO.supportWhatsapp}
+                  </span>
+                </a>
+
+                {/* 3. Property assistant */}
+                <a
+                  href={`https://wa.me/${CONTACT_INFO.botWhatsappDigits}?text=${encodeURIComponent(
                     locale === 'ta'
                       ? 'வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்.'
                       : 'Hi, I would like to get free property listings and information in Jaffna.'
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#25D366] text-emerald-400 transition flex items-center gap-1.5"
+                  className="hover:text-[#25D366] text-sand-300 hover:text-emerald-300 transition flex min-h-11 items-center gap-1.5"
+                  title={locale === 'en' ? 'WhatsApp property assistant' : 'WhatsApp சொத்து உதவியாளர்'}
                 >
-                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                  <span>WhatsApp: {CONTACT_INFO.phone}</span>
+                  <MessageCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>
+                    <span className="text-emerald-400 font-semibold">{locale === 'en' ? 'Property assistant: ' : 'சொத்து உதவியாளர்: '}</span>
+                    {CONTACT_INFO.botWhatsapp}
+                  </span>
                 </a>
-                <Link
-                  href={`tel:${CONTACT_INFO.phone}`}
-                  className="hover:text-[#D4A853] transition flex items-center gap-1.5"
-                >
-                  <Phone className="w-3.5 h-3.5 text-[#D4A853]" />
-                  {CONTACT_INFO.phone}
-                </Link>
-                <Link
+
+                {/* 4. Official Email */}
+                <a
                   href={`mailto:${CONTACT_INFO.email}`}
-                  className="hover:text-[#D4A853] transition flex items-center gap-1.5"
+                  className="hover:text-[#D4A853] transition flex min-h-11 items-center gap-1.5"
                 >
-                  <Mail className="w-3.5 h-3.5 text-[#D4A853]" />
-                  {CONTACT_INFO.email}
-                </Link>
+                  <Mail className="w-3.5 h-3.5 text-[#D4A853] shrink-0" />
+                  <span>{CONTACT_INFO.email}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -275,7 +317,7 @@ export function Footer() {
             href="https://safenetcreations.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-1.5 text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200"
+            className="group inline-flex min-h-11 items-center gap-1.5 text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200"
           >
             <svg
               viewBox="0 0 24 24"
@@ -299,8 +341,8 @@ export function Footer() {
           {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 text-[11px] font-bold text-sand-200 border border-white/10 shadow-sm"
-            aria-label="Toggle language"
+            className="flex min-h-11 items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 text-[11px] font-bold text-sand-200 border border-white/10 shadow-sm"
+            aria-label={locale === 'en' ? 'Footer language: Tamil' : 'அடிக்குறிப்பு மொழி: English'}
           >
             <Globe className="w-3.5 h-3.5 text-[#D4A853]" />
             {locale === 'en' ? 'English' : 'தமிழ்'}
