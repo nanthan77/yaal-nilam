@@ -134,7 +134,9 @@ export function Footer() {
             <Link href="/privacy">{tamil ? "தனியுரிமை" : "Privacy"}</Link>
             <Link href="/terms">{tamil ? "விதிமுறைகள்" : "Terms"}</Link>
           </nav>
-          <a className="yn-footer-credit" href="https://safenetcreations.com" target="_blank" rel="noopener noreferrer" aria-label={tamil ? "SafeNet Creations உருவாக்கியது — புதிய தாவலில் திறக்கும்" : "Built by SafeNet Creations — opens in a new tab"}>SafeNet Creations</a>
+          <a className="yn-footer-credit" href="https://safenetcreations.com" target="_blank" rel="noopener noreferrer" aria-label={tamil ? "SafeNet Creations வடிவமைத்தது — புதிய தாவலில் திறக்கும்" : "Architected by SafeNet Creations — opens in a new tab"}>
+            <span lang="en">Architected by</span><strong lang="en">SafeNet Creations</strong>
+          </a>
           <p className="yn-footer-copyright">© 2026 {tamil ? "யாழ் நிலம்" : "Yaal Nilam"}</p>
         </div>
       </div>
