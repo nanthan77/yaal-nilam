@@ -104,3 +104,29 @@ as version `d9310edaa4cb88eb`, release `1790751862733000` at
 
 Live screenshot: `footer-credit-live-390-ta.png`; focused QA: `credit-summary.md`
 and `credit-measurements.json` in the existing local evidence directory.
+
+## Tamil attribution follow-up
+
+Tamil mode now visibly reads **வடிவமைப்பு · சேஃப்நெட் கிரியேஷன்ஸ்**, with the
+Tamil font, inherited Tamil text language and a fully Tamil accessible name.
+English retains its English text and language attribute. The SafeNet destination
+and safe new-tab behavior remain. Social/language and policy/credit controls
+have independent mobile rows; social targets cannot shrink below 44px.
+
+The narrow Tamil width uses an `em` minimum so enlarged text can wrap whole
+words. Final production checks passed in both languages at 320, 390, 768 and
+1440px, plus four phone cases with doubled text. Tamil at 320px is 601.66px
+(4.19px taller than the English-credit version); all other normal heights are
+unchanged. There is no overflow, overlap, blocked credit or page error.
+
+Exact lockfile installation, 75 data tests, TypeScript, lint, production export
+and sitemaps passed. This follow-up published source `3f38d27` only to public
+Hosting. Both hosts match its prepared artifacts and release receipt. A separate
+admin release occurred earlier during the session and is recorded accurately in
+`RELEASE_2026-09-30.md`. No listing, lead, native app or outbound message changes
+were made by this footer follow-up.
+
+Final production measurements, screenshots and provider receipt are saved in the
+same local review folder with the `credit-localized-final-production` and
+`tamil-credit` prefixes. The actual live phone screenshot is
+`footer-tamil-credit-live-390.png`. No footer QA issue remains.
