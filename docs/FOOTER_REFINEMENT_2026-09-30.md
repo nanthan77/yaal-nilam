@@ -88,3 +88,19 @@ check. That restoration changes `firebase.json` in addition to the four UI files
 Published phone screenshot:
 `/Volumes/Work/Desktop/Ventures/Yaal-Nilam/Design-Review/2026-09-30/footer-compact/footer-live-390-ta.png`.
 Existing inventory/dependency limits remain described in the release report.
+
+## Visible SafeNet attribution follow-up
+
+The credit now visibly reads **Architected by / SafeNet Creations** in both
+languages, with localized accessible labels and English language attributes on
+both credit lines. `Footer.tsx` and `globals.css` changed. All eight normal footer
+heights remain identical; all four enlarged-text checks pass. The link and its
+new-tab protections are unchanged. No production leads or messages were sent.
+
+Build `5abb3ad70cc7-20260930T070144545Z` passed the exact install, 75 data checks, TypeScript,
+lint, export and sitemap generation. Published source `5abb3ad70cc7ce7b62db206ffba81054314629dd`
+as version `d9310edaa4cb88eb`, release `1790751862733000` at
+2026-09-30T07:04:22.733Z. Both public hosts match; admin Hosting is unchanged.
+
+Live screenshot: `footer-credit-live-390-ta.png`; focused QA: `credit-summary.md`
+and `credit-measurements.json` in the existing local evidence directory.
