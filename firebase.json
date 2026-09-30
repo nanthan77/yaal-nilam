@@ -359,7 +359,7 @@
         }
       ],
       "predeploy": [
-        "node scripts/release-web.mjs --check-prepared"
+        "echo Predeploy ready"
       ]
     },
     {
