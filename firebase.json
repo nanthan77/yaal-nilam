@@ -32,6 +32,26 @@
       "trailingSlash": true,
       "redirects": [
         {
+          "source": "/dashboard/discovered-properties",
+          "destination": "https://yaal-nilam-admin.web.app/discovered-properties/",
+          "type": 302
+        },
+        {
+          "source": "/dashboard/discovered-properties/",
+          "destination": "https://yaal-nilam-admin.web.app/discovered-properties/",
+          "type": 302
+        },
+        {
+          "source": "/dashboard",
+          "destination": "https://yaal-nilam-admin.web.app/",
+          "type": 302
+        },
+        {
+          "source": "/dashboard/**",
+          "destination": "https://yaal-nilam-admin.web.app/",
+          "type": 302
+        },
+        {
           "source": "/itemap-core.xml",
           "destination": "/sitemap-core.xml",
           "type": 301

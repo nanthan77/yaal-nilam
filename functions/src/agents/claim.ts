@@ -62,23 +62,35 @@ export interface ClaimActionResponse {
  */
 export async function getListingByClaimToken(token: string): Promise<PreviewDataResult> {
   const cleanToken = (token || "").trim();
-  if (!cleanToken || cleanToken.length < 8) {
+  if (!cleanToken || cleanToken.length < 4) {
     return { found: false, error: "Invalid or missing claim token" };
   }
 
   const firestore = db();
+  let doc: admin.firestore.DocumentSnapshot | null = null;
+
+  // 1. Try finding by claim_token
   const snap = await firestore
     .collection("listings")
     .where("claim_token", "==", cleanToken)
     .limit(1)
     .get();
 
-  if (snap.empty) {
+  if (!snap.empty) {
+    doc = snap.docs[0];
+  } else {
+    // 2. Fallback: try finding directly by listing document ID
+    const directDoc = await firestore.collection("listings").doc(cleanToken).get();
+    if (directDoc.exists) {
+      doc = directDoc;
+    }
+  }
+
+  if (!doc) {
     return { found: false, error: "Listing not found or token expired" };
   }
 
-  const doc = snap.docs[0];
-  const data = doc.data();
+  const data = doc.data() || {};
 
   let agentData: any = undefined;
   if (data.agent_id) {

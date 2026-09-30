@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.onWhatsAppBotJob = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.cancelPropertyAlert = exports.registerPropertyAlert = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
+exports.sendDiscoveryEmailDigestNow = exports.runYouTubeDiscoveryCallable = exports.scheduledYouTubeDiscovery = exports.claimListingHandler = exports.respondListingConsent = exports.getListingPreview = exports.sendAgentWhatsAppConsent = exports.scheduledEveningAgentPipeline = exports.scheduledDailyAgentPipeline = exports.runDailyAgentPipeline = exports.processSocialPost = exports.onNewWhatsAppMessage = exports.runSocialLeadMonitor = exports.onWhatsAppBotJob = exports.sendWhatsApp = exports.whatsappWebhookHandler = exports.scheduledExchangeRateSync = exports.getExchangeRates = exports.cancelPropertyAlert = exports.registerPropertyAlert = exports.onListingPublishedAlert = exports.onAnalyticsEvent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const cors = require("cors");
@@ -42,6 +42,12 @@ const whatsapp_send_1 = require("./whatsapp-send");
 const whatsapp_bot_1 = require("./whatsapp-bot");
 const social_monitor_1 = require("./social-monitor");
 admin.initializeApp();
+try {
+    admin.firestore().settings({ ignoreUndefinedProperties: true });
+}
+catch (_a) {
+    // Ignore if already configured
+}
 // Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
 var analytics_1 = require("./analytics");
 Object.defineProperty(exports, "onAnalyticsEvent", { enumerable: true, get: function () { return analytics_1.onAnalyticsEvent; } });
@@ -54,6 +60,10 @@ Object.defineProperty(exports, "onListingPublishedAlert", { enumerable: true, ge
 var property_alert_registration_1 = require("./property-alert-registration");
 Object.defineProperty(exports, "registerPropertyAlert", { enumerable: true, get: function () { return property_alert_registration_1.registerPropertyAlert; } });
 Object.defineProperty(exports, "cancelPropertyAlert", { enumerable: true, get: function () { return property_alert_registration_1.cancelPropertyAlert; } });
+// Dual-Currency FX Engine: Daily sync and callable exchange rates endpoint
+var exchange_rates_1 = require("./exchange-rates");
+Object.defineProperty(exports, "getExchangeRates", { enumerable: true, get: function () { return exchange_rates_1.getExchangeRates; } });
+Object.defineProperty(exports, "scheduledExchangeRateSync", { enumerable: true, get: function () { return exchange_rates_1.scheduledExchangeRateSync; } });
 const corsHandler = cors({ origin: true });
 // WhatsApp Webhook - receives incoming messages from Meta Cloud API
 // Must be publicly accessible for Meta to call it
@@ -91,7 +101,13 @@ const ADMIN_ROLES = [
     "lead_manager",
     "content_manager",
 ];
-const OWNER_ADMIN_EMAILS = ["nanthan77@gmail.com"];
+const OWNER_ADMIN_EMAILS = [
+    "nanthan77@gmail.com",
+    "info@yaalnilam.com",
+    "admin@yaalnilam.com",
+    "admin@safenetcreations.com",
+    "info@safenetcreations.com",
+];
 async function isAdminToken(token) {
     if (token.admin === true)
         return true;
@@ -211,7 +227,7 @@ exports.runDailyAgentPipeline = functions
     return (0, pipeline_1.runDailyAgentPipelineJob)(data);
 });
 /**
- * Scheduled Daily Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
+ * Scheduled Morning Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
  */
 exports.scheduledDailyAgentPipeline = functions
     .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
@@ -219,7 +235,19 @@ exports.scheduledDailyAgentPipeline = functions
     .schedule("0 9 * * *")
     .timeZone("Asia/Colombo")
     .onRun(async () => {
-    console.log("Running scheduled daily agent pipeline for Jaffna property leads");
+    console.log("Running morning daily agent pipeline for Jaffna property leads (09:00 AM)");
+    return (0, pipeline_1.runDailyAgentPipelineJob)({ limit: 25 });
+});
+/**
+ * Scheduled Evening Multi-Agent Ingestion Job (6:00 PM / 18:00 Colombo time daily)
+ */
+exports.scheduledEveningAgentPipeline = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+    .pubsub
+    .schedule("0 18 * * *")
+    .timeZone("Asia/Colombo")
+    .onRun(async () => {
+    console.log("Running evening daily agent pipeline for Jaffna property leads (06:00 PM)");
     return (0, pipeline_1.runDailyAgentPipelineJob)({ limit: 25 });
 });
 /**
@@ -297,5 +325,45 @@ exports.claimListingHandler = functions
             res.status(500).json({ error: (err === null || err === void 0 ? void 0 : err.message) || "Internal server error" });
         }
     });
+});
+// ============================================================================
+// YouTube Property Discovery Agent (Twice-Daily Scheduled & Callable)
+// ============================================================================
+const youtube_discovery_1 = require("./agents/youtube-discovery");
+/**
+ * Scheduled YouTube Property Discovery Agent
+ * Runs twice daily at 08:00 AM and 06:00 PM Asia/Colombo time
+ */
+exports.scheduledYouTubeDiscovery = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "RESEND_API_KEY"] })
+    .pubsub
+    .schedule("0 8,18 * * *")
+    .timeZone("Asia/Colombo")
+    .onRun(async () => {
+    console.log("Running scheduled twice-daily YouTube property discovery agent");
+    return (0, youtube_discovery_1.runYouTubeDiscoveryJob)();
+});
+/**
+ * Callable: Run YouTube Property Discovery on demand from admin dashboard
+ */
+exports.runYouTubeDiscoveryCallable = functions
+    .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "RESEND_API_KEY"] })
+    .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+        throw new functions.https.HttpsError("permission-denied", "Only admins can run YouTube property discovery");
+    }
+    return (0, youtube_discovery_1.runYouTubeDiscoveryJob)(data);
+});
+/**
+ * Callable: Send recent property discoveries email digest on demand
+ */
+exports.sendDiscoveryEmailDigestNow = functions
+    .runWith({ memory: "256MB", timeoutSeconds: 60, secrets: ["RESEND_API_KEY"] })
+    .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+        throw new functions.https.HttpsError("permission-denied", "Only admins can send email digests");
+    }
+    const limit = Number((data === null || data === void 0 ? void 0 : data.limit) || 15);
+    return (0, youtube_discovery_1.sendRecentDiscoveriesEmailDigest)(limit);
 });
 //# sourceMappingURL=index.js.map

@@ -1,116 +1,58 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useCallback } from 'react';
-import { Globe, Phone, Mail, BookOpen, Wrench, Search, MessageCircle } from 'lucide-react';
-import { useStore } from '@/lib/store';
-import { BRAND, CONTACT_EMAIL, CONTACT_FACEBOOK_URL } from '@/lib/brand';
-import { FooterAppLinks } from './FooterAppLinks';
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronDown, Globe, Mail, MessageCircle, Phone } from "lucide-react";
+import { useStore } from "@/lib/store";
+import type { Locale } from "@/lib/translations";
+import { BRAND, CONTACT_EMAIL, CONTACT_FACEBOOK_URL, buildBrandWhatsAppUrl, buildSupportWhatsAppUrl } from "@/lib/brand";
+import { FooterAppLinks } from "./FooterAppLinks";
 
-interface Column1Config {
-  titleEn: string;
-  titleTa: string;
-  taglineEn: string;
-  taglineTa: string;
+type FooterLink = { href: string; en: string; ta: string };
+type FooterGroup = { id: string; en: string; ta: string; links: FooterLink[] };
+
+const LINK_GROUPS: FooterGroup[] = [
+  { id: "properties", en: "Find a property", ta: "சொத்து தேடல்", links: [
+    { href: "/properties?type=house", en: "Houses", ta: "வீடுகள்" },
+    { href: "/properties?type=apartment", en: "Apartments", ta: "அபார்ட்மென்ட்கள்" },
+    { href: "/properties?type=villa", en: "Villas", ta: "வில்லாக்கள்" },
+    { href: "/properties?type=land", en: "Land & plots", ta: "காணிகள்" },
+    { href: "/properties?type=commercial", en: "Commercial", ta: "வணிகச் சொத்துகள்" },
+    { href: "/short-term-rental", en: "Short stays", ta: "குறுகிய தங்கல்" },
+  ] },
+  { id: "guides", en: "Guides", ta: "வழிகாட்டிகள்", links: [
+    { href: "/blog/jaffna-real-estate-market-trends", en: "Market guide", ta: "சந்தை வழிகாட்டி" },
+    { href: "/blog/buying-property-sri-lanka-diaspora", en: "Buying from overseas", ta: "வெளிநாட்டிலிருந்து வாங்க" },
+    { href: "/blog/interior-design-jaffna", en: "Design ideas", ta: "வடிவமைப்பு யோசனைகள்" },
+    { href: "/blog/best-property-services", en: "Local services", ta: "உள்ளூர் சேவைகள்" },
+    { href: "/blog", en: "All guides", ta: "அனைத்து வழிகாட்டிகள்" },
+  ] },
+  { id: "tools", en: "Tools & company", ta: "கருவிகள் & நிறுவனம்", links: [
+    { href: "/tools/land-size-converter", en: "Land size converter", ta: "நில அளவு மாற்றி" },
+    { href: "/tools/stamp-duty-calculator", en: "Stamp duty calculator", ta: "முத்திரைத்தாள் கணக்கீடு" },
+    { href: "/price-index", en: "Asking price guide", ta: "கேட்கும் விலை வழிகாட்டி" },
+    { href: "/about", en: "About us", ta: "எங்களைப் பற்றி" },
+    { href: "/contact", en: "Contact & help", ta: "தொடர்பு & உதவி" },
+  ] },
+];
+
+function GroupLinks({ group, locale }: { group: FooterGroup; locale: Locale }) {
+  return <ul className="yn-footer-links">{group.links.map(link => (
+    <li key={link.href}><Link href={link.href}>{locale === "ta" ? link.ta : link.en}</Link></li>
+  ))}</ul>;
 }
-
-interface PropertySearchConfig {
-  titleEn: string;
-  titleTa: string;
-  links: Array<{ href: string; labelEn: string; labelTa: string }>;
-}
-
-interface ResourceLinksConfig {
-  titleEn: string;
-  titleTa: string;
-  links: Array<{ href: string; labelEn: string; labelTa: string }>;
-}
-
-interface UtilityLinksConfig {
-  titleEn: string;
-  titleTa: string;
-  links: Array<{ href: string; labelEn: string; labelTa: string }>;
-}
-
-interface ContactConfig {
-  titleEn: string;
-  titleTa: string;
-  phone: string;
-  phoneTel: string;
-  supportWhatsapp: string;
-  supportWhatsappDigits: string;
-  botWhatsapp: string;
-  botWhatsappDigits: string;
-  email: string;
-}
-
-const BRAND_CONFIG: Column1Config = {
-  titleEn: 'Yaal Nilam',
-  titleTa: 'யாழ் நிலம்',
-  taglineEn: 'Your trusted hyper-local property marketplace in Jaffna and Northern Sri Lanka.',
-  taglineTa: 'யாழ்ப்பாணம் மற்றும் வட இலங்கையின் நம்பகமான சொத்து சந்தை.',
-};
-
-const PROPERTY_SEARCH: PropertySearchConfig = {
-  titleEn: 'Property Search',
-  titleTa: 'சொத்து தேடல்',
-  links: [
-    { href: '/properties?type=house', labelEn: 'Houses for Sale', labelTa: 'விற்பனைக்கு வீடுகள்' },
-    { href: '/properties?type=apartment', labelEn: 'Apartments for Sale', labelTa: 'விற்பனைக்கு அபார்ட்மென்ட்கள்' },
-    { href: '/properties?type=villa', labelEn: 'Villas & Luxury Homes', labelTa: 'சொகுசு வில்லாக்கள்' },
-    { href: '/properties?type=land', labelEn: 'Land & Plots for Sale', labelTa: 'விற்பனைக்கு நிலங்கள்' },
-    { href: '/properties?type=commercial', labelEn: 'Commercial Real Estate', labelTa: 'வணிகச் சொத்துக்கள்' },
-    { href: '/short-term-rental', labelEn: 'Short-Term Rentals', labelTa: 'குறுகிய கால வாடகை' },
-  ],
-};
-
-const RESOURCES_LINKS: ResourceLinksConfig = {
-  titleEn: 'Resources & Guides',
-  titleTa: 'வழிகாட்டிகள்',
-  links: [
-    { href: '/blog/jaffna-real-estate-market-trends', labelEn: '2026 Land Valuations', labelTa: '2026 நில மதிப்புகள்' },
-    { href: '/blog/buying-property-sri-lanka-diaspora', labelEn: 'Diaspora Land Purchase Laws', labelTa: 'வெளிநாட்டு தமிழர் சட்டங்கள்' },
-    { href: '/blog/interior-design-jaffna', labelEn: 'Jaffna Modern Interior Ideas', labelTa: 'உட்புற வடிவமைப்பு யோசனைகள்' },
-    { href: '/blog/best-property-services', labelEn: 'Best Local Services Directory', labelTa: 'சிறந்த சேவைகள் அடைவு' },
-    { href: '/blog', labelEn: 'All Expert Resource Guides', labelTa: 'அனைத்து வழிகாட்டிகள்' },
-  ],
-};
-
-const UTILITY_LINKS: UtilityLinksConfig = {
-  titleEn: 'Free Utilities & Tools',
-  titleTa: 'இலவச கருவிகள்',
-  links: [
-    { href: '/tools/land-size-converter', labelEn: 'Land Size Converter', labelTa: 'நில அளவீடு அலகுகள் மாற்றி' },
-    { href: '/tools/stamp-duty-calculator', labelEn: 'Stamp Duty & Notary Calculator', labelTa: 'முத்திரைத்தாள் கணக்கீடு' },
-    { href: '/price-index', labelEn: 'House Price Index', labelTa: 'விலைச் சுட்டெண்' },
-    { href: '/about', labelEn: 'About Yaal Nilam', labelTa: 'எங்களைப் பற்றி' },
-    { href: '/contact', labelEn: 'Contact Support & FAQ', labelTa: 'தொடர்பு / உதவிகள்' },
-  ],
-};
-
-const CONTACT_INFO: ContactConfig = {
-  titleEn: 'Customer Support & Contact',
-  titleTa: 'வாடிக்கையாளர் சேவை & தொடர்பு',
-  phone: BRAND.phoneDisplay,
-  phoneTel: BRAND.phoneTel,
-  supportWhatsapp: BRAND.supportWhatsappDisplay,
-  supportWhatsappDigits: BRAND.supportWhatsappDigits,
-  botWhatsapp: BRAND.botWhatsappDisplay,
-  botWhatsappDigits: BRAND.botWhatsappDigits,
-  email: CONTACT_EMAIL,
-};
 
 const FacebookIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+  <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
 );
 const InstagramIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
 );
 const TwitterIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
 );
 const YoutubeIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+  <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
 );
 
 const SOCIAL_LINKS = [
@@ -122,231 +64,78 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   const { locale, setLocale } = useStore();
+  const tamil = locale === "ta";
+  const supportMessage = tamil
+    ? "வணக்கம் Yaal Nilam வாடிக்கையாளர் சேவை, எனக்கு நேரடி உதவி தேவை."
+    : "Hi Yaal Nilam Customer Support, I need some assistance.";
+  const assistantMessage = tamil
+    ? "வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்."
+    : "Hi, I would like to get free property listings and information in Jaffna.";
 
-  const toggleLanguage = useCallback(() => {
-    setLocale(locale === 'en' ? 'ta' : 'en');
-  }, [locale, setLocale]);
-
-  const getLabel = (config: { labelEn?: string; labelTa?: string; titleEn?: string; titleTa?: string }) => {
-    if (locale === 'en') {
-      return config.labelEn || config.titleEn || '';
-    }
-    return config.labelTa || config.titleTa || '';
-  };
-
-  const copyrightText = locale === 'en'
-    ? '© 2026 Yaal Nilam. All rights reserved.'
-    : '© 2026 யாழ் நிலம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டுள்ளன.';
+  const contacts = [
+    { href: BRAND.phoneTel, icon: Phone, label: tamil ? "அழைக்கவும்" : "Call us", value: BRAND.phoneDisplay },
+    { href: buildSupportWhatsAppUrl(supportMessage), icon: MessageCircle, label: tamil ? "WhatsApp உதவி" : "Human support", value: BRAND.supportWhatsappDisplay, external: true },
+    { href: buildBrandWhatsAppUrl(assistantMessage), icon: MessageCircle, label: tamil ? "சொத்து உதவியாளர்" : "Property assistant", value: BRAND.botWhatsappDisplay, external: true },
+    { href: `mailto:${CONTACT_EMAIL}`, icon: Mail, label: tamil ? "மின்னஞ்சல்" : "Email us", value: CONTACT_EMAIL },
+  ];
 
   return (
-    <footer className="bg-[#0F2E25] text-sand-200 border-t border-[#D4A853]/20">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-6 md:gap-8">
-          
-          {/* Column 1: Brand */}
-          <div className="col-span-2 space-y-3 lg:col-span-1">
-            <div className="flex flex-col gap-3">
-              <Link href="/" className="inline-block bg-white rounded-xl p-3 w-fit shadow-sm" aria-label="Yaal Nilam — home">
-                <img src="/logo.png" alt="Yaal Nilam — Jaffna Real Estate" className="h-12 w-auto" />
-              </Link>
-              <p className="text-xs text-sand-300 leading-relaxed font-medium">
-                {locale === 'en' ? BRAND_CONFIG.taglineEn : BRAND_CONFIG.taglineTa}
-              </p>
-            </div>
-
-            {/* Social Icons */}
-            <div className="flex items-center gap-4 pt-2">
-              {SOCIAL_LINKS.map(social => (
-                <Link
-                  key={social.label}
-                  href={social.href}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-sand-200 hover:text-[#D4A853] transition-colors duration-200"
-                  aria-label={social.label}
-                >
-                  <social.icon />
-                </Link>
-              ))}
-            </div>
-
-            <FooterAppLinks locale={locale} />
-          </div>
-
-          {/* Column 2: Property Search */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <Search className="w-4 h-4 text-[#D4A853]" />
-              {getLabel(PROPERTY_SEARCH)}
-            </h4>
-            <ul className="space-y-0.5">
-              {PROPERTY_SEARCH.links.map(link => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="flex min-h-11 items-center text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold leading-relaxed"
-                  >
-                    {getLabel(link)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Resources & Guides */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[#D4A853]" />
-              {getLabel(RESOURCES_LINKS)}
-            </h4>
-            <ul className="space-y-0.5">
-              {RESOURCES_LINKS.links.map(link => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="flex min-h-11 items-center text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold leading-relaxed"
-                  >
-                    {getLabel(link)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 4: Free Utilities & Support */}
-          <div className="col-span-2 space-y-6 lg:col-span-1">
-            <div className="space-y-4">
-              <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-                <Wrench className="w-4 h-4 text-[#D4A853]" />
-                {getLabel(UTILITY_LINKS)}
-              </h4>
-              <ul className="space-y-0.5">
-                {UTILITY_LINKS.links.map(link => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="flex min-h-11 items-center text-sand-300 hover:text-white transition-colors duration-200 text-xs font-semibold leading-relaxed"
-                    >
-                      {getLabel(link)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Direct Contact info integrated */}
-            <div className="pt-4 border-t border-white/5 space-y-3">
-              <h5 className="text-[10px] font-black text-white uppercase tracking-wider">
-                {locale === 'en' ? CONTACT_INFO.titleEn : CONTACT_INFO.titleTa}
-              </h5>
-              <div className="grid gap-1 text-xs text-sand-300 font-bold sm:grid-cols-2 lg:grid-cols-1">
-                {/* 1. Direct Customer Service Call */}
-                <a
-                  href={CONTACT_INFO.phoneTel}
-                  className="hover:text-[#D4A853] transition flex min-h-11 items-center gap-1.5"
-                  title={locale === 'en' ? 'Call Customer Service' : 'வாடிக்கையாளர் சேவையை அழைக்க'}
-                >
-                  <Phone className="w-3.5 h-3.5 text-[#D4A853] shrink-0" />
-                  <span>
-                    <span className="text-sand-400 font-medium">{locale === 'en' ? 'Helpline: ' : 'அழைப்பு: '}</span>
-                    {CONTACT_INFO.phone}
-                  </span>
-                </a>
-
-                {/* 2. Real Human Support WhatsApp */}
-                <a
-                  href={`https://wa.me/${CONTACT_INFO.supportWhatsappDigits}?text=${encodeURIComponent(
-                    locale === 'ta'
-                      ? 'வணக்கம் Yaal Nilam வாடிக்கையாளர் சேவை, எனக்கு நேரடி உதவி தேவை.'
-                      : 'Hi Yaal Nilam Customer Support, I need some assistance.'
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#25D366] text-emerald-400 transition flex min-h-11 items-center gap-1.5"
-                  title={locale === 'en' ? 'Chat with Customer Support on WhatsApp' : 'வாடிக்கையாளர் சேவையுடன் WhatsApp-ல் உரையாட'}
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
-                  <span>
-                    <span className="text-sand-400 font-medium">{locale === 'en' ? 'Support WhatsApp: ' : 'உதவி WhatsApp: '}</span>
-                    {CONTACT_INFO.supportWhatsapp}
-                  </span>
-                </a>
-
-                {/* 3. Property assistant */}
-                <a
-                  href={`https://wa.me/${CONTACT_INFO.botWhatsappDigits}?text=${encodeURIComponent(
-                    locale === 'ta'
-                      ? 'வணக்கம், யாழ்ப்பாணத்தில் உள்ள சொத்துகளின் இலவச பட்டியல் மற்றும் விவரங்களை அறிய விரும்புகிறேன்.'
-                      : 'Hi, I would like to get free property listings and information in Jaffna.'
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#25D366] text-sand-300 hover:text-emerald-300 transition flex min-h-11 items-center gap-1.5"
-                  title={locale === 'en' ? 'WhatsApp property assistant' : 'WhatsApp சொத்து உதவியாளர்'}
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>
-                    <span className="text-emerald-400 font-semibold">{locale === 'en' ? 'Property assistant: ' : 'சொத்து உதவியாளர்: '}</span>
-                    {CONTACT_INFO.botWhatsapp}
-                  </span>
-                </a>
-
-                {/* 4. Official Email */}
-                <a
-                  href={`mailto:${CONTACT_INFO.email}`}
-                  className="hover:text-[#D4A853] transition flex min-h-11 items-center gap-1.5"
-                >
-                  <Mail className="w-3.5 h-3.5 text-[#D4A853] shrink-0" />
-                  <span>{CONTACT_INFO.email}</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
+    <footer className="yn-footer">
+      <div className="yn-footer-shell">
+        <div className="yn-footer-identity">
+          <Link href="/" className="yn-footer-brand" aria-label={tamil ? "யாழ் நிலம் — முகப்பு" : "Yaal Nilam — home"}>
+            <span className="yn-footer-mark"><Image src="/logo-mark.png" alt="" width={460} height={279} /></span>
+            <span><strong>{tamil ? "யாழ் நிலம்" : "Yaal Nilam"}</strong><small>{tamil ? "யாழ்ப்பாணம் & வட இலங்கை" : "Jaffna & Northern Sri Lanka"}</small></span>
+          </Link>
+          <FooterAppLinks locale={locale} />
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-white/5 bg-[#0a201a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-[11px] text-sand-400 font-semibold text-center sm:text-left">
-            {copyrightText}
-          </p>
+        <div className="yn-footer-main">
+          <nav className="yn-footer-navigation" aria-label={tamil ? "அடிக்குறிப்பு இணைப்புகள்" : "Footer navigation"}>
+            <div className="yn-footer-mobile-groups">
+              {LINK_GROUPS.map(group => (
+                <details className="yn-footer-disclosure" key={group.id}>
+                  <summary>{tamil ? group.ta : group.en}<ChevronDown size={16} aria-hidden="true" /></summary>
+                  <GroupLinks group={group} locale={locale} />
+                </details>
+              ))}
+            </div>
+            <div className="yn-footer-desktop-groups">
+              {LINK_GROUPS.map(group => (
+                <section key={group.id} aria-labelledby={`footer-${group.id}`}>
+                  <h2 id={`footer-${group.id}`}>{tamil ? group.ta : group.en}</h2>
+                  <GroupLinks group={group} locale={locale} />
+                </section>
+              ))}
+            </div>
+          </nav>
 
-          {/* Website credit */}
-          <a
-            href="https://safenetcreations.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex min-h-11 items-center gap-1.5 text-[11px] text-sand-400 font-semibold text-center hover:text-[#D4A853] transition-colors duration-200"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-3.5 h-3.5 text-[#D4A853] shrink-0"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="4.5" r="1.6" />
-              <path d="M12 6 L7 20" />
-              <path d="M12 6 L17 20" />
-              <path d="M9 13 H15" />
-            </svg>
-            {locale === 'en' ? 'Building digital homes — ' : 'டிஜிட்டல் இல்லங்களை உருவாக்குகிறோம் — '}
-            <span className="text-sand-200 group-hover:text-[#D4A853]">SafeNet Creations</span>
-          </a>
+          <section className="yn-footer-contact" aria-label={tamil ? "உதவி & தொடர்பு" : "Support & contact"}>
+            <h2>{tamil ? "உதவி & தொடர்பு" : "Get in touch"}</h2>
+            <div className="yn-footer-contact-grid">
+              {contacts.map(({ href, icon: Icon, label, value, external }) => (
+                <a key={href} href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined}>
+                  <Icon size={16} aria-hidden="true" />
+                  <span><small>{label}</small><span lang="en">{value}</span></span>
+                </a>
+              ))}
+            </div>
+          </section>
+        </div>
 
-          {/* Language Toggle */}
-          <button
-            onClick={toggleLanguage}
-            className="flex min-h-11 items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 text-[11px] font-bold text-sand-200 border border-white/10 shadow-sm"
-            aria-label={locale === 'en' ? 'Footer language: Tamil' : 'அடிக்குறிப்பு மொழி: English'}
-          >
-            <Globe className="w-3.5 h-3.5 text-[#D4A853]" />
-            {locale === 'en' ? 'English' : 'தமிழ்'}
+        <div className="yn-footer-bottom">
+          <div role="group" className="yn-footer-social" aria-label={tamil ? "சமூக வலைத்தளங்கள்" : "Social channels"}>
+            {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon /></a>)}
+          </div>
+          <button className="yn-footer-language" type="button" onClick={() => setLocale(tamil ? "en" : "ta")} aria-label={tamil ? "அடிக்குறிப்பு மொழி: English" : "Footer language: Tamil"}>
+            <Globe size={14} aria-hidden="true" /><span>{tamil ? "English" : "தமிழ்"}</span>
           </button>
+          <nav className="yn-footer-legal" aria-label={tamil ? "கொள்கைகள்" : "Policies"}>
+            <Link href="/privacy">{tamil ? "தனியுரிமை" : "Privacy"}</Link>
+            <Link href="/terms">{tamil ? "விதிமுறைகள்" : "Terms"}</Link>
+          </nav>
+          <a className="yn-footer-credit" href="https://safenetcreations.com" target="_blank" rel="noopener noreferrer" aria-label={tamil ? "SafeNet Creations உருவாக்கியது — புதிய தாவலில் திறக்கும்" : "Built by SafeNet Creations — opens in a new tab"}>SafeNet Creations</a>
+          <p className="yn-footer-copyright">© 2026 {tamil ? "யாழ் நிலம்" : "Yaal Nilam"}</p>
         </div>
       </div>
     </footer>

@@ -7,6 +7,11 @@ import { runWhatsAppBotJob } from "./whatsapp-bot";
 import { runSocialLeadMonitorJob } from "./social-monitor";
 
 admin.initializeApp();
+try {
+  admin.firestore().settings({ ignoreUndefinedProperties: true });
+} catch {
+  // Ignore if already configured
+}
 
 // Server-side listing counters (views / whatsapp_clicks) driven off analytics_events.
 export { onAnalyticsEvent } from "./analytics";
@@ -18,6 +23,9 @@ export { onListingPublishedAlert } from "./alerts";
 // Anonymous mobile/web buyer registration uses a private server-owned receipt so
 // the device can cancel only the alert group it created.
 export { registerPropertyAlert, cancelPropertyAlert } from "./property-alert-registration";
+
+// Dual-Currency FX Engine: Daily sync and callable exchange rates endpoint
+export { getExchangeRates, scheduledExchangeRateSync } from "./exchange-rates";
 
 const corsHandler = cors({ origin: true });
 
@@ -58,7 +66,13 @@ const ADMIN_ROLES = [
   "lead_manager",
   "content_manager",
 ];
-const OWNER_ADMIN_EMAILS = ["nanthan77@gmail.com"];
+const OWNER_ADMIN_EMAILS = [
+  "nanthan77@gmail.com",
+  "info@yaalnilam.com",
+  "admin@yaalnilam.com",
+  "admin@safenetcreations.com",
+  "info@safenetcreations.com",
+];
 
 async function isAdminToken(token: admin.auth.DecodedIdToken): Promise<boolean> {
   if (token.admin === true) return true;
@@ -206,7 +220,7 @@ export const runDailyAgentPipeline = functions
   });
 
 /**
- * Scheduled Daily Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
+ * Scheduled Morning Multi-Agent Ingestion Job (9:00 AM Colombo time daily)
  */
 export const scheduledDailyAgentPipeline = functions
   .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
@@ -214,7 +228,20 @@ export const scheduledDailyAgentPipeline = functions
   .schedule("0 9 * * *")
   .timeZone("Asia/Colombo")
   .onRun(async () => {
-    console.log("Running scheduled daily agent pipeline for Jaffna property leads");
+    console.log("Running morning daily agent pipeline for Jaffna property leads (09:00 AM)");
+    return runDailyAgentPipelineJob({ limit: 25 });
+  });
+
+/**
+ * Scheduled Evening Multi-Agent Ingestion Job (6:00 PM / 18:00 Colombo time daily)
+ */
+export const scheduledEveningAgentPipeline = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "WHATSAPP_ACCESS_TOKEN"] })
+  .pubsub
+  .schedule("0 18 * * *")
+  .timeZone("Asia/Colombo")
+  .onRun(async () => {
+    console.log("Running evening daily agent pipeline for Jaffna property leads (06:00 PM)");
     return runDailyAgentPipelineJob({ limit: 25 });
   });
 
@@ -311,3 +338,54 @@ export const claimListingHandler = functions
       }
     });
   });
+
+// ============================================================================
+// YouTube Property Discovery Agent (Twice-Daily Scheduled & Callable)
+// ============================================================================
+import { runYouTubeDiscoveryJob, sendRecentDiscoveriesEmailDigest } from "./agents/youtube-discovery";
+
+/**
+ * Scheduled YouTube Property Discovery Agent
+ * Runs twice daily at 08:00 AM and 06:00 PM Asia/Colombo time
+ */
+export const scheduledYouTubeDiscovery = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "RESEND_API_KEY"] })
+  .pubsub
+  .schedule("0 8,18 * * *")
+  .timeZone("Asia/Colombo")
+  .onRun(async () => {
+    console.log("Running scheduled twice-daily YouTube property discovery agent");
+    return runYouTubeDiscoveryJob();
+  });
+
+/**
+ * Callable: Run YouTube Property Discovery on demand from admin dashboard
+ */
+export const runYouTubeDiscoveryCallable = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300, secrets: ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "RESEND_API_KEY"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can run YouTube property discovery"
+      );
+    }
+    return runYouTubeDiscoveryJob(data);
+  });
+
+/**
+ * Callable: Send recent property discoveries email digest on demand
+ */
+export const sendDiscoveryEmailDigestNow = functions
+  .runWith({ memory: "256MB", timeoutSeconds: 60, secrets: ["RESEND_API_KEY"] })
+  .https.onCall(async (data, context) => {
+    if (!context.auth || !(await isAdminToken(context.auth.token))) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only admins can send email digests"
+      );
+    }
+    const limit = Number(data?.limit || 15);
+    return sendRecentDiscoveriesEmailDigest(limit);
+  });
+
